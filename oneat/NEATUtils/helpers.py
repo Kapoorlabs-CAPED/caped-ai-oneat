@@ -1124,12 +1124,12 @@ def saveimage(ColorimageStatic,ColorimageDynamic , xlocations, ylocations, tloca
                     if event_label == 5:
                         ColorimageStatic[Z, :, :, 2] = img[:, :, 0]
 
-def gold_nms(heatmap, classedboxes, event_name, event_label, downsamplefactor, iou_threshold, event_threshold, gridx, gridy, imaget, thresh):
+def gold_nms(heatmap, classedboxes, event_name, event_label, downsamplefactor, iou_threshold, event_threshold, gridx, gridy, fidelity):
 
                sorted_event_box = classedboxes[event_name][0]
                scores = [ sorted_event_box[i][event_name]  for i in range(len(sorted_event_box))]
                
-               good_sorted_event_box = goodboxes(sorted_event_box, scores, iou_threshold, event_threshold, event_name, 'dynamic', gridx, gridy, imaget, thresh)
+               good_sorted_event_box = goodboxes(sorted_event_box, scores, iou_threshold, event_threshold,  gridx, gridy, fidelity)
                filtered_good_sorted_event_box = []
                for iou_current_event_box in good_sorted_event_box:
                                                       xcenter = iou_current_event_box['xcenter']* downsamplefactor
@@ -1161,11 +1161,11 @@ def gold_nms(heatmap, classedboxes, event_name, event_label, downsamplefactor, i
 
 
 
-def dynamic_nms(heatmap, maskimage, classedboxes, event_name, downsamplefactor, iou_threshold, event_threshold, gridx, gridy, imaget, thresh):
+def dynamic_nms(heatmap, maskimage, classedboxes, event_name, downsamplefactor, iou_threshold, event_threshold, gridx, gridy, imaget, fidelity):
                 
                sorted_event_box = classedboxes[event_name][0]
                scores = [ sorted_event_box[i][event_name]  for i in range(len(sorted_event_box))]
-               good_sorted_event_box = goodboxes(sorted_event_box, scores, iou_threshold, event_threshold, event_name, 'dynamic', gridx, gridy, imaget, thresh)
+               good_sorted_event_box = goodboxes(sorted_event_box, scores, iou_threshold, event_threshold,  gridx, gridy, fidelity)
                
                filtered_good_sorted_event_box = []
                for iou_current_event_box in good_sorted_event_box:
@@ -1201,7 +1201,7 @@ def microscope_dynamic_nms( classedboxes, event_name, iou_threshold, event_thres
     
                sorted_event_box = classedboxes[event_name][0]
                scores = [ sorted_event_box[i][event_name]  for i in range(len(sorted_event_box))]
-               good_sorted_event_box = goodboxes(sorted_event_box, scores, iou_threshold, event_threshold, event_name, 'dynamic', gridx, gridy, imaget, fidelity)
+               good_sorted_event_box = goodboxes(sorted_event_box, scores, iou_threshold, event_threshold,  gridx, gridy, fidelity)
                scores = [ good_sorted_event_box[i][event_name]  for i in range(len(good_sorted_event_box))]
                best_sorted_event_box = averagenms(good_sorted_event_box, scores, iou_threshold, event_threshold, event_name, 'dynamic', gridx, gridy, imaget)
                
