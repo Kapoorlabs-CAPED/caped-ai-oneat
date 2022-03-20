@@ -28,7 +28,13 @@ class Concat(layers.Layer):
           self.axis = axis
           super(Concat, self).__init__(name = name)
 
-
+     def get_config(self):
+        config = super().get_config()
+        config.update({
+            "axis": self.axis,
+            "name": self.name,
+        })
+        return config
  
      def call(self, x):
 

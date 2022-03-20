@@ -1,17 +1,17 @@
-from ..NEATUtils import plotters
+from oneat.NEATUtils import plotters
 import numpy as np
-from ..NEATUtils import helpers
-from ..NEATUtils.helpers import get_nearest,  load_json, yoloprediction, normalizeFloatZeroOne, GenerateMarkers, GenerateMask, MakeTrees, DownsampleData,save_dynamic_csv, dynamic_nms, gold_nms
+from oneat.NEATUtils import helpers
+from oneat.NEATUtils.helpers import get_nearest,  load_json, yoloprediction, normalizeFloatZeroOne, GenerateMarkers, GenerateMask, MakeTrees, DownsampleData,save_dynamic_csv, dynamic_nms, gold_nms
 from keras import callbacks
 import os
 import math
-import tensorflow as tf
 from tqdm import tqdm
-from ..NEATModels import nets
-from ..NEATModels.nets import Concat
-from ..NEATModels.loss import dynamic_yolo_loss
+from oneat.NEATModels import nets
+from oneat.NEATModels.nets import Concat
+from oneat.NEATModels.loss import dynamic_yolo_loss
 from keras import backend as K
-from keras import optimizers
+import tensorflow as tf
+from tensorflow.keras import optimizers
 from pathlib import Path
 from keras.models import load_model
 from tifffile import imread, imwrite
@@ -323,7 +323,7 @@ class NEATDynamic(object):
                 self.markers, self.watershed, self.mask = GenerateMarkers(self.image, self.starmodel, self.maskmodel, self.n_tiles)
                 self.markerdir = self.savedir + '/' + 'Markers'
                 self.watersheddir = self.savedir + '/' + 'Watershed'
-                self.maskdir = self.savedir + '/' + 'Mask
+                self.maskdir = self.savedir + '/' + 'Mask'
                 Path(self.markerdir).mkdir(exist_ok=True)
                 Path(self.watersheddir).mkdir(exist_ok=True)
                 Path(self.maskdir).mkdir(exist_ok=True)

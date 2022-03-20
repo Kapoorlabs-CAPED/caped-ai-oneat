@@ -12,17 +12,17 @@ Created on Sun Apr 25 13:32:04 2021
 
 @author: vkapoor
 """
-from ..NEATUtils import plotters
+from oneat.NEATUtils import plotters
 import numpy as np
-from ..NEATUtils import helpers
-from ..NEATUtils.helpers import load_json, yoloprediction, normalizeFloatZeroOne, fastnms, averagenms
+from oneat.NEATUtils import helpers
+from oneat.NEATUtils.helpers import load_json, yoloprediction, normalizeFloatZeroOne, fastnms, averagenms
 from keras import callbacks
 import os
 import tensorflow as tf
 import time
-from ..NEATModels import nets
-from ..NEATModels.nets import Concat
-from ..NEATModels.loss import static_yolo_loss_segfree
+from oneat.NEATModels import nets
+from oneat.NEATModels.nets import Concat
+from oneat.NEATModels.loss import static_yolo_loss_segfree
 from tqdm import tqdm
 # from IPython.display import clear_output
 from keras import optimizers

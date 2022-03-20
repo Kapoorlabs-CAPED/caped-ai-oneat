@@ -6,17 +6,17 @@ Created on Sat May 23 15:13:01 2020
 @author: aimachine
 """
 
-from ..NEATUtils import plotters
+from oneat.NEATUtils import plotters
 import numpy as np
-from ..NEATUtils import helpers
-from ..NEATUtils.helpers import save_json, load_json, yoloprediction, nonfcn_yoloprediction, normalizeFloatZeroOne, \
+from oneat.NEATUtils import helpers
+from oneat.NEATUtils.helpers import save_json, load_json, yoloprediction, nonfcn_yoloprediction, normalizeFloatZeroOne, \
     fastnms, twod_zero_pad, averagenms, save_static_csv, DownsampleData
 from keras import callbacks
 import os
 from tqdm import tqdm
-from ..NEATModels import nets
-from ..NEATModels.nets import Concat
-from ..NEATModels.loss import static_yolo_loss, static_yolo_loss_segfree
+from oneat.NEATModels import nets
+from oneat.NEATModels.nets import Concat
+from oneat.NEATModels.loss import static_yolo_loss, static_yolo_loss_segfree
 from keras import backend as K
 import tensorflow as tf
 # from IPython.display import clear_output

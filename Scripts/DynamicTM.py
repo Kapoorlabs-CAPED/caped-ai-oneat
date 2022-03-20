@@ -1,6 +1,7 @@
 import sys
 import os
 from glob import glob
+sys.path.append("../oneat")
 from oneat.NEATModels import NEATDynamic, nets
 from oneat.NEATModels.config import dynamic_config
 from oneat.NEATUtils import helpers
@@ -10,18 +11,18 @@ os.environ["HDF5_USE_FILE_LOCKING"] = "FALSE"
 
 
 
-npz_directory = '/data/u934/service_imagerie/v_kapoor/CurieTrainingDatasets/oneatnpz/'
-npz_name = 'Cellsplitdetectorm4p6.npz'
-npz_val_name = 'Cellsplitdetectorm4p6val.npz'
+npz_directory = '/gpfsstore/rech/jsy/uzj81mi/Oneat_Data/'
+npz_name = 'Cellsplithelaflou.npz'
+npz_val_name = 'Cellsplithelaflouval.npz'
 
 #Read and Write the h5 file, directory location and name
-model_dir =  '/data/u934/service_imagerie/v_kapoor/CurieDeepLearningModels/WinnerOneatModels/'
-model_name = 'Cellsplitdetectorm4p6.h5'
+model_dir =  '/gpfsstore/rech/jsy/uzj81mi/Oneat_Data/'
+model_name = 'Cellsplitdetectorfloud29s32.h5'
 
 #Neural network parameters
-division_categories_json = model_dir + 'Cellsplitcategories.json'
+division_categories_json = model_dir + 'Cellsplithelafloucategories.json'
 key_categories = load_json(division_categories_json)
-division_cord_json = model_dir + 'Cellsplitcord.json'
+division_cord_json = model_dir + 'Cellsplithelafloucord.json'
 key_cord = load_json(division_cord_json)
 
 #For ORNET use residual = True and for OSNET use residual = False
@@ -45,12 +46,12 @@ epochs = 250
 nboxes = 1
 #The inbuilt model stride which is equal to the nulber of times image was downsampled by the network
 show = False
-stage_number = 3
-last_conv_factor = 4
-size_tminus = 4
-size_tplus = 6
-imagex = 64
-imagey = 64
+stage_number = 4
+last_conv_factor = 5
+size_tminus = 2
+size_tplus = 2
+imagex = 128
+imagey = 128
 yolo_v0 = False
 yolo_v1 = True
 yolo_v2 = False

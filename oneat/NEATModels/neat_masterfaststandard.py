@@ -6,19 +6,19 @@ Created on Mon Jun 28 13:49:35 2021
 @author: vkapoor
 """
 
-from ..NEATUtils import plotters
+from oneat.NEATUtils import plotters
 import numpy as np
-from ..NEATUtils import helpers
-from ..NEATUtils.helpers import save_json, load_json, yoloprediction, normalizeFloatZeroOne, GenerateMarkers, \
+from oneat.NEATUtils import helpers
+from oneat.NEATUtils.helpers import save_json, load_json, yoloprediction, normalizeFloatZeroOne, GenerateMarkers, \
     DensityCounter, MakeTrees, nonfcn_yoloprediction, fastnms, averagenms
 from keras import callbacks
 import os
 import math
 import tensorflow as tf
 from tqdm import tqdm
-from ..NEATModels import nets
-from ..NEATModels.nets import Concat
-from ..NEATModels.loss import dynamic_yolo_loss
+from oneat.NEATModels import nets
+from oneat.NEATModels.nets import Concat
+from oneat.NEATModels.loss import dynamic_yolo_loss
 from keras import backend as K
 # from IPython.display import clear_output
 from keras import optimizers
