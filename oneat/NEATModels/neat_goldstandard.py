@@ -638,7 +638,7 @@ class NEATDynamic(object):
             if event_label == 0:
 
                #best_sorted_event_box = self.classedboxes[event_name][0]
-               best_sorted_event_box = dynamic_nms(self.heatmap,self.maskimage, self.originalimage, self.classedboxes, event_name, event_label, self.downsamplefactor, self.iou_threshold, self.event_threshold, self.imagex, self.imagey, self.imaget, self.fidelity )
+               best_sorted_event_box = dynamic_nms(self.heatmap,self.maskimage, self.classedboxes, event_name,  self.downsamplefactor, self.iou_threshold, self.event_threshold, self.imagex, self.imagey, self.imaget, self.fidelity )
 
                best_iou_classedboxes[event_name] = [best_sorted_event_box]
 
@@ -654,10 +654,10 @@ class NEATDynamic(object):
 
                #best_sorted_event_box = self.classedboxes[event_name][0]
                if self.remove_markers is not None:
-                   best_sorted_event_box = gold_nms(self.heatmap,self.maskimage, self.originalimage, self.classedboxes, event_name, event_label, 1, self.iou_threshold, self.event_threshold, self.imagex, self.imagey, self.imaget, 1 )
+                   best_sorted_event_box = gold_nms(self.heatmap, self.classedboxes, event_name, 1, self.iou_threshold, self.event_threshold, self.imagex, self.imagey, self.imaget, 1 )
 
                if self.remove_markers == None:
-                   best_sorted_event_box = dynamic_nms(self.heatmap,self.maskimage, self.originalimage, self.classedboxes, event_name, event_label, self.downsamplefactor, self.iou_threshold, self.event_threshold, self.imagex, self.imagey, self.imaget, self.fidelity )
+                   best_sorted_event_box = dynamic_nms(self.heatmap,self.maskimage,  self.classedboxes, event_name,  self.downsamplefactor, self.iou_threshold, self.event_threshold, self.imagex, self.imagey, self.imaget, self.fidelity )
 
 
                best_iou_classedboxes[event_name] = [best_sorted_event_box]
