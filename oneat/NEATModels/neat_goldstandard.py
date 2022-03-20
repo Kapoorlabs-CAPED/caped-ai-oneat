@@ -335,13 +335,14 @@ class NEATDynamic(object):
 
         return self.markers, self.marker_tree, self.watershed, self.mask
 
-    def predict(self, image,  savedir, n_tiles=(1, 1), overlap_percent=0.8,
+    def predict(self, imagename,  savedir, n_tiles=(1, 1), overlap_percent=0.8,
                 event_threshold=0.5, iou_threshold=0.1,  fidelity=5, downsamplefactor = 1, 
                 maskfilter = 10, markers = None, marker_tree = None, watershed = None, maskimage = None, remove_markers = True):
 
         self.watershed = watershed
         self.maskimage = maskimage
-        self.image = image
+        self.imagename = imagename
+        self.image = imread(imagename)
         self.maskfilter = maskfilter
         if self.maskimage is not None:
           self.maskimage = ndimage.minimum_filter(self.maskimage, size = self.maskfilter)
@@ -356,11 +357,7 @@ class NEATDynamic(object):
         self.event_threshold = event_threshold
         self.downsamplefactor = downsamplefactor
         self.originalimage = self.image
-        f = h5py.File(self.model_dir + self.model_name + '.h5', 'r+')
-        data_p = f.attrs['training_config']
-        data_p = data_p.decode().replace("learning_rate", "lr").encode()
-        f.attrs['training_config'] = data_p
-        f.close()
+       
         self.model = load_model(self.model_dir + self.model_name + '.h5',
                                 custom_objects={'loss': self.yololoss, 'Concat': Concat})
 
@@ -374,7 +371,7 @@ class NEATDynamic(object):
            self.first_pass_predict()
         if self.remove_markers == False:  
            self.second_pass_predict()
-        if self.remove_makers == None:
+        if self.remove_markers == None:
            self.default_pass_predict() 
 
     def default_pass_predict(self):

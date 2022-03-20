@@ -1428,8 +1428,8 @@ def predictionloop(j, k, sx, sy, nboxes, stride, time_prediction, config, key_ca
     tcenter = 0
     boxtcenter = 0
     confidencemean = 0
-    trainshapex = config['gridx']
-    trainshapey = config['gridy']
+    trainshapex = config['imagex']
+    trainshapey = config['imagey']
     tcenterraw = 0
     for b in range(0, nboxes):
         xcenter = xstart + prediction_vector[total_classes + config['x'] + b * total_coords] * trainshapex
@@ -1552,8 +1552,8 @@ def focpredictionloop(j, k, sx, sy, nboxes, stride, time_prediction, config, key
     for (event_name, event_label) in key_categories.items():
         Class[event_name] = prediction_vector[event_label]
 
-    trainshapex = config['gridx']
-    trainshapey = config['gridy']
+    trainshapex = config['imagex']
+    trainshapey = config['imagey']
 
     xcentermean = xstart + 0.5 * trainshapex
     ycentermean = ystart + 0.5 * trainshapey
