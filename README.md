@@ -56,10 +56,19 @@ pipenv run jupyter notebook
 
 oneat comes with different options to combine segmentation with classification or to just use classification independently of any segmentation during the model prediction step. We summarize this in the table below:
 
-| Example Dataset | Description  | Trained Model | Notebook Code | Heat Map  | Csv output  | Visualization Notebook |
-| --- | --- |--- | --- |--- | --- |--- |
-| <img src="https://github.com/kapoorlab/vollseg-napari/blob/main/vollseg_napari/images/Ascadian_raw.png"  title="Raw Ascadian Embryo" width="200">| Light sheet fused from four angles 3D single channel| [Training Data ~320 GB](https://figshare.com/articles/dataset/Astec-half-Pm1_Cut_at_2-cell_stage_half_Phallusia_mammillata_embryo_live_SPIM_imaging_stages_6-16_/11309570?backTo=/s/765d4361d1b073beedd5)| [UNET model](https://zenodo.org/record/6337699) |<img src="https://github.com/kapoorlab/vollseg-napari/blob/main/vollseg_napari/images/Ascadian_GT.png" title="GT Ascadian Embryo" width="200"> | UNET model, slice_merge = False | [Colab Notebook](https://github.com/kapoorlab/VollSeg/blob/main/examples/Predict/Colab_VollSeg_Ascadian_Embryo.ipynb) |<img src="https://github.com/kapoorlab/vollseg-napari/blob/main/vollseg_napari/images/Ascadian_pred.png" title="Prediction Ascadian Embryo" width="200" > | <img src="https://github.com/kapoorlab/vollseg-napari/blob/main/vollseg_napari/images/Metrics_Ascadian.png" title="Metrics Ascadian Embryo" width="200" >  |
-
+| Example Dataset | Description  | DataSet | Trained Model | Notebook Code | Heat Map  | Csv output  | Visualization Notebook |
+| --- | --- |--- | --- |--- | --- |--- |--- |
+| <img src="https://github.com/Kapoorlabs-CAPED/CAPED-AI-oneat/blob/main/images/ch_0_crop.png"  title="Low Contrast DPC (Digital Phase Contrast)" width="200">| [Example timelapse]()| [Oneat model]() [Colab Notebook]() |[Heat Map]() |[Csv File]()  | [Napari notebook (local)]|
+| --- | --- |--- | --- |--- | --- |--- |--- |
+| <img src="https://github.com/Kapoorlabs-CAPED/CAPED-AI-oneat/blob/main/images/ch_1_crop.png"  title="High Contrast DPC (Digital Phase Contrast)" width="200">| [Example timelapse]()| [Oneat model]() [Colab Notebook]() |[Heat Map]() |[Csv File]()  | [Napari notebook (local)]|
+| --- | --- |--- | --- |--- | --- |--- |--- |
+| <img src="https://github.com/Kapoorlabs-CAPED/CAPED-AI-oneat/blob/main/images/ch_3_crop.png"  title="EGFP-α-tubulin" width="200">| [Example timelapse]()| [Oneat model]() [Colab Notebook]() |[Heat Map]() |[Csv File]()  | [Napari notebook (local)]|
+| --- | --- |--- | --- |--- | --- |--- |--- |
+| <img src="https://github.com/Kapoorlabs-CAPED/CAPED-AI-oneat/blob/main/images/ch_4_crop.png"  title="mCherry-H2B" width="200">| [Example timelapse]()| [Oneat model]() [Colab Notebook]() |[Heat Map]() |[Csv File]()  | [Napari notebook (local)]|
+| --- | --- |--- | --- |--- | --- |--- |--- |
+| <img src="https://github.com/Kapoorlabs-CAPED/CAPED-AI-oneat/blob/main/images/ch_5_crop.png"  title="Flou" width="200">| [Example timelapse]()| [Oneat model]() [Colab Notebook]() |[Heat Map]() |[Csv File]()  | [Napari notebook (local)]|
+| --- | --- |--- | --- |--- | --- |--- |--- |
+| <img src="https://github.com/Kapoorlabs-CAPED/CAPED-AI-oneat/blob/main/images/ch_2_crop.png"  title="Brightfield" width="200">| [Example timelapse]()| [Oneat model]() [Colab Notebook]() |[Heat Map]() |[Csv File]()  | [Napari notebook (local)]|
 ## Troubleshooting & Support
 
 - The [image.sc forum](https://forum.image.sc/tag/oneat) is the best place to start getting help and support. Make sure to use the tag `oneat`, since we are monitoring all questions with this tag.
