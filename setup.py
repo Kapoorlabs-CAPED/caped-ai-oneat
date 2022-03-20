@@ -12,7 +12,7 @@ setup(
 
     author='Varun Kapoor',
     author_email='randomaccessiblekapoor@gmail.com',
-    url='https://github.com/Kapoorlabs-paris/Yoloneat/',
+    url='https://github.com/Kapoorlabs-CAPED/CAPED-AI-oneat/',
     description='Static and Dynamic classification tool.',
     long_description=long_description,
     long_description_content_type='text/markdown',
