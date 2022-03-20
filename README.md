@@ -56,8 +56,8 @@ pipenv run jupyter notebook
 
 oneat comes with different options to combine segmentation with classification or to just use classification independently of any segmentation during the model prediction step. We summarize this in the table below:
 
-| Example Dataset | Description  | DataSet | Trained Model | Notebook Code | Heat Map  | Csv output  | Visualization Notebook |
-| --- | --- |--- | --- |--- | --- |--- |--- |
+| Example Dataset   | DataSet | Trained Model | Notebook Code | Heat Map  | Csv output  | Visualization Notebook |
+| --- |--- | --- |--- | --- |--- |--- |
 | <img src="https://github.com/Kapoorlabs-CAPED/CAPED-AI-oneat/blob/main/images/ch_0_crop.png"  title="Low Contrast DPC (Digital Phase Contrast)" width="200">| [Example timelapse](https://zenodo.org/record/6371249/files/20210904_TL2%20-%20R05-C03-F0_ch_0.tif)| [Oneat model]() | [Colab Notebook]() |[Heat Map]() |[Csv File]()  | [Napari notebook (local)]|
 | --- | --- |--- | --- |--- | --- |--- |--- |
 | <img src="https://github.com/Kapoorlabs-CAPED/CAPED-AI-oneat/blob/main/images/ch_1_crop.png"  title="High Contrast DPC (Digital Phase Contrast)" width="200">| [Example timelapse](https://zenodo.org/record/6371249/files/20210904_TL2%20-%20R05-C03-F0_ch_1.tif)| [Oneat model]() | [Colab Notebook]() |[Heat Map]() |[Csv File]()  | [Napari notebook (local)]|
