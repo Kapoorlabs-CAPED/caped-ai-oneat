@@ -58,17 +58,15 @@ oneat comes with different options to combine segmentation with classification o
 
 | Example Dataset   | DataSet | Trained Model | Notebook Code | Heat Map  | Csv output  | Visualization Notebook |
 | --- |--- | --- |--- | --- |--- |--- |
-| <img src="https://github.com/Kapoorlabs-CAPED/CAPED-AI-oneat/blob/main/images/ch_0_crop.png"  title="Low Contrast DPC (Digital Phase Contrast)" width="200">| [Example timelapse](https://zenodo.org/record/6371249/files/20210904_TL2%20-%20R05-C03-F0_ch_0.tif)| [Oneat model]() | [Colab Notebook]() |[Heat Map]() |[Csv File]()  | [Napari notebook (local)]|
-| --- | --- |--- | --- |--- | --- |--- |--- |
-| <img src="https://github.com/Kapoorlabs-CAPED/CAPED-AI-oneat/blob/main/images/ch_1_crop.png"  title="High Contrast DPC (Digital Phase Contrast)" width="200">| [Example timelapse](https://zenodo.org/record/6371249/files/20210904_TL2%20-%20R05-C03-F0_ch_1.tif)| [Oneat model]() | [Colab Notebook]() |[Heat Map]() |[Csv File]()  | [Napari notebook (local)]|
-| --- | --- |--- | --- |--- | --- |--- |--- |
-| <img src="https://github.com/Kapoorlabs-CAPED/CAPED-AI-oneat/blob/main/images/ch_3_crop.png"  title="EGFP-α-tubulin" width="200">| [Example timelapse](https://zenodo.org/record/6371249/files/20210904_TL2%20-%20R05-C03-F0_ch_3.tif)| [Oneat model]() | [Colab Notebook]() |[Heat Map]() |[Csv File]()  | [Napari notebook (local)]|
-| --- | --- |--- | --- |--- | --- |--- |--- |
-| <img src="https://github.com/Kapoorlabs-CAPED/CAPED-AI-oneat/blob/main/images/ch_4_crop.png"  title="mCherry-H2B" width="200">| [Example timelapse](https://zenodo.org/record/6371249/files/20210904_TL2%20-%20R05-C03-F0_ch_4.tif)| [Oneat model]() | [Colab Notebook]() |[Heat Map]() |[Csv File]()  | [Napari notebook (local)]|
-| --- | --- |--- | --- |--- | --- |--- |--- |
-| <img src="https://github.com/Kapoorlabs-CAPED/CAPED-AI-oneat/blob/main/images/ch_5_crop.png"  title="Flou" width="200">| [Example timelapse](https://zenodo.org/record/6371249/files/20210904_TL2%20-%20R05-C03-F0_ch_5.tif)| [Oneat model]() | [Colab Notebook]() |[Heat Map]() |[Csv File]()  | [Napari notebook (local)]|
-| --- | --- |--- | --- |--- | --- |--- |--- |
-| <img src="https://github.com/Kapoorlabs-CAPED/CAPED-AI-oneat/blob/main/images/ch_2_crop.png"  title="Brightfield" width="200">| [Example timelapse](https://zenodo.org/record/6371249/files/20210904_TL2%20-%20R05-C03-F0_ch_2.tif)| [Oneat model]() | [Colab Notebook]() |[Heat Map]() |[Csv File]()  | [Napari notebook (local)]|
+| <img src="https://github.com/Kapoorlabs-CAPED/CAPED-AI-oneat/blob/main/images/ch_0_crop.png"  title="Low Contrast DPC (Digital Phase Contrast)" width="200">| [Example timelapse](https://zenodo.org/record/6371249/files/20210904_TL2%20-%20R05-C03-F0_ch_0.tif)| [Oneat model]() | [Colab Notebook]() |[Heat Map]() |[Csv File]()  | [Napari notebook (local)|
+
+| <img src="https://github.com/Kapoorlabs-CAPED/CAPED-AI-oneat/blob/main/images/ch_1_crop.png"  title="High Contrast DPC (Digital Phase Contrast)" width="200">| [Example timelapse](https://zenodo.org/record/6371249/files/20210904_TL2%20-%20R05-C03-F0_ch_1.tif)| [Oneat model]() | [Colab Notebook]() |[Heat Map]() |[Csv File]()  | [Napari notebook (local)|
+
+| <img src="https://github.com/Kapoorlabs-CAPED/CAPED-AI-oneat/blob/main/images/ch_3_crop.png"  title="EGFP-α-tubulin" width="200">| [Example timelapse](https://zenodo.org/record/6371249/files/20210904_TL2%20-%20R05-C03-F0_ch_3.tif)| [Oneat model]() | [Colab Notebook]() |[Heat Map]() |[Csv File]()  | [Napari notebook (local)|
+| <img src="https://github.com/Kapoorlabs-CAPED/CAPED-AI-oneat/blob/main/images/ch_4_crop.png"  title="mCherry-H2B" width="200">| [Example timelapse](https://zenodo.org/record/6371249/files/20210904_TL2%20-%20R05-C03-F0_ch_4.tif)| [Oneat model]() | [Colab Notebook]() |[Heat Map]() |[Csv File]()  | [Napari notebook (local)|
+| <img src="https://github.com/Kapoorlabs-CAPED/CAPED-AI-oneat/blob/main/images/ch_5_crop.png"  title="Flou" width="200">| [Example timelapse](https://zenodo.org/record/6371249/files/20210904_TL2%20-%20R05-C03-F0_ch_5.tif)| [Oneat model]() | [Colab Notebook]() |[Heat Map]() |[Csv File]()  | [Napari notebook (local)|
+
+| <img src="https://github.com/Kapoorlabs-CAPED/CAPED-AI-oneat/blob/main/images/ch_2_crop.png"  title="Brightfield" width="200">| [Example timelapse](https://zenodo.org/record/6371249/files/20210904_TL2%20-%20R05-C03-F0_ch_2.tif)| [Oneat model]() | [Colab Notebook]() |[Heat Map]() |[Csv File]()  | [Napari notebook (local)|
 ## Troubleshooting & Support
 
 - The [image.sc forum](https://forum.image.sc/tag/oneat) is the best place to start getting help and support. Make sure to use the tag `oneat`, since we are monitoring all questions with this tag.
