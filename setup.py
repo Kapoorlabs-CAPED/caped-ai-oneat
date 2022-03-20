@@ -25,7 +25,7 @@ setup(
         "tifffile",
         "matplotlib",
         "imagecodecs",
-        "napari",
+        "napari[all]",
         "diplib",
         "opencv-python" 
        
