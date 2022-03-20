@@ -865,7 +865,7 @@ def getmeanbox(box1, box2, event_name, event_type, gridx, gridy, imaget):
     
 
 def goodboxes(boxes, scores, nms_threshold, score_threshold, gridx, gridy,
-               thresh=1):
+               fidelity=1):
     if len(boxes) == 0:
         return []
 
@@ -908,7 +908,7 @@ def goodboxes(boxes, scores, nms_threshold, score_threshold, gridx, gridy,
                 # if there is sufficient overlap, suppress the current bounding box
                 if overlap > abs(nms_threshold):
                         count = count + 1
-                        if count >= thresh:
+                        if count >= fidelity:
                             
                             if boxes[j] not in Averageboxes:    
                                Averageboxes.append(boxes[j])
@@ -1197,11 +1197,11 @@ def dynamic_nms(heatmap, maskimage, classedboxes, event_name, downsamplefactor, 
                return best_sorted_event_box
            
 
-def microscope_dynamic_nms( classedboxes, event_name, iou_threshold, event_threshold, gridx, gridy, imaget, thresh):
+def microscope_dynamic_nms( classedboxes, event_name, iou_threshold, event_threshold, gridx, gridy, imaget, fidelity):
     
                sorted_event_box = classedboxes[event_name][0]
                scores = [ sorted_event_box[i][event_name]  for i in range(len(sorted_event_box))]
-               good_sorted_event_box = goodboxes(sorted_event_box, scores, iou_threshold, event_threshold, event_name, 'dynamic', gridx, gridy, imaget, thresh)
+               good_sorted_event_box = goodboxes(sorted_event_box, scores, iou_threshold, event_threshold, event_name, 'dynamic', gridx, gridy, imaget, fidelity)
                scores = [ good_sorted_event_box[i][event_name]  for i in range(len(good_sorted_event_box))]
                best_sorted_event_box = averagenms(good_sorted_event_box, scores, iou_threshold, event_threshold, event_name, 'dynamic', gridx, gridy, imaget)
                

@@ -31,7 +31,7 @@ import cv2
 import imageio
 from PIL import Image
 import matplotlib.pyplot as plt
-from .neat_goldstandard import NEATDynamic
+from oneat.NEATModels.neat_goldstandard import NEATDynamic
 
 class NEATPredict(NEATDynamic):
     
@@ -45,7 +45,7 @@ class NEATPredict(NEATDynamic):
                 Z_start, downsample=1,
                 event_label_interest=1, fileextension='*TIF', nb_prediction=3, n_tiles=(1, 1), Z_n_tiles=(1, 2, 2),
                 overlap_percent=0.6, event_threshold=0.5, iou_threshold=0.01, projection_model=None, delay_projection=4,
-                thresh=4, jumpindex = 1):
+                fidelity=4, jumpindex = 1):
 
         self.imagedir = imagedir
         self.basedirResults = self.imagedir + '/' + "live_results"
@@ -59,7 +59,7 @@ class NEATPredict(NEATDynamic):
         self.Z_imagedir = Z_imagedir
         self.start = start
         self.jumpindex = jumpindex
-        self.thresh = thresh
+        self.fidelity = fidelity
         self.event_label_interest = event_label_interest
         self.Z_start = Z_start
         self.projection_model = projection_model
@@ -238,7 +238,7 @@ class NEATPredict(NEATDynamic):
         for (event_name,event_label) in self.key_categories.items():
             if event_label > 0:
                
-               best_sorted_event_box = microscope_dynamic_nms( self.classedboxes, event_name, self.downsample, self.iou_threshold, self.event_threshold, self.imagex, self.imagey, self.imaget, self.thresh)
+               best_sorted_event_box = microscope_dynamic_nms( self.classedboxes, event_name, self.downsample, self.iou_threshold, self.event_threshold, self.imagex, self.imagey, self.imaget, self.fidelity)
                
                
                best_iou_classedboxes[event_name] = [best_sorted_event_box]

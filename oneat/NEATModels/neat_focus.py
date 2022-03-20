@@ -267,7 +267,7 @@ class NEATFocus(object):
     
         
         
-    def predict(self,imagename, savedir, interest_event, n_tiles = (1,1), overlap_percent = 0.8, event_threshold = 0, iou_threshold = 0.0001, radius = 10):
+    def predict(self,imagename, savedir, n_tiles = (1,1), overlap_percent = 0.8, event_threshold = 0.5, iou_threshold = 0.0001, radius = 10):
         
         self.imagename = imagename
         self.image = imread(imagename)
@@ -280,7 +280,6 @@ class NEATFocus(object):
         self.radius = radius
         self.savedir = savedir
         self.n_tiles = n_tiles
-        self.interest_event = interest_event
         self.overlap_percent = overlap_percent
         self.iou_threshold = iou_threshold
         self.event_threshold = event_threshold
@@ -361,7 +360,6 @@ class NEATFocus(object):
                                 self.nms()
                                 self.to_csv()
                                 self.draw()
-                                #self.createMask()
                                 eventboxes = []
                                 classedboxes = {}    
                                                             
