@@ -634,7 +634,7 @@ def compare_function_sec(box1, box2, gridx, gridy):
             yA = max(box1['ycenter'] - r2, box2['ycenter'] - r2)
             yB = min(box1['ycenter'] + r1, box2['ycenter'] + r2)
 
-            intersect = max(xB - xA + 1) * max(0, yB - yA + 1)
+            intersect = max(0, xB - xA + 1) * max(0, yB - yA + 1)
 
             union = (xB - xA + 1) * (yB - yA + 1)
 
