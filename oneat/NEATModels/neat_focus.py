@@ -1,7 +1,7 @@
 from oneat.NEATUtils import plotters
 import numpy as np
 from oneat.NEATUtils import helpers
-from oneat.NEATUtils.helpers import get_nearest, save_json, load_json, yoloprediction, normalizeFloatZeroOne, GenerateMarkers, DensityCounter, MakeTrees, focyoloprediction, fastnms, simpleaveragenms
+from oneat.NEATUtils.helpers import  load_json, normalizeFloatZeroOne, focyoloprediction, simpleaveragenms
 from keras import callbacks
 import os
 import math
@@ -12,7 +12,6 @@ from tqdm import tqdm
 from oneat.NEATModels import nets
 from oneat.NEATModels.nets import Concat
 from oneat.NEATModels.loss import dynamic_yolo_loss
-from scipy.ndimage.morphology import binary_fill_holes
 from keras import backend as K
 #from IPython.display import clear_output
 from keras import optimizers
@@ -23,7 +22,6 @@ import csv
 from scipy.optimize import curve_fit
 import napari
 import glob
-from scipy import spatial
 import itertools
 #from napari.qt.threading import thread_worker
 import matplotlib.pyplot  as plt

@@ -425,7 +425,7 @@ def createNPZ(save_dir, axes, save_name = 'Yolov0oneat', save_name_val = 'Yolov0
                              reader = csv.reader(csvfile, delimiter = ',')
                              arr =  list(reader)[0]
                              arr = np.array(arr)
-                             print(arr)
+                            
                        blankY = arr
                        
                        blankY = np.expand_dims(blankY, -1)

@@ -1,40 +1,4 @@
-from oneat.NEATUtils import plotters
-import numpy as np
-from oneat.NEATUtils import helpers
-from oneat.NEATUtils.helpers import get_nearest, save_json, load_json, yoloprediction, normalizeFloatZeroOne, GenerateMarkers, \
-    DensityCounter, MakeTrees, nonfcn_yoloprediction, fastnms, averagenms, DownsampleData, save_dynamic_csv, dynamic_nms
-from keras import callbacks
-import os
-import math
-import tensorflow as tf
-from tqdm import tqdm
-from oneat.NEATModels import nets
-from oneat.NEATModels.nets import Concat
-from oneat.NEATModels.loss import dynamic_yolo_loss
-from keras import backend as K
-# from IPython.display import clear_output
-from keras import optimizers
-from pathlib import Path
-from keras.models import load_model
-from tifffile import imread, imwrite
-import csv
-import napari
-import glob
-from scipy import spatial
-import itertools
-from napari.qt.threading import thread_worker
-import matplotlib.pyplot as plt
-from matplotlib.backends.backend_qt5agg import \
-    FigureCanvasQTAgg as FigureCanvas
-from matplotlib.figure import Figure
-from qtpy.QtCore import Qt
-from qtpy.QtWidgets import QComboBox, QPushButton, QSlider
-import h5py
-import cv2
-import imageio
 
-Boxname = 'ImageIDBox'
-EventBoxname = 'EventIDBox'
 from .neat_goldstandard import NEATDynamic
 
 class NEATSDynamic(NEATDynamic):

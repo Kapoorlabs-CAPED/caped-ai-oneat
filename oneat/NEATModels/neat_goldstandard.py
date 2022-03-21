@@ -1,7 +1,7 @@
 from oneat.NEATUtils import plotters
 import numpy as np
 from oneat.NEATUtils import helpers
-from oneat.NEATUtils.helpers import get_nearest,  load_json, yoloprediction, normalizeFloatZeroOne, GenerateMarkers, GenerateMask, MakeTrees, DownsampleData,save_dynamic_csv, dynamic_nms, gold_nms
+from oneat.NEATUtils.helpers import get_nearest,  load_json, yoloprediction, normalizeFloatZeroOne, GenerateMarkers, MakeTrees, DownsampleData,save_dynamic_csv, dynamic_nms, gold_nms
 from keras import callbacks
 import os
 import math
@@ -23,7 +23,6 @@ from matplotlib.backends.backend_qt5agg import \
     FigureCanvasQTAgg as FigureCanvas
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QComboBox, QPushButton
-import h5py
 import cv2
 from scipy import ndimage
 from skimage.measure import label
@@ -385,7 +384,7 @@ class NEATDynamic(object):
         for inputtime in tqdm(range(0, self.image.shape[0])):
                     if inputtime < self.image.shape[0] - self.imaget:
                                 count = count + 1
-                                if inputtime%100==0 and inputtime > 0 or inputtime >= self.image.shape[0] - self.imaget - 1:
+                                if inputtime%(self.image.shape[0]//4)==0 and inputtime > 0 or inputtime >= self.image.shape[0] - self.imaget - 1:
                                       
                                                                               
                                       
@@ -557,7 +556,7 @@ class NEATDynamic(object):
         for inputtime in tqdm(range(0, self.image.shape[0])):
              if inputtime < self.image.shape[0] - self.imaget:   
 
-                if inputtime%100==0 and inputtime > 0 or inputtime >= self.image.shape[0] - self.imaget - 1:
+                if inputtime%(self.image.shape[0]//4)==0 and inputtime > 0 or inputtime >= self.image.shape[0] - self.imaget - 1:
 
 
 
@@ -638,13 +637,12 @@ class NEATDynamic(object):
             if event_label == 0:
 
                #best_sorted_event_box = self.classedboxes[event_name][0]
-               best_sorted_event_box = dynamic_nms(self.heatmap,self.maskimage, self.classedboxes, event_name,  self.downsamplefactor, self.iou_threshold, self.event_threshold, self.imagex, self.imagey, self.imaget, self.fidelity )
+               best_sorted_event_box = dynamic_nms(self.heatmap,self.maskimage, self.classedboxes, event_name,  self.downsamplefactor, self.iou_threshold, self.event_threshold, self.imagex, self.imagey, self.fidelity )
 
                best_iou_classedboxes[event_name] = [best_sorted_event_box]
 
         self.iou_classedboxes = best_iou_classedboxes
                 
-
     def nms(self):
 
         best_iou_classedboxes = {}
@@ -654,10 +652,10 @@ class NEATDynamic(object):
 
                #best_sorted_event_box = self.classedboxes[event_name][0]
                if self.remove_markers is not None:
-                   best_sorted_event_box = gold_nms(self.heatmap, self.classedboxes, event_name, 1, self.iou_threshold, self.event_threshold, self.imagex, self.imagey, self.imaget, 1 )
+                   best_sorted_event_box = gold_nms(self.heatmap, self.classedboxes, event_name, 1, self.iou_threshold, self.event_threshold, self.imagex, self.imagey, 1 )
 
                if self.remove_markers == None:
-                   best_sorted_event_box = dynamic_nms(self.heatmap,self.maskimage,  self.classedboxes, event_name,  self.downsamplefactor, self.iou_threshold, self.event_threshold, self.imagex, self.imagey, self.imaget, self.fidelity )
+                   best_sorted_event_box = dynamic_nms(self.heatmap,self.maskimage,  self.classedboxes, event_name,  self.downsamplefactor, self.iou_threshold, self.event_threshold, self.imagex, self.imagey, self.fidelity )
 
 
                best_iou_classedboxes[event_name] = [best_sorted_event_box]

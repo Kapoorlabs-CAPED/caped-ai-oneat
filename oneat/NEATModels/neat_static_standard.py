@@ -10,7 +10,7 @@ from oneat.NEATUtils import plotters
 import numpy as np
 from oneat.NEATUtils import helpers
 from oneat.NEATUtils.helpers import save_json, load_json, yoloprediction, nonfcn_yoloprediction, normalizeFloatZeroOne, \
-    fastnms, twod_zero_pad, averagenms, save_static_csv, DownsampleData
+ goodboxes, save_static_csv, DownsampleData
 from keras import callbacks
 import os
 from tqdm import tqdm
@@ -259,7 +259,7 @@ class NEATStatic(object):
         self.Trainingmodel.save(self.model_dir + self.model_name)
 
     def predict(self, imagename, savedir, event_threshold, n_tiles=(1, 1), overlap_percent=0.8, iou_threshold=0.01,
-                fcn=True, height=None, width=None, RGB=False, thresh = 1, downsamplefactor = 1):
+                fcn=True, height=None, width=None, RGB=False, fidelity = 1, downsamplefactor = 1):
 
         self.imagename = imagename
         self.image = imread(imagename)
@@ -274,7 +274,7 @@ class NEATStatic(object):
         self.RGB = RGB
         self.height = height
         self.width = width
-        self.thresh = thresh
+        self.fidelity = fidelity
         self.downsamplefactor = downsamplefactor
         self.overlap_percent = overlap_percent
         self.iou_threshold = iou_threshold
@@ -414,9 +414,9 @@ class NEATStatic(object):
                 # Get all events
                 sorted_event_box = self.classedboxes[event_name][0]
                 scores = [sorted_event_box[i][event_name] for i in range(len(sorted_event_box))]
-                best_sorted_event_box = averagenms(sorted_event_box, scores, self.iou_threshold,
-                                                   self.event_threshold[event_label], event_name, 'static', self.imagex,
-                                                   self.imagey, self.thresh)
+                best_sorted_event_box = goodboxes(sorted_event_box, scores, self.iou_threshold, self.event_threshold[event_label],self.imagex,
+                                                   self.imagey, fidelity = self.fidelity)
+             
 
                 best_iou_classedboxes[event_name] = [best_sorted_event_box]
 

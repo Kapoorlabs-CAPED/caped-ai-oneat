@@ -291,7 +291,17 @@ def axes_dict(axes):
     return {a: None if axes.find(a) == -1 else axes.find(a) for a in allowed}
     # return collections.namedt      
 
+def backend_channels_last():
+    import keras.backend as K
+    assert K.image_data_format() in ('channels_first', 'channels_last')
+    return K.image_data_format() == 'channels_last'
 
+
+def move_channel_for_backend(X, channel):
+    if backend_channels_last():
+        return np.moveaxis(X, channel, -1)
+    else:
+        return np.moveaxis(X, channel, 1)
 def load_full_training_data(directory, filename, axes=None, verbose=True):
     """ Load training data in .npz format.
     The data file is expected to have the keys 'data' and 'label'     
@@ -340,17 +350,6 @@ def load_full_training_data(directory, filename, axes=None, verbose=True):
     return (X, Y), axes
 
 
-def backend_channels_last():
-    import keras.backend as K
-    assert K.image_data_format() in ('channels_first', 'channels_last')
-    return K.image_data_format() == 'channels_last'
-
-
-def move_channel_for_backend(X, channel):
-    if backend_channels_last():
-        return np.moveaxis(X, channel, -1)
-    else:
-        return np.moveaxis(X, channel, 1)
 
 
 def time_pad(image, TimeFrames):
@@ -578,31 +577,7 @@ def MakeTrees(segimage):
     return AllTrees
 
 
-def compare_function(box1, box2, gridx, gridy):
-    w1, h1 = box1['width'], box1['height']
-    w2, h2 = box2['width'], box2['height']
-    x1 = box1['xcenter']
-    x2 = box2['xcenter']
-    
-    y1 = box1['ycenter']
-    y2 = box2['ycenter']
-
-    if abs(x1 - x2) <= gridx and abs(y1 - y2) <= gridy:
-            r1 = np.sqrt(w1 * w1 + h1 * h1) / 2
-            r2 = np.sqrt(w2 * w2 + h2 * h2) / 2
-            xA = max(box1['xcenter'], box2['xcenter'])
-            xB = min(box1['xcenter'] + r1, box2['xcenter'] + r2)
-            yA = max(box1['ycenter'], box2['ycenter'])
-            yB = min(box1['ycenter'] + r1, box2['ycenter'] + r2)
-
-            intersect = max(0, xB - xA) * max(0, yB - yA)
-
-            union = r1 * r1 + r2 * r2 - intersect
-
-            return float(np.true_divide(intersect, union))
-    else:
-
-        return -2        
+       
 
 
 def get_max_score_index(scores, threshold=0, top_k=0, descending=True):
@@ -638,234 +613,40 @@ def get_max_score_index(scores, threshold=0, top_k=0, descending=True):
         npscores = npscores[0:top_k]
 
     return npscores.tolist()
-def fastnms(boxes, scores, nms_threshold, score_threshold, gridx, gridy):
-    if len(boxes) == 0:
-        return []
 
-    assert len(scores) == len(boxes)
-    assert scores is not None
-    if scores is not None:
-        assert len(scores) == len(boxes)
-
-    boxes = np.array(boxes)
-
-    # if the bounding boxes integers, convert them to floats --
-    # this is important since we'll be doing a bunch of divisions
-    if boxes.dtype.kind == "i":
-        boxes = boxes.astype("float")
-
-    # initialize the list of picked indexes
-    pick = []
-
-    # sort the bounding boxes by the associated scores
-    scores = get_max_score_index(scores, score_threshold, 0, False)
-    idxs = np.array(scores, np.int32)[:, 1]
-
-    while len(idxs) > 0:
-        # grab the last index in the indexes list, add the index
-        # value to the list of picked indexes, then initialize
-        # the suppression list (i.e. indexes that will be deleted)
-        # using the last index
-        last = len(idxs) - 1
-        i = idxs[last]
-        pick.append(i)
-        suppress = [last]
-        count = 0
-        # loop over all indexes in the indexes list
-        for pos in range(0, last):
-            # grab the current index
-            j = idxs[pos]
-
-            # compute the ratio of overlap between the two boxes and the area of the second box
-            overlap = compare_function(boxes[i], boxes[j], gridx, gridy)
-
-            # if there is sufficient overlap, suppress the current bounding box
-            if overlap > abs(nms_threshold):
-                count = count + 1
-                suppress.append(pos)
-
-        # delete all indexes from the index list that are in the suppression list
-        idxs = np.delete(idxs, suppress)
-
-    # return only the indicies of the bounding boxes that were picked
-    return pick
+              
 
 
-def averagenms(boxes, scores, nms_threshold, score_threshold, event_name, event_type, gridx, gridy, imaget=0):
-    if len(boxes) == 0:
-        return []
-
-    assert len(scores) == len(boxes)
-    assert scores is not None
-    if scores is not None:
-        assert len(scores) == len(boxes)
-
-    boxes = np.array(boxes)
-
-    # if the bounding boxes integers, convert them to floats --
-    # this is important since we'll be doing a bunch of divisions
-    if boxes.dtype.kind == "i":
-        boxes = boxes.astype("float")
-
-    # initialize the list of picked indexes
-    pick = []
-    Averageboxes = []
-    newbox = None
-    # sort the bounding boxes by the associated scores
-    scores = get_max_score_index(scores, score_threshold, 0, False)
-    idxs = np.array(scores, np.int32)[:, 1]
-
-    while len(idxs) > 0:
-        # grab the last index in the indexes list, add the index
-        # value to the list of picked indexes, then initialize
-        # the suppression list (i.e. indexes that will be deleted)
-        # using the last index
-        last = len(idxs) - 1
-        i = idxs[last]
-        pick.append(i)
-        suppress = [last]
-        # loop over all indexes in the indexes list
-        for pos in range(0, last):
-            # grab the current index
-                j = idxs[pos]
-                
-                overlap = compare_function(boxes[i], boxes[j], gridx, gridy)
-               
-            
-                # if there is sufficient overlap, suppress the current bounding box
-                if   overlap > abs(nms_threshold):
-                    newbox = getmeanbox(boxes[i], boxes[j], event_name, event_type, gridx, gridy, imaget)
-                    suppress.append(pos)
-                if newbox is None:
-                        newbox = boxes[i]
-            
-                    
-                    
-        if newbox is not None and newbox not in Averageboxes:
-            Averageboxes.append(newbox)
-            # delete all indexes from the index list that are in the suppression list
-        idxs = np.delete(idxs, suppress)
-    # return only the indicies of the bounding boxes that were picked
-    return Averageboxes
-
-
-
-def getmeanbox(box1, box2, event_name, event_type, gridx, gridy, imaget):
+def compare_function_sec(box1, box2, gridx, gridy):
+    w1, h1 = box1['width'], box1['height']
+    w2, h2 = box2['width'], box2['height']
+    x1 = box1['xcenter']
+    x2 = box2['xcenter']
     
-    if event_type == 'static':
-    
-                        boxAscore = box1[event_name]
-                        boxAXstart = box1['xstart']
-                        boxAYstart = box1['ystart']
-                        boxATstart = box1['tstart']
-                        boxAboxtime = box1['box_time_event']
-                        boxAheight = box1['height']
-                        boxAwidth = box1['width']
-                        boxAconfidence = box1['confidence']
-    
-                        boxAXcenterraw = boxAscore * box1['xcenterraw']
-                        boxAYcenterraw = boxAscore * box1['ycenterraw']
-                        boxATcenterraw = boxAscore * box1['tcenterraw']
-    
-                        boxBscore = box2[event_name]
-                        boxBXstart = box2['xstart']
-                        boxBYstart = box2['ystart']
-                        boxBboxtime = box2['box_time_event']
-                        boxBheight = box2['height']
-                        boxBwidth = box2['width']
-                        boxBconfidence = box2['confidence']
-    
-                        boxBXcenterraw = boxBscore * box2['xcenterraw']
-                        boxBYcenterraw = boxBscore * box2['ycenterraw']
-                        boxBTcenterraw = boxBscore * box2['tcenterraw']
-    
-                        boxscore = (boxAscore + boxBscore)
-                        meanboxscore = boxscore / 2
-                        meanboxXstart = ( boxAXstart + boxBXstart )/2 
-                        meanboxYstart = ( boxAYstart + boxBYstart )/2
-                        meanboxXcenter = meanboxXstart + ((boxAXcenterraw + boxBXcenterraw) / boxscore) * gridx
-                        meanboxYcenter = meanboxYstart + ((boxAYcenterraw + boxBYcenterraw) / boxscore) * gridy
-    
-                        meanboxrealtime = int( (boxATstart + boxBTstart ) /2 + ((boxATcenterraw + boxBTcenterraw) / boxscore) * imaget)
-    
-                        meanboxtime = int((boxAboxtime + boxBboxtime) / 2)
-                        meanboxheight = (boxAheight + boxBheight) / 2
-                        meanboxwidth = (boxAwidth + boxBwidth) / 2
-                        meanboxconfidence = (boxAconfidence + boxBconfidence) / 2
-                        xcenterrawmean = (boxAXcenterraw + boxBXcenterraw) / meanboxscore
-                        ycenterrawmean = (boxAYcenterraw + boxBYcenterraw) / meanboxscore
-                        tcenterrawmean = (boxATcenterraw + boxBTcenterraw) / meanboxscore
-                        newbox = {'xstart': meanboxXstart, 'ystart': meanboxYstart, 'tstart': boxATstart,
-                                      'xcenterraw': xcenterrawmean, 'ycenterraw': ycenterrawmean,
-                                      'tcenterraw': tcenterrawmean, 'xcenter': meanboxXcenter, 'ycenter': meanboxYcenter,
-                                      'real_time_event': meanboxrealtime, 'box_time_event': meanboxtime,
-                                      'height': meanboxheight, 'width': meanboxwidth, 'confidence': meanboxconfidence,
-                                      event_name: meanboxscore}
-                        return newbox 
-    if event_type == 'dynamic':
-    
-                        boxAscore = box1[event_name]
-                        boxAXstart = box1['xstart']
-                        boxAYstart = box1['ystart']
-                        boxATstart = box1['tstart']
-                        boxAboxtime = box1['box_time_event']
-                        boxAheight = box1['height']
-                        boxAwidth = box1['width']
-                        boxAconfidence = box1['confidence']
-                        boxArealangle = box1['realangle']
-                        boxArawangle = box1['rawangle']
-    
-                        boxAXcenterraw = boxAscore * box1['xcenterraw']
-                        boxAYcenterraw = boxAscore * box1['ycenterraw']
-                        boxATcenterraw = boxAscore * box1['tcenterraw']
-    
-                        boxBscore = box2[event_name]
-                        boxBXstart = box2['xstart']
-                        boxBYstart = box2['ystart']
-                        boxBTstart = box2['tstart']
-                        boxBboxtime = box2['box_time_event']
-                        boxBheight = box2['height']
-                        boxBwidth = box2['width']
-                        boxBconfidence = box2['confidence']
-                        boxBrealangle = box2['realangle']
-                        boxBrawangle = box2['rawangle']
-    
-                        boxBXcenterraw = boxBscore * box2['xcenterraw']
-                        boxBYcenterraw = boxBscore * box2['ycenterraw']
-                        boxBTcenterraw = boxBscore * box2['tcenterraw']
-    
-                        boxscore = (boxAscore + boxBscore)
-                        meanboxscore = boxscore / 2
-                        meanboxXstart = ( boxAXstart + boxBXstart )/2 
-                        meanboxYstart = ( boxAYstart + boxBYstart )/2
-                        meanboxXcenter = boxAXstart + ((boxAXcenterraw + boxBXcenterraw) / boxscore) * gridx
-                        meanboxYcenter = boxAYstart + ((boxAYcenterraw + boxBYcenterraw) / boxscore) * gridy
-    
-                        meanboxrealtime = int((boxATstart + boxBTstart ) /2 + (min(boxATcenterraw, boxBTcenterraw) / max(boxAscore, boxBscore)) * imaget)
-    
-                        meanboxtime = int(boxATstart + boxBTstart ) /2
-                        meanboxheight = (boxAheight + boxBheight) / 2
-                        meanboxwidth = (boxAwidth + boxBwidth) / 2
-                        meanboxconfidence = (boxAconfidence + boxBconfidence) / 2
-                        meanboxrealangle = (boxArealangle + boxBrealangle) / 2
-                        meanboxrawangle = (boxArawangle + boxBrawangle) / 2
-                        xcenterrawmean = (boxAXcenterraw + boxBXcenterraw) / meanboxscore
-                        ycenterrawmean = (boxAYcenterraw + boxBYcenterraw) / meanboxscore
-                        tcenterrawmean = (boxATcenterraw + boxBTcenterraw) / meanboxscore
-                        newbox = {'xstart': meanboxXstart, 'ystart': meanboxYstart, 'tstart': boxATstart,
-                                          'xcenterraw': xcenterrawmean, 'ycenterraw': ycenterrawmean,
-                                          'tcenterraw': tcenterrawmean, 'xcenter': meanboxXcenter, 'ycenter': meanboxYcenter,
-                                          'real_time_event': meanboxrealtime, 'box_time_event': meanboxtime,
-                                          'height': meanboxheight, 'width': meanboxwidth, 'confidence': meanboxconfidence,
-                                          'realangle': meanboxrealangle, 'rawangle': meanboxrawangle, event_name: meanboxscore}
-    
-    
-    
-                        return newbox
-    
+    y1 = box1['ycenter']
+    y2 = box2['ycenter']
 
+    if abs(x1 - x2) <= gridx and abs(y1 - y2) <= gridy:
+            r1 = np.sqrt(w1 * w1 + h1 * h1) / 2
+            r2 = np.sqrt(w2 * w2 + h2 * h2) / 2
+            xA = max(box1['xcenter'] - r1, box2['xcenter'] - r1)
+            xB = min(box1['xcenter'] + r1, box2['xcenter'] + r2)
+            yA = max(box1['ycenter'] - r2, box2['ycenter'] - r2)
+            yB = min(box1['ycenter'] + r1, box2['ycenter'] + r2)
+
+            intersect = max(xB - xA + 1) * max(0, yB - yA + 1)
+
+            union = (xB - xA + 1) * (yB - yA + 1)
+
+            return float(np.true_divide(intersect, union))
+    else:
+
+        return -2 
 def goodboxes(boxes, scores, nms_threshold, score_threshold, gridx, gridy,
                fidelity=1):
+
+
+
     if len(boxes) == 0:
         return []
 
@@ -880,6 +661,9 @@ def goodboxes(boxes, scores, nms_threshold, score_threshold, gridx, gridy,
     # this is important since we'll be doing a bunch of divisions
     if boxes.dtype.kind == "i":
         boxes = boxes.astype("float")
+
+
+
 
     # initialize the list of picked indexes
     pick = []
@@ -903,22 +687,18 @@ def goodboxes(boxes, scores, nms_threshold, score_threshold, gridx, gridy,
             # grab the current index
                 j = idxs[pos]
 
-                overlap = compare_function(boxes[i], boxes[j], gridx, gridy)
+                overlap = compare_function_sec(boxes[i], boxes[j], gridx, gridy)
                 
                 # if there is sufficient overlap, suppress the current bounding box
                 if overlap > abs(nms_threshold):
                         count = count + 1
                         if count >= fidelity:
                             
-                            if boxes[j] not in Averageboxes:    
-                               Averageboxes.append(boxes[j])
+                            if boxes[i] not in Averageboxes:    
+                               Averageboxes.append(boxes[i])
                                
                                
                         suppress.append(pos)
-                    
-                        
-                
-            
             # delete all indexes from the index list that are in the suppression list
         idxs = np.delete(idxs, suppress)
     # return only the indicies of the bounding boxes that were picked
@@ -966,7 +746,7 @@ def simpleaveragenms(boxes, scores, nms_threshold, score_threshold, event_name, 
             j = idxs[pos]
 
             # compute the ratio of overlap between the two boxes and the area of the second box
-            overlap = compare_function(boxes[i], boxes[j], gridx, gridy)
+            overlap = compare_function_sec(boxes[i], boxes[j], gridx, gridy)
 
             # if there is sufficient overlap, suppress the current bounding box
             if overlap > nms_threshold:
@@ -1136,11 +916,6 @@ def gold_nms(heatmap, classedboxes, event_name, event_label, downsamplefactor, i
                                                       ycenter = iou_current_event_box['ycenter']* downsamplefactor
                                                       tcenter = iou_current_event_box['real_time_event']
 
-                                                      xstart = iou_current_event_box['xstart']* downsamplefactor
-                                                      ystart = iou_current_event_box['ystart']* downsamplefactor
-
-                                                      xend = xcenter + iou_current_event_box['width']* downsamplefactor
-                                                      yend = ycenter + iou_current_event_box['height']* downsamplefactor
                                                       score = iou_current_event_box[event_name]
 
                                                       if event_label >= 1:
@@ -1152,8 +927,6 @@ def gold_nms(heatmap, classedboxes, event_name, event_label, downsamplefactor, i
 
                scores = [ filtered_good_sorted_event_box[i][event_name]  for i in range(len(filtered_good_sorted_event_box))]
                     
-               #best_sorted_event_box = averagenms(filtered_good_sorted_event_box, scores, iou_threshold, event_threshold, event_name, 'dynamic', gridx, gridy, imaget)
-               #print(best_sorted_event_box)
                return filtered_good_sorted_event_box
 
 
@@ -1161,14 +934,14 @@ def gold_nms(heatmap, classedboxes, event_name, event_label, downsamplefactor, i
 
 
 
-def dynamic_nms(heatmap, maskimage, classedboxes, event_name, downsamplefactor, iou_threshold, event_threshold, gridx, gridy, imaget, fidelity):
+def dynamic_nms(heatmap, maskimage, classedboxes, event_name, downsamplefactor, iou_threshold, event_threshold, gridx, gridy, fidelity):
                 
                sorted_event_box = classedboxes[event_name][0]
                scores = [ sorted_event_box[i][event_name]  for i in range(len(sorted_event_box))]
-               good_sorted_event_box = goodboxes(sorted_event_box, scores, iou_threshold, event_threshold,  gridx, gridy, fidelity)
+               best_sorted_event_box = goodboxes(sorted_event_box, scores, iou_threshold, event_threshold,  gridx, gridy, fidelity)
                
                filtered_good_sorted_event_box = []
-               for iou_current_event_box in good_sorted_event_box:
+               for iou_current_event_box in best_sorted_event_box:
                                                           xcenter = iou_current_event_box['xcenter']* downsamplefactor
                                                           ycenter = iou_current_event_box['ycenter']* downsamplefactor
                                                           tcenter = iou_current_event_box['real_time_event']
@@ -1190,9 +963,6 @@ def dynamic_nms(heatmap, maskimage, classedboxes, event_name, downsamplefactor, 
                                                                       
                                                                       heatmap[int(tcenter), int(y), int(x)] = heatmap[int(tcenter), int(y), int(x)] + score
                                                                       
-               scores = [ filtered_good_sorted_event_box[i][event_name]  for i in range(len(filtered_good_sorted_event_box))]
-                                                                  
-               best_sorted_event_box = averagenms(filtered_good_sorted_event_box, scores, iou_threshold, event_threshold, event_name, 'dynamic', gridx, gridy, imaget)
                
                return best_sorted_event_box
            
@@ -1201,9 +971,7 @@ def microscope_dynamic_nms( classedboxes, event_name, iou_threshold, event_thres
     
                sorted_event_box = classedboxes[event_name][0]
                scores = [ sorted_event_box[i][event_name]  for i in range(len(sorted_event_box))]
-               good_sorted_event_box = goodboxes(sorted_event_box, scores, iou_threshold, event_threshold,  gridx, gridy, fidelity)
-               scores = [ good_sorted_event_box[i][event_name]  for i in range(len(good_sorted_event_box))]
-               best_sorted_event_box = averagenms(good_sorted_event_box, scores, iou_threshold, event_threshold, event_name, 'dynamic', gridx, gridy, imaget)
+               best_sorted_event_box = goodboxes(sorted_event_box, scores, iou_threshold, event_threshold,  gridx, gridy, fidelity)
                
                return best_sorted_event_box
 

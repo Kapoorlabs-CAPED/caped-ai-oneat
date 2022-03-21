@@ -171,19 +171,19 @@ class NEATViz(object):
             eventlist= []
             for i in range(0, self.image.shape[0]):
                 
-                currentT   = np.round(self.dataset["T"]).astype('int')
-                try:
+                   currentT   = np.round(self.dataset["T"]).astype('int')
                    currentScore = self.dataset["Score"]
+                   currentConf = self.dataset["Confidence"]
                    condition = currentT == i
                    condition_indices = self.dataset_index[condition]
                    conditionScore = currentScore[condition_indices]
+                
                    score_condition = conditionScore > self.event_threshold[self.event_label]
                 
                    countT = len(conditionScore[score_condition])
                    timelist.append(i)
                    eventlist.append(countT)
-                except:
-                    currentScore = 1
+                
                 
             self.ax.plot(timelist, eventlist, '-r')
             self.ax.set_title(self.event_name + "Events")
@@ -199,9 +199,11 @@ class NEATViz(object):
             
             listsize = self.Size.tolist()
             listscore = self.Score.tolist()
+            listconfidence = self.Confidence.tolist()
             event_locations = []
             size_locations = []
             score_locations = []
+            confidence_locations = []
             for i in (range(len(listtime))):
                  
                  tcenter = int(listtime[i])
@@ -210,13 +212,15 @@ class NEATViz(object):
                  xcenter = listx[i]
                  size = listsize[i]
                  score = listscore[i]
+                 confidence = listconfidence[i]   
                  if score > self.event_threshold[self.event_label]:
                          event_locations.append([int(tcenter), int(ycenter), int(xcenter)])   
                          size_locations.append(size)
                          score_locations.append(score)
-            point_properties = {'score' : np.array(score_locations)}    
+                         confidence_locations.append(confidence)
+            point_properties = {'score' : np.array(score_locations), 'confidence' : np.array(confidence_locations)}    
             text_properties = {
-            'text': self.event_name +': {score:.4f}',
+            'text': self.event_name +': {score:.8f}' + '\n' + 'Confidence' +  ': {confidence:.8f}',
             'anchor': 'upper_left',
             'translation': [-5, 0],
             'size': 12,
