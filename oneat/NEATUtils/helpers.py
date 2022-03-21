@@ -630,13 +630,13 @@ def compare_function_sec(box1, box2, gridx, gridy):
             r1 = np.sqrt(w1 * w1 + h1 * h1) / 2
             r2 = np.sqrt(w2 * w2 + h2 * h2) / 2
             xA = max(box1['xcenter'] - r1, box2['xcenter'] - r1)
-            xB = min(box1['xcenter'] + r1, box2['xcenter'] + r2)
+            xB = min(box1['xcenter'] + r1, box2['xcenter'] + r1)
             yA = max(box1['ycenter'] - r2, box2['ycenter'] - r2)
-            yB = min(box1['ycenter'] + r1, box2['ycenter'] + r2)
+            yB = min(box1['ycenter'] + r2, box2['ycenter'] + r2)
 
             intersect = max(0, xB - xA + 1) * max(0, yB - yA + 1)
 
-            union = (xB - xA + 1) * (yB - yA + 1)
+            union = r1 * r1 + r2 * r2 - intersect
 
             return float(np.true_divide(intersect, union))
     else:
