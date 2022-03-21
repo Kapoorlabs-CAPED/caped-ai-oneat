@@ -620,25 +620,24 @@ def get_max_score_index(scores, threshold=0, top_k=0, descending=True):
 def compare_function_sec(box1, box2, gridx, gridy):
     w1, h1 = box1['width'], box1['height']
     w2, h2 = box2['width'], box2['height']
-    x1 = box1['xcenter']
-    x2 = box2['xcenter']
+    x1 = box1['xstart']
+    x2 = box2['xstart']
     
-    y1 = box1['ycenter']
-    y2 = box2['ycenter']
+    y1 = box1['ystart']
+    y2 = box2['ystart']
 
     if abs(x1 - x2) <= gridx and abs(y1 - y2) <= gridy:
-            r1 = np.sqrt(w1 * w1 + h1 * h1) / 2
-            r2 = np.sqrt(w2 * w2 + h2 * h2) / 2
-            xA = max(box1['xcenter'] - r1, box2['xcenter'] - r2)
-            xB = min(box1['xcenter'] + r1, box2['xcenter'] + r2)
-            yA = max(box1['ycenter'] - r1, box2['ycenter'] - r2)
-            yB = min(box1['ycenter'] + r1, box2['ycenter'] + r2)
+           
+            xA = max(x1 , x2 )
+            xB = min(x1 + w1, x2 + w2)
+            yA = max(y1, y2)
+            yB = min(y1 + h1, y2+ h2)
 
-            intersect = max(0, xB - xA + 1) * max(0, yB - yA + 1)
+            intersect = max(0, xB - xA ) * max(0, yB - yA )
 
-            union = r1 * r1 + r2 * r2 - intersect
+            area = h2 * w2 + h1 * w1 - intersect
 
-            return float(np.true_divide(intersect, union))
+            return float(np.true_divide(intersect, area))
     else:
 
         return -2 
@@ -688,16 +687,13 @@ def goodboxes(boxes, scores, nms_threshold, score_threshold, gridx, gridy,
                 j = idxs[pos]
 
                 overlap = compare_function_sec(boxes[i], boxes[j], gridx, gridy)
-                
                 # if there is sufficient overlap, suppress the current bounding box
                 if overlap > abs(nms_threshold):
                         count = count + 1
                         if count >= fidelity:
                             
-                            if boxes[i] not in Averageboxes:    
-                               Averageboxes.append(boxes[i])
-                               
-                               
+                            if boxes[i] not in Averageboxes:
+                              Averageboxes.append(boxes[i])
                         suppress.append(pos)
             # delete all indexes from the index list that are in the suppression list
         idxs = np.delete(idxs, suppress)

@@ -417,7 +417,7 @@ class NEATDynamic(object):
                                                 
                                                         event_prob = box[event_name]
                                                         event_confidence = box['confidence']
-                                                        if event_prob >= self.event_threshold and event_confidence >= 0.9:
+                                                        if event_prob >= self.event_threshold:
                                                            
                                                             current_event_box.append(box)
                                                      classedboxes[event_name] = [current_event_box]
@@ -617,15 +617,14 @@ class NEATDynamic(object):
                                                              
                                                     current_event_box.append(box)
                                              classedboxes[event_name] = [current_event_box]
-                                         
-                self.classedboxes = classedboxes    
-                self.eventboxes =  eventboxes
-                if inputtime%(self.imaget//2) == 0 and inputtime > 0:
- 
-                   self.nms()
-                   self.to_csv()
-                   eventboxes = []
-                   classedboxes = {}   
+
+                if inputtime%(self.imaget) == 0 and inputtime > 0:                         
+                        self.classedboxes = classedboxes    
+                        self.eventboxes =  eventboxes
+                        self.nms()
+                        self.to_csv()
+                        eventboxes = []
+                        classedboxes = {}   
 
 
     def fast_nms(self):

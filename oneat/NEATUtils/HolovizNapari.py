@@ -220,7 +220,7 @@ class NEATViz(object):
                          confidence_locations.append(confidence)
             point_properties = {'score' : np.array(score_locations), 'confidence' : np.array(confidence_locations)}    
             text_properties = {
-            'text': self.event_name +': {score:.8f}' + '\n' + 'Confidence' +  ': {confidence:.8f}',
+            'text': self.event_name +': {score:.5f}' + '\n' + 'Confidence' +  ': {confidence:.5f}',
             'anchor': 'upper_left',
             'translation': [-5, 0],
             'size': 12,
