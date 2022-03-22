@@ -152,14 +152,14 @@ class NEATViz(object):
             self.dataset_index = self.dataset.index
             self.ax.cla()
             #Data is written as T, Y, X, Score, Size, Confidence
-            self.T = self.dataset[self.dataset.keys()[0]][1:]
-            self.Y = self.dataset[self.dataset.keys()[1]][1:]
-            self.X = self.dataset[self.dataset.keys()[2]][1:]
+            self.T = self.dataset[self.dataset.keys()[0]][0:]
+            self.Y = self.dataset[self.dataset.keys()[1]][0:]
+            self.X = self.dataset[self.dataset.keys()[2]][0:]
             
             try:
-                    self.Score = self.dataset[self.dataset.keys()[3]][1:]
-                    self.Size = self.dataset[self.dataset.keys()[4]][1:]
-                    self.Confidence = self.dataset[self.dataset.keys()[5]][1:]
+                    self.Score = self.dataset[self.dataset.keys()[3]][0:]
+                    self.Size = self.dataset[self.dataset.keys()[4]][0:]
+                    self.Confidence = self.dataset[self.dataset.keys()[5]][0:]
             
             except:
                 
@@ -268,10 +268,10 @@ def TruePositives(csv_gt, csv_pred, thresholdscore = 1 -  1.0E-6,  thresholdspac
                     dataset_pred  = pd.read_csv(csv_pred, delimiter = ',')
                     dataset_pred_index = dataset_pred.index
 
-                    T_pred = dataset_pred[dataset_pred.keys()[0]][1:]
-                    Y_pred = dataset_pred[dataset_pred.keys()[1]][1:]
-                    X_pred = dataset_pred[dataset_pred.keys()[2]][1:]
-                    Score_pred = dataset_pred[dataset_pred.keys()[3]][1:]
+                    T_pred = dataset_pred[dataset_pred.keys()[0]][0:]
+                    Y_pred = dataset_pred[dataset_pred.keys()[1]][0:]
+                    X_pred = dataset_pred[dataset_pred.keys()[2]][0:]
+                    Score_pred = dataset_pred[dataset_pred.keys()[3]][0:]
                     
                     
                     listtime_pred = T_pred.tolist()
@@ -290,9 +290,9 @@ def TruePositives(csv_gt, csv_pred, thresholdscore = 1 -  1.0E-6,  thresholdspac
                     dataset_gt  = pd.read_csv(csv_gt, delimiter = ',')
                     dataset_gt_index = dataset_gt.index
 
-                    T_gt = dataset_gt[dataset_gt.keys()[0]][1:]
-                    Y_gt = dataset_gt[dataset_gt.keys()[1]][1:]
-                    X_gt = dataset_gt[dataset_gt.keys()[2]][1:]
+                    T_gt = dataset_gt[dataset_gt.keys()[0]][0:]
+                    Y_gt = dataset_gt[dataset_gt.keys()[1]][0:]
+                    X_gt = dataset_gt[dataset_gt.keys()[2]][0:]
 
                     listtime_gt = T_gt.tolist()
                     listy_gt = Y_gt.tolist()
@@ -344,9 +344,9 @@ def PatchGenerator(image,resultsdir,csv_gt,number_patches, patch_shape, size_tmi
             
                     dataset_gt = dataset_gt.sample(frac = 1)
                     dataset_gt_index = dataset_gt.index
-                    T_gt = dataset_gt[dataset_gt.keys()[0]][1:]
-                    Y_gt = dataset_gt[dataset_gt.keys()[1]][1:]/DownsampleFactor
-                    X_gt = dataset_gt[dataset_gt.keys()[2]][1:]/DownsampleFactor
+                    T_gt = dataset_gt[dataset_gt.keys()[0]][0:]
+                    Y_gt = dataset_gt[dataset_gt.keys()[1]][0:]/DownsampleFactor
+                    X_gt = dataset_gt[dataset_gt.keys()[2]][0:]/DownsampleFactor
 
                     listtime_gt = T_gt.tolist()
                     
@@ -410,10 +410,10 @@ def FalseNegatives(csv_pred, csv_gt, thresholdscore = 1 -  1.0E-6, thresholdspac
                     dataset_pred  = pd.read_csv(csv_pred, delimiter = ',')
                     dataset_pred_index = dataset_pred.index
 
-                    T_pred = dataset_pred[dataset_pred.keys()[0]][1:]
-                    Y_pred = dataset_pred[dataset_pred.keys()[1]][1:]
-                    X_pred = dataset_pred[dataset_pred.keys()[2]][1:]
-                    Score_pred = dataset_pred[dataset_pred.keys()[3]][1:]
+                    T_pred = dataset_pred[dataset_pred.keys()[0]][0:]
+                    Y_pred = dataset_pred[dataset_pred.keys()[1]][0:]
+                    X_pred = dataset_pred[dataset_pred.keys()[2]][0:]
+                    Score_pred = dataset_pred[dataset_pred.keys()[3]][0:]
                     
                     listtime_pred = T_pred.tolist()
                     listy_pred = Y_pred.tolist()
@@ -432,9 +432,9 @@ def FalseNegatives(csv_pred, csv_gt, thresholdscore = 1 -  1.0E-6, thresholdspac
                     dataset_gt  = pd.read_csv(csv_gt, delimiter = ',')
                     dataset_gt_index = dataset_gt.index
 
-                    T_gt = dataset_gt[dataset_gt.keys()[0]][1:]
-                    Y_gt = dataset_gt[dataset_gt.keys()[1]][1:]
-                    X_gt = dataset_gt[dataset_gt.keys()[2]][1:]
+                    T_gt = dataset_gt[dataset_gt.keys()[0]][0:]
+                    Y_gt = dataset_gt[dataset_gt.keys()[1]][0:]
+                    X_gt = dataset_gt[dataset_gt.keys()[2]][0:]
 
                     listtime_gt = T_gt.tolist()
                     listy_gt = Y_gt.tolist()
@@ -471,10 +471,10 @@ def FalsePositives(csv_pred, csv_gt, thresholdscore = 1 -  1.0E-6, thresholdspac
                     dataset_pred  = pd.read_csv(csv_pred, delimiter = ',')
                     dataset_pred_index = dataset_pred.index
 
-                    T_pred = dataset_pred[dataset_pred.keys()[0]][1:]
-                    Y_pred = dataset_pred[dataset_pred.keys()[1]][1:]
-                    X_pred = dataset_pred[dataset_pred.keys()[2]][1:]
-                    Score_pred = dataset_pred[dataset_pred.keys()[3]][1:]
+                    T_pred = dataset_pred[dataset_pred.keys()[0]][0:]
+                    Y_pred = dataset_pred[dataset_pred.keys()[1]][0:]
+                    X_pred = dataset_pred[dataset_pred.keys()[2]][0:]
+                    Score_pred = dataset_pred[dataset_pred.keys()[3]][0:]
                     
                     listtime_pred = T_pred.tolist()
                     listy_pred = Y_pred.tolist()
@@ -487,9 +487,9 @@ def FalsePositives(csv_pred, csv_gt, thresholdscore = 1 -  1.0E-6, thresholdspac
                     dataset_gt  = pd.read_csv(csv_gt, delimiter = ',')
                     dataset_gt_index = dataset_gt.index
 
-                    T_gt = dataset_gt[dataset_gt.keys()[0]][1:]
-                    Y_gt = dataset_gt[dataset_gt.keys()[1]][1:]
-                    X_gt = dataset_gt[dataset_gt.keys()[2]][1:]
+                    T_gt = dataset_gt[dataset_gt.keys()[0]][0:]
+                    Y_gt = dataset_gt[dataset_gt.keys()[1]][0:]
+                    X_gt = dataset_gt[dataset_gt.keys()[2]][0:]
 
                     listtime_gt = T_gt.tolist()
                     listy_gt = Y_gt.tolist()

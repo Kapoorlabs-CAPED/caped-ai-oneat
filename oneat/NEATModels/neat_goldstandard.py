@@ -335,7 +335,7 @@ class NEATDynamic(object):
         return self.markers, self.marker_tree, self.watershed, self.mask
 
     def predict(self, imagename,  savedir, n_tiles=(1, 1), overlap_percent=0.8,
-                event_threshold=0.5, iou_threshold=0.1,  fidelity=5, downsamplefactor = 1, 
+                event_threshold=0.5, event_confidence = 0.5, iou_threshold=0.1,  fidelity=5, downsamplefactor = 1, 
                 maskfilter = 10, markers = None, marker_tree = None, watershed = None, maskimage = None, remove_markers = True):
 
         self.watershed = watershed
@@ -354,6 +354,7 @@ class NEATDynamic(object):
         self.overlap_percent = overlap_percent
         self.iou_threshold = iou_threshold
         self.event_threshold = event_threshold
+        self.event_confidence = event_confidence
         self.downsamplefactor = downsamplefactor
         self.originalimage = self.image
        
@@ -417,7 +418,7 @@ class NEATDynamic(object):
                                                 
                                                         event_prob = box[event_name]
                                                         event_confidence = box['confidence']
-                                                        if event_prob >= self.event_threshold:
+                                                        if event_prob >= self.event_threshold and event_confidence >= self.event_confidence:
                                                            
                                                             current_event_box.append(box)
                                                      classedboxes[event_name] = [current_event_box]
@@ -612,7 +613,8 @@ class NEATDynamic(object):
                                              for box in eventboxes:
                                         
                                                 event_prob = box[event_name]
-                                                if event_prob >= self.event_threshold:
+                                                event_confidence = box['confidence']
+                                                if event_prob >= self.event_threshold and event_confidence >= self.event_confidence :
                                                     
                                                              
                                                     current_event_box.append(box)
