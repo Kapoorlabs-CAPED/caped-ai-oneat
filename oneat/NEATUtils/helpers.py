@@ -963,7 +963,7 @@ def dynamic_nms(heatmap, maskimage, classedboxes, event_name, downsamplefactor, 
                return best_sorted_event_box
            
 
-def microscope_dynamic_nms( classedboxes, event_name, iou_threshold, event_threshold, gridx, gridy, imaget, fidelity):
+def microscope_dynamic_nms( classedboxes, event_name, iou_threshold, event_threshold, gridx, gridy, fidelity):
     
                sorted_event_box = classedboxes[event_name][0]
                scores = [ sorted_event_box[i][event_name]  for i in range(len(sorted_event_box))]

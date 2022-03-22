@@ -37,9 +37,9 @@ class NEATPredict(NEATDynamic):
 
 
     def predict_microscope(self, imagedir, movie_name_list, movie_input, Z_imagedir, Z_movie_name_list, Z_movie_input, start,
-                Z_start, downsample=1,
+                Z_start, downsample=1, roi_start = 0, roi_end = 1,
                 event_label_interest=1, fileextension='*TIF', nb_prediction=3, n_tiles=(1, 1), Z_n_tiles=(1, 2, 2),
-                overlap_percent=0.6, event_threshold=0.5, iou_threshold=0.01, projection_model=None, delay_projection=4,
+                overlap_percent=0.6, event_threshold = 0.5, event_confidence = 0.5, iou_threshold=0.01, projection_model=None, delay_projection=4,
                 fidelity=4, jumpindex = 1):
 
         self.imagedir = imagedir
@@ -61,10 +61,13 @@ class NEATPredict(NEATDynamic):
         self.nb_prediction = nb_prediction
         self.fileextension = fileextension
         self.n_tiles = n_tiles
+        self.roi_start = roi_start
+        self.roi_end = roi_end
         self.Z_n_tiles = Z_n_tiles
         self.overlap_percent = overlap_percent
         self.iou_threshold = iou_threshold
         self.event_threshold = event_threshold
+        self.event_confidence = event_confidence
         self.downsample = downsample
         f = h5py.File(self.model_dir + self.model_name + '.h5', 'r+')
         data_p = f.attrs['training_config']
@@ -204,7 +207,8 @@ class NEATPredict(NEATDynamic):
                         for box in eventboxes:
 
                             event_prob = box[event_name]
-                            if event_prob >= self.event_threshold:
+                            event_confidence = box['confidence']
+                            if event_prob >= self.event_threshold and event_confidence >= self.event_confidence:
                                 current_event_box.append(box)
                         classedboxes[event_name] = [current_event_box]
 
@@ -221,7 +225,7 @@ class NEATPredict(NEATDynamic):
                              self.Z_movie_name_list, self.Z_movie_input, self.start, Z_start,
                              fileextension=self.fileextension, downsample=self.downsample,
                              nb_prediction=self.nb_prediction, n_tiles=self.n_tiles, Z_n_tiles=self.Z_n_tiles,
-                             overlap_percent=self.overlap_percent, event_threshold=self.event_threshold,
+                             overlap_percent=self.overlap_percent, event_threshold=self.event_threshold, event_confidence = self.event_confidence,
                              iou_threshold=self.iou_threshold, projection_model=self.projection_model)
 
     def nms_microscope(self):
@@ -233,7 +237,7 @@ class NEATPredict(NEATDynamic):
         for (event_name,event_label) in self.key_categories.items():
             if event_label > 0:
                
-               best_sorted_event_box = microscope_dynamic_nms( self.classedboxes, event_name, self.downsample, self.iou_threshold, self.event_threshold, self.imagex, self.imagey, self.imaget, self.fidelity)
+               best_sorted_event_box = microscope_dynamic_nms( self.classedboxes, event_name, self.downsample, self.iou_threshold, self.event_threshold, self.imagex, self.imagey, self.fidelity)
                
                
                best_iou_classedboxes[event_name] = [best_sorted_event_box]
@@ -254,11 +258,11 @@ class NEATPredict(NEATDynamic):
                 confidences = []
 
                 iou_current_event_boxes = self.iou_classedboxes[event_name][0]
-                bbox_left_y = self.image.shape[1] // 4
-                bbox_right_y = 3 *self.image.shape[1] // 4
+                bbox_left_y = self.image.shape[1] * self.roi_start
+                bbox_right_y = self.image.shape[1] * self.roi_end
 
-                bbox_left_x = self.image.shape[2] // 4
-                bbox_right_x = 3 *self.image.shape[2] // 4
+                bbox_left_x = self.image.shape[2] * self.roi_start
+                bbox_right_x = self.image.shape[2] * self.roi_end
                 iou_current_event_boxes = sorted(iou_current_event_boxes, key=lambda x: x[event_name], reverse=True)
 
                 for iou_current_event_box in iou_current_event_boxes:
@@ -270,7 +274,7 @@ class NEATPredict(NEATDynamic):
                         iou_current_event_box['height'] * iou_current_event_box['height'] + iou_current_event_box[
                             'width'] * iou_current_event_box['width']) // 2
                     confidence = iou_current_event_box['confidence']
-                    if xcenter > bbox_left_x and xcenter < bbox_right_x and ycenter > bbox_left_y and ycenter < bbox_right_y:
+                    if xcenter >= bbox_left_x and xcenter <= bbox_right_x and ycenter >= bbox_left_y and ycenter <= bbox_right_y:
                         print(round(xcenter), round(ycenter), score)
                         xlocations.append(round(xcenter))
                         ylocations.append(round(ycenter))
