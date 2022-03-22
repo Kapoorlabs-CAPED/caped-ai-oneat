@@ -185,7 +185,7 @@ def MovieLabelDataSet(image_dir, seg_image_dir, csv_dir, save_dir, static_name, 
                                  for i in  range(0, len(static_name)):
                                      event_name = static_name[i]
                                      trainlabel = static_label[i]
-                                     classfound = (Csvname == csv_name_diff + name + event_name)   
+                                     classfound = (Csvname == csv_name_diff +  event_name + name)   
                                      if classfound:
                                                     print(Csvname)
                                                     dataset = pd.read_csv(csvfname)
