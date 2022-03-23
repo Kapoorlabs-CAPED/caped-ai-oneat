@@ -39,7 +39,7 @@ EventBoxname = 'EventIDBox'
 
 class NEATViz(object):
 
-        def __init__(self, imagedir, heatmapimagedir, savedir, categories_json, event_threshold, heatname = '_Heat', fileextension = '*tif', blur_radius = 5):
+        def __init__(self, imagedir, heatmapimagedir, savedir, categories_json, event_threshold, heatname = '_Heat', fileextension = '*tif', blur_radius = 5, start_project_mid = 0, end_project_mid = 0 ):
             
             
                self.imagedir = imagedir
@@ -48,6 +48,8 @@ class NEATViz(object):
                self.heatname = heatname
                self.event_threshold = event_threshold
                self.categories_json = categories_json
+               self.start_project_mid = start_project_mid
+               self.end_project_mid = end_project_mid
                self.fileextension = fileextension
                self.blur_radius = blur_radius
                Path(self.savedir).mkdir(exist_ok=True)
@@ -212,10 +214,7 @@ class NEATViz(object):
                  score = listscore[i]
                  confidence = listconfidence[i]   
                  if score > self.event_threshold[self.event_label]:
-                         if ndim == 3:
-                            event_locations.append([int(tcenter), int(ycenter), int(xcenter)])   
-                         else:
-                            event_locations.append([int(tcenter), int(zcenter), int(ycenter), int(xcenter)])    
+                         event_locations.append([int(tcenter), int(ycenter), int(xcenter)])   
                          size_locations.append(size)
                          score_locations.append(score)
                          confidence_locations.append(confidence)
@@ -246,18 +245,28 @@ class NEATViz(object):
                                                     
                                                     
                 self.image = imread(image_toread)
+                print(self.image.shape)
+                
                 if self.heatmapimagedir is not None:
                      self.heat_image = imread(self.heatmapimagedir + imagename + self.heatname + '.tif')
+                     self.heat_image =  MidSlices(self.heat_image, self.start_project_mid, self.end_project_mid, axis = 1)
+                if len(self.image.shape) == 4:
+                    self.image =  MidSlices(self.image, self.start_project_mid, self.end_project_mid, axis = 1)
+                    
                 
-               
-                
-                if len(self.image.shape) > 3:
-                    self.image = self.image[0,:]
                 self.viewer.add_image(self.image, name= 'Image' + imagename )
                 if self.heatmapimagedir is not None:
                      self.viewer.add_image(self.heat_image, name= 'Image' + imagename + self.heatname )
                                                     
-                
+def MidSlices(Image, start_project_mid, end_project_mid, axis = 1):
+    
+    
+    SmallImage = Image.take(indices = range(Image.shape[axis]//2 - start_project_mid, Image.shape[axis]//2 + end_project_mid), axis = axis)
+    
+    MaxProject = np.amax(SmallImage, axis = axis)
+        
+    return MaxProject  
+
 def TruePositives(csv_gt, csv_pred, thresholdscore = 1 -  1.0E-6,  thresholdspace = 10, thresholdtime = 2):
     
             

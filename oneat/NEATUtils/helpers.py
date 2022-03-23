@@ -973,7 +973,7 @@ def microscope_dynamic_nms( classedboxes, event_name, iou_threshold, event_thres
 
 def save_dynamic_csv(imagename, key_categories, iou_classedboxes, savedir, downsamplefactor, ndim, z = 0):
     
-    
+        print(z) 
         for (event_name, event_label) in key_categories.items():
 
             if event_label > 0:
@@ -1015,7 +1015,7 @@ def save_dynamic_csv(imagename, key_categories, iou_classedboxes, savedir, downs
                 os.path.splitext(os.path.basename(imagename))[0])
                 writer = csv.writer(open(csvname + ".csv", "a"))
                 filesize = os.stat(csvname + ".csv").st_size
-                
+
                 if filesize < 1:
                             writer.writerow(['T', 'Z', 'Y', 'X', 'Score', 'Size', 'Confidence', 'Angle'])
                 for line in event_count:

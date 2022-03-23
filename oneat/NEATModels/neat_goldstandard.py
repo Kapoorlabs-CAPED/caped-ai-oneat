@@ -348,9 +348,10 @@ class NEATDynamic(object):
         self.ndim = len(self.image.shape)
         self.z = 0
         if self.ndim == 4:
-
-           image =  MidSlices(image, self.start_project_mid, self.end_project_mid, axis = 1)
            self.z = self.image.shape[1]//2
+           print(f'Image {self.image.shape} is {self.ndim} dimensional, projecting around the center {self.image.shape[1]} - {self.start_project_mid} to {self.image.shape[1]} - {self.end_project_mid}') 
+           self.image =  MidSlices(self.image, self.start_project_mid, self.end_project_mid, axis = 1)
+           
       
         self.maskfilter = maskfilter
         if self.maskimage is not None:
