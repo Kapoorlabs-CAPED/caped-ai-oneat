@@ -971,7 +971,7 @@ def microscope_dynamic_nms( classedboxes, event_name, iou_threshold, event_thres
                
                return best_sorted_event_box
 
-def save_dynamic_csv(imagename, key_categories, iou_classedboxes, savedir, downsamplefactor):
+def save_dynamic_csv(imagename, key_categories, iou_classedboxes, savedir, downsamplefactor, ndim, z = 0):
     
     
         for (event_name, event_label) in key_categories.items():
@@ -979,6 +979,7 @@ def save_dynamic_csv(imagename, key_categories, iou_classedboxes, savedir, downs
             if event_label > 0:
                 xlocations = []
                 ylocations = []
+                zlocations = []
                 scores = []
                 confidences = []
                 tlocations = []
@@ -1005,23 +1006,23 @@ def save_dynamic_csv(imagename, key_categories, iou_classedboxes, savedir, downs
                     tlocations.append(tcenter)
                     radiuses.append(radius)
                     angles.append(angle)
-
+                    zlocations.append(z)
                 event_count = np.column_stack(
-                    [tlocations, ylocations, xlocations, scores, radiuses, confidences, angles])
+                            [tlocations, zlocations, ylocations, xlocations, scores, radiuses, confidences, angles])
                 event_count = sorted(event_count, key=lambda x: x[0], reverse=False)
                 event_data = []
                 csvname = savedir + "/" + event_name + "Location" + (
                 os.path.splitext(os.path.basename(imagename))[0])
                 writer = csv.writer(open(csvname + ".csv", "a"))
                 filesize = os.stat(csvname + ".csv").st_size
+                
                 if filesize < 1:
-                    writer.writerow(['T', 'Y', 'X', 'Score', 'Size', 'Confidence', 'Angle'])
+                            writer.writerow(['T', 'Z', 'Y', 'X', 'Score', 'Size', 'Confidence', 'Angle'])
                 for line in event_count:
-                    if line not in event_data:
-                        event_data.append(line)
-                    writer.writerows(event_data)
-                    event_data = []
-    
+                            if line not in event_data:
+                                event_data.append(line)
+                            writer.writerows(event_data)
+                            event_data = []
     
     
 

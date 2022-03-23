@@ -153,25 +153,21 @@ class NEATViz(object):
             self.ax.cla()
             #Data is written as T, Y, X, Score, Size, Confidence
             self.T = self.dataset[self.dataset.keys()[0]][0:]
-            self.Y = self.dataset[self.dataset.keys()[1]][0:]
-            self.X = self.dataset[self.dataset.keys()[2]][0:]
+            self.Z = self.dataset[self.dataset.keys()[1]][0:]
+            self.Y = self.dataset[self.dataset.keys()[2]][0:]
+            self.X = self.dataset[self.dataset.keys()[3]][0:]
+            self.Score = self.dataset[self.dataset.keys()[4]][0:]
+            self.Size = self.dataset[self.dataset.keys()[5]][0:]
+            self.Confidence = self.dataset[self.dataset.keys()[6]][0:]
             
-            try:
-                    self.Score = self.dataset[self.dataset.keys()[3]][0:]
-                    self.Size = self.dataset[self.dataset.keys()[4]][0:]
-                    self.Confidence = self.dataset[self.dataset.keys()[5]][0:]
             
-            except:
-                
-                self.Score = self.T
-                self.Size = self.Y
-                self.Confidence = self.X
             
             timelist = []
             eventlist= []
             for i in range(0, self.image.shape[0]):
                 
                    currentT   = np.round(self.dataset["T"]).astype('int')
+                   currentZ = np.round(self.dataset["Z"]).astype('int')
                    currentScore = self.dataset["Score"]
                    currentConf = self.dataset["Confidence"]
                    condition = currentT == i
@@ -194,6 +190,7 @@ class NEATViz(object):
             plt.savefig(self.savedir  + self.event_name   + '.png')        
 
             listtime = self.T.tolist()
+            listz = self.Z.tolist()
             listy = self.Y.tolist()
             listx = self.X.tolist()
             
@@ -204,17 +201,21 @@ class NEATViz(object):
             size_locations = []
             score_locations = []
             confidence_locations = []
+            ndim = len(self.image)
             for i in (range(len(listtime))):
                  
                  tcenter = int(listtime[i])
-                 
+                 zcenter = listz[i]
                  ycenter = listy[i]
                  xcenter = listx[i]
                  size = listsize[i]
                  score = listscore[i]
                  confidence = listconfidence[i]   
                  if score > self.event_threshold[self.event_label]:
-                         event_locations.append([int(tcenter), int(ycenter), int(xcenter)])   
+                         if ndim == 3:
+                            event_locations.append([int(tcenter), int(ycenter), int(xcenter)])   
+                         else:
+                            event_locations.append([int(tcenter), int(zcenter), int(ycenter), int(xcenter)])    
                          size_locations.append(size)
                          score_locations.append(score)
                          confidence_locations.append(confidence)

@@ -333,15 +333,25 @@ class NEATDynamic(object):
 
 
         return self.markers, self.marker_tree, self.watershed, self.mask
-
+    
     def predict(self, imagename,  savedir, n_tiles=(1, 1), overlap_percent=0.8,
-                event_threshold=0.5, event_confidence = 0.5, iou_threshold=0.1,  fidelity=5, downsamplefactor = 1, 
+                event_threshold=0.5, event_confidence = 0.5, iou_threshold=0.1,  fidelity=5, downsamplefactor = 1, start_project_mid = 4, end_project_mid = 4,
                 maskfilter = 10, markers = None, marker_tree = None, watershed = None, maskimage = None, remove_markers = True):
 
         self.watershed = watershed
         self.maskimage = maskimage
         self.imagename = imagename
         self.image = imread(imagename)
+        self.start_project_mid = start_project_mid
+        self.end_project_mid = end_project_mid
+
+        self.ndim = len(self.image.shape)
+        self.z = 0
+        if self.ndim == 4:
+
+           image =  MidSlices(image, self.start_project_mid, self.end_project_mid, axis = 1)
+           self.z = self.image.shape[1]//2
+      
         self.maskfilter = maskfilter
         if self.maskimage is not None:
           self.maskimage = ndimage.minimum_filter(self.maskimage, size = self.maskfilter)
@@ -667,9 +677,9 @@ class NEATDynamic(object):
 
     def to_csv(self):
          if self.remove_markers is not None:
-            save_dynamic_csv(self.imagename, self.key_categories, self.iou_classedboxes, self.savedir, 1)        
+            save_dynamic_csv(self.imagename, self.key_categories, self.iou_classedboxes, self.savedir, 1, self.ndim, self.z)        
          if self.markers is None:
-            save_dynamic_csv(self.imagename, self.key_categories, self.iou_classedboxes, self.savedir, self.downsamplefactor)          
+            save_dynamic_csv(self.imagename, self.key_categories, self.iou_classedboxes, self.savedir, self.downsamplefactor, self.ndim, self.z)          
   
 
     def saveimage(self, xlocations, ylocations, tlocations, angles, radius, scores):
@@ -1019,3 +1029,12 @@ class EventViewer(object):
             angle_locations.append(angle)
 
         return event_locations, size_locations, angle_locations, line_locations, timelist, eventlist
+
+def MidSlices(Image, start_project_mid, end_project_mid, axis = 1):
+    
+    
+    SmallImage = Image.take(indices = range(Image.shape[axis]//2 - start_project_mid, Image.shape[axis]//2 + end_project_mid), axis = axis)
+    
+    MaxProject = np.amax(SmallImage, axis = axis)
+        
+    return MaxProject
