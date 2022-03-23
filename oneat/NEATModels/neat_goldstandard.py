@@ -353,7 +353,7 @@ class NEATDynamic(object):
         self.z = 0
         if self.ndim == 4:
            self.z = self.image.shape[1]//2
-           print(f'Image {self.image.shape} is {self.ndim} dimensional, projecting around the center {self.image.shape[1]} - {self.start_project_mid} to {self.image.shape[1]} - {self.end_project_mid}') 
+           print(f'Image {self.image.shape} is {self.ndim} dimensional, projecting around the center {self.image.shape[1]//2} - {self.start_project_mid} to {self.image.shape[1]//2} + {self.end_project_mid}') 
            self.image =  MidSlices(self.image, self.start_project_mid, self.end_project_mid, axis = 1)
            
       
@@ -448,7 +448,7 @@ class NEATDynamic(object):
                                 self.classedboxes = classedboxes    
                                 self.eventboxes =  eventboxes
                                 #nms over time
-                                if inputtime%(self.imaget) == 0 and inputtime > 0:
+                                if inputtime > 0:
  
                                     self.nms()
                                     self.to_csv()
@@ -642,7 +642,7 @@ class NEATDynamic(object):
                                                     current_event_box.append(box)
                                              classedboxes[event_name] = [current_event_box]
 
-                if inputtime%(self.imaget) == 0 and inputtime > 0:                         
+                if inputtime > 0:                         
                         self.classedboxes = classedboxes    
                         self.eventboxes =  eventboxes
                         self.nms()

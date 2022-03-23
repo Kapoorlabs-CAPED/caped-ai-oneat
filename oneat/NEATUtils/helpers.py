@@ -501,6 +501,7 @@ def Generate_only_mask(Image, maskmodel, n_tiles):
         smallimage = Image[i, :]
         maskimage = GenerateMask(smallimage, maskmodel, n_tiles)
         maskimage = fill_label_holes(maskimage.astype('uint16'))
+
         Mask[i,:] = maskimage
   return Mask
 
@@ -989,7 +990,6 @@ def microscope_dynamic_nms( classedboxes, event_name, iou_threshold, event_thres
 
 def save_dynamic_csv(imagename, key_categories, iou_classedboxes, savedir, downsamplefactor, ndim, z = 0, maskimage = None):
     
-        print(z) 
         for (event_name, event_label) in key_categories.items():
 
             if event_label > 0:
