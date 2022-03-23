@@ -1,7 +1,7 @@
 from oneat.NEATUtils import plotters
 import numpy as np
 from oneat.NEATUtils import helpers
-from oneat.NEATUtils.helpers import get_nearest,  load_json, yoloprediction, normalizeFloatZeroOne, GenerateMarkers, MakeTrees, DownsampleData,save_dynamic_csv, dynamic_nms, gold_nms
+from oneat.NEATUtils.helpers import get_nearest,  load_json, yoloprediction, normalizeFloatZeroOne, GenerateMarkers, Generate_only_mask, MakeTrees, DownsampleData,save_dynamic_csv, dynamic_nms, gold_nms
 from keras import callbacks
 import os
 import math
@@ -336,15 +336,16 @@ class NEATDynamic(object):
     
     def predict(self, imagename,  savedir, n_tiles=(1, 1), overlap_percent=0.8,
                 event_threshold=0.5, event_confidence = 0.5, iou_threshold=0.1,  fidelity=5, downsamplefactor = 1, start_project_mid = 4, end_project_mid = 4,
-                maskfilter = 10, markers = None, marker_tree = None, watershed = None, maskimage = None, remove_markers = True):
+                maskfilter = 10, markers = None, marker_tree = None, watershed = None, maskimage = None, remove_markers = True,maskmodel = None):
 
         self.watershed = watershed
         self.maskimage = maskimage
         self.imagename = imagename
+        self.Name = os.path.basename(os.path.splitext(self.imagename)[0])
         self.image = imread(imagename)
         self.start_project_mid = start_project_mid
         self.end_project_mid = end_project_mid
-
+        self.maskmodel = maskmodel
         self.ndim = len(self.image.shape)
         self.z = 0
         if self.ndim == 4:
@@ -354,10 +355,7 @@ class NEATDynamic(object):
            
       
         self.maskfilter = maskfilter
-        if self.maskimage is not None:
-          self.maskimage = ndimage.minimum_filter(self.maskimage, size = self.maskfilter)
-        else:
-            self.maskimage = None
+        
         self.heatmap = np.zeros(self.image.shape, dtype = 'float32')  
         self.savedir = savedir
         self.n_tiles = n_tiles
@@ -368,7 +366,17 @@ class NEATDynamic(object):
         self.event_confidence = event_confidence
         self.downsamplefactor = downsamplefactor
         self.originalimage = self.image
-       
+        if self.maskmodel is not None:
+
+            self.maskdir = self.savedir + '/' + 'Mask'
+            self.mask = Generate_only_mask(self.image, self.maskmodel, self.n_tiles)
+            imwrite(self.maskdir + '/' + self.Name + '.tif', self.mask.astype('float32'))
+
+        if self.maskimage is not None:
+          self.maskimage = ndimage.minimum_filter(self.maskimage, size = self.maskfilter)
+        else:
+            self.maskimage = None
+
         self.model = load_model(self.model_dir + self.model_name + '.h5',
                                 custom_objects={'loss': self.yololoss, 'Concat': Concat})
 

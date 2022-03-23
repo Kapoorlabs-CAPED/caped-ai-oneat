@@ -495,6 +495,15 @@ def twod_zero_pad(image, PadX, PadY):
 
     return extendimage
 
+def Generate_only_mask(Image, maskmodel, n_tiles):
+  Mask = np.zeros([Image.shape[0], Image.shape[1], Image.shape[2]])
+  for i in tqdm(range(0, Image.shape[0])):
+        smallimage = Image[i, :]
+        maskimage = GenerateMask(smallimage, maskmodel, n_tiles)
+       
+        Mask[i,:] = maskimage
+  return Mask
+
 def GenerateMarkers(Image, model, maskmodel, n_tiles):
     Markers = np.zeros([Image.shape[0], Image.shape[1], Image.shape[2]])
     Watershed = np.zeros([Image.shape[0], Image.shape[1], Image.shape[2]])
@@ -529,24 +538,20 @@ def GenerateMarkers(Image, model, maskmodel, n_tiles):
 
 def GenerateMask(Image, model, n_tiles):
      
-    Mask = np.zeros([Image.shape[0], Image.shape[1], Image.shape[2]])
-    for i in tqdm(range(0, Image.shape[0])):
-        smallimage = Image[i, :]
-        Segmented = model.predict(smallimage, 'YX', n_tiles=n_tiles)
-
-        try:
+    Segmented = model.predict(Image, 'YX', n_tiles=n_tiles)
+    try:
             thresholds = threshold_multiotsu(Segmented, classes=2)
 
             # Using the threshold values, we generate the three regions.
             regions = np.digitize(Segmented, bins=thresholds)
-        except:
+    except:
 
             regions = Segmented
 
-        Binary = regions > 0
-        Mask[i,:] = Binary
+    Binary = regions > 0
+        
 
-    return Mask  
+    return Binary  
 
 """
 This method takes the integer labelled segmentation image as input and creates a dictionary of markers at all timepoints for easy search
