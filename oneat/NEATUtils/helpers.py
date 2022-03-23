@@ -497,7 +497,7 @@ def twod_zero_pad(image, PadX, PadY):
 
 def Generate_only_mask(Image, maskmodel, n_tiles):
   Mask = np.zeros([Image.shape[0], Image.shape[1], Image.shape[2]])
-  for i in tqdm(range(0, Image.shape[0])):
+  for i in (range(0, Image.shape[0])):
         smallimage = Image[i, :]
         maskimage = GenerateMask(smallimage, maskmodel, n_tiles)
        

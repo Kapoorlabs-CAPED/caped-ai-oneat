@@ -368,10 +368,11 @@ class NEATDynamic(object):
         self.originalimage = self.image
         if self.maskmodel is not None:
 
+            print(f'Generating mask, hang on')
             self.maskdir = self.savedir + '/' + 'Mask'
             self.mask = Generate_only_mask(self.image, self.maskmodel, self.n_tiles)
             imwrite(self.maskdir + '/' + self.Name + '.tif', self.mask.astype('float32'))
-
+            print(f'Mask generated and saved at {self.maskdir}')
         if self.maskimage is not None:
           self.maskimage = ndimage.minimum_filter(self.maskimage, size = self.maskfilter)
         else:
