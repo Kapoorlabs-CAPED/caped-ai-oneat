@@ -500,7 +500,7 @@ def Generate_only_mask(Image, maskmodel, n_tiles):
   for i in (range(0, Image.shape[0])):
         smallimage = Image[i, :]
         maskimage = GenerateMask(smallimage, maskmodel, n_tiles)
-       
+        maskimage = fill_label_holes(maskimage.astype('uint16'))
         Mask[i,:] = maskimage
   return Mask
 
@@ -511,6 +511,7 @@ def GenerateMarkers(Image, model, maskmodel, n_tiles):
     for i in tqdm(range(0, Image.shape[0])):
         smallimage = Image[i, :]
         maskimage = GenerateMask(smallimage, maskmodel, n_tiles)
+        maskimage = fill_label_holes(maskimage.astype('uint16'))
         smallimage = normalize(smallimage, 1, 99.8, axis=(0, 1))
         shape = [smallimage.shape[0], smallimage.shape[1]]
         resize_smallimage = twod_zero_pad(smallimage, 64, 64)
