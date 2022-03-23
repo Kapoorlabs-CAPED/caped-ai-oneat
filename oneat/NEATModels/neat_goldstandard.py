@@ -370,6 +370,7 @@ class NEATDynamic(object):
 
             print(f'Generating mask, hang on')
             self.maskdir = self.savedir + '/' + 'Mask'
+            Path(self.maskdir).mkdir(exist_ok=True)
             self.mask = Generate_only_mask(self.image, self.maskmodel, self.n_tiles)
             imwrite(self.maskdir + '/' + self.Name + '.tif', self.mask.astype('float32'))
             print(f'Mask generated and saved at {self.maskdir}')
@@ -687,9 +688,9 @@ class NEATDynamic(object):
 
     def to_csv(self):
          if self.remove_markers is not None:
-            save_dynamic_csv(self.imagename, self.key_categories, self.iou_classedboxes, self.savedir, 1, self.ndim, self.z)        
+            save_dynamic_csv(self.imagename, self.key_categories, self.iou_classedboxes, self.savedir, 1, self.ndim, z = self.z, maskimage = self.maskimage)        
          if self.markers is None:
-            save_dynamic_csv(self.imagename, self.key_categories, self.iou_classedboxes, self.savedir, self.downsamplefactor, self.ndim, self.z)          
+            save_dynamic_csv(self.imagename, self.key_categories, self.iou_classedboxes, self.savedir, self.downsamplefactor, self.ndim, z = self.z, maskimage = self.maskimage)          
   
 
     def saveimage(self, xlocations, ylocations, tlocations, angles, radius, scores):

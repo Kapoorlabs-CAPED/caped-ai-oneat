@@ -805,7 +805,7 @@ def simpleaveragenms(boxes, scores, nms_threshold, score_threshold, event_name, 
 
 
 
-def save_static_csv(ColorimageStatic,ColorimageDynamic,imagename, key_categories, iou_classedboxes, savedir, downsamplefactor):
+def save_static_csv(ColorimageStatic,ColorimageDynamic,imagename, key_categories, iou_classedboxes, savedir, downsamplefactor, maskimage = None):
     
     
     for (event_name, event_label) in key_categories.items():
@@ -832,13 +832,23 @@ def save_static_csv(ColorimageStatic,ColorimageDynamic,imagename, key_categories
                             'width'] * iou_current_event_box['width']) // 2
                     radius = radius * downsamplefactor
                     # Replace the detection with the nearest marker location
+                    if maskimage is not None:
+                        if maskimage[int(tcenter), int(ycenter), int(xcenter)] > 0:
 
-                    xlocations.append(xcenter)
-                    ylocations.append(ycenter)
-                    scores.append(score)
-                    confidences.append(confidence)
-                    tlocations.append(tcenter)
-                    radiuses.append(radius)
+                            xlocations.append(xcenter)
+                            ylocations.append(ycenter)
+                            scores.append(score)
+                            confidences.append(confidence)
+                            tlocations.append(tcenter)
+                            radiuses.append(radius)
+                    else:
+                            xlocations.append(xcenter)
+                            ylocations.append(ycenter)
+                            scores.append(score)
+                            confidences.append(confidence)
+                            tlocations.append(tcenter)
+                            radiuses.append(radius)
+
 
                 event_count = np.column_stack([tlocations, ylocations, xlocations, scores, radiuses, confidences])
                 event_count = sorted(event_count, key=lambda x: x[0], reverse=False)
@@ -976,7 +986,7 @@ def microscope_dynamic_nms( classedboxes, event_name, iou_threshold, event_thres
                
                return best_sorted_event_box
 
-def save_dynamic_csv(imagename, key_categories, iou_classedboxes, savedir, downsamplefactor, ndim, z = 0):
+def save_dynamic_csv(imagename, key_categories, iou_classedboxes, savedir, downsamplefactor, ndim, z = 0, maskimage = None):
     
         print(z) 
         for (event_name, event_label) in key_categories.items():
@@ -1004,14 +1014,26 @@ def save_dynamic_csv(imagename, key_categories, iou_classedboxes, savedir, downs
                         iou_current_event_box['height'] * iou_current_event_box['height'] + iou_current_event_box[
                             'width'] * iou_current_event_box['width']) // 2
                     radius = radius * downsamplefactor
-                    xlocations.append(xcenter)
-                    ylocations.append(ycenter)
-                    scores.append(score)
-                    confidences.append(confidence)
-                    tlocations.append(tcenter)
-                    radiuses.append(radius)
-                    angles.append(angle)
-                    zlocations.append(z)
+
+                    if maskimage is not None:
+                        if maskimage[int(tcenter), int(ycenter), int(xcenter)] > 0:
+                                xlocations.append(xcenter)
+                                ylocations.append(ycenter)
+                                scores.append(score)
+                                confidences.append(confidence)
+                                tlocations.append(tcenter)
+                                radiuses.append(radius)
+                                angles.append(angle)
+                                zlocations.append(z)
+                    else:
+                                xlocations.append(xcenter)
+                                ylocations.append(ycenter)
+                                scores.append(score)
+                                confidences.append(confidence)
+                                tlocations.append(tcenter)
+                                radiuses.append(radius)
+                                angles.append(angle)
+                                zlocations.append(z)        
                 event_count = np.column_stack(
                             [tlocations, zlocations, ylocations, xlocations, scores, radiuses, confidences, angles])
                 event_count = sorted(event_count, key=lambda x: x[0], reverse=False)
