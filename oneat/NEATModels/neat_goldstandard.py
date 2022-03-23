@@ -240,7 +240,6 @@ class NEATDynamic(object):
         self.Y = dummyY
         self.Y_val = dummyY_val
 
-        print(self.Y.shape, self.nboxes)
 
         self.Trainingmodel = self.model_keras(input_shape, self.categories, unit=self.lstm_hidden_unit,
                                               box_vector=Y_rest.shape[-1], nboxes=self.nboxes,
@@ -254,7 +253,6 @@ class NEATDynamic(object):
         self.Trainingmodel.compile(optimizer=sgd, loss=self.yololoss, metrics=['accuracy'])
 
         self.Trainingmodel.summary()
-        print(self.startfilter)
         # Keras callbacks
         lrate = callbacks.ReduceLROnPlateau(monitor='loss', factor=0.1, patience=4, verbose=1)
         hrate = callbacks.History()
@@ -1019,7 +1017,6 @@ class EventViewer(object):
         line_locations = []
         for i in range(len(listtime)):
             tcenter = int(listtime[i])
-            print(tcenter)
             ycenter = listy[i]
             xcenter = listx[i]
             size = listsize[i]
