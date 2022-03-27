@@ -132,8 +132,8 @@ def SimpleMovieMaker(time, y, x, image, crop_size, total_categories, trainlabel,
                                 Label[total_categories] = 0.5
                                 Label[total_categories + 1] = 0.5
                                 Label[total_categories + 2] = 0.5          
-                                Label[total_categories + 3] = 1
-                                Label[total_categories + 4] = 1
+                                Label[total_categories + 3] = 0.5
+                                Label[total_categories + 4] = 0.5
                                 Label[total_categories + 5] = 1
        
 
@@ -610,7 +610,7 @@ def getHW(defaultX, defaultY, trainlabel, currentsegimage, imagesizex, imagesize
                                                
                   if SegLabel > 0 and prop.label == SegLabel:
                                     minr, minc, maxr, maxc = prop.bbox
-                                    center = prop.centroid
+                                    center = (defaultY, defaultX)
                                     height =  abs(maxc - minc)
                                     width =  abs(maxr - minr)
                                 
