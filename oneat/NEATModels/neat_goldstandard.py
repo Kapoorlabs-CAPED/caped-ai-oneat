@@ -250,7 +250,7 @@ class NEATDynamic(object):
                                               startfilter=self.startfilter, input_weights=self.model_weights,
                                               last_activation=self.last_activation)
 
-        sgd = optimizers.SGD(lr=self.learning_rate, momentum=0.99, decay=1e-6, nesterov=True)
+        sgd = K.optimizers.Adam(learning_rate=self.learning_rate)
         self.Trainingmodel.compile(optimizer=sgd, loss=self.yololoss, metrics=['accuracy'])
 
         self.Trainingmodel.summary()
