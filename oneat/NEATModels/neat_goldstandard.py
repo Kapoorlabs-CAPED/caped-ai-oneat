@@ -4,6 +4,7 @@ from oneat.NEATUtils import helpers
 from oneat.NEATUtils.helpers import get_nearest,  load_json, yoloprediction, normalizeFloatZeroOne, GenerateMarkers, Generate_only_mask, MakeTrees, DownsampleData,save_dynamic_csv, dynamic_nms, gold_nms
 from keras import callbacks
 import os
+import keras
 from scipy.ndimage.morphology import binary_dilation, binary_erosion
 import math
 from tqdm import tqdm
@@ -250,7 +251,7 @@ class NEATDynamic(object):
                                               startfilter=self.startfilter, input_weights=self.model_weights,
                                               last_activation=self.last_activation)
 
-        sgd = K.optimizers.Adam(learning_rate=self.learning_rate)
+        sgd = keras.optimizers.Adam(learning_rate=self.learning_rate)
         self.Trainingmodel.compile(optimizer=sgd, loss=self.yololoss, metrics=['accuracy'])
 
         self.Trainingmodel.summary()
