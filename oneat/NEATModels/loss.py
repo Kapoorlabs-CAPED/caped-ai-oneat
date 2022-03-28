@@ -31,7 +31,7 @@ def extract_ground_event_truth(y_true, categories, grid_h, grid_w, grid_t, nboxe
     true_box_xyt = true_nboxes[...,0:3]
     true_box_t = K.ones_like(true_nboxes[...,3:5])
 
-    true_box_wh =  tf.keras.layers.Concatenate(axis=1)([true_nboxes[...,3:5], true_box_t]) 
+    true_box_wh =  tf.keras.layers.Concatenate(axis=-1)([true_nboxes[...,3:5], true_box_t]) 
     
     if yolo_v0:
         true_box_conf = 1
@@ -56,7 +56,7 @@ def extract_ground_event_pred(y_pred, categories, grid_h, grid_w, grid_t, event_
     
     pred_box_xyt = pred_nboxes[...,0:3] + event_grid
     pred_box_t = K.ones_like(pred_nboxes[...,3:5])
-    pred_box_wh = tf.keras.layers.Concatenate(axis=1)([pred_nboxes[...,3:5], pred_box_t])
+    pred_box_wh = tf.keras.layers.Concatenate(axis=-1)([pred_nboxes[...,3:5], pred_box_t])
         
     if yolo_v0:
         
