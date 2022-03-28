@@ -17,12 +17,12 @@ lambdaangle = 1
 
 def get_event_grid(grid_h, grid_w, grid_t, boxes):
     
-    event_grid = np.array([ [[float(x),float(y),float(t)]]*boxes  for y in range(grid_h) for x in range(grid_w) for t in range(grid_t)])
+    event_grid = np.array([ [[float(y),float(x),float(t)]]*boxes  for y in range(grid_h) for x in range(grid_w) for t in range(grid_t)])
     
     return event_grid
 
 
-def extract_ground_event_truth(y_true, categories, grid_h, grid_w, grid_t, event_grid, nboxes, box_vector,yolo_v0,yolo_v1,yolo_v2):
+def extract_ground_event_truth(y_true, categories, grid_h, grid_w, grid_t, nboxes, box_vector,yolo_v0,yolo_v1,yolo_v2):
     
     true_box_class = y_true[...,0:categories]
     
@@ -86,7 +86,7 @@ def extract_ground_cell_pred(y_pred, categories, grid_h, grid_w, cell_grid, nbox
         
         pred_nboxes = K.reshape(y_pred[...,categories:], (-1, grid_h * grid_w, nboxes, box_vector))
     
-        pred_box_xy = pred_nboxes[...,0:2] + cell_grid
+        pred_box_xy = pred_nboxes[...,0:2] + K.variable(cell_grid)
     
         pred_box_wh = pred_nboxes[...,2:4]
         
@@ -100,7 +100,7 @@ def extract_ground_cell_pred(y_pred, categories, grid_h, grid_w, cell_grid, nbox
         
         return pred_box_class, pred_box_xy, pred_box_wh, pred_box_conf
 
-def extract_ground_cell_truth(y_truth, categories, grid_h, grid_w, cell_grid, nboxes, box_vector, yolo_v0):
+def extract_ground_cell_truth(y_truth, categories, grid_h, grid_w, nboxes, box_vector, yolo_v0):
 
         true_box_class = y_truth[...,0:categories]
         
@@ -132,7 +132,7 @@ def extract_ground_cell_pred_segfree(y_pred, categories, grid_h, grid_w, cell_gr
         
         return pred_box_class, pred_box_xy
 
-def extract_ground_cell_truth_foc(y_truth, categories, nboxes, box_vector):
+def extract_ground_cell_truth_foc(y_truth, categories):
 
         true_box_class = y_truth[...,0:categories]
         
@@ -141,7 +141,7 @@ def extract_ground_cell_truth_foc(y_truth, categories, nboxes, box_vector):
         
         return true_box_class
 
-def extract_ground_cell_pred_foc(y_pred, categories, nboxes, box_vector):
+def extract_ground_cell_pred_foc(y_pred, categories):
 
         pred_box_class = y_pred[...,0:categories]
        
@@ -149,7 +149,7 @@ def extract_ground_cell_pred_foc(y_pred, categories, nboxes, box_vector):
         
         return pred_box_class
 
-def extract_ground_cell_truth_segfree(y_truth, categories, grid_h, grid_w, cell_grid, nboxes, box_vector, yolo_v0):
+def extract_ground_cell_truth_segfree(y_truth, categories, grid_h, grid_w, nboxes, box_vector):
 
         true_box_class = y_truth[...,0:categories]
         
@@ -162,15 +162,14 @@ def extract_ground_cell_truth_segfree(y_truth, categories, grid_h, grid_w, cell_
 def compute_conf_loss(pred_box_wh, true_box_wh, pred_box_xy,true_box_xy,true_box_conf,pred_box_conf):
     
 # compute the intersection of all boxes at once (the IOU)
-        intersect_wh = K.maximum(K.zeros_like(pred_box_wh), (pred_box_wh + true_box_wh)/2 - K.square(pred_box_xy[...,0:1] - true_box_xy[...,0:1]) )
+        intersect_wh = K.maximum(K.zeros_like(pred_box_wh), (pred_box_wh + true_box_wh)/2 - K.square(pred_box_xy- true_box_xy) )
         intersect_area = intersect_wh[...,0] * intersect_wh[...,1]
         true_area = true_box_wh[...,0] * true_box_wh[...,1]
         pred_area = pred_box_wh[...,0] * pred_box_wh[...,1]
         union_area = pred_area + true_area - intersect_area
-        iou = tf.truediv(intersect_area , union_area)
+        iou = intersect_area / union_area
   
-        best_ious = K.max(iou, axis= -1)
-        loss_conf = K.sum(K.square(true_box_conf*best_ious - pred_box_conf), axis=-1)
+        loss_conf = K.sum(K.square(true_box_conf*iou - pred_box_conf), axis=-1)
 
         loss_conf = loss_conf * lambdaobject
 
@@ -180,7 +179,7 @@ def calc_loss_xywh(true_box_conf, true_box_xy, pred_box_xy, true_box_wh, pred_bo
 
     
     loss_xy      = K.sum(K.sum(K.square(true_box_xy - pred_box_xy), axis = -1), axis = -1)
-    loss_wh      = K.sum(K.sum(K.square(K.sqrt(true_box_wh) - K.sqrt(pred_box_wh)), axis=-1), axis=-1)
+    loss_wh      = K.sum(K.sum(K.square(K.sqrt(true_box_wh) - K.sqrt(pred_box_wh)), axis=-1) * true_box_conf , axis=-1)
     loss_xywh = (loss_xy + loss_wh)
     loss_xywh = lambdacoord * loss_xywh
     return loss_xywh
@@ -215,7 +214,6 @@ def calc_loss_class(true_box_class, pred_box_class, entropy):
 def dynamic_yolo_loss(categories, grid_h, grid_w, grid_t, nboxes, box_vector, entropy, yolo_v0, yolo_v1, yolo_v2):
     
     def loss(y_true, y_pred):    
-        print(entropy)
         event_grid = get_event_grid(grid_h, grid_w, grid_t, nboxes)
         true_box_class, true_box_xyt, true_box_wh, true_box_conf, true_box_angle = extract_ground_event_truth(y_true, categories, grid_h, grid_w,grid_t, event_grid, nboxes, box_vector, yolo_v0, yolo_v1, yolo_v2)
        
