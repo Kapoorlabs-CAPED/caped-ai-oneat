@@ -28,10 +28,11 @@ def extract_ground_event_truth(y_true, categories, grid_h, grid_w, grid_t, nboxe
     
     true_nboxes = K.reshape(y_true[...,categories:], (-1, grid_h * grid_w * grid_t, nboxes, box_vector))
     
-    true_box_xyt = true_nboxes[...,0:3]
-    true_box_t = K.ones_like(true_nboxes[...,3:5])
+   
 
-    true_box_wh =  tf.keras.layers.Concatenate(axis=-1)([true_nboxes[...,3:5], true_box_t]) 
+    true_box_xyt = true_nboxes[...,0:3]
+
+    true_box_wh =  true_nboxes[...,3:5] 
     
     if yolo_v0:
         true_box_conf = 1
@@ -55,8 +56,7 @@ def extract_ground_event_pred(y_pred, categories, grid_h, grid_w, grid_t, event_
     pred_nboxes = K.reshape(y_pred[...,categories:], (-1, grid_h * grid_w * grid_t, nboxes, box_vector))
     
     pred_box_xyt = pred_nboxes[...,0:3] + event_grid
-    pred_box_t = K.ones_like(pred_nboxes[...,3:5])
-    pred_box_wh = tf.keras.layers.Concatenate(axis=-1)([pred_nboxes[...,3:5], pred_box_t])
+    pred_box_wh = pred_nboxes[...,3:5]
         
     if yolo_v0:
         
@@ -163,10 +163,10 @@ def extract_ground_cell_truth_segfree(y_truth, categories, grid_h, grid_w, nboxe
 def compute_conf_loss(pred_box_wh, true_box_wh, pred_box_xy,true_box_xy,true_box_conf,pred_box_conf):
     
 # compute the intersection of all boxes at once (the IOU)
-        intersect_wh = K.maximum(K.zeros_like(pred_box_wh), (pred_box_wh + true_box_wh)/2 - K.square(pred_box_xy- true_box_xy) )
-        intersect_area = intersect_wh[...,0] * intersect_wh[...,1] * intersect_wh[...,2]
-        true_area = true_box_wh[...,0] * true_box_wh[...,1] * true_box_wh[...,2]
-        pred_area = pred_box_wh[...,0] * pred_box_wh[...,1] * pred_box_wh[...,2]
+        intersect_wh = K.maximum(K.zeros_like(pred_box_wh), (pred_box_wh + true_box_wh)/2 - K.square(pred_box_xy[...,0:1]- true_box_xy[...,0:1]) )
+        intersect_area = intersect_wh[...,0] * intersect_wh[...,1] 
+        true_area = true_box_wh[...,0] * true_box_wh[...,1] 
+        pred_area = pred_box_wh[...,0] * pred_box_wh[...,1] 
         union_area = pred_area + true_area - intersect_area
         iou = intersect_area / union_area
   
