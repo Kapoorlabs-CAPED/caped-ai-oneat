@@ -137,9 +137,6 @@ def extract_ground_cell_truth_foc(y_truth, categories):
 
         true_box_class = y_truth[...,0:categories]
         
-      
-    
-        
         return true_box_class
 
 def extract_ground_cell_pred_foc(y_pred, categories):
@@ -196,7 +193,7 @@ def calc_loss_xywh(true_box_conf, true_box_xy, pred_box_xy, true_box_wh, pred_bo
 
     
     loss_xy      = K.sum(K.sum(K.square(true_box_xy - pred_box_xy), axis = -1), axis = -1)
-    loss_wh      = K.sum(K.sum(K.square(K.sqrt(true_box_wh) - K.sqrt(pred_box_wh)), axis=-1) * true_box_conf , axis=-1)
+    loss_wh      = K.sum(K.sum(K.square(true_box_wh - pred_box_wh), axis=-1)  , axis=-1)
     loss_xywh = (loss_xy + loss_wh)
     loss_xywh = lambdacoord * loss_xywh
     return loss_xywh
@@ -208,7 +205,7 @@ def calc_loss_xy(true_box_xy, pred_box_xy):
     loss_xy = lambdacoord * loss_xy
     return loss_xy
 
-def calc_loss_angle(true_box_conf, true_box_angle, pred_box_angle):
+def calc_loss_angle(true_box_angle, pred_box_angle):
 
     
     loss_angle      = K.sum(K.sum(K.square(true_box_angle - pred_box_angle), axis = -1), axis = -1)
@@ -248,7 +245,7 @@ def dynamic_yolo_loss(categories, grid_h, grid_w, grid_t, nboxes, box_vector, en
         if yolo_v2:
                      
                     loss_conf = compute_conf_loss(pred_box_wh, true_box_wh, pred_box_xyt,true_box_xyt,true_box_conf,pred_box_conf) 
-                    loss_angle = calc_loss_angle(true_box_conf, true_box_angle, pred_box_angle)                             
+                    loss_angle = calc_loss_angle( true_box_angle, pred_box_angle)                             
                     combinedloss = (loss_xywht + loss_conf + loss_class + loss_angle) 
 
 
