@@ -29,8 +29,9 @@ def extract_ground_event_truth(y_true, categories, grid_h, grid_w, grid_t, nboxe
     true_nboxes = K.reshape(y_true[...,categories:], (-1, grid_h * grid_w * grid_t, nboxes, box_vector))
     
     true_box_xyt = true_nboxes[...,0:3]
-    
-    true_box_wh = true_nboxes[...,3:5]
+    true_box_t = K.ones(true_nboxes[...,3])
+
+    true_box_wh =  tf.keras.layers.Concatenate(axis=1)([true_nboxes[...,3:5], true_box_t]) 
     
     if yolo_v0:
         true_box_conf = 1
@@ -54,8 +55,8 @@ def extract_ground_event_pred(y_pred, categories, grid_h, grid_w, grid_t, event_
     pred_nboxes = K.reshape(y_pred[...,categories:], (-1, grid_h * grid_w * grid_t, nboxes, box_vector))
     
     pred_box_xyt = pred_nboxes[...,0:3] + event_grid
-    
-    pred_box_wh = pred_nboxes[...,3:5]
+    pred_box_t = K.ones(pred_nboxes[...,3])
+    pred_box_wh = tf.keras.layers.Concatenate(axis=1)([pred_nboxes[...,3:5], pred_box_t])
         
     if yolo_v0:
         
@@ -163,9 +164,9 @@ def compute_conf_loss(pred_box_wh, true_box_wh, pred_box_xy,true_box_xy,true_box
     
 # compute the intersection of all boxes at once (the IOU)
         intersect_wh = K.maximum(K.zeros_like(pred_box_wh), (pred_box_wh + true_box_wh)/2 - K.square(pred_box_xy- true_box_xy) )
-        intersect_area = intersect_wh[...,0] * intersect_wh[...,1]
-        true_area = true_box_wh[...,0] * true_box_wh[...,1]
-        pred_area = pred_box_wh[...,0] * pred_box_wh[...,1]
+        intersect_area = intersect_wh[...,0] * intersect_wh[...,1] * intersect_wh[...,2]
+        true_area = true_box_wh[...,0] * true_box_wh[...,1] * true_box_wh[...,2]
+        pred_area = pred_box_wh[...,0] * pred_box_wh[...,1] * pred_box_wh[...,2]
         union_area = pred_area + true_area - intersect_area
         iou = intersect_area / union_area
   
@@ -174,6 +175,22 @@ def compute_conf_loss(pred_box_wh, true_box_wh, pred_box_xy,true_box_xy,true_box
         loss_conf = loss_conf * lambdaobject
 
         return loss_conf 
+
+def compute_conf_loss_static(pred_box_wh, true_box_wh, pred_box_xy,true_box_xy,true_box_conf,pred_box_conf):
+    
+# compute the intersection of all boxes at once (the IOU)
+        intersect_wh = K.maximum(K.zeros_like(pred_box_wh), (pred_box_wh + true_box_wh)/2 - K.square(pred_box_xy- true_box_xy) )
+        intersect_area = intersect_wh[...,0] * intersect_wh[...,1] 
+        true_area = true_box_wh[...,0] * true_box_wh[...,1] 
+        pred_area = pred_box_wh[...,0] * pred_box_wh[...,1] 
+        union_area = pred_area + true_area - intersect_area
+        iou = intersect_area / union_area
+  
+        loss_conf = K.sum(K.square(true_box_conf*iou - pred_box_conf), axis=-1)
+
+        loss_conf = loss_conf * lambdaobject
+
+        return loss_conf        
 
 def calc_loss_xywh(true_box_conf, true_box_xy, pred_box_xy, true_box_wh, pred_box_wh):
 
@@ -245,7 +262,7 @@ def static_yolo_loss(categories, grid_h, grid_w, nboxes, box_vector, entropy, yo
     def loss(y_true, y_pred):    
 
         cell_grid = get_cell_grid(grid_h, grid_w, nboxes)
-        true_box_class, true_box_xy, true_box_wh, true_box_conf = extract_ground_cell_truth(y_true, categories, grid_h, grid_w, cell_grid, nboxes, box_vector, yolo_v0)
+        true_box_class, true_box_xy, true_box_wh, true_box_conf = extract_ground_cell_truth(y_true, categories, grid_h, grid_w, nboxes, box_vector, yolo_v0)
         pred_box_class, pred_box_xy, pred_box_wh, pred_box_conf = extract_ground_cell_pred(y_pred, categories, grid_h, grid_w, cell_grid, nboxes, box_vector, yolo_v0)
 
         loss_xywh = calc_loss_xywh(true_box_conf, true_box_xy, pred_box_xy, true_box_wh, pred_box_wh)
@@ -257,7 +274,7 @@ def static_yolo_loss(categories, grid_h, grid_w, nboxes, box_vector, entropy, yo
                     combinedloss = (loss_xywh + loss_class)
 
         else:
-                    loss_conf = compute_conf_loss(pred_box_wh, true_box_wh, pred_box_xy,true_box_xy,true_box_conf,pred_box_conf)
+                    loss_conf = compute_conf_loss_static(pred_box_wh, true_box_wh, pred_box_xy,true_box_xy,true_box_conf,pred_box_conf)
                     # Adding it all up   
                     combinedloss = (loss_xywh + loss_conf + loss_class)
 
@@ -272,7 +289,7 @@ def static_yolo_loss_segfree(categories, grid_h, grid_w, nboxes, box_vector, ent
     def loss(y_true, y_pred):    
 
         cell_grid = get_cell_grid(grid_h, grid_w, nboxes)
-        true_box_class, true_box_xy = extract_ground_cell_truth_segfree(y_true, categories, grid_h, grid_w, cell_grid, nboxes, box_vector, yolo_v0)
+        true_box_class, true_box_xy = extract_ground_cell_truth_segfree(y_true, categories, grid_h, grid_w, nboxes, box_vector, yolo_v0)
         pred_box_class, pred_box_xy = extract_ground_cell_pred_segfree(y_pred, categories, grid_h, grid_w, cell_grid, nboxes, box_vector, yolo_v0)
 
         loss_xy = calc_loss_xy(true_box_xy, pred_box_xy)
