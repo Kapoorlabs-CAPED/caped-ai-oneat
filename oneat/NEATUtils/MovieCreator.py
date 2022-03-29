@@ -242,7 +242,7 @@ def MovieMaker(time, y, x, angle, image, segimage, crop_size, gridx, gridy, offs
        time = time - tshift
        if time > 0:
                currentsegimage = segimage[int(time),:].astype('uint16')
-               height, width, center, seg_label = getHW(x, y, trainlabel, currentsegimage, imagesizex, imagesizey)
+               height, width, center, seg_label = getHW(x, y, currentsegimage, imagesizex, imagesizey)
                for shift in AllShifts:
 
                         newname = name + 'shift' + str(shift)
@@ -286,20 +286,13 @@ def MovieMaker(time, y, x, angle, image, segimage, crop_size, gridx, gridy, offs
 
 
                                         if yolo_v1:
-                                                if seg_label > 0:
+
                                                   Label[total_categories + 5] = 1 
-                                                else:
-                                                  Label[total_categories + 5] = 0   
 
                                         if yolo_v2:
 
-                                             if seg_label > 0:
-                                                  Label[total_categories + 5] = 1 
-                                             else:
-                                                  Label[total_categories + 5] = 0   
-
+                                             Label[total_categories + 5] = 1 
                                              Label[total_categories + 6] = angle        
-
                                         #Write the image as 32 bit tif file 
                                         if(crop_image.shape[0] == size_tplus + size_tminus + 1 and crop_image.shape[1]== imagesizey and crop_image.shape[2]== imagesizex):
 
@@ -479,7 +472,7 @@ def  ImageMaker(time, y, x, image, segimage, crop_size, gridX, gridY, offset, to
                if time < segimage.shape[0] - 1 and time > 0:
                  currentsegimage = segimage[int(time),:].astype('uint16')
                 
-                 height, width, center, SegLabel  = getHW(x, y,trainlabel, currentsegimage, ImagesizeX, ImagesizeY)
+                 height, width, center, _  = getHW(x, y, currentsegimage, ImagesizeX, ImagesizeY)
                  for shift in AllShifts:
                    
                         newname = name + 'shift' + str(shift)
@@ -525,10 +518,8 @@ def  ImageMaker(time, y, x, image, segimage, crop_size, gridX, gridY, offset, to
 
 
                                                     if yolo_v0==False:
-                                                            if SegLabel > 0:
-                                                              Label[total_categories + 4] = 1 
-                                                            else:
-                                                              Label[total_categories + 4] = 0  
+                                                            Label[total_categories + 4] = 1 
+                                                             
 
                                                     if(crop_image.shape[1]== ImagesizeY and crop_image.shape[2]== ImagesizeX):
                                                              imwrite((save_dir + '/' + newname + '.tif'  ) , crop_image.astype('float32'))  
@@ -600,11 +591,10 @@ def  SegFreeImageMaker(time, y, x, image, crop_size, gridX, gridY, offset, total
                                              writer = csv.writer(open(save_dir + '/' + (newname) + ".csv", "a"))
                                              writer.writerows(Event_data)
        
-def getHW(defaultX, defaultY, trainlabel, currentsegimage, imagesizex, imagesizey):
+def getHW(defaultX, defaultY, currentsegimage, imagesizex, imagesizey):
     
     properties = measure.regionprops(currentsegimage, currentsegimage)
     TwoDLocation = (defaultY,defaultX)
-    TwoDCoordinates = [(prop.centroid[0], prop.centroid[1]) for prop in properties]
     SegLabel = currentsegimage[int(TwoDLocation[0]), int(TwoDLocation[1])]
     for prop in properties:
                                                

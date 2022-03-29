@@ -28,7 +28,6 @@ cordconfig = load_json(division_cord_json)
 fileextension = '*TIF'
 
 model = NEATPredict(None, model_dir , model_name,catconfig, cordconfig)
-projection_model = ProjectionCARE(config = None, name = projection_model_name, basedir = model_dir)
 
 
 # In[ ]:
@@ -58,21 +57,21 @@ roi_end = 0.75
 
 model.predict_microscope(imagedir, 
               [], 
-              [], 
+              {}, 
               Z_imagedir, 
               [], 
-              [],  
+              {},  
               0, 
               0,
               downsample = downsample,
+              roi_start = roi_start,
+              roi_end = roi_end,
               fileextension = fileextension, 
               nb_prediction = nb_predictions, 
               n_tiles = n_tiles, 
               Z_n_tiles = Z_n_tiles, 
               event_threshold = event_threshold, 
               event_confidence = event_confidence,
-              roi_start = roi_start,
-              roi_end = roi_end,
               iou_threshold = iou_threshold,
               fidelity = fidelity)
 

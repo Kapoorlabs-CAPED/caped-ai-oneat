@@ -168,9 +168,10 @@ def compute_conf_loss(pred_box_wh, true_box_wh, pred_box_xy,true_box_xy,true_box
         true_area = true_box_wh[...,0] * true_box_wh[...,1] 
         pred_area = pred_box_wh[...,0] * pred_box_wh[...,1] 
         union_area = pred_area + true_area - intersect_area
-        iou = intersect_area / union_area
+        iou = tf.truediv(intersect_area , union_area)
   
-        loss_conf = K.sum(K.square(true_box_conf*iou - pred_box_conf), axis=-1)
+        best_ious = K.max(iou, axis= -1)
+        loss_conf = K.sum(K.square(true_box_conf*best_ious - pred_box_conf), axis=-1)
 
         loss_conf = loss_conf * lambdaobject
 
@@ -196,7 +197,7 @@ def calc_loss_xywh(true_box_conf, true_box_xy, pred_box_xy, true_box_wh, pred_bo
 
     
     loss_xy      = K.sum(K.sum(K.square(true_box_xy - pred_box_xy), axis = -1), axis = -1)
-    loss_wh      = K.sum(K.sum(K.square(true_box_wh - pred_box_wh), axis=-1)  , axis=-1)
+    loss_wh      = K.sum(K.sum(K.square(K.sqrt(true_box_wh) - K.sqrt(pred_box_wh)), axis=-1), axis=-1)
     loss_xywh = (loss_xy + loss_wh)
     loss_xywh = lambdacoord * loss_xywh
     return loss_xywh
