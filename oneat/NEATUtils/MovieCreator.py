@@ -148,7 +148,8 @@ def SimpleMovieMaker(time, y, x, image, crop_size, total_categories, trainlabel,
                                            writer.writerows(Event_data)
                                                                     
     
-def MovieLabelDataSet(image_dir, seg_image_dir, csv_dir, save_dir, static_name, static_label, csv_name_diff, crop_size, gridx = 1, gridy = 1, offset = 0, yolo_v0 = False, yolo_v1 = True, yolo_v2 = False,  tshift  = 1):
+def MovieLabelDataSet(image_dir, seg_image_dir, csv_dir, save_dir, static_name, static_label, csv_name_diff, crop_size, gridx = 1, gridy = 1, offset = 0, yolo_v0 = False, 
+yolo_v1 = True, yolo_v2 = False,  tshift  = 1, normalizeimage = True):
     
     
             raw_path = os.path.join(image_dir, '*tif')
@@ -176,7 +177,8 @@ def MovieLabelDataSet(image_dir, seg_image_dir, csv_dir, save_dir, static_name, 
                           
                           
                          image = imread(fname)
-                         image = normalizeFloatZeroOne( image.astype('float32'),1,99.8)
+                         if normalizeimage:
+                            image = normalizeFloatZeroOne( image.astype('float32'),1,99.8)
                          segimage = imread(Segfname)
                         
                          for csvfname in filesCsv:
