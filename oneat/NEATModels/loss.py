@@ -157,35 +157,83 @@ def extract_ground_cell_truth_segfree(y_truth, categories, grid_h, grid_w, nboxe
     
         
         return true_box_class, true_box_xy
-def compute_conf_loss(pred_box_wh, true_box_wh, pred_box_xy,true_box_xy,true_box_conf,pred_box_conf):
-    
-# compute the intersection of all boxes at once (the IOU)
-        intersect_wh = K.maximum(K.zeros_like(pred_box_wh), (pred_box_wh + true_box_wh)/2 - K.square(pred_box_xy[...,0:1]- true_box_xy[...,0:1]) )
-        intersect_area = intersect_wh[...,0] * intersect_wh[...,1] 
-        true_area = true_box_wh[...,0] * true_box_wh[...,1] 
-        pred_area = pred_box_wh[...,0] * pred_box_wh[...,1] 
-        union_area = pred_area + true_area - intersect_area
-        iou = intersect_area / union_area
-  
-        loss_conf = K.sum(K.square(true_box_conf*iou - pred_box_conf), axis=-1)
 
-        loss_conf = loss_conf * lambdaobject
+def get_intersect_area(true_box_xy,true_box_wh,
+                       pred_box_xy,pred_box_wh):
+
+    true_wh_half = true_box_wh / 2.
+    true_mins    = true_box_xy - true_wh_half
+    true_maxes   = true_box_xy + true_wh_half
+    
+    pred_wh_half = pred_box_wh / 2.
+    pred_mins    = pred_box_xy - pred_wh_half
+    pred_maxes   = pred_box_xy + pred_wh_half    
+    
+    intersect_mins  = tf.maximum(pred_mins,  true_mins)
+    intersect_maxes = tf.minimum(pred_maxes, true_maxes)
+    intersect_wh    = tf.maximum(intersect_maxes - intersect_mins, 0.)
+    intersect_areas = intersect_wh[..., 0] * intersect_wh[..., 1]
+    
+    true_areas = true_box_wh[..., 0] * true_box_wh[..., 1]
+    pred_areas = pred_box_wh[..., 0] * pred_box_wh[..., 1]
+
+    union_areas = pred_areas + true_areas - intersect_areas
+    iou_scores  = tf.truediv(intersect_areas, union_areas)    
+    return(iou_scores)
+
+def calc_IOU_pred_true_best(pred_box_xy,pred_box_wh,true_box_xy,true_box_wh ):   
+   
+    
+    pred_xy = tf.expand_dims(pred_box_xy, 4) # (N batch, N grid_h, N grid_w, N anchor, 1, 2)
+    pred_wh = tf.expand_dims(pred_box_wh, 4) # (N batch, N grid_h, N grid_w, N anchor, 1, 2)
+    
+    iou_scores  =  get_intersect_area(true_box_xy,
+                                      true_box_wh,
+                                      pred_xy,
+                                      pred_wh) # (N batch, N grid_h, N grid_w, N anchor, 50)   
+
+    best_ious = tf.reduce_max(iou_scores, axis=4) # (N batch, N grid_h, N grid_w, N anchor)
+    return(best_ious)
+
+
+def calc_IOU_pred_true_assigned(true_box_conf,
+                                true_box_xy, true_box_wh,
+                                pred_box_xy,  pred_box_wh):
+    
+    iou_scores        =  get_intersect_area(true_box_xy,true_box_wh,
+                                            pred_box_xy,pred_box_wh)
+    true_box_conf_IOU = iou_scores * true_box_conf
+    return(true_box_conf_IOU)
+
+def compute_conf_loss(pred_box_wh, true_box_wh, pred_box_xy,true_box_xy,true_box_conf,pred_box_conf):
+     
+        best_ious = calc_IOU_pred_true_best(pred_box_xy,   
+                                       pred_box_wh,
+                                       true_box_xy,true_box_wh)
+        true_box_conf_iou = calc_IOU_pred_true_assigned(true_box_conf,
+                                true_box_xy, true_box_wh,
+                                pred_box_xy,  pred_box_wh)
+
+        conf_mask =  true_box_conf_iou * lambdaobject                               
+        nb_conf_box  = tf.reduce_sum(tf.to_float(conf_mask  > 0.0))
+        loss_conf    = tf.reduce_sum(tf.square(true_box_conf_iou-pred_box_conf) * conf_mask)  / (nb_conf_box  + 1e-6) / 2.
 
         return loss_conf 
 
 def compute_conf_loss_static(pred_box_wh, true_box_wh, pred_box_xy,true_box_xy,true_box_conf,pred_box_conf):
     
 # compute the intersection of all boxes at once (the IOU)
-        intersect_wh = K.maximum(K.zeros_like(pred_box_wh), (pred_box_wh + true_box_wh)/2 - K.square(pred_box_xy- true_box_xy) )
-        intersect_area = intersect_wh[...,0] * intersect_wh[...,1] 
-        true_area = true_box_wh[...,0] * true_box_wh[...,1] 
-        pred_area = pred_box_wh[...,0] * pred_box_wh[...,1] 
-        union_area = pred_area + true_area - intersect_area
-        iou = intersect_area / union_area
-  
-        loss_conf = K.sum(K.square(true_box_conf*iou - pred_box_conf), axis=-1)
+        best_ious = calc_IOU_pred_true_best(pred_box_xy,   
+                                       pred_box_wh,
+                                       true_box_xy,true_box_wh)
+        true_box_conf_iou = calc_IOU_pred_true_assigned(true_box_conf,
+                                true_box_xy, true_box_wh,
+                                pred_box_xy,  pred_box_wh)
 
-        loss_conf = loss_conf * lambdaobject
+        conf_mask =  true_box_conf_iou * lambdaobject                               
+        nb_conf_box  = tf.reduce_sum(tf.to_float(conf_mask  > 0.0))
+        loss_conf    = tf.reduce_sum(tf.square(true_box_conf_iou-pred_box_conf) * conf_mask)  / (nb_conf_box  + 1e-6) / 2.
+
 
         return loss_conf        
 
