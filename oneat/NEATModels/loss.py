@@ -181,19 +181,6 @@ def get_intersect_area(true_box_xy,true_box_wh,
     iou_scores  = tf.truediv(intersect_areas, union_areas)    
     return(iou_scores)
 
-def calc_IOU_pred_true_best(pred_box_xy,pred_box_wh,true_box_xy,true_box_wh ):   
-   
-    
-    pred_xy = tf.expand_dims(pred_box_xy, 4) # (N batch, N grid_h, N grid_w, N anchor, 1, 2)
-    pred_wh = tf.expand_dims(pred_box_wh, 4) # (N batch, N grid_h, N grid_w, N anchor, 1, 2)
-    
-    iou_scores  =  get_intersect_area(true_box_xy,
-                                      true_box_wh,
-                                      pred_xy,
-                                      pred_wh) # (N batch, N grid_h, N grid_w, N anchor, 50)   
-
-    best_ious = tf.reduce_max(iou_scores, axis=4) # (N batch, N grid_h, N grid_w, N anchor)
-    return(best_ious)
 
 
 def calc_IOU_pred_true_assigned(true_box_conf,
@@ -207,12 +194,10 @@ def calc_IOU_pred_true_assigned(true_box_conf,
 
 def compute_conf_loss(pred_box_wh, true_box_wh, pred_box_xy,true_box_xy,true_box_conf,pred_box_conf):
      
-        best_ious = calc_IOU_pred_true_best(pred_box_xy,   
-                                       pred_box_wh,
-                                       true_box_xy,true_box_wh)
+       
         true_box_conf_iou = calc_IOU_pred_true_assigned(true_box_conf,
-                                true_box_xy, true_box_wh,
-                                pred_box_xy,  pred_box_wh)
+                                true_box_xy[...,0:1], true_box_wh,
+                                pred_box_xy[...,0:1],  pred_box_wh)
 
         conf_mask =  true_box_conf_iou * lambdaobject                               
         nb_conf_box  = tf.reduce_sum(tf.to_float(conf_mask  > 0.0))
@@ -223,9 +208,7 @@ def compute_conf_loss(pred_box_wh, true_box_wh, pred_box_xy,true_box_xy,true_box
 def compute_conf_loss_static(pred_box_wh, true_box_wh, pred_box_xy,true_box_xy,true_box_conf,pred_box_conf):
     
 # compute the intersection of all boxes at once (the IOU)
-        best_ious = calc_IOU_pred_true_best(pred_box_xy,   
-                                       pred_box_wh,
-                                       true_box_xy,true_box_wh)
+       
         true_box_conf_iou = calc_IOU_pred_true_assigned(true_box_conf,
                                 true_box_xy, true_box_wh,
                                 pred_box_xy,  pred_box_wh)
