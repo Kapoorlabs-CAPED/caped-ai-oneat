@@ -200,7 +200,7 @@ def compute_conf_loss(pred_box_wh, true_box_wh, pred_box_xy,true_box_xy,true_box
                                 pred_box_xy[...,0:1],  pred_box_wh)
 
         conf_mask =  true_box_conf_iou * lambdaobject                               
-        nb_conf_box  = tf.reduce_sum(tf.to_float(conf_mask  > 0.0))
+        nb_conf_box  = tf.reduce_sum(tf.cast(conf_mask  > 0.0, dtype=tf.float32))
         loss_conf    = tf.reduce_sum(tf.square(true_box_conf_iou-pred_box_conf) * conf_mask)  / (nb_conf_box  + 1e-6) / 2.
 
         return loss_conf 
