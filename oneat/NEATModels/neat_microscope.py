@@ -27,7 +27,7 @@ import cv2
 from PIL import Image
 import matplotlib.pyplot as plt
 from oneat.NEATModels.neat_goldstandard import NEATDynamic
-from tifffile import imread
+from tifffile import imread, imwrite
 
 class NEATPredict(NEATDynamic):
     
