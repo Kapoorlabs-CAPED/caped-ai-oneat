@@ -446,7 +446,7 @@ class NEATDynamic(object):
                                                         event_prob = box[event_name]
                                                         event_confidence = box['confidence']
                                                         if event_prob >= self.event_threshold and event_confidence >= self.event_confidence:
-                                                           
+                                                            print(box)  
                                                             current_event_box.append(box)
                                                      classedboxes[event_name] = [current_event_box]
                                                  
@@ -644,7 +644,7 @@ class NEATDynamic(object):
                                                 event_confidence = box['confidence']
                                                 if event_prob >= self.event_threshold and event_confidence >= self.event_confidence :
                                                     
-                                                    print(box)         
+                                                          
                                                     current_event_box.append(box)
                                              classedboxes[event_name] = [current_event_box]
 

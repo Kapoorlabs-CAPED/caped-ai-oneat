@@ -51,7 +51,7 @@ downsample = 1
 #Region of interest to get the predcition in, value from 0 to 1
 roi_start = 0.25
 roi_end = 0.75
-
+optional_name = "w2"
 # In[ ]:
 
 
@@ -67,5 +67,6 @@ model.predict_microscope(imagedir,
               event_threshold = event_threshold, 
               event_confidence = event_confidence,
               iou_threshold = iou_threshold,
-              fidelity = fidelity)
+              fidelity = fidelity,
+              optional_name = optional_name)
 

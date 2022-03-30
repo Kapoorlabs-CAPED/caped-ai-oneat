@@ -27,6 +27,7 @@ import cv2
 from PIL import Image
 import matplotlib.pyplot as plt
 from oneat.NEATModels.neat_goldstandard import NEATDynamic
+from tifffile import imread
 
 class NEATPredict(NEATDynamic):
     
@@ -40,7 +41,7 @@ class NEATPredict(NEATDynamic):
                 Z_start = 0, downsample=1, roi_start = 0, roi_end = 1, movie_name_list = [], movie_input = {}, Z_movie_name_list = [], Z_movie_input = [],
                 fileextension='*TIF', nb_prediction=3, n_tiles=(1, 1), Z_n_tiles=(1, 2, 2),
                 overlap_percent=0.6, event_threshold = 0.5, event_confidence = 0.5, iou_threshold=0.01, projection_model=None, delay_projection=4,
-                fidelity=4, jumpindex = 1, normalize = True):
+                fidelity=4, jumpindex = 1, normalize = True, optional_name = None):
 
         self.imagedir = imagedir
         self.basedirResults = self.imagedir + '/' + "live_results"
@@ -55,7 +56,7 @@ class NEATPredict(NEATDynamic):
         self.start = start
         self.jumpindex = jumpindex
         self.fidelity = fidelity
-      
+        self.optional_name = optional_name
         self.Z_start = Z_start
         self.projection_model = projection_model
         self.nb_prediction = nb_prediction
@@ -88,12 +89,18 @@ class NEATPredict(NEATDynamic):
             Raw_path = os.path.join(self.imagedir, '*tif')
             filesRaw = glob.glob(Raw_path)
             filesRaw = natsorted(filesRaw)
+        
             for Z_movie_name in Z_filesRaw:
                 Z_Name = os.path.basename(os.path.splitext(Z_movie_name)[0])
                 # Check for unique filename
-                if Z_Name not in self.Z_movie_name_list and "w2" in Z_Name:
-                    self.Z_movie_name_list.append(Z_Name)
-                    self.Z_movie_input.append(Z_movie_name)
+                if self.optional_name is not None:
+                        if Z_Name not in self.Z_movie_name_list and self.optional_name in Z_Name:
+                            self.Z_movie_name_list.append(Z_Name)
+                            self.Z_movie_input.append(Z_movie_name)
+                else:
+                        if Z_Name not in self.Z_movie_name_list:
+                            self.Z_movie_name_list.append(Z_Name)
+                            self.Z_movie_input.append(Z_movie_name)        
 
             for movie_name in filesRaw:
                 Name = os.path.basename(os.path.splitext(movie_name)[0])
