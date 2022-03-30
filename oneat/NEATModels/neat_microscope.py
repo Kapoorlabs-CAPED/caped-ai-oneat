@@ -224,11 +224,11 @@ class NEATPredict(NEATDynamic):
                 self.to_csv_microscope()
               
                 self.predict(self.imagedir, self.Z_imagedir,
-                              self.start, Z_start,
+                              start = self.start, Z_start = self.Z_start,
                              fileextension=self.fileextension, downsample=self.downsample,
                              roi_start = self.roi_start, roi_end = self.roi_end,
                              movie_name_list = self.movie_name_list, movie_input = self.movie_input,
-                             Z_movie_name_list = self.Z_movie_name_list, Z_movie_input = self.Z_movie_input, fileextension = self.fileextension,
+                             Z_movie_name_list = self.Z_movie_name_list, Z_movie_input = self.Z_movie_input,
                              nb_prediction=self.nb_prediction, n_tiles=self.n_tiles, Z_n_tiles=self.Z_n_tiles,
                              overlap_percent=self.overlap_percent, event_threshold=self.event_threshold, event_confidence = self.event_confidence,
                              iou_threshold=self.iou_threshold, projection_model=self.projection_model, delay_projection = self.delay_projection, 
