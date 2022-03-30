@@ -37,7 +37,7 @@ class NEATPredict(NEATDynamic):
 
 
     def predict_microscope(self, imagedir, Z_imagedir,  start = 0,
-                Z_start = 0, downsample=1, roi_start = 0, roi_end = 1, movie_name_list = [], movie_input = {}, Z_movie_name_list = [], Z_movie_input = {},
+                Z_start = 0, downsample=1, roi_start = 0, roi_end = 1, movie_name_list = [], movie_input = {}, Z_movie_name_list = [], Z_movie_input = [],
                 fileextension='*TIF', nb_prediction=3, n_tiles=(1, 1), Z_n_tiles=(1, 2, 2),
                 overlap_percent=0.6, event_threshold = 0.5, event_confidence = 0.5, iou_threshold=0.01, projection_model=None, delay_projection=4,
                 fidelity=4, jumpindex = 1, normalize = True):
@@ -114,7 +114,6 @@ class NEATPredict(NEATDynamic):
                 if Z_Name in self.movie_name_list:
 
                     Name = self.movie_name_list[Z_Name]
-                    path = self.movie_input[Z_Name]
 
                     doproject = False
                 else:

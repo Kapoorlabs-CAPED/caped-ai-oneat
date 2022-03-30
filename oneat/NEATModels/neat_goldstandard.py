@@ -433,7 +433,7 @@ class NEATDynamic(object):
                                      for i in range(0, sum_time_prediction.shape[0]):
                                           time_prediction =  sum_time_prediction[i]
                                           boxprediction = yoloprediction(ally[p], allx[p], time_prediction, self.stride, inputtime , self.config, self.key_categories, self.key_cord, self.nboxes, 'detection', 'dynamic',marker_tree=self.marker_tree)
-                                          print(boxprediction)
+                                          
                                           if boxprediction is not None:
                                                   eventboxes = eventboxes + boxprediction
                                             
@@ -442,7 +442,7 @@ class NEATDynamic(object):
                                                 if event_label > 0:
                                                      current_event_box = []
                                                      for box in eventboxes:
-                                                
+                                                       
                                                         event_prob = box[event_name]
                                                         event_confidence = box['confidence']
                                                         if event_prob >= self.event_threshold and event_confidence >= self.event_confidence:
@@ -644,7 +644,7 @@ class NEATDynamic(object):
                                                 event_confidence = box['confidence']
                                                 if event_prob >= self.event_threshold and event_confidence >= self.event_confidence :
                                                     
-                                                             
+                                                    print(box)         
                                                     current_event_box.append(box)
                                              classedboxes[event_name] = [current_event_box]
 
