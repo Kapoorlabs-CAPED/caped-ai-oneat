@@ -56,13 +56,7 @@ roi_end = 0.75
 
 
 model.predict_microscope(imagedir, 
-              [], 
-              {}, 
               Z_imagedir, 
-              [], 
-              {},  
-              0, 
-              0,
               downsample = downsample,
               roi_start = roi_start,
               roi_end = roi_end,

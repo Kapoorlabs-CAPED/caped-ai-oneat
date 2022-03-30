@@ -343,7 +343,10 @@ class NEATDynamic(object):
         self.imagename = imagename
         self.Name = os.path.basename(os.path.splitext(self.imagename)[0])
         if self.maskdir is not None:
-            self.maskimage = imread(self.maskdir + '/' + self.Name + '.tif')
+            try:
+                self.maskimage = imread(self.maskdir + '/' + self.Name + '.tif')
+            except:
+                self.maskimage = None    
         else:
             self.maskimage = None    
         self.image = imread(imagename)
