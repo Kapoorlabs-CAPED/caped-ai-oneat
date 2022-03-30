@@ -259,7 +259,7 @@ class NEATStatic(object):
         self.Trainingmodel.save(self.model_dir + self.model_name)
 
     def predict(self, imagename, savedir, event_threshold, n_tiles=(1, 1), overlap_percent=0.8, iou_threshold=0.01,
-                fcn=True, height=None, width=None, RGB=False, fidelity = 1, downsamplefactor = 1):
+                fcn=True, height=None, width=None, RGB=False, fidelity = 1, downsamplefactor = 1, normalize = True):
 
         self.imagename = imagename
         self.image = imread(imagename)
@@ -281,6 +281,7 @@ class NEATStatic(object):
         self.event_threshold = event_threshold
         self.originalimage = self.image
         self.image = DownsampleData(self.image, self.downsamplefactor)
+        self.normalize = normalize
         f = h5py.File(self.model_dir + self.model_name + '.h5', 'r+')
         data_p = f.attrs['training_config']
         data_p = data_p.decode().replace("learning_rate", "lr").encode()
@@ -305,7 +306,8 @@ class NEATStatic(object):
 
                     count = count + 1
                 smallimage = self.image[inputtime, :]
-                smallimage = normalizeFloatZeroOne(smallimage, 1, 99.8)
+                if self.normalize:
+                    smallimage = normalizeFloatZeroOne(smallimage, 1, 99.8)
                 # Break image into tiles if neccessary
                 if fcn:
 
@@ -353,7 +355,8 @@ class NEATStatic(object):
         if RGB:
 
             smallimage = self.image[:, :, 0]
-            smallimage = normalizeFloatZeroOne(smallimage, 1, 99.8)
+            if self.normalize:
+                smallimage = normalizeFloatZeroOne(smallimage, 1, 99.8)
             # Break image into tiles if neccessary
             if fcn:
 

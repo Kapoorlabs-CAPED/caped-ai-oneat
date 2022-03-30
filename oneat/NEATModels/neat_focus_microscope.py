@@ -180,7 +180,7 @@ class NEATFocusPredict(object):
 
     def predict(self, imagedir, Z_imagedir, Z_movie_name_list, Z_movie_input, start,
                 Z_start, downsample=False, fileextension='*TIF', nb_prediction=3, Z_n_tiles=(1, 2, 2),
-                overlap_percent=0.6):
+                overlap_percent=0.6, normalize = True):
 
         self.imagedir = imagedir
         self.basedirResults = self.imagedir + '/' + "live_results"
@@ -196,6 +196,7 @@ class NEATFocusPredict(object):
         self.Z_n_tiles = Z_n_tiles
         self.overlap_percent = overlap_percent
         self.downsample = downsample
+        self.normalize = normalize
         f = h5py.File(self.model_dir + self.model_name + '.h5', 'r+')
         data_p = f.attrs['training_config']
         data_p = data_p.decode().replace("learning_rate", "lr").encode()
@@ -252,8 +253,8 @@ class NEATFocusPredict(object):
                 eventboxes = []
                 classedboxes = {}
                 self.image = current_movies_down
-
-                self.image = normalizeFloatZeroOne(self.image, 1, 99.8)
+                if self.normalize:
+                    self.image = normalizeFloatZeroOne(self.image, 1, 99.8)
                 # Break image into tiles if neccessary
 
                 print('Doing ONEAT prediction')

@@ -336,7 +336,7 @@ class NEATDynamic(object):
     
     def predict(self, imagename,  savedir, n_tiles=(1, 1), overlap_percent=0.8,
                 event_threshold=0.5, event_confidence = 0.5, iou_threshold=0.1,  fidelity=5, downsamplefactor = 1, start_project_mid = 4, end_project_mid = 4,
-                maskfilter = 10, markers = None, marker_tree = None, watershed = None,  remove_markers = True,maskmodel = None, maskdir = None):
+                maskfilter = 10, markers = None, marker_tree = None, watershed = None,  remove_markers = True,maskmodel = None, maskdir = None, normalize = True):
 
         self.watershed = watershed
         self.maskdir = maskdir
@@ -351,6 +351,7 @@ class NEATDynamic(object):
         self.end_project_mid = end_project_mid
         self.maskmodel = maskmodel
         self.ndim = len(self.image.shape)
+        self.normalize = normalize
         self.z = 0
         if self.ndim == 4:
            self.z = self.image.shape[1]//2
@@ -415,8 +416,8 @@ class NEATDynamic(object):
                                       imwrite((heatsavename + '.tif' ), self.heatmap)
                                       
                                 smallimage = CreateVolume(self.image, self.imaget, inputtime)
-
-                                smallimage = normalizeFloatZeroOne(smallimage,1,99.8)
+                                if self.normalize:
+                                    smallimage = normalizeFloatZeroOne(smallimage,1,99.8)
                                 # Cut off the region for training movie creation
                                 #Break image into tiles if neccessary
                                 predictions, allx, ally = self.predict_main(smallimage)
@@ -471,7 +472,8 @@ class NEATDynamic(object):
                 
                 remove_candidates_list = []
                 smallimage = CreateVolume(self.image, self.imaget, inputtime)
-                smallimage = normalizeFloatZeroOne(smallimage, 1, 99.8)
+                if self.normalize: 
+                   smallimage = normalizeFloatZeroOne(smallimage, 1, 99.8)
                 # Cut off the region for training movie creation
                 # Break image into tiles if neccessary
                 predictions, allx, ally = self.predict_main(smallimage)
@@ -574,8 +576,8 @@ class NEATDynamic(object):
         self.iou_threshold = 0.9
         heatsavename = self.savedir+ "/"  + (os.path.splitext(os.path.basename(self.imagename))[0])+ '_Heat'
  
-         
-        self.image = normalizeFloatZeroOne(self.image.astype('float32'), 1, 99.8)
+        if self.normalize: 
+           self.image = normalizeFloatZeroOne(self.image.astype('float32'), 1, 99.8)
   
         for inputtime in tqdm(range(0, self.image.shape[0])):
              if inputtime < self.image.shape[0] - self.imaget:   

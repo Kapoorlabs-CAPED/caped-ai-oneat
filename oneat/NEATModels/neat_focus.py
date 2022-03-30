@@ -265,7 +265,7 @@ class NEATFocus(object):
     
         
         
-    def predict(self,imagename, savedir, n_tiles = (1,1), overlap_percent = 0.8, event_threshold = 0.5, iou_threshold = 0.0001, radius = 10):
+    def predict(self,imagename, savedir, n_tiles = (1,1), overlap_percent = 0.8, event_threshold = 0.5, iou_threshold = 0.0001, radius = 10, normalize = True):
         
         self.imagename = imagename
         self.image = imread(imagename)
@@ -281,6 +281,7 @@ class NEATFocus(object):
         self.overlap_percent = overlap_percent
         self.iou_threshold = iou_threshold
         self.event_threshold = event_threshold
+        self.normalize = normalize
         self.maskboxes = {}
         f = h5py.File(self.model_dir + self.model_name + '.h5', 'r+')
         data_p = f.attrs['training_config']
@@ -299,9 +300,9 @@ class NEATFocus(object):
         eventboxes = []
         classedboxes = {}    
         print('Detecting focus planes in', os.path.basename(os.path.splitext(self.imagename)[0]))
-        self.image = normalizeFloatZeroOne(self.image,1,99.8)
+        if self.normalize:
+           self.image = normalizeFloatZeroOne(self.image,1,99.8)
 
-        self.image = normalizeFloatZeroOne(self.image,1,99.8)
         for inputz in tqdm(range(0, self.image.shape[0])):
                     if inputz <= self.image.shape[0] - self.imagez:
                                 
@@ -396,6 +397,7 @@ class NEATFocus(object):
                 Signal_first = image[:, :, :, 1]
                 Signal_second = image[:, :, :, 2]
                 Sum_signal_first = gaussian_filter(np.sum(Signal_first, axis=0), self.radius)
+                
                 Sum_signal_first = normalizeZeroOne(Sum_signal_first)
                 Sum_signal_second = gaussian_filter(np.sum(Signal_second, axis=0), self.radius)
 

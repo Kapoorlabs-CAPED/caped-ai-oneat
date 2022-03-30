@@ -40,7 +40,7 @@ class NEATPredict(NEATDynamic):
                 Z_start, downsample=1, roi_start = 0, roi_end = 1,
                 event_label_interest=1, fileextension='*TIF', nb_prediction=3, n_tiles=(1, 1), Z_n_tiles=(1, 2, 2),
                 overlap_percent=0.6, event_threshold = 0.5, event_confidence = 0.5, iou_threshold=0.01, projection_model=None, delay_projection=4,
-                fidelity=4, jumpindex = 1):
+                fidelity=4, jumpindex = 1, normalize = True):
 
         self.imagedir = imagedir
         self.basedirResults = self.imagedir + '/' + "live_results"
@@ -69,6 +69,7 @@ class NEATPredict(NEATDynamic):
         self.event_threshold = event_threshold
         self.event_confidence = event_confidence
         self.downsample = downsample
+        self.normalize = normalize
         f = h5py.File(self.model_dir + self.model_name + '.h5', 'r+')
         data_p = f.attrs['training_config']
         data_p = data_p.decode().replace("learning_rate", "lr").encode()
@@ -175,8 +176,8 @@ class NEATPredict(NEATDynamic):
                 eventboxes = []
                 classedboxes = {}
                 smallimage = CreateVolume(current_movies_down, self.size_tminus + 1, 0)
-
-                smallimage = normalizeFloatZeroOne(smallimage, 1, 99.8)
+                if self.normalize:
+                   smallimage = normalizeFloatZeroOne(smallimage, 1, 99.8)
                 # Break image into tiles if neccessary
                 self.image = smallimage
                 print('Doing ONEAT prediction')
