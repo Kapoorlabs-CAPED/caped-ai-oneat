@@ -446,7 +446,7 @@ class NEATDynamic(object):
                                                         event_prob = box[event_name]
                                                         event_confidence = box['confidence']
                                                         if event_prob >= self.event_threshold and event_confidence >= self.event_confidence:
-                                                            print(box)  
+                                                            
                                                             current_event_box.append(box)
                                                      classedboxes[event_name] = [current_event_box]
                                                  
@@ -686,7 +686,7 @@ class NEATDynamic(object):
                if self.remove_markers == None:
                    best_sorted_event_box = dynamic_nms(self.heatmap,self.maskimage,  self.classedboxes, event_name,  self.downsamplefactor, self.iou_threshold, self.event_threshold, self.imagex, self.imagey, self.fidelity )
 
-
+               print(best_sorted_event_box)
                best_iou_classedboxes[event_name] = [best_sorted_event_box]
 
         self.iou_classedboxes = best_iou_classedboxes

@@ -248,8 +248,8 @@ class NEATPredict(NEATDynamic):
         self.start = self.start + self.jumpindex
         for (event_name,event_label) in self.key_categories.items():
             if event_label > 0:
-               
-               best_sorted_event_box = microscope_dynamic_nms( self.classedboxes, event_name, self.downsample, self.iou_threshold, self.event_threshold, self.imagex, self.imagey, self.fidelity)
+              
+               best_sorted_event_box = microscope_dynamic_nms( self.classedboxes, event_name, self.iou_threshold, self.event_threshold, self.imagex, self.imagey, self.fidelity)
                
                
                best_iou_classedboxes[event_name] = [best_sorted_event_box]
