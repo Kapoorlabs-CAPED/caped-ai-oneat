@@ -238,7 +238,7 @@ class NEATPredict(NEATDynamic):
                              nb_prediction=self.nb_prediction, n_tiles=self.n_tiles, Z_n_tiles=self.Z_n_tiles,
                              overlap_percent=self.overlap_percent, event_threshold=self.event_threshold, event_confidence = self.event_confidence,
                              iou_threshold=self.iou_threshold, projection_model=self.projection_model, delay_projection = self.delay_projection, 
-                             fidelity = self.fidelity, jumpindex = self.jumpindex, normalize = self.normalize)
+                             fidelity = self.fidelity, jumpindex = self.jumpindex, normalize = self.normalize, optional_name = self.optional_name)
 
     def nms_microscope(self):
         
