@@ -38,7 +38,7 @@ class NEATPredict(NEATDynamic):
 
     def predict_microscope(self, imagedir, Z_imagedir,  start = 0,
                 Z_start = 0, downsample=1, roi_start = 0, roi_end = 1, movie_name_list = [], movie_input = {}, Z_movie_name_list = [], Z_movie_input = {},
-                event_label_interest=1, fileextension='*TIF', nb_prediction=3, n_tiles=(1, 1), Z_n_tiles=(1, 2, 2),
+                fileextension='*TIF', nb_prediction=3, n_tiles=(1, 1), Z_n_tiles=(1, 2, 2),
                 overlap_percent=0.6, event_threshold = 0.5, event_confidence = 0.5, iou_threshold=0.01, projection_model=None, delay_projection=4,
                 fidelity=4, jumpindex = 1, normalize = True):
 
@@ -55,7 +55,7 @@ class NEATPredict(NEATDynamic):
         self.start = start
         self.jumpindex = jumpindex
         self.fidelity = fidelity
-        self.event_label_interest = event_label_interest
+      
         self.Z_start = Z_start
         self.projection_model = projection_model
         self.nb_prediction = nb_prediction
@@ -222,12 +222,17 @@ class NEATPredict(NEATDynamic):
                 print(f'____ NMS took {(time.time() - start_time)} seconds ____ ')
                 print('Generating ini file')
                 self.to_csv_microscope()
-                self.predict(self.imagedir, self.movie_name_list, self.movie_input, self.Z_imagedir,
-                             self.Z_movie_name_list, self.Z_movie_input, self.start, Z_start,
+              
+                self.predict(self.imagedir, self.Z_imagedir,
+                              self.start, Z_start,
                              fileextension=self.fileextension, downsample=self.downsample,
+                             roi_start = self.roi_start, roi_end = self.roi_end,
+                             movie_name_list = self.movie_name_list, movie_input = self.movie_input,
+                             Z_movie_name_list = self.Z_movie_name_list, Z_movie_input = self.Z_movie_input, fileextension = self.fileextension,
                              nb_prediction=self.nb_prediction, n_tiles=self.n_tiles, Z_n_tiles=self.Z_n_tiles,
                              overlap_percent=self.overlap_percent, event_threshold=self.event_threshold, event_confidence = self.event_confidence,
-                             iou_threshold=self.iou_threshold, projection_model=self.projection_model)
+                             iou_threshold=self.iou_threshold, projection_model=self.projection_model, delay_projection = self.delay_projection, 
+                             fidelity = self.fidelity, jumpindex = self.jumpindex, normalize = self.normalize)
 
     def nms_microscope(self):
         
