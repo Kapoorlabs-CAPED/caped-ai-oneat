@@ -229,7 +229,7 @@ class NEATPredict(NEATDynamic):
                 print('Generating ini file')
                 self.to_csv_microscope()
               
-                self.predict(self.imagedir, self.Z_imagedir,
+                self.predict_microscope(self.imagedir, self.Z_imagedir,
                               start = self.start, Z_start = self.Z_start,
                              fileextension=self.fileextension, downsample=self.downsample,
                              roi_start = self.roi_start, roi_end = self.roi_end,
