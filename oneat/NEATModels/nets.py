@@ -244,9 +244,61 @@ def ORNET(input_shape, categories,unit, box_vector,nboxes = 1, stage_number = 3,
     num_filters_in = startfilter
     num_res_blocks = int((depth - 2) / 9)
 
-    
+    # v2 performs Conv2D with BN-ReLU on input before splitting into 2 paths
+    x = ThreeDresnet_layer(inputs=img_input,
+                     num_filters=num_filters_in,
+                     kernel_size = start_kernel,
+                     conv_first=True)
 
- 
+    # Instantiate the stack of residual units
+    for stage in range(stage_number):
+        for res_block in range(num_res_blocks):
+            activation = 'relu'
+            batch_normalization = True
+            strides = 1
+            if stage == 0:
+                num_filters_out = num_filters_in * 4
+                if res_block == 0:  # first layer and first stage
+                    activation = None
+                    batch_normalization = False
+            else:
+                num_filters_out = num_filters_in * 2
+                if res_block == 0:  # not first layer and not first stage
+                    strides = 2   # downsample
+
+            # bottleneck residual unit
+            y = ThreeDresnet_layer(inputs=x,
+                             num_filters=num_filters_in,
+                             kernel_size=1,
+                             strides=strides,
+                             activation=activation,
+                             batch_normalization=batch_normalization,
+                             conv_first=False)
+            y = ThreeDresnet_layer(inputs=y,
+                             num_filters=num_filters_in,
+                               kernel_size= mid_kernel,
+                             conv_first=False)
+            y = ThreeDresnet_layer(inputs=y,
+                             num_filters=num_filters_out,
+                             kernel_size=1,
+                             conv_first=False)
+            if res_block == 0:
+                # linear projection residual shortcut connection to match
+                # changed dims
+                x = ThreeDresnet_layer(inputs=x,
+                                 num_filters=num_filters_out,
+                                 kernel_size=1,
+                                 strides=strides,
+                                 activation=None,
+                                 batch_normalization=False)
+              
+            x = K.layers.add([x, y])
+        num_filters_in = num_filters_out
+
+    # Add classifier on top.
+    # v2 has BN-ReLU before Pooling
+    x = BatchNormalization()(x)
+    x = Activation('relu')(x)
     num_filters_in_TD = startfilter
     num_res_blocks = int((depth - 2) / 9)
     
@@ -307,7 +359,7 @@ def ORNET(input_shape, categories,unit, box_vector,nboxes = 1, stage_number = 3,
     
     
     
-    branchAdd = z #layers.add([z, x])
+    branchAdd = layers.add([z, x])
     
 
     
