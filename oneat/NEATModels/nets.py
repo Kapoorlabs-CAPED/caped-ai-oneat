@@ -246,10 +246,7 @@ def ORNET(input_shape, categories,unit, box_vector,nboxes = 1, stage_number = 3,
 
     
 
-    # Add classifier on top.
-    # v2 has BN-ReLU before Pooling
-    x = BatchNormalization()(x)
-    x = Activation('relu')(x)
+ 
     num_filters_in_TD = startfilter
     num_res_blocks = int((depth - 2) / 9)
     
