@@ -41,7 +41,7 @@ Total categories for cell classification part of vanilla ONEAT are:
 csv file containing time, ylocation, xlocation of that event/cell type
 """    
    
-def SegFreeMovieLabelDataSet(image_dir, csv_dir, save_dir, static_name, static_label, csv_name_diff, crop_size, normPatch = False, yolo_v0 = False, yolo_v1 = True, yolo_v2 = False, tshift = 0):
+def SegFreeMovieLabelDataSet(image_dir, csv_dir, save_dir, static_name, static_label, csv_name_diff, crop_size, normPatch = False, yolo_v0 = False, yolo_v1 = True, yolo_v2 = False, tshift = 0, normalizeimage = True):
     
     
             raw_path = os.path.join(image_dir, '*tif')
@@ -71,7 +71,7 @@ def SegFreeMovieLabelDataSet(image_dir, csv_dir, save_dir, static_name, static_l
                                      if classfound:
                                                     print(Csvname)
                                                     image = imread(fname)
-                                                    if normPatch ==False:
+                                                    if normPatch ==False and normalizeimage == True:
                                                        image = normalizeFloatZeroOne( image.astype('float32'),1,99.8)
                                                     dataset = pd.read_csv(csvfname)
                                                     z = dataset[dataset.keys()[0]][1:]
@@ -288,9 +288,8 @@ def MovieMaker(time, y, x, angle, image, segimage, crop_size, gridx, gridy, offs
 
 
                                         if yolo_v1:
-
                                                   Label[total_categories + 5] = 1 
-
+                                                 
                                         if yolo_v2:
 
                                              Label[total_categories + 5] = 1 
@@ -474,7 +473,7 @@ def  ImageMaker(time, y, x, image, segimage, crop_size, gridX, gridY, offset, to
                if time < segimage.shape[0] - 1 and time > 0:
                  currentsegimage = segimage[int(time),:].astype('uint16')
                 
-                 height, width, center, _  = getHW(x, y, currentsegimage, ImagesizeX, ImagesizeY)
+                 height, width, center, seg_label  = getHW(x, y, currentsegimage, ImagesizeX, ImagesizeY)
                  for shift in AllShifts:
                    
                         newname = name + 'shift' + str(shift)
@@ -521,6 +520,7 @@ def  ImageMaker(time, y, x, image, segimage, crop_size, gridX, gridY, offset, to
 
                                                     if yolo_v0==False:
                                                             Label[total_categories + 4] = 1 
+                                                               
                                                              
 
                                                     if(crop_image.shape[1]== ImagesizeY and crop_image.shape[2]== ImagesizeX):

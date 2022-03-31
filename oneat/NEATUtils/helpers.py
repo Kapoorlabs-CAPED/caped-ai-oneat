@@ -676,6 +676,7 @@ def goodboxes(boxes, scores, nms_threshold, score_threshold, gridx, gridy,
     Averageboxes = []
     # sort the bounding boxes by the associated scores
     scores = get_max_score_index(scores, score_threshold, 0, False)
+    print(scores, score_threshold)
     idxs = np.array(scores, np.int32)[:, 1]
 
     while len(idxs) > 0:
@@ -1239,9 +1240,9 @@ def predictionloop(j, k, sx, sy, nboxes, stride, time_prediction, config, key_ca
             pass
         if event_type == 'dynamic' and mode == 'detection':
             time_frames = config['size_tminus'] + config['size_tplus'] + 1
-            tcenter = int(inputtime + prediction_vector[total_classes + config['t'] + b * total_coords] * time_frames)
+            tcenter = int(round((inputtime + round(prediction_vector[total_classes + config['t'] + b * total_coords] * time_frames))))
             tcenterraw = prediction_vector[total_classes + config['t'] + b * total_coords]
-            boxtcenter = int(prediction_vector[total_classes + config['t'] + b * total_coords])
+            boxtcenter = int(round(prediction_vector[total_classes + config['t'] + b * total_coords]))
             boxtstart = inputtime
             if config['yolo_v2']:
                 angle = prediction_vector[total_classes + config['angle'] + b * total_coords]
