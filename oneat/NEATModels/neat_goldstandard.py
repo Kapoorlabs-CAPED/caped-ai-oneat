@@ -336,7 +336,7 @@ class NEATDynamic(object):
     
     def predict(self, imagename,  savedir, n_tiles=(1, 1), overlap_percent=0.8,
                 event_threshold=0.5, event_confidence = 0.5, iou_threshold=0.1,  fidelity=5, downsamplefactor = 1, start_project_mid = 4, end_project_mid = 4,
-                maskfilter = 10, markers = None, marker_tree = None, watershed = None,  remove_markers = True,maskmodel = None, maskdir = None, normalize = True):
+                erosion_iterations = 10, markers = None, marker_tree = None, watershed = None,  remove_markers = True,maskmodel = None, maskdir = None, normalize = True):
 
         self.watershed = watershed
         self.maskdir = maskdir
@@ -362,7 +362,7 @@ class NEATDynamic(object):
            self.image =  MidSlices(self.image, self.start_project_mid, self.end_project_mid, axis = 1)
            
       
-        self.maskfilter = maskfilter
+        self.erosion_iterations = erosion_iterations
         
         self.heatmap = np.zeros(self.image.shape, dtype = 'float32')  
         self.savedir = savedir
@@ -380,7 +380,7 @@ class NEATDynamic(object):
             self.maskdir = self.savedir + '/' + 'Mask'
             Path(self.maskdir).mkdir(exist_ok=True)
             self.maskimage = Generate_only_mask(self.image, self.maskmodel, self.n_tiles)
-            self.maskimage = binary_erosion(self.maskimage, size = self.maskfilter)
+            self.maskimage = binary_erosion(self.maskimage, iterations = self.erosion_iterations)
             imwrite(self.maskdir + '/' + self.Name + '.tif', self.mask.astype('float32'))
             print(f'Mask generated and saved at {self.maskdir}')
         
@@ -648,7 +648,7 @@ class NEATDynamic(object):
                                                     current_event_box.append(box)
                                              classedboxes[event_name] = [current_event_box]
 
-                if inputtime > 0:                         
+                if inputtime > 0 and inputtime%self.imaget == 0:                         
                         self.classedboxes = classedboxes    
                         self.eventboxes =  eventboxes
                         self.nms()

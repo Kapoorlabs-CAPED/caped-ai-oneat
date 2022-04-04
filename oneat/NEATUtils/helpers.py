@@ -648,6 +648,12 @@ def compare_function_sec(box1, box2, gridx, gridy):
     else:
 
         return -2 
+
+
+
+
+
+
 def goodboxes(boxes, scores, nms_threshold, score_threshold, gridx, gridy,
                fidelity=1):
 
@@ -676,7 +682,6 @@ def goodboxes(boxes, scores, nms_threshold, score_threshold, gridx, gridy,
     Averageboxes = []
     # sort the bounding boxes by the associated scores
     scores = get_max_score_index(scores, score_threshold, 0, False)
-    print(scores, score_threshold)
     idxs = np.array(scores, np.int32)[:, 1]
 
     while len(idxs) > 0:
@@ -966,8 +971,8 @@ def dynamic_nms(heatmap, maskimage, classedboxes, event_name, downsamplefactor, 
                                                                       filtered_good_sorted_event_box.append(iou_current_event_box)
                                                                       for x in range(int(xcenter - 8), int(xcenter + 8)):
                                                                           for y in range(int(ycenter - 8), int(ycenter + 8)):
-                                                                              
-                                                                              heatmap[int(tcenter), int(y), int(x)] = heatmap[int(tcenter), int(y), int(x)] + score
+                                                                              if x < heatmap.shape[2] and y < heatmap.shape[1]:
+                                                                                  heatmap[int(tcenter), int(y), int(x)] = heatmap[int(tcenter), int(y), int(x)] + score
                                                                               
                                                           else:
                                                               
@@ -1240,9 +1245,9 @@ def predictionloop(j, k, sx, sy, nboxes, stride, time_prediction, config, key_ca
             pass
         if event_type == 'dynamic' and mode == 'detection':
             time_frames = config['size_tminus'] + config['size_tplus'] + 1
-            tcenter = int(round((inputtime + round(prediction_vector[total_classes + config['t'] + b * total_coords] * time_frames))))
+            tcenter = int(((inputtime + (prediction_vector[total_classes + config['t'] + b * total_coords] * time_frames))))
             tcenterraw = prediction_vector[total_classes + config['t'] + b * total_coords]
-            boxtcenter = int(round(prediction_vector[total_classes + config['t'] + b * total_coords]))
+            boxtcenter = int((prediction_vector[total_classes + config['t'] + b * total_coords]))
             boxtstart = inputtime
             if config['yolo_v2']:
                 angle = prediction_vector[total_classes + config['angle'] + b * total_coords]
