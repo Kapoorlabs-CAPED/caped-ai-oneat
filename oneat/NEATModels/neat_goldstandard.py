@@ -381,7 +381,7 @@ class NEATDynamic(object):
             Path(self.maskdir).mkdir(exist_ok=True)
             self.maskimage = Generate_only_mask(self.image, self.maskmodel, self.n_tiles)
             self.maskimage = binary_erosion(self.maskimage, iterations = self.erosion_iterations)
-            imwrite(self.maskdir + '/' + self.Name + '.tif', self.mask.astype('float32'))
+            imwrite(self.maskdir + '/' + self.Name + '.tif', self.maskimage.astype('float32'))
             print(f'Mask generated and saved at {self.maskdir}')
         
 
