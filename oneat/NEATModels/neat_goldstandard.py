@@ -1,7 +1,7 @@
 from oneat.NEATUtils import plotters
 import numpy as np
 from oneat.NEATUtils import helpers
-from oneat.NEATUtils.helpers import get_nearest,  load_json, yoloprediction, normalizeFloatZeroOne, GenerateMarkers, Generate_only_mask, MakeTrees, DownsampleData,save_dynamic_csv, dynamic_nms, gold_nms
+from oneat.NEATUtils.helpers import MidSlices, get_nearest,  load_json, yoloprediction, normalizeFloatZeroOne, GenerateMarkers, Generate_only_mask, MakeTrees, DownsampleData,save_dynamic_csv, dynamic_nms, gold_nms
 from keras import callbacks
 import os
 import keras
@@ -274,7 +274,7 @@ class NEATDynamic(object):
 
         self.Trainingmodel.save(self.model_dir + self.model_name)
 
-    def get_markers(self, imagename, starmodel, maskmodel, savedir, n_tiles,  segdir = None, segimage = None,
+    def get_markers(self, imagename, savedir, n_tiles,  segdir = None, use_seg_only = True, starmodel = None, maskmodel = None, start_project_mid = 4, end_project_mid = 4,
      downsamplefactor = 1, remove_markers = True):
 
         self.starmodel = starmodel
@@ -282,16 +282,15 @@ class NEATDynamic(object):
         self.image = imread(imagename)
         self.segdir = segdir
         self.maskmodel = maskmodel
-        self.segimage = segimage
         Name = os.path.basename(os.path.splitext(self.imagename)[0])
         self.savedir = savedir
         Path(self.savedir).mkdir(exist_ok=True)
         self.downsamplefactor = downsamplefactor
         self.n_tiles = n_tiles
-
         print('Obtaining Markers, Mask and Watershed image')
         if self.segdir is None:
-            self.markers, self.watershed, self.stardist, self.mask = GenerateMarkers(self.image,self.starmodel, self.n_tiles, maskmodel = self.maskmodel, segimage = self.segimage)
+            self.markers, self.watershed, self.stardist, self.mask = GenerateMarkers(self.image, self.n_tiles, model = self.starmodel, maskmodel = self.maskmodel, segimage = self.segimage, 
+            start_project_mid = start_project_mid, end_project_mid = end_project_mid)
             self.segdir = self.savedir + '/' + 'Segmentation'
             Path(self.segdir).mkdir(exist_ok=True)
             imwrite(self.segdir + '/' + Name + '_markers' + '.tif', self.markers.astype('int32'))
@@ -315,20 +314,21 @@ class NEATDynamic(object):
 
 
             except:
-                self.markers, self.watershed, self.stardist, self.mask = GenerateMarkers(self.image,self.starmodel, self.n_tiles, maskmodel =  self.maskmodel, segimage = self.segimage)
+        
+                if use_seg_only:
+                    self.segimage = imread(self.segdir + '/' + Name + '.tif')
+                self.markers, self.watershed, self.stardist, self.mask = GenerateMarkers(self.image, self.n_tiles, model = self.starmodel, maskmodel = self.maskmodel, segimage = self.segimage, 
+            start_project_mid = start_project_mid, end_project_mid = end_project_mid)
                 self.segdir = self.savedir + '/' + 'Segmentation'
                 Path(self.segdir).mkdir(exist_ok=True)
                 imwrite(self.segdir + '/' + Name + '_markers' + '.tif', self.markers.astype('int32'))
-                imwrite(self.segdir + '/' + Name + '_vollseg' + '.tif', self.watershed.astype('int32'))
-                imwrite(self.segdir + '/' + Name + '_stardist' + '.tif', self.stardist.astype('int32'))
-                imwrite(self.segdir + '/' + Name + '_mask' + '.tif', self.mask.astype('uint16'))
         self.marker_tree = MakeTrees(self.markers)
 
 
         return self.markers, self.marker_tree, self.watershed, self.stardist, self.mask
     
     def predict(self, imagename,  savedir, n_tiles=(1, 1), overlap_percent=0.8,
-                event_threshold=0.5, event_confidence = 0.5, iou_threshold=0.1,  fidelity=5, downsamplefactor = 1, start_project_mid = 4, end_project_mid = 4,
+                event_threshold=0.5, event_confidence = 0.5, iou_threshold=0.1,  fidelity=1, downsamplefactor = 1, start_project_mid = 4, end_project_mid = 4,
                 erosion_iterations = 1, markers = None, marker_tree = None, watershed = None, stardist = None, remove_markers = True, maskmodel = None, segdir = None, normalize = True, use_star = True):
 
         self.watershed = watershed
@@ -1042,11 +1042,3 @@ class EventViewer(object):
 
         return event_locations, size_locations, angle_locations, line_locations, timelist, eventlist
 
-def MidSlices(Image, start_project_mid, end_project_mid, axis = 1):
-    
-    
-    SmallImage = Image.take(indices = range(Image.shape[axis]//2 - start_project_mid, Image.shape[axis]//2 + end_project_mid), axis = axis)
-    
-    MaxProject = np.amax(SmallImage, axis = axis)
-        
-    return MaxProject
