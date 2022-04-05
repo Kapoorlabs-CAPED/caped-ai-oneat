@@ -103,7 +103,11 @@ class NEATViz(object):
                  self.multiplot_widget, name="EventStats", area='right')
                  self.multiplot_widget.figure.tight_layout()
                  self.viewer.window._qt_window.resizeDocks([dock_widget], [width], Qt.Horizontal)   
+
                  
+                 self.animation_widget = AnimationWidget(self.viewer, self.savedir, 'Name', 0, 100)
+                 self.viewer.window.add_dock_widget(self.animation_widget, area='right')
+                 self.viewer.update_console({'animation': self.animation_widget.animation})
                  
                  eventidbox.currentIndexChanged.connect(lambda eventid = eventidbox : self.csv_add(
                          
@@ -134,10 +138,8 @@ class NEATViz(object):
             
             
             self.event_name = csv_event_name
-            animation_widget = AnimationWidget(self.viewer, self.savedir, imagename + csv_event_name, 0, self.image.shape[0])
-            self.viewer.window.add_dock_widget(animation_widget, area='right')
-            self.viewer.update_console({'animation': animation_widget.animation})
-            
+            self.animation_widget = AnimationWidget(self.viewer, self.savedir, imagename + csv_event_name, 0, self.image.shape[0])
+            self.csvname = None
             for (event_name,event_label) in self.key_categories.items():
                                 
                                 if event_label > 0 and csv_event_name == event_name:
@@ -245,11 +247,10 @@ class NEATViz(object):
                                                     
                                                     
                 self.image = imread(image_toread)
-                print(self.image.shape)
                 
                 if self.heatmapimagedir is not None:
                      self.heat_image = imread(self.heatmapimagedir + imagename + self.heatname + '.tif')
-                     self.heat_image =  MidSlices(self.heat_image, self.start_project_mid, self.end_project_mid, axis = 1)
+                    
                 if len(self.image.shape) == 4:
                     self.image =  MidSlices(self.image, self.start_project_mid, self.end_project_mid, axis = 1)
                     

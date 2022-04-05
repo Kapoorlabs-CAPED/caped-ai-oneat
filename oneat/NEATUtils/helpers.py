@@ -505,37 +505,83 @@ def Generate_only_mask(Image, maskmodel, n_tiles):
         Mask[i,:] = maskimage
   return Mask
 
-def GenerateMarkers(Image, model, maskmodel, n_tiles):
+def GenerateMarkers(Image, model, n_tiles, maskmodel = None, segimage = None):
+
+
     Markers = np.zeros([Image.shape[0], Image.shape[1], Image.shape[2]])
-    Watershed = np.zeros([Image.shape[0], Image.shape[1], Image.shape[2]])
-    Mask = np.zeros([Image.shape[0], Image.shape[1], Image.shape[2]])
-    for i in tqdm(range(0, Image.shape[0])):
-        smallimage = Image[i, :]
-        maskimage = GenerateMask(smallimage, maskmodel, n_tiles)
-        maskimage = fill_label_holes(maskimage.astype('uint16'))
-        smallimage = normalize(smallimage, 1, 99.8, axis=(0, 1))
-        shape = [smallimage.shape[0], smallimage.shape[1]]
-        resize_smallimage = twod_zero_pad(smallimage, 64, 64)
-        midimage, details = model.predict_instances(resize_smallimage, n_tiles=n_tiles)
-        starimage = midimage[:shape[0], :shape[1]]
-        properties = measure.regionprops(starimage, starimage)
-        Coordinates = [prop.centroid for prop in properties]
+    if segimage is None:
+        Watershed = np.zeros([Image.shape[0], Image.shape[1], Image.shape[2]])
+        Star = np.zeros([Image.shape[0], Image.shape[1], Image.shape[2]])
+    else:
+        Watershed = segimage
+        Star = segimage
+    if maskmodel is not None:
+        Mask = np.zeros([Image.shape[0], Image.shape[1], Image.shape[2]])
+    else:
+        Mask = None  
+           
 
-        Coordinates = sorted(Coordinates, key=lambda k: [k[1], k[0]])
-        Coordinates.append((0, 0))
-        Coordinates = np.asarray(Coordinates)
+    if segimage is None:
+            
+            for i in tqdm(range(0, Image.shape[0])):
+                smallimage = Image[i, :]
+                if maskmodel is not None:
+                        maskimage = GenerateMask(smallimage, maskmodel, n_tiles)
+                        maskimage = fill_label_holes(maskimage.astype('uint16'))
+                        Mask[i,:] = maskimage
+                else:
+                        maskimage = None        
+                smallimage = normalize(smallimage, 1, 99.8, axis=(0, 1))
+                shape = [smallimage.shape[0], smallimage.shape[1]]
+                resize_smallimage = twod_zero_pad(smallimage, 64, 64)
+                midimage, details = model.predict_instances(resize_smallimage, n_tiles=n_tiles)
+                starimage = midimage[:shape[0], :shape[1]]
+                properties = measure.regionprops(starimage)
+                Coordinates = [prop.centroid for prop in properties]
 
-        coordinates_int = np.round(Coordinates).astype(int)
-        markers_raw = np.zeros_like(smallimage)
-        markers_raw[tuple(coordinates_int.T)] = 1 + np.arange(len(Coordinates))
+                Coordinates = sorted(Coordinates, key=lambda k: [k[1], k[0]])
+                Coordinates.append((0, 0))
+                Coordinates = np.asarray(Coordinates)
 
-        markers = dilation(markers_raw, disk(2))
-        markers = morphology.dilation(markers_raw, morphology.disk(2))
-        watershedImage = watershed(-smallimage, markers, mask=maskimage.copy())
-        Markers[i, :] = label(markers.astype('uint16'))
-        Watershed[i,:] = watershedImage
-        Mask[i,:] = maskimage
-    return Markers, Watershed, Mask
+                coordinates_int = np.round(Coordinates).astype(int)
+                markers_raw = np.zeros_like(smallimage)
+                markers_raw[tuple(coordinates_int.T)] = 1 + np.arange(len(Coordinates))
+
+                markers = dilation(markers_raw, disk(2))
+                markers = morphology.dilation(markers_raw, morphology.disk(2))
+                watershedImage = watershed(-smallimage, markers, mask=maskimage.copy())
+                Markers[i, :] = label(markers.astype('uint16'))
+                Watershed[i,:] = watershedImage
+                
+                Star[i,:] = starimage
+    else:
+          
+       
+                for i in tqdm(range(0, segimage.shape[0])):
+                        properties = measure.regionprops(segimage[i,:])
+                        smallimage = Image[i, :]
+                        if maskmodel is not None:
+                                maskimage = GenerateMask(smallimage, maskmodel, n_tiles)
+                                maskimage = fill_label_holes(maskimage.astype('uint16'))
+                                Mask[i,:] = maskimage
+                        else:
+                                maskimage = None
+                        Coordinates = [prop.centroid for prop in properties]
+ 
+                        Coordinates = sorted(Coordinates, key=lambda k: [k[1], k[0]])
+                        Coordinates.append((0, 0))
+                        Coordinates = np.asarray(Coordinates)
+
+                        coordinates_int = np.round(Coordinates).astype(int)
+                        markers_raw = np.zeros_like(smallimage)
+                        markers_raw[tuple(coordinates_int.T)] = 1 + np.arange(len(Coordinates))
+
+                        markers = dilation(markers_raw, disk(2))
+                        markers = morphology.dilation(markers_raw, morphology.disk(2)) 
+                        Markers[i, :] = label(markers.astype('uint16'))
+
+
+    return Markers, Watershed, Star, Mask
 
 
 def GenerateMask(Image, model, n_tiles):

@@ -274,42 +274,38 @@ class NEATDynamic(object):
 
         self.Trainingmodel.save(self.model_dir + self.model_name)
 
-    def get_markers(self, imagename, starmodel, maskmodel, savedir, n_tiles, markerdir=None, maskdir = None, watersheddir = None,
+    def get_markers(self, imagename, starmodel, maskmodel, savedir, n_tiles,  segdir = None, segimage = None,
      downsamplefactor = 1, remove_markers = True):
 
         self.starmodel = starmodel
         self.imagename = imagename
         self.image = imread(imagename)
-        self.markerdir = markerdir
-        self.maskdir = maskdir
+        self.segdir = segdir
         self.maskmodel = maskmodel
-        self.waterhseddir = watersheddir
+        self.segimage = segimage
         Name = os.path.basename(os.path.splitext(self.imagename)[0])
         self.savedir = savedir
         Path(self.savedir).mkdir(exist_ok=True)
         self.downsamplefactor = downsamplefactor
         self.n_tiles = n_tiles
-        
 
         print('Obtaining Markers, Mask and Watershed image')
-        if self.markerdir is None:
-            self.markers, self.watershed, self.mask = GenerateMarkers(self.image, self.starmodel, self.maskmodel, self.n_tiles)
-            self.markerdir = self.savedir + '/' + 'Markers'
-            self.watersheddir = self.savedir + '/' + 'Watershed'
-            self.maskdir = self.savedir + '/' + 'Mask'
-            Path(self.markerdir).mkdir(exist_ok=True)
-            Path(self.watersheddir).mkdir(exist_ok=True)
-            Path(self.maskdir).mkdir(exist_ok=True)
-            imwrite(self.markerdir + '/' + Name + '.tif', self.markers.astype('float32'))
-            imwrite(self.watersheddir + '/' + Name + '.tif', self.watershed.astype('float32'))
-            imwrite(self.maskdir + '/' + Name + '.tif', self.mask.astype('float32'))
+        if self.segdir is None:
+            self.markers, self.watershed, self.stardist, self.mask = GenerateMarkers(self.image,self.starmodel, self.n_tiles, maskmodel = self.maskmodel, segimage = self.segimage)
+            self.segdir = self.savedir + '/' + 'Segmentation'
+            Path(self.segdir).mkdir(exist_ok=True)
+            imwrite(self.segdir + '/' + Name + '_markers' + '.tif', self.markers.astype('int32'))
+            imwrite(self.segdir + '/' + Name + '_vollseg' + '.tif', self.watershed.astype('int32'))
+            imwrite(self.segdir + '/' + Name + '_stardist' + '.tif', self.stardist.astype('int32'))
+            imwrite(self.segdir + '/' + Name + '_mask' + '.tif', self.mask.astype('uint16'))
 
 
         else:
             try:
-                self.markers = imread(self.markerdir + '/' + Name + '.tif')
-                self.watershed = imread(self.watersheddir + '/' + Name + '.tif')
-                self.mask = imread(self.maskdir + '/' + Name + '.tif')
+                self.markers = imread(self.segdir + '/' + Name + '_markers' + '.tif')
+                self.watershed = imread(self.segdir + '/' + Name + '_vollseg' + '.tif')
+                self.stardist = imread(self.segdir + '/' + Name + '_stardist' + '.tif')
+                self.mask = imread(self.segdir + '/' + Name + '_mask' + '.tif')
                 if remove_markers:
                     self.markers = DownsampleData(self.markers, self.downsamplefactor)
                 for i in range(0, self.markers.shape[0]):
@@ -319,32 +315,31 @@ class NEATDynamic(object):
 
 
             except:
-                self.markers, self.watershed, self.mask = GenerateMarkers(self.image, self.starmodel, self.maskmodel, self.n_tiles)
-                self.markerdir = self.savedir + '/' + 'Markers'
-                self.watersheddir = self.savedir + '/' + 'Watershed'
-                self.maskdir = self.savedir + '/' + 'Mask'
-                Path(self.markerdir).mkdir(exist_ok=True)
-                Path(self.watersheddir).mkdir(exist_ok=True)
-                Path(self.maskdir).mkdir(exist_ok=True)
-                imwrite(self.markerdir + '/' + Name + '.tif', self.markers.astype('float32'))
-                imwrite(self.watersheddir + '/' + Name + '.tif', self.watershed.astype('float32'))
-                imwrite(self.maskdir + '/' + Name + '.tif', self.mask.astype('float32'))
+                self.markers, self.watershed, self.stardist, self.mask = GenerateMarkers(self.image,self.starmodel, self.n_tiles, maskmodel =  self.maskmodel, segimage = self.segimage)
+                self.segdir = self.savedir + '/' + 'Segmentation'
+                Path(self.segdir).mkdir(exist_ok=True)
+                imwrite(self.segdir + '/' + Name + '_markers' + '.tif', self.markers.astype('int32'))
+                imwrite(self.segdir + '/' + Name + '_vollseg' + '.tif', self.watershed.astype('int32'))
+                imwrite(self.segdir + '/' + Name + '_stardist' + '.tif', self.stardist.astype('int32'))
+                imwrite(self.segdir + '/' + Name + '_mask' + '.tif', self.mask.astype('uint16'))
         self.marker_tree = MakeTrees(self.markers)
 
 
-        return self.markers, self.marker_tree, self.watershed, self.mask
+        return self.markers, self.marker_tree, self.watershed, self.stardist, self.mask
     
     def predict(self, imagename,  savedir, n_tiles=(1, 1), overlap_percent=0.8,
                 event_threshold=0.5, event_confidence = 0.5, iou_threshold=0.1,  fidelity=5, downsamplefactor = 1, start_project_mid = 4, end_project_mid = 4,
-                erosion_iterations = 1, markers = None, marker_tree = None, watershed = None,  remove_markers = True,maskmodel = None, maskdir = None, normalize = True):
+                erosion_iterations = 1, markers = None, marker_tree = None, watershed = None, stardist = None, remove_markers = True, maskmodel = None, segdir = None, normalize = True, use_star = True):
 
         self.watershed = watershed
-        self.maskdir = maskdir
+        self.stardist = stardist
+        self.use_star = use_star
+        self.segdir = segdir
         self.imagename = imagename
         self.Name = os.path.basename(os.path.splitext(self.imagename)[0])
-        if self.maskdir is not None:
+        if self.segdir is not None:
             try:
-                self.maskimage = imread(self.maskdir + '/' + self.Name + '.tif')
+                self.maskimage = imread(self.segdir + '/' + self.Name + '_mask' + '.tif')
             except:
                 self.maskimage = None    
         else:
@@ -377,12 +372,12 @@ class NEATDynamic(object):
         if self.maskmodel is not None and self.maskimage is None:
 
             print(f'Generating mask, hang on')
-            self.maskdir = self.savedir + '/' + 'Mask'
-            Path(self.maskdir).mkdir(exist_ok=True)
+            self.segdir = self.savedir + '/' + 'Segmentation'
+            Path(self.segdir).mkdir(exist_ok=True)
             self.maskimage = Generate_only_mask(self.image, self.maskmodel, self.n_tiles)
             self.maskimage = binary_erosion(self.maskimage, iterations = self.erosion_iterations)
-            imwrite(self.maskdir + '/' + self.Name + '.tif', self.maskimage.astype('float32'))
-            print(f'Mask generated and saved at {self.maskdir}')
+            imwrite(self.segdir + '/' + self.Name + '_mask' + '.tif', self.maskimage.astype('float32'))
+            print(f'Mask generated and saved at {self.segdir}')
         
 
         self.model = load_model(self.model_dir + self.model_name + '.h5',
@@ -453,7 +448,7 @@ class NEATDynamic(object):
                                 self.classedboxes = classedboxes    
                                 self.eventboxes =  eventboxes
                                 #nms over time
-                                if inputtime > 0:
+                                if inputtime > 0 and inputtime%self.imaget == 0:
  
                                     self.nms()
                                     self.to_csv()
