@@ -515,7 +515,6 @@ class NEATDynamic(object):
                             iou_current_event_boxes = self.iou_classedboxes[event_name][0]
                             iou_current_event_boxes = sorted(iou_current_event_boxes, key=lambda x: x[event_name], reverse=True)
                             for box in iou_current_event_boxes:
-                                    print(box)
                                     ycentermean, xcentermean = get_nearest(self.marker_tree, box['ycenter'], box['xcenter'], box['real_time_event'])
 
                                     try:
@@ -525,6 +524,9 @@ class NEATDynamic(object):
                                                 remove_candidates[str(int(box['real_time_event']))] = remove_candidates_list
                                     except:
                                         pass
+
+                eventboxes = []
+                classedboxes = {}                    
             #Image back to the same co ordinate system
         print('here')
         self.markers = DownsampleData(self.markers, int(1.0//self.downsamplefactor))
@@ -574,7 +576,6 @@ class NEATDynamic(object):
 
         print('Detecting event locations')
         eventboxes = []
-        refinedeventboxes = []
         classedboxes = {}
         self.n_tiles = (1,1)
         self.iou_threshold = 0.9
@@ -686,7 +687,6 @@ class NEATDynamic(object):
                if self.remove_markers == None:
                    best_sorted_event_box = dynamic_nms(self.heatmap,self.maskimage,  self.classedboxes, event_name,  self.downsamplefactor, self.iou_threshold, self.event_threshold, self.imagex, self.imagey, self.fidelity )
 
-               print(best_sorted_event_box)
                best_iou_classedboxes[event_name] = [best_sorted_event_box]
 
         self.iou_classedboxes = best_iou_classedboxes
