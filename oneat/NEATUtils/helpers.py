@@ -5,29 +5,22 @@ import collections
 import json
 import cv2
 from scipy import spatial
-from matplotlib import cm
-from tifffile import imsave
 from skimage import measure
 from pathlib import Path
 import math
 import os
 import csv
 from csbdeep.utils import normalize
-from tifffile import imread, imwrite
+from tifffile import imwrite
 from tqdm import tqdm
-from skimage.segmentation import relabel_sequential
 from skimage.util import invert as invertimage
 from skimage.measure import label
 from skimage.filters import sobel
 from scipy.ndimage.measurements import find_objects
-from skimage.morphology import erosion, dilation, square, binary_dilation, disk
-from scipy.ndimage import morphology
-from skimage.filters import threshold_local, threshold_otsu
+from skimage.morphology import  dilation, square, binary_dilation, disk
+from skimage import morphology
 from scipy.ndimage.morphology import binary_fill_holes
 from skimage.segmentation import watershed
-from skimage.feature import peak_local_max
-from scipy import ndimage as ndi
-from skimage.filters import threshold_multiotsu
 """
  @author: Varun Kapoor
 
