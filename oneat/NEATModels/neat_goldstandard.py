@@ -336,7 +336,7 @@ class NEATDynamic(object):
     
     def predict(self, imagename,  savedir, n_tiles=(1, 1), overlap_percent=0.8,
                 event_threshold=0.5, event_confidence = 0.5, iou_threshold=0.1,  fidelity=5, downsamplefactor = 1, start_project_mid = 4, end_project_mid = 4,
-                erosion_iterations = 10, markers = None, marker_tree = None, watershed = None,  remove_markers = True,maskmodel = None, maskdir = None, normalize = True):
+                erosion_iterations = 1, markers = None, marker_tree = None, watershed = None,  remove_markers = True,maskmodel = None, maskdir = None, normalize = True):
 
         self.watershed = watershed
         self.maskdir = maskdir
@@ -648,7 +648,7 @@ class NEATDynamic(object):
                                                     current_event_box.append(box)
                                              classedboxes[event_name] = [current_event_box]
 
-                if inputtime > 0 and inputtime%self.imaget == 0:                         
+                if inputtime > 0 :                         
                         self.classedboxes = classedboxes    
                         self.eventboxes =  eventboxes
                         self.nms()
