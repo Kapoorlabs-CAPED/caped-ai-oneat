@@ -507,7 +507,10 @@ class NEATDynamic(object):
                                         classedboxes[event_name] = [current_event_box]
 
             self.classedboxes = classedboxes
-            for box in self.classedboxes:
+            if len(self.classedboxes) > 0:
+                self.fast_nms()
+
+                for box in self.iou_classedboxes:
                             print(box)
                             ycentermean, xcentermean = get_nearest(self.marker_tree, box['ycenter'], box['xcenter'], box['real_time_event'])
 
@@ -652,7 +655,19 @@ class NEATDynamic(object):
                         classedboxes = {}   
 
 
+    def fast_nms(self):
 
+
+        best_iou_classedboxes = {}
+        self.iou_classedboxes = {}
+        for (event_name,event_label) in self.key_categories.items():
+            if event_label == 0:
+               #best_sorted_event_box = self.classedboxes[event_name][0]
+               best_sorted_event_box = dynamic_nms(self.heatmap,self.maskimage, self.classedboxes, event_name,  self.downsamplefactor, self.iou_threshold, self.event_threshold, self.imagex, self.imagey, self.fidelity )
+
+               best_iou_classedboxes[event_name] = [best_sorted_event_box]
+
+        self.iou_classedboxes = best_iou_classedboxes
                 
     def nms(self):
 
