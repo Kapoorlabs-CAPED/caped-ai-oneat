@@ -8,7 +8,7 @@ with open('README.md') as f:
 setup(
     name="oneat",
 
-    version='2.0.0',
+    version='2.0.1',
 
     author='Varun Kapoor',
     author_email='randomaccessiblekapoor@gmail.com',

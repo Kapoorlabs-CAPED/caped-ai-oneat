@@ -552,7 +552,6 @@ class NEATDynamic(object):
                 if len(location) > 0:
                         for value in location:
                             if value not in remove_location:
-                                print(value, len(remove_location))
                                 Clean_Coordinates.append(value)
 
                                 

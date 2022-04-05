@@ -1393,26 +1393,27 @@ def predictionloop(j, k, sx, sy, nboxes, stride, time_prediction, config, key_ca
             rawangle = 2
         # Compute the box vectors
         if marker_tree is not None:
-            ycentermean, xcentermean = get_nearest(marker_tree, ycentermean, xcentermean, real_time_event)
-
+            nearest_location = get_nearest(marker_tree, ycentermean, xcentermean, real_time_event)
+            if nearest_location is not None:
+               ycentermean, xcentermean = nearest_location
         box = {'xstart': xstart, 'ystart': ystart, 'tstart': boxtstartmean, 'xcenterraw': xcenterrawmean,
                 'ycenterraw': ycenterrawmean, 'tcenterraw': tcenterrawmean, 'xcenter': xcentermean,
                 'ycenter': ycentermean, 'real_time_event': real_time_event, 'box_time_event': box_time_event,
                 'height': heightmean, 'width': widthmean, 'confidence': confidencemean, 'realangle': realangle,
                 'rawangle': rawangle}
-    if event_type == 'static':
-        real_time_event = int(inputtime)
-        box_time_event = int(inputtime)
-        realangle = 0
-        rawangle = 0
+        if event_type == 'static':
+            real_time_event = int(inputtime)
+            box_time_event = int(inputtime)
+            realangle = 0
+            rawangle = 0
 
-        
-
-    # Make a single dict object containing the class and the box vectors return also the max prob label
-    for d in [Class, box]:
-        classybox.update(d)
     
-    return classybox    
+
+        # Make a single dict object containing the class and the box vectors return also the max prob label
+        for d in [Class, box]:
+            classybox.update(d)
+        
+        return classybox    
     
 
 
@@ -1469,7 +1470,7 @@ def get_nearest(marker_tree, ycenter, xcenter, tcenter):
         return nearest_location[0], nearest_location[1]
 
 
-def draw_labelimages(image, location, time, timelocation):
+def draw_labelimages(image, location):
     cv2.circle(image, location, 2, (255, 0, 0), thickness=-1)
 
     return image
