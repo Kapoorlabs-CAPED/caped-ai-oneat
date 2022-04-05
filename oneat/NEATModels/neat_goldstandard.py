@@ -493,68 +493,66 @@ class NEATDynamic(object):
                                           
                             if boxprediction is not None:
                                 eventboxes = eventboxes + boxprediction
-        for (event_name, event_label) in self.key_categories.items():
+            for (event_name, event_label) in self.key_categories.items():
                     
                     if event_label == 0:  
                                 current_event_box = []              
                                 for box in eventboxes:
                 
                                     event_prob = box[event_name]
-                                    if event_prob >= 0.5:
-                                          
-                                        
+                                    event_confidence = box['confidence']
+                                    if event_prob >= self.event_threshold and event_confidence >= self.event_confidence :
 
                                         current_event_box.append(box)
                                         classedboxes[event_name] = [current_event_box]
 
-        self.classedboxes = classedboxes
-        if len(self.classedboxes) > 0:
-                self.fast_nms()
+            self.classedboxes = classedboxes
+            for box in self.classedboxes:
+                            print(box)
+                            ycentermean, xcentermean = get_nearest(self.marker_tree, box['ycenter'], box['xcenter'], box['real_time_event'])
 
-                for box in self.iou_classedboxes:
-                        ycentermean, xcentermean = get_nearest(self.marker_tree, box['ycenter'], box['xcenter'], box['real_time_event'])
-
-                        if remove_candidates[str(int(box['real_time_event']))] is None:
-                              remove_candidates[str(int(box['real_time_event']))] = (ycentermean * self.downsamplefactor, xcentermean * self.downsamplefactor)
-                        else:
-                             remove_candidates_list = remove_candidates[str(int(box['real_time_event']))]
-                             remove_candidates_list.append((ycentermean * self.downsamplefactor, xcentermean * self.downsamplefactor))
-                             remove_candidates[str(int(box['real_time_event']))] = remove_candidates_list
+                            if remove_candidates[str(int(box['real_time_event']))] is None:
+                                remove_candidates[str(int(box['real_time_event']))] = (ycentermean * self.downsamplefactor, xcentermean * self.downsamplefactor)
+                            else:
+                                remove_candidates_list = remove_candidates[str(int(box['real_time_event']))]
+                                if ycentermean * self.downsamplefactor and xcentermean * self.downsamplefactor not in remove_candidates_list:
+                                   remove_candidates_list.append((ycentermean * self.downsamplefactor, xcentermean * self.downsamplefactor))
+                                   remove_candidates[str(int(box['real_time_event']))] = remove_candidates_list
 
         #Image back to the same co ordinate system
+        print('here')
         self.markers = DownsampleData(self.markers, int(1.0//self.downsamplefactor))
         self.image = DownsampleData(self.image, int(1.0//self.downsamplefactor))
-
+        print('reach?')
         for i in range(0, self.markers.shape[0]):
+                    print(i)
                     self.markers[i,:] = self.markers[i,:] > 0
                     self.markers[i,:] = label(self.markers[i,:].astype('uint16'))
 
 
-
+        print('marking')
         for i in tqdm(range(0, self.markers.shape[0])):
+
                 Clean_Coordinates = []
-                sublist = [] 
-                waterproperties = measure.regionprops(self.markers[i,:].astype('uint16'))
-                sublist = remove_candidates[str(int(i))]
-                for prop in waterproperties:
-                     current_centroid = prop.centroid
-                     
-                             
-                     if (int(current_centroid[0]), int(current_centroid[1])) not in sublist:
-                                
-                         Clean_Coordinates.append(current_centroid) 
-               
+                tree, location = self.marker_tree[str(int(i))]
+                remove_location = remove_candidates[str(int(i))]
+
+                for value in location:
+                     if value not in remove_location:
+                         Clean_Coordinates.append(value)
+
+                         
                 Clean_Coordinates = sorted(Clean_Coordinates, key=lambda k: [k[1], k[0]])
                 Clean_Coordinates.append((0, 0))
                 Clean_Coordinates = np.asarray(Clean_Coordinates)
-            
+                    
                 coordinates_int = np.round(Clean_Coordinates).astype(int)
                 markers_raw = np.zeros_like(self.markers[i,:])
                 markers_raw[tuple(coordinates_int.T)] = 1 + np.arange(len(Clean_Coordinates))
-            
-                markers = dilation(markers_raw, disk(2))
-            
-                self.markers[i, :] = label(markers.astype('uint16'))                            
+                    
+                markers_current = dilation(markers_raw, disk(2))
+                    
+                self.markers[i, :] = label(markers_current.astype('uint16'))                            
          
         markerdir = self.savedir + '/' + 'Clean_Markers'  
         Path(markerdir).mkdir(exist_ok=True)
@@ -654,20 +652,7 @@ class NEATDynamic(object):
                         classedboxes = {}   
 
 
-    def fast_nms(self):
 
-
-        best_iou_classedboxes = {}
-        self.iou_classedboxes = {}
-        for (event_name,event_label) in self.key_categories.items():
-            if event_label == 0:
-
-               #best_sorted_event_box = self.classedboxes[event_name][0]
-               best_sorted_event_box = dynamic_nms(self.heatmap,self.maskimage, self.classedboxes, event_name,  self.downsamplefactor, self.iou_threshold, self.event_threshold, self.imagex, self.imagey, self.fidelity )
-
-               best_iou_classedboxes[event_name] = [best_sorted_event_box]
-
-        self.iou_classedboxes = best_iou_classedboxes
                 
     def nms(self):
 
