@@ -393,6 +393,7 @@ class NEATDynamic(object):
         
         if self.remove_markers == True:
            self.first_pass_predict()
+           self.second_pass_predict()
         if self.remove_markers == False:  
            self.second_pass_predict()
         if self.remove_markers == None:
@@ -515,59 +516,64 @@ class NEATDynamic(object):
                             iou_current_event_boxes = self.iou_classedboxes[event_name][0]
                             iou_current_event_boxes = sorted(iou_current_event_boxes, key=lambda x: x[event_name], reverse=True)
                             for box in iou_current_event_boxes:
-                                    ycentermean, xcentermean = get_nearest(self.marker_tree, box['ycenter'], box['xcenter'], box['real_time_event'])
-
-                                    try:
-                                        remove_candidates_list = remove_candidates[str(int(box['real_time_event']))]
-                                        if ycentermean * self.downsamplefactor and xcentermean * self.downsamplefactor not in remove_candidates_list:
-                                                remove_candidates_list.append((ycentermean * self.downsamplefactor, xcentermean * self.downsamplefactor))
-                                                remove_candidates[str(int(box['real_time_event']))] = remove_candidates_list
-                                    except:
-                                        pass
+                                     closest_location = get_nearest(self.marker_tree, box['ycenter'], box['xcenter'], box['real_time_event'])
+                                     if closest_location is not None:
+                                        ycentermean, xcentermean = closest_location
+                                        try:
+                                            remove_candidates_list = remove_candidates[str(int(box['real_time_event']))]
+                                            if (ycentermean * self.downsamplefactor, xcentermean * self.downsamplefactor) not in remove_candidates_list:
+                                                    remove_candidates_list.append((ycentermean * self.downsamplefactor, xcentermean * self.downsamplefactor))
+                                                    remove_candidates[str(int(box['real_time_event']))] = remove_candidates_list
+                                        except:
+                                            remove_candidates_list.append((ycentermean * self.downsamplefactor, xcentermean * self.downsamplefactor))
+                                            remove_candidates[str(int(box['real_time_event']))]  = remove_candidates_list
 
                 eventboxes = []
                 classedboxes = {}                    
             #Image back to the same co ordinate system
-        print('here')
         self.markers = DownsampleData(self.markers, int(1.0//self.downsamplefactor))
         self.image = DownsampleData(self.image, int(1.0//self.downsamplefactor))
-        print('reach?')
         for i in range(0, self.markers.shape[0]):
-                    print(i)
                     self.markers[i,:] = self.markers[i,:] > 0
                     self.markers[i,:] = label(self.markers[i,:].astype('uint16'))
 
-
-        print('marking')
-        for i in tqdm(range(0, self.markers.shape[0])):
+        new_markers = np.zeros_like(self.markers)
+        for i in tqdm(range(0, new_markers.shape[0])):
 
                 Clean_Coordinates = []
-                tree, location = self.marker_tree[str(int(i))]
-                remove_location = remove_candidates[str(int(i))]
+                try:
+                   tree, location = self.marker_tree[str(int(i))]
+                except:
+                    location = []   
+                try:
+                   remove_location = remove_candidates[str(int(i))]
+                except:
+                    remove_location = []   
+                if len(location) > 0:
+                        for value in location:
+                            if value not in remove_location:
+                                print(value, len(remove_location))
+                                Clean_Coordinates.append(value)
 
-                for value in location:
-                     if value not in remove_location:
-                         Clean_Coordinates.append(value)
-
-                         
-                Clean_Coordinates = sorted(Clean_Coordinates, key=lambda k: [k[1], k[0]])
-                Clean_Coordinates.append((0, 0))
-                Clean_Coordinates = np.asarray(Clean_Coordinates)
-                    
-                coordinates_int = np.round(Clean_Coordinates).astype(int)
-                markers_raw = np.zeros_like(self.markers[i,:])
-                markers_raw[tuple(coordinates_int.T)] = 1 + np.arange(len(Clean_Coordinates))
-                    
-                markers_current = dilation(markers_raw, disk(2))
-                    
-                self.markers[i, :] = label(markers_current.astype('uint16'))                            
+                                
+                        Clean_Coordinates = sorted(Clean_Coordinates, key=lambda k: [k[1], k[0]])
+                        Clean_Coordinates.append((0, 0))
+                        Clean_Coordinates = np.asarray(Clean_Coordinates)
+                            
+                        coordinates_int = np.round(Clean_Coordinates).astype(int)
+                        markers_raw = np.zeros_like(new_markers[i,:])
+                        markers_raw[tuple(coordinates_int.T)] = 1 + np.arange(len(Clean_Coordinates))
+                            
+                        markers_current = dilation(markers_raw, disk(2))
+                            
+                        new_markers[i, :] = label(markers_current.astype('uint16'))                            
          
         markerdir = self.savedir + '/' + 'Clean_Markers'  
         Path(markerdir).mkdir(exist_ok=True)
         Name = os.path.basename(os.path.splitext(self.imagename)[0])
         print('Writing the clean markers')
-        self.marker_tree = MakeTrees(self.markers)
-        imwrite(markerdir + '/' + Name + '.tif', self.markers.astype('float32'))    
+        self.marker_tree = MakeTrees(new_markers)
+        imwrite(markerdir + '/' + Name + '.tif', new_markers.astype('float32'))    
         
 
 

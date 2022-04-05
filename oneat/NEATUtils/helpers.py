@@ -1463,11 +1463,10 @@ def get_nearest(marker_tree, ycenter, xcenter, tcenter):
     location = (ycenter, xcenter)
     tree, indices = marker_tree[str(int(round(tcenter)))]
     distance, nearest_location = tree.query(location)
-    if distance <= 20:
+
+    if distance <= 30:
         nearest_location = int(indices[nearest_location][0]), int(indices[nearest_location][1])
-    else:
-        nearest_location = location
-    return nearest_location[0], nearest_location[1]
+        return nearest_location[0], nearest_location[1]
 
 
 def draw_labelimages(image, location, time, timelocation):
