@@ -329,11 +329,11 @@ class NEATDynamic(object):
     
     def predict(self, imagename,  savedir, n_tiles=(1, 1), overlap_percent=0.8,
                 event_threshold=0.5, event_confidence = 0.5, iou_threshold=0.1,  fidelity=1, downsamplefactor = 1, start_project_mid = 4, end_project_mid = 4,
-                erosion_iterations = 1, markers = None, marker_tree = None, watershed = None, stardist = None, remove_markers = True, maskmodel = None, segdir = None, normalize = True, use_star = True):
+                erosion_iterations = 1, markers = None, marker_tree = None, watershed = None, stardist = None, remove_markers = True, maskmodel = None, segdir = None, normalize = True):
+
 
         self.watershed = watershed
         self.stardist = stardist
-        self.use_star = use_star
         self.segdir = segdir
         self.imagename = imagename
         self.Name = os.path.basename(os.path.splitext(self.imagename)[0])
@@ -361,6 +361,8 @@ class NEATDynamic(object):
         
         self.heatmap = np.zeros(self.image.shape, dtype = 'float32')  
         self.savedir = savedir
+        if len(n_tiles) > 2:
+            n_tiles = (n_tiles[-2], n_tiles[-1])
         self.n_tiles = n_tiles
         self.fidelity = fidelity
         self.overlap_percent = overlap_percent

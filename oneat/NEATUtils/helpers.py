@@ -555,8 +555,12 @@ def GenerateMarkers(Image, n_tiles, model = None,  maskmodel = None, segimage = 
                 starimage, details = model.predict_instances(smallimage, n_tiles=n_tiles)
                 properties = measure.regionprops(starimage)
                 Coordinates = [prop.centroid for prop in properties]
-                Coordinates = sorted(Coordinates, key=lambda k: [k[1], k[0]])
-                Coordinates.append((0, 0))
+                if ndim == 3:
+                    Coordinates = sorted(Coordinates, key=lambda k: [k[1], k[0]])
+                    Coordinates.append((0, 0))
+                if ndim == 4:
+                    Coordinates = sorted(Coordinates, key=lambda k: [k[2], k[1], k[0]])
+                    Coordinates.append((0, 0, 0))    
                 Coordinates = np.asarray(Coordinates)
 
                 coordinates_int = np.round(Coordinates).astype(int)
@@ -564,7 +568,11 @@ def GenerateMarkers(Image, n_tiles, model = None,  maskmodel = None, segimage = 
                 markers_raw[tuple(coordinates_int.T)] = 1 + np.arange(len(Coordinates))
 
                 markers = dilation(markers_raw, disk(2))
-                markers = morphology.dilation(markers_raw, morphology.disk(2))
+                if ndim == 4:
+                            markers = morphology.dilation(
+                               markers_raw.astype('uint16'), morphology.ball(2))
+                if ndim == 3:       
+                            markers = morphology.dilation(markers_raw.astype('uint16'), morphology.disk(2))
                 watershedImage = watershed(-smallimage, markers, mask=maskimage.copy())
                 if ndim == 4:
                             markers =  MidSlices(markers, start_project_mid, end_project_mid, axis = 1)
@@ -590,16 +598,22 @@ def GenerateMarkers(Image, n_tiles, model = None,  maskmodel = None, segimage = 
                                 maskimage = None
                         Coordinates = [prop.centroid for prop in properties]
  
-                        Coordinates = sorted(Coordinates, key=lambda k: [k[1], k[0]])
-                        Coordinates.append((0, 0))
+                        if ndim == 3:
+                            Coordinates = sorted(Coordinates, key=lambda k: [k[1], k[0]])
+                            Coordinates.append((0, 0))
+                        if ndim == 4:
+                            Coordinates = sorted(Coordinates, key=lambda k: [k[2], k[1], k[0]])
+                            Coordinates.append((0, 0, 0))
                         Coordinates = np.asarray(Coordinates)
-
+    
                         coordinates_int = np.round(Coordinates).astype(int)
                         markers_raw = np.zeros_like(smallimage)
                         markers_raw[tuple(coordinates_int.T)] = 1 + np.arange(len(Coordinates))
-
-                        markers = dilation(markers_raw, disk(2))
-                        markers = morphology.dilation(markers_raw, morphology.disk(2)) 
+                        if ndim == 4:
+                            markers = morphology.dilation(
+                               markers_raw.astype('uint16'), morphology.ball(2))
+                        if ndim == 3:       
+                            markers = morphology.dilation(markers_raw.astype('uint16'), morphology.disk(2)) 
                         if ndim == 4:
                             markers =  MidSlices(markers, start_project_mid, end_project_mid, axis = 1)
 
