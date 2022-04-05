@@ -684,7 +684,6 @@ class NEATDynamic(object):
         self.iou_classedboxes = {}
         for (event_name,event_label) in self.key_categories.items():
             if event_label > 0:
-
                #best_sorted_event_box = self.classedboxes[event_name][0]
                if self.remove_markers is not None:
                    best_sorted_event_box = gold_nms(self.heatmap, self.classedboxes, event_name, 1, self.iou_threshold, self.event_threshold, self.imagex, self.imagey, 1 )
