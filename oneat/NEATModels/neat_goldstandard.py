@@ -509,20 +509,23 @@ class NEATDynamic(object):
             self.classedboxes = classedboxes
             if len(self.classedboxes) > 0:
                 self.fast_nms()
+                for (event_name, event_label) in self.key_categories.items():
+                    
+                    if event_label == 0:
+                            iou_current_event_boxes = self.iou_classedboxes[event_name][0]
+                            iou_current_event_boxes = sorted(iou_current_event_boxes, key=lambda x: x[event_name], reverse=True)
+                            for box in iou_current_event_boxes:
+                                    print(box)
+                                    ycentermean, xcentermean = get_nearest(self.marker_tree, box['ycenter'], box['xcenter'], box['real_time_event'])
 
-                for box in self.iou_classedboxes:
-                            print(box)
-                            ycentermean, xcentermean = get_nearest(self.marker_tree, box['ycenter'], box['xcenter'], box['real_time_event'])
-
-                            if remove_candidates[str(int(box['real_time_event']))] is None:
-                                remove_candidates[str(int(box['real_time_event']))] = (ycentermean * self.downsamplefactor, xcentermean * self.downsamplefactor)
-                            else:
-                                remove_candidates_list = remove_candidates[str(int(box['real_time_event']))]
-                                if ycentermean * self.downsamplefactor and xcentermean * self.downsamplefactor not in remove_candidates_list:
-                                   remove_candidates_list.append((ycentermean * self.downsamplefactor, xcentermean * self.downsamplefactor))
-                                   remove_candidates[str(int(box['real_time_event']))] = remove_candidates_list
-
-        #Image back to the same co ordinate system
+                                    try:
+                                        remove_candidates_list = remove_candidates[str(int(box['real_time_event']))]
+                                        if ycentermean * self.downsamplefactor and xcentermean * self.downsamplefactor not in remove_candidates_list:
+                                                remove_candidates_list.append((ycentermean * self.downsamplefactor, xcentermean * self.downsamplefactor))
+                                                remove_candidates[str(int(box['real_time_event']))] = remove_candidates_list
+                                    except:
+                                        pass
+            #Image back to the same co ordinate system
         print('here')
         self.markers = DownsampleData(self.markers, int(1.0//self.downsamplefactor))
         self.image = DownsampleData(self.image, int(1.0//self.downsamplefactor))
