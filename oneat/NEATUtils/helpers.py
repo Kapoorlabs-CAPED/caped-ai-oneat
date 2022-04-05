@@ -537,7 +537,7 @@ def GenerateMarkers(Image, n_tiles, model = None,  maskmodel = None, segimage = 
                         maskimage = GenerateMask(smallimage, maskmodel, n_tiles)
                         maskimage = fill_label_holes(maskimage.astype('uint16'))
                         if ndim == 4:
-                            maskimage =  MidSlices(maskimage, start_project_mid, end_project_mid, axis = 1)
+                            maskimage =  MidSlices(maskimage, start_project_mid, end_project_mid, axis = 0)
                         Mask[i,:] = maskimage
                 else:
                         maskimage = None
@@ -568,9 +568,9 @@ def GenerateMarkers(Image, n_tiles, model = None,  maskmodel = None, segimage = 
                             markers = morphology.dilation(markers_raw.astype('uint16'), morphology.disk(2))
                 watershedImage = watershed(-smallimage, markers, mask=maskimage.copy())
                 if ndim == 4:
-                            markers =  MidSlices(markers, start_project_mid, end_project_mid, axis = 1)
-                            watershedImage =  MidSlices(watershedImage, start_project_mid, end_project_mid, axis = 1)
-                            starimage =  MidSlices(starimage, start_project_mid, end_project_mid, axis = 1)
+                            markers =  MidSlices(markers, start_project_mid, end_project_mid, axis = 0)
+                            watershedImage =  MidSlices(watershedImage, start_project_mid, end_project_mid, axis = 0)
+                            starimage =  MidSlices(starimage, start_project_mid, end_project_mid, axis = 0)
                 Markers[i, :] = label(markers.astype('uint16'))
                 Watershed[i,:] = watershedImage
                 Star[i,:] = starimage
@@ -584,7 +584,7 @@ def GenerateMarkers(Image, n_tiles, model = None,  maskmodel = None, segimage = 
                                 maskimage = GenerateMask(smallimage, maskmodel, n_tiles)
                                 maskimage = fill_label_holes(maskimage.astype('uint16'))
                                 if ndim == 4:
-                                     maskimage =  MidSlices(maskimage, start_project_mid, end_project_mid, axis = 1)
+                                     maskimage =  MidSlices(maskimage, start_project_mid, end_project_mid, axis = 0)
 
                                 Mask[i,:] = maskimage
                         else:
@@ -608,7 +608,7 @@ def GenerateMarkers(Image, n_tiles, model = None,  maskmodel = None, segimage = 
                         if ndim == 3:       
                             markers = morphology.dilation(markers_raw.astype('uint16'), morphology.disk(2)) 
                         if ndim == 4:
-                            markers =  MidSlices(markers, start_project_mid, end_project_mid, axis = 1)
+                            markers =  MidSlices(markers, start_project_mid, end_project_mid, axis = 0)
 
                         Markers[i, :] = label(markers.astype('uint16'))
 
