@@ -489,8 +489,8 @@ class NEATDynamic(object):
                             boxprediction = yoloprediction(ally[p], allx[p], time_prediction, self.stride,
                                                            inputtime, self.config,
                                                            self.key_categories, self.key_cord, self.nboxes, 'detection',
-                                                           'dynamic', self.marker_tree, self.remove_markers)
-
+                                                           'dynamic', self.marker_tree)
+                                          
                             if boxprediction is not None:
                                 eventboxes = eventboxes + boxprediction
         for (event_name, event_label) in self.key_categories.items():
