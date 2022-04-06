@@ -791,8 +791,7 @@ def goodboxes(boxes, scores, nms_threshold, score_threshold, gridx, gridy,
     # return only the indicies of the bounding boxes that were picked
     return Averageboxes
 
-def goldboxes(boxes, scores, nms_threshold, score_threshold, gridx, gridy,
-               fidelity=1):
+def goldboxes(boxes, scores, nms_threshold, score_threshold, gridx, gridy):
 
 
 
@@ -811,9 +810,6 @@ def goldboxes(boxes, scores, nms_threshold, score_threshold, gridx, gridy,
     if boxes.dtype.kind == "i":
         boxes = boxes.astype("float")
 
-
-
-
     # initialize the list of picked indexes
     pick = []
     Averageboxes = []
@@ -831,7 +827,6 @@ def goldboxes(boxes, scores, nms_threshold, score_threshold, gridx, gridy,
         Averageboxes.append(boxes[i])
         pick.append(i)
         suppress = [last]
-        count = 0
         # loop over all indexes in the indexes list
         for pos in (range(0, last)):
             # grab the current index
@@ -1060,22 +1055,19 @@ def gold_nms(heatmap, classedboxes, event_name, downsamplefactor, iou_threshold,
                sorted_event_box = classedboxes[event_name][0]
                scores = [ sorted_event_box[i][event_name]  for i in range(len(sorted_event_box))]
                
-               good_sorted_event_box = goldboxes(sorted_event_box, scores, iou_threshold, event_threshold,  gridx, gridy, fidelity)
-               filtered_good_sorted_event_box = []
-               for iou_current_event_box in good_sorted_event_box:
+               good_sorted_event_box = goldboxes(sorted_event_box, scores, iou_threshold, event_threshold,  gridx, gridy)
+               for iou_current_event_box in sorted_event_box:
                                                               xcenter = iou_current_event_box['xcenter']* downsamplefactor
                                                               ycenter = iou_current_event_box['ycenter']* downsamplefactor
                                                               tcenter = iou_current_event_box['real_time_event']
                                                               score = iou_current_event_box[event_name]
-                                                              filtered_good_sorted_event_box.append(iou_current_event_box)
                                                               for x in range(int(xcenter - 8), int(xcenter + 8)):
                                                                   for y in range(int(ycenter - 8), int(ycenter + 8)):
 
                                                                       heatmap[int(tcenter), int(y), int(x)] = heatmap[int(tcenter), int(y), int(x)] + score
 
-               scores = [ filtered_good_sorted_event_box[i][event_name]  for i in range(len(filtered_good_sorted_event_box))]
                     
-               return filtered_good_sorted_event_box
+               return good_sorted_event_box
 
 
 
@@ -1098,6 +1090,19 @@ def dynamic_nms(heatmap, maskimage, classedboxes, event_name, downsamplefactor, 
                                                           if maskimage is not None:
                                                               if maskimage[int(tcenter), int(ycenter), int(xcenter)] > 0:
                                                                       filtered_good_sorted_event_box.append(iou_current_event_box)
+                                                                      
+                                                          else:
+                                                              
+                                                              filtered_good_sorted_event_box.append(iou_current_event_box)
+                                                             
+               for iou_current_event_box in sorted_event_box:
+                                                          xcenter = iou_current_event_box['xcenter']* downsamplefactor
+                                                          ycenter = iou_current_event_box['ycenter']* downsamplefactor
+                                                          tcenter = iou_current_event_box['real_time_event']
+                                                          score = iou_current_event_box[event_name]
+                                                      
+                                                          if maskimage is not None:
+                                                             
                                                                       for x in range(int(xcenter - 8), int(xcenter + 8)):
                                                                           for y in range(int(ycenter - 8), int(ycenter + 8)):
                                                                               if x < heatmap.shape[2] and y < heatmap.shape[1]:
@@ -1105,14 +1110,16 @@ def dynamic_nms(heatmap, maskimage, classedboxes, event_name, downsamplefactor, 
                                                                               
                                                           else:
                                                               
-                                                              filtered_good_sorted_event_box.append(iou_current_event_box)
                                                               for x in range(int(xcenter - 8), int(xcenter + 8)):
                                                                   for y in range(int(ycenter - 8), int(ycenter + 8)):
                                                                       
                                                                       heatmap[int(tcenter), int(y), int(x)] = heatmap[int(tcenter), int(y), int(x)] + score
+            
+
+
                                                                       
                
-               return best_sorted_event_box
+               return filtered_good_sorted_event_box
            
 
 def microscope_dynamic_nms( classedboxes, event_name, iou_threshold, event_threshold, gridx, gridy, fidelity):

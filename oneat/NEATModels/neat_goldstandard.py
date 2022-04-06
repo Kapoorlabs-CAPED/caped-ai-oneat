@@ -594,8 +594,6 @@ class NEATDynamic(object):
 
                 if inputtime%(self.image.shape[0]//4)==0 and inputtime > 0 or inputtime >= self.image.shape[0] - self.imaget - 1:
 
-
-
                                       imwrite((heatsavename + '.tif' ), self.heatmap) 
                 tree, location = self.marker_tree[str(int(inputtime))]
                 for i in range(len(location)):
@@ -653,7 +651,7 @@ class NEATDynamic(object):
                                                     current_event_box.append(box)
                                              classedboxes[event_name] = [current_event_box]
 
-                if inputtime > 0 :                         
+                if inputtime > 0 and inputtime%self.imaget == 0:                         
                         self.classedboxes = classedboxes    
                         self.eventboxes =  eventboxes
                         self.nms()
