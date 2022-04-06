@@ -1071,7 +1071,7 @@ def gold_nms(heatmap, classedboxes, event_name, downsamplefactor, iou_threshold,
 
 
 
-def dynamic_nms(heatmap, maskimage, classedboxes, event_name, downsamplefactor, iou_threshold, event_threshold, gridx, gridy, fidelity):
+def dynamic_nms(heatmap, maskimage, classedboxes, event_name, downsamplefactor, iou_threshold, event_threshold, gridx, gridy, fidelity, generate_map = True):
                 
                sorted_event_box = classedboxes[event_name][0]
                scores = [ sorted_event_box[i][event_name]  for i in range(len(sorted_event_box))]
@@ -1091,8 +1091,8 @@ def dynamic_nms(heatmap, maskimage, classedboxes, event_name, downsamplefactor, 
                                                           else:
                                                               
                                                               filtered_good_sorted_event_box.append(iou_current_event_box)
-                                                             
-               for iou_current_event_box in sorted_event_box:
+               if generate_map:                                              
+                               for iou_current_event_box in sorted_event_box:
                                                           xcenter = iou_current_event_box['xcenter']* downsamplefactor
                                                           ycenter = iou_current_event_box['ycenter']* downsamplefactor
                                                           tcenter = iou_current_event_box['real_time_event']

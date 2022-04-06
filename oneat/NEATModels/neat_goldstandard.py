@@ -559,15 +559,11 @@ class NEATDynamic(object):
 
                                 
                         Clean_Coordinates = sorted(Clean_Coordinates, key=lambda k: [k[1], k[0]])
-                        Clean_Coordinates.append((0, 0))
                         Clean_Coordinates = np.asarray(Clean_Coordinates)
-                            
                         coordinates_int = np.round(Clean_Coordinates).astype(int)
                         markers_raw = np.zeros_like(new_markers[i,:])
                         markers_raw[tuple(coordinates_int.T)] = 1 + np.arange(len(Clean_Coordinates))
-                            
                         markers_current = dilation(markers_raw, disk(2))
-                            
                         new_markers[i, :] = label(markers_current.astype('uint16'))                            
          
         markerdir = self.savedir + '/' + 'Clean_Markers'  
@@ -586,7 +582,7 @@ class NEATDynamic(object):
         eventboxes = []
         classedboxes = {}
         self.n_tiles = (1,1)
-        self.iou_threshold = 0.9
+        
         heatsavename = self.savedir+ "/"  + (os.path.splitext(os.path.basename(self.imagename))[0])+ '_Heat'
  
         
@@ -669,7 +665,7 @@ class NEATDynamic(object):
         for (event_name,event_label) in self.key_categories.items():
             if event_label == 0:
                #best_sorted_event_box = self.classedboxes[event_name][0]
-               best_sorted_event_box = dynamic_nms(self.heatmap,self.maskimage, self.classedboxes, event_name,  self.downsamplefactor, self.iou_threshold, self.event_threshold, self.imagex, self.imagey, self.fidelity )
+               best_sorted_event_box = dynamic_nms(self.heatmap,self.maskimage, self.classedboxes, event_name,  self.downsamplefactor, self.iou_threshold, self.event_threshold, self.imagex, self.imagey, self.fidelity, generate_map = False )
 
                best_iou_classedboxes[event_name] = [best_sorted_event_box]
 
