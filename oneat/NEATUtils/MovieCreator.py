@@ -89,7 +89,54 @@ def SegFreeMovieLabelDataSet(image_dir, csv_dir, save_dir, static_name, static_l
                                                         
                                                            pass
                                                         
-
+def SegFreeMovieLabelDataSet4D(image_dir, csv_dir, save_dir, static_name, static_label, csv_name_diff, crop_size, normPatch = False, yolo_v0 = False, yolo_v1 = True, yolo_v2 = False, tshift = 0, normalizeimage = True):
+    
+    
+            raw_path = os.path.join(image_dir, '*tif')
+            Csv_path = os.path.join(csv_dir, '*csv')
+            files_raw = glob.glob(raw_path)
+            files_raw.sort
+            filesCsv = glob.glob(Csv_path)
+            filesCsv.sort
+            Path(save_dir).mkdir(exist_ok=True)
+            total_categories = len(static_name)
+                
+            
+            
+            for fname in files_raw:
+                          
+                         name = os.path.basename(os.path.splitext(fname)[0])  
+                         
+                        
+                         for csvfname in filesCsv:
+                                 count = 0  
+                                 Csvname =  os.path.basename(os.path.splitext(csvfname)[0])
+                                 
+                                 for i in  range(0, len(static_name)):
+                                     event_name = static_name[i]
+                                     trainlabel = static_label[i]
+                                     classfound = (Csvname == csv_name_diff +  event_name+ name )  
+                                     if classfound:
+                                                    print(Csvname)
+                                                    image = imread(fname)
+                                                    if normPatch ==False and normalizeimage == True:
+                                                       image = normalizeFloatZeroOne( image.astype('float32'),1,99.8)
+                                                    dataset = pd.read_csv(csvfname)
+                                                    time = dataset[dataset.keys()[0]][1:]
+                                                    z = dataset[dataset.keys()[1]][1:]
+                                                    y = dataset[dataset.keys()[2]][1:]
+                                                    x = dataset[dataset.keys()[3]][1:]
+                                                                                
+                                                                             
+                                                    #Categories + XYHW + Confidence 
+                                                    for (key, t) in time.items():
+                                                       try: 
+                                                          SimpleMovieMaker4D(t, z[key], y[key], x[key], image, crop_size, total_categories, trainlabel, name+ event_name + str(count), save_dir, normPatch,yolo_v0, yolo_v1, yolo_v2, tshift) 
+                                                          count = count + 1
+                                                        
+                                                       except:
+                                                        
+                                                           pass
 def SimpleMovieMaker(time, y, x, image, crop_size, total_categories, trainlabel, name, save_dir, normPatch,yolo_v0, yolo_v1, yolo_v2, tshift):
     
        sizex, sizey, size_tminus, size_tplus = crop_size
@@ -146,7 +193,65 @@ def SimpleMovieMaker(time, y, x, image, crop_size, total_categories, trainlabel,
                                                         os.remove(save_dir + '/' + (newname) + ".csv")
                                            writer = csv.writer(open(save_dir + '/' + (newname) + ".csv", "a"))
                                            writer.writerows(Event_data)
-                                                                    
+
+def SimpleMovieMaker4D(time, z, y, x, image, crop_size, total_categories, trainlabel, name, save_dir, normPatch,yolo_v0, yolo_v1, yolo_v2, tshift):
+    
+       sizex, sizey, size_tminus, size_tplus = crop_size
+       
+       imagesizex = sizex 
+       imagesizey = sizey 
+       
+       shiftNone = [0,0]
+       AllShifts = [shiftNone]
+
+       
+       time = time - tshift
+       if time > 0:
+
+               image = image[:,z,:,:]
+               for shift in AllShifts:
+
+                        newname = name + 'shift' + str(shift)
+                        Event_data = []
+                        
+                        if yolo_v0:
+                            Label = np.zeros([total_categories + 5])
+                        if yolo_v1:    
+                            Label = np.zeros([total_categories + 6])
+                        if yolo_v2:
+                            Label = np.zeros([total_categories + 7])
+                        Label[trainlabel] = 1
+                        
+                        
+                        if x + shift[0]> sizex/2 and y + shift[1] > sizey/2 and x + shift[0] + int(imagesizex/2) < image.shape[2] and y + shift[1]+ int(imagesizey/2) < image.shape[1] and time > size_tminus and time + size_tplus + 1 < image.shape[0]:
+                                crop_xminus = x  - int(imagesizex/2)
+                                crop_xplus = x  + int(imagesizex/2)
+                                crop_yminus = y  - int(imagesizey/2)
+                                crop_yplus = y   + int(imagesizey/2)
+                                # Cut off the region for training movie creation
+                                region =(slice(int(time - size_tminus),int(time + size_tplus  + 1)),slice(int(crop_yminus)+ shift[1], int(crop_yplus)+ shift[1]),
+                                      slice(int(crop_xminus) + shift[0], int(crop_xplus) + shift[0]))
+                                #Define the movie region volume that was cut
+                                crop_image = image[region]   
+                                if normPatch:
+                                    crop_image = normalizeFloatZeroOne( crop_image.astype('float32'),1,99.8)
+                                Label[total_categories] = 0.5
+                                Label[total_categories + 1] = 0.5
+                                Label[total_categories + 2] = 0.5          
+                                Label[total_categories + 3] = 1
+                                Label[total_categories + 4] = 1
+                                Label[total_categories + 5] = 1
+       
+
+                                #Write the image as 32 bit tif file 
+                                if(crop_image.shape[0] == size_tplus + size_tminus + 1 and crop_image.shape[1]== imagesizey and crop_image.shape[2]== imagesizex):
+
+                                           imwrite((save_dir + '/' + newname + '.tif'  ) , crop_image.astype('float32'))    
+                                           Event_data.append([Label[i] for i in range(0,len(Label))])
+                                           if(os.path.exists(save_dir + '/' + (newname) + ".csv")):
+                                                        os.remove(save_dir + '/' + (newname) + ".csv")
+                                           writer = csv.writer(open(save_dir + '/' + (newname) + ".csv", "a"))
+                                           writer.writerows(Event_data)                                                                    
     
 def MovieLabelDataSet(image_dir, seg_image_dir, csv_dir, save_dir, static_name, static_label, csv_name_diff, crop_size, gridx = 1, gridy = 1, offset = 0, yolo_v0 = False, 
 yolo_v1 = True, yolo_v2 = False,  tshift  = 1, normalizeimage = True):
@@ -212,7 +317,66 @@ yolo_v1 = True, yolo_v2 = False,  tshift  = 1, normalizeimage = True):
                                                         
 
                                  
-                             
+def MovieLabelDataSet4D(image_dir, seg_image_dir, csv_dir, save_dir, static_name, static_label, csv_name_diff, crop_size, gridx = 1, gridy = 1, offset = 0, yolo_v0 = False, 
+yolo_v1 = True, yolo_v2 = False,  tshift  = 1, normalizeimage = True):
+    
+    
+            raw_path = os.path.join(image_dir, '*tif')
+            Seg_path = os.path.join(seg_image_dir, '*tif')
+            Csv_path = os.path.join(csv_dir, '*csv')
+            files_raw = glob.glob(raw_path)
+            files_raw.sort
+            filesSeg = glob.glob(Seg_path)
+            filesSeg.sort
+            filesCsv = glob.glob(Csv_path)
+            filesCsv.sort
+            Path(save_dir).mkdir(exist_ok=True)
+            total_categories = len(static_name)
+                
+            
+            
+            for fname in files_raw:
+                  
+                 name = os.path.basename(os.path.splitext(fname)[0])   
+                 for Segfname in filesSeg:
+                      
+                      Segname = os.path.basename(os.path.splitext(Segfname)[0])
+                        
+                      if name == Segname:
+                         image = imread(fname)
+                         if normalizeimage:
+                            image = normalizeFloatZeroOne( image.astype('float32'),1,99.8)
+                         segimage = imread(Segfname)
+                        
+                         for csvfname in filesCsv:
+                                 count = 0  
+                                 Csvname =  os.path.basename(os.path.splitext(csvfname)[0])
+                                 for i in  range(0, len(static_name)):
+                                     event_name = static_name[i]
+                                     trainlabel = static_label[i]
+                                     classfound = (Csvname == csv_name_diff +  event_name + name)   
+                                     if classfound:
+                                                    print(Csvname)
+                                                    dataset = pd.read_csv(csvfname)
+                                                    if len(dataset.keys()) >= 3:
+
+                                                        time = dataset[dataset.keys()[0]][1:]
+                                                        z = dataset[dataset.keys()[1]][1:]
+                                                        y = dataset[dataset.keys()[2]][1:]
+                                                        x = dataset[dataset.keys()[3]][1:]
+                                                        angle = np.full(time.shape, 2)                        
+                                                    if len(dataset.keys()) > 4:
+
+                                                        angle = dataset[dataset.keys()[4]][1:]                          
+                                                    #Categories + XYHW + Confidence 
+                                                    for (key, t) in time.items():
+                                                       try: 
+                                                          MovieMaker4D(t, z[key], y[key], x[key], angle[key], image, segimage, crop_size, gridx, gridy, offset, total_categories, trainlabel, name + event_name + str(count), save_dir,yolo_v0, yolo_v1, yolo_v2, tshift)
+                                                          count = count + 1
+                                                        
+                                                       except:
+                                                        
+                                                           pass                             
 
                
 
@@ -304,7 +468,102 @@ def MovieMaker(time, y, x, angle, image, segimage, crop_size, gridx, gridy, offs
                                                    writer = csv.writer(open(save_dir + '/' + (newname) + ".csv", "a"))
                                                    writer.writerows(Event_data)
        
-   
+def MovieMaker4D(time, z, y, x, angle, image, segimage, crop_size, gridx, gridy, offset, total_categories, trainlabel, name, save_dir, yolo_v0, yolo_v1, yolo_v2, tshift):
+    
+       sizex, sizey, size_tminus, size_tplus = crop_size
+       
+       imagesizex = sizex * gridx
+       imagesizey = sizey * gridy
+       
+       shiftNone = [0,0]
+       if offset > 0 and trainlabel > 0:
+                 shift_lx = [int(offset), 0] 
+                 shift_rx = [-offset, 0]
+                 shift_lxy = [int(offset), int(offset)]
+                 shift_rxy = [-int(offset), int(offset)]
+                 shift_dlxy = [int(offset), -int(offset)]
+                 shift_drxy = [-int(offset), -int(offset)]
+                 shift_uy = [0, int(offset)]
+                 shift_dy = [0, -int(offset)]
+                 AllShifts = [shiftNone, shift_lx, shift_rx,shift_lxy,shift_rxy,shift_dlxy,shift_drxy,shift_uy,shift_dy]
+
+       else:
+           
+          AllShifts = [shiftNone]
+
+
+       time = time - tshift
+       image = image[:,z,:,:]
+       segimage = segimage[:,z,:,:]
+       if time > 0:
+
+               #slice the images
+                
+
+               currentsegimage = segimage[int(time),:,:].astype('uint16')
+               
+
+               height, width, center, seg_label = getHW(x, y, currentsegimage, imagesizex, imagesizey)
+               for shift in AllShifts:
+
+                        newname = name + 'shift' + str(shift)
+                        Event_data = []
+                        newcenter = (center[0] - shift[1],center[1] - shift[0] )
+                        x = center[1]
+                        y = center[0]
+                        if yolo_v0:
+                            Label = np.zeros([total_categories + 5])
+                        if yolo_v1:    
+                            Label = np.zeros([total_categories + 6])
+                        if yolo_v2:
+                            Label = np.zeros([total_categories + 7])
+                        Label[trainlabel] = 1
+                        #T co ordinate
+                        Label[total_categories + 2] = (size_tminus) / (size_tminus + size_tplus)
+                        if x + shift[0]> sizex/2 and y + shift[1] > sizey/2 and x + shift[0] + int(imagesizex/2) < image.shape[2] and y + shift[1]+ int(imagesizey/2) < image.shape[1] and time > size_tminus and time + size_tplus + 1 < image.shape[0]:
+                                        crop_xminus = x  - int(imagesizex/2)
+                                        crop_xplus = x  + int(imagesizex/2)
+                                        crop_yminus = y  - int(imagesizey/2)
+                                        crop_yplus = y   + int(imagesizey/2)
+                                        region =(slice(int(time - size_tminus),int(time + size_tplus  + 1)),slice(int(crop_yminus)+ shift[1], int(crop_yplus)+ shift[1]),
+                                              slice(int(crop_xminus) + shift[0], int(crop_xplus) + shift[0]))
+                                        #Define the movie region volume that was cut
+                                        crop_image = image[region]   
+
+                                        seglocationx = (newcenter[1] - crop_xminus)
+                                        seglocationy = (newcenter[0] - crop_yminus)
+
+                                        Label[total_categories] =  seglocationx/sizex
+                                        Label[total_categories + 1] = seglocationy/sizey
+                                        if height >= imagesizey:
+                                                        height = 0.5 * imagesizey
+                                        if width >= imagesizex:
+                                                        width = 0.5 * imagesizex
+                                        #Height
+                                        Label[total_categories + 3] = height/imagesizey
+                                        #Width
+                                        Label[total_categories + 4] = width/imagesizex
+
+
+
+                                        if yolo_v1:
+                                                  Label[total_categories + 5] = 1 
+                                                 
+                                        if yolo_v2:
+
+                                             Label[total_categories + 5] = 1 
+                                             Label[total_categories + 6] = angle        
+                                        #Write the image as 32 bit tif file 
+                                        if(crop_image.shape[0] == size_tplus + size_tminus + 1 and crop_image.shape[1]== imagesizey and crop_image.shape[2]== imagesizex):
+
+                                                   imwrite((save_dir + '/' + newname + '.tif'  ) , crop_image.astype('float32'))    
+                                                   Event_data.append([Label[i] for i in range(0,len(Label))])
+                                                   if(os.path.exists(save_dir + '/' + (newname) + ".csv")):
+                                                                os.remove(save_dir + '/' + (newname) + ".csv")
+                                                   writer = csv.writer(open(save_dir + '/' + (newname) + ".csv", "a"))
+                                                   writer.writerows(Event_data)
+
+
 def Readname(fname):
     
     return os.path.basename(os.path.splitext(fname)[0])
