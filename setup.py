@@ -1,7 +1,7 @@
 import setuptools
 from setuptools import find_packages, setup
 from os import path
-from oneat import __version__
+
 _dir = path.dirname(__file__)
 
 
@@ -13,7 +13,7 @@ with open(path.join(_dir,'oneat','version.py'), encoding="utf-8") as f:
 setup(
     name="oneat",
 
-    version='2.0.3',
+    version=__version__,
 
     author='Varun Kapoor',
     author_email='randomaccessiblekapoor@gmail.com',
