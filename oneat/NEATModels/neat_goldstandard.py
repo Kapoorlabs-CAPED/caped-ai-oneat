@@ -371,6 +371,10 @@ class NEATDynamic(object):
         self.event_confidence = event_confidence
         self.downsamplefactor = downsamplefactor
         self.originalimage = self.image
+
+        if self.normalize: 
+           self.image = normalizeFloatZeroOne(self.image.astype('float32'), 1, 99.8)
+
         if self.maskmodel is not None and self.maskimage is None:
 
             print(f'Generating mask, hang on')
@@ -390,6 +394,7 @@ class NEATDynamic(object):
         self.remove_markers = remove_markers
         if self.remove_markers:
              self.image = DownsampleData(self.image, self.downsamplefactor)
+
         
         if self.remove_markers == True:
            self.first_pass_predict()
@@ -417,8 +422,7 @@ class NEATDynamic(object):
                                       imwrite((heatsavename + '.tif' ), self.heatmap)
                                       
                                 smallimage = CreateVolume(self.image, self.imaget, inputtime)
-                                if self.normalize:
-                                    smallimage = normalizeFloatZeroOne(smallimage,1,99.8)
+                               
                                 # Cut off the region for training movie creation
                                 #Break image into tiles if neccessary
                                 predictions, allx, ally = self.predict_main(smallimage)
@@ -473,8 +477,7 @@ class NEATDynamic(object):
                 
                 remove_candidates_list = []
                 smallimage = CreateVolume(self.image, self.imaget, inputtime)
-                if self.normalize: 
-                   smallimage = normalizeFloatZeroOne(smallimage, 1, 99.8)
+              
                 # Cut off the region for training movie creation
                 # Break image into tiles if neccessary
                 predictions, allx, ally = self.predict_main(smallimage)
@@ -586,8 +589,7 @@ class NEATDynamic(object):
         self.iou_threshold = 0.9
         heatsavename = self.savedir+ "/"  + (os.path.splitext(os.path.basename(self.imagename))[0])+ '_Heat'
  
-        if self.normalize: 
-           self.image = normalizeFloatZeroOne(self.image.astype('float32'), 1, 99.8)
+        
   
         for inputtime in tqdm(range(0, self.image.shape[0])):
              if inputtime < self.image.shape[0] - self.imaget:   
@@ -629,11 +631,10 @@ class NEATDynamic(object):
 
 
                                 if len(boxprediction) > 0:
-                                      for i in range(0, len(boxprediction)):  
-                                        boxprediction[i]['xcenter'] = xcenter
-                                        boxprediction[i]['ycenter'] = ycenter
-                                        boxprediction[i]['xstart'] = xcenter - int(self.imagex/2) * self.downsamplefactor
-                                        boxprediction[i]['ystart'] = ycenter - int(self.imagey/2) * self.downsamplefactor  
+                                      boxprediction[0]['xcenter'] = xcenter
+                                      boxprediction[0]['ycenter'] = ycenter
+                                      boxprediction[0]['xstart'] = xcenter - int(self.imagex/2) * self.downsamplefactor
+                                      boxprediction[0]['ystart'] = ycenter - int(self.imagey/2) * self.downsamplefactor  
 
                                  
                                                  

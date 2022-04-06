@@ -249,7 +249,10 @@ class NEATViz(object):
                 self.image = imread(image_toread)
                 
                 if self.heatmapimagedir is not None:
-                     self.heat_image = imread(self.heatmapimagedir + imagename + self.heatname + '.tif')
+                     try:
+                        self.heat_image = imread(self.heatmapimagedir + imagename + self.heatname + '.tif')
+                     except:
+                         self.heat_image = None   
                     
                 if len(self.image.shape) == 4:
                     self.image =  MidSlices(self.image, self.start_project_mid, self.end_project_mid, axis = 1)
@@ -257,7 +260,10 @@ class NEATViz(object):
                 
                 self.viewer.add_image(self.image, name= 'Image' + imagename )
                 if self.heatmapimagedir is not None:
-                     self.viewer.add_image(self.heat_image, name= 'Image' + imagename + self.heatname )
+                     try:
+                        self.viewer.add_image(self.heat_image, name= 'Image' + imagename + self.heatname )
+                     except:
+                         pass   
                                                     
 def MidSlices(Image, start_project_mid, end_project_mid, axis = 1):
     

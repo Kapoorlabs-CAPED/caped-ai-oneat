@@ -703,15 +703,15 @@ def get_max_score_index(scores, threshold=0, top_k=0, descending=True):
 
 
 def compare_function_sec(box1, box2, gridx, gridy):
-    w1, h1 = box1['width'], box1['height']
-    w2, h2 = box2['width'], box2['height']
-    x1 = box1['xstart']
-    x2 = box2['xstart']
-    
-    y1 = box1['ystart']
-    y2 = box2['ystart']
+            w1, h1 = box1['width'], box1['height']
+            w2, h2 = box2['width'], box2['height']
+            x1 = box1['xstart']
+            x2 = box2['xstart']
+            
+            y1 = box1['ystart']
+            y2 = box2['ystart']
 
-    if abs(x1 - x2) <= gridx and abs(y1 - y2) <= gridy:
+  
            
             xA = max(x1 , x2 )
             xB = min(x1 + w1, x2 + w2)
@@ -723,9 +723,7 @@ def compare_function_sec(box1, box2, gridx, gridy):
             area = h2 * w2 + h1 * w1 - intersect
 
             return float(np.true_divide(intersect, area))
-    else:
 
-        return -2 
 
 
 
@@ -825,7 +823,6 @@ def goldboxes(boxes, scores, nms_threshold, score_threshold, gridx, gridy):
         last = len(idxs) - 1
         i = idxs[last]
         Averageboxes.append(boxes[i])
-        pick.append(i)
         suppress = [last]
         # loop over all indexes in the indexes list
         for pos in (range(0, last)):
@@ -1063,8 +1060,8 @@ def gold_nms(heatmap, classedboxes, event_name, downsamplefactor, iou_threshold,
                                                               score = iou_current_event_box[event_name]
                                                               for x in range(int(xcenter - 8), int(xcenter + 8)):
                                                                   for y in range(int(ycenter - 8), int(ycenter + 8)):
-
-                                                                      heatmap[int(tcenter), int(y), int(x)] = heatmap[int(tcenter), int(y), int(x)] + score
+                                                                      if y < heatmap.shape[1] and x < heatmap.shape[2]:
+                                                                          heatmap[int(tcenter), int(y), int(x)] = heatmap[int(tcenter), int(y), int(x)] + score
 
                     
                return good_sorted_event_box
@@ -1105,15 +1102,15 @@ def dynamic_nms(heatmap, maskimage, classedboxes, event_name, downsamplefactor, 
                                                              
                                                                       for x in range(int(xcenter - 8), int(xcenter + 8)):
                                                                           for y in range(int(ycenter - 8), int(ycenter + 8)):
-                                                                              if x < heatmap.shape[2] and y < heatmap.shape[1]:
+                                                                              if y < heatmap.shape[1] and x < heatmap.shape[2]:
                                                                                   heatmap[int(tcenter), int(y), int(x)] = heatmap[int(tcenter), int(y), int(x)] + score
                                                                               
                                                           else:
                                                               
                                                               for x in range(int(xcenter - 8), int(xcenter + 8)):
                                                                   for y in range(int(ycenter - 8), int(ycenter + 8)):
-                                                                      
-                                                                      heatmap[int(tcenter), int(y), int(x)] = heatmap[int(tcenter), int(y), int(x)] + score
+                                                                      if y < heatmap.shape[1] and x < heatmap.shape[2]:
+                                                                          heatmap[int(tcenter), int(y), int(x)] = heatmap[int(tcenter), int(y), int(x)] + score
             
 
 
