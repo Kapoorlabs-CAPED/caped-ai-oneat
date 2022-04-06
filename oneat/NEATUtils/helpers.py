@@ -791,7 +791,61 @@ def goodboxes(boxes, scores, nms_threshold, score_threshold, gridx, gridy,
     # return only the indicies of the bounding boxes that were picked
     return Averageboxes
 
+def goldboxes(boxes, scores, nms_threshold, score_threshold, gridx, gridy,
+               fidelity=1):
 
+
+
+    if len(boxes) == 0:
+        return []
+
+    assert len(scores) == len(boxes)
+    assert scores is not None
+    if scores is not None:
+        assert len(scores) == len(boxes)
+
+    boxes = np.array(boxes)
+
+    # if the bounding boxes integers, convert them to floats --
+    # this is important since we'll be doing a bunch of divisions
+    if boxes.dtype.kind == "i":
+        boxes = boxes.astype("float")
+
+
+
+
+    # initialize the list of picked indexes
+    pick = []
+    Averageboxes = []
+    # sort the bounding boxes by the associated scores
+    scores = get_max_score_index(scores, score_threshold, 0, False)
+    idxs = np.array(scores, np.int32)[:, 1]
+
+    while len(idxs) > 0:
+        # grab the last index in the indexes list, add the index
+        # value to the list of picked indexes, then initialize
+        # the suppression list (i.e. indexes that will be deleted)
+        # using the last index
+        last = len(idxs) - 1
+        i = idxs[last]
+        Averageboxes.append(boxes[i])
+        pick.append(i)
+        suppress = [last]
+        count = 0
+        # loop over all indexes in the indexes list
+        for pos in (range(0, last)):
+            # grab the current index
+                j = idxs[pos]
+
+                overlap = compare_function_sec(boxes[i], boxes[j], gridx, gridy)
+                # if there is sufficient overlap, suppress the current bounding box
+                if overlap > abs(nms_threshold):
+                       
+                        suppress.append(pos)
+            # delete all indexes from the index list that are in the suppression list
+        idxs = np.delete(idxs, suppress)
+    # return only the indicies of the bounding boxes that were picked
+    return Averageboxes
 
 def simpleaveragenms(boxes, scores, nms_threshold, score_threshold, event_name, gridx, gridy):
     if len(boxes) == 0:
@@ -1006,7 +1060,7 @@ def gold_nms(heatmap, classedboxes, event_name, downsamplefactor, iou_threshold,
                sorted_event_box = classedboxes[event_name][0]
                scores = [ sorted_event_box[i][event_name]  for i in range(len(sorted_event_box))]
                
-               good_sorted_event_box = goodboxes(sorted_event_box, scores, iou_threshold, event_threshold,  gridx, gridy, fidelity)
+               good_sorted_event_box = goldboxes(sorted_event_box, scores, iou_threshold, event_threshold,  gridx, gridy, fidelity)
                filtered_good_sorted_event_box = []
                for iou_current_event_box in good_sorted_event_box:
                                                               xcenter = iou_current_event_box['xcenter']* downsamplefactor
