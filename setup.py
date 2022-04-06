@@ -13,7 +13,7 @@ with open(path.join(_dir,'oneat','version.py'), encoding="utf-8") as f:
 setup(
     name="oneat",
 
-    version=__version__,
+    version='2.0.3',
 
     author='Varun Kapoor',
     author_email='randomaccessiblekapoor@gmail.com',
