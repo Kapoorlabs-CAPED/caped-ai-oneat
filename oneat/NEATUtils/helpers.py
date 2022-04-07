@@ -593,10 +593,8 @@ def GenerateMarkers(Image, n_tiles, model = None,  maskmodel = None, segimage = 
  
                         if ndim == 3:
                             Coordinates = sorted(Coordinates, key=lambda k: [k[1], k[0]])
-                            Coordinates.append((0, 0))
                         if ndim == 4:
                             Coordinates = sorted(Coordinates, key=lambda k: [k[2], k[1], k[0]])
-                            Coordinates.append((0, 0, 0))
                         Coordinates = np.asarray(Coordinates)
     
                         coordinates_int = np.round(Coordinates).astype(int)
