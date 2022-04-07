@@ -360,6 +360,7 @@ class NEATDynamic(object):
         self.erosion_iterations = erosion_iterations
         
         self.heatmap = np.zeros(self.image.shape, dtype = 'float32')  
+        self.eventmarkers = np.zeros(self.image.shape, dtype = 'uint16')
         self.savedir = savedir
         if len(n_tiles) > 2:
             n_tiles = (n_tiles[-2], n_tiles[-1])
@@ -584,15 +585,17 @@ class NEATDynamic(object):
         self.n_tiles = (1,1)
         
         heatsavename = self.savedir+ "/"  + (os.path.splitext(os.path.basename(self.imagename))[0])+ '_Heat'
- 
+        eventsavename = self.savedir + "/" + (os.path.splitext(os.path.basename(self.imagename))[0])+ '_Event'
         
   
         for inputtime in tqdm(range(0, self.image.shape[0])):
              if inputtime < self.image.shape[0] - self.imaget:   
 
                 if inputtime%(self.image.shape[0]//4)==0 and inputtime > 0 or inputtime >= self.image.shape[0] - self.imaget - 1:
-
+                                      markers_current = dilation(self.eventmarkers[inputtime,:], disk(2))
+                                      self.eventmarkers[inputtime,:] = label(markers_current.astype('uint16')) 
                                       imwrite((heatsavename + '.tif' ), self.heatmap) 
+                                      imwrite((eventsavename + '.tif' ), self.eventmarkers.astype('uint16'))
                 tree, location = self.marker_tree[str(int(inputtime))]
                 for i in range(len(location)):
                     
@@ -644,8 +647,10 @@ class NEATDynamic(object):
                                         
                                                 event_prob = box[event_name]
                                                 event_confidence = box['confidence']
+                                                
                                                 if event_prob >= self.event_threshold and event_confidence >= self.event_confidence :
                                                     current_event_box.append(box)
+                                                    
                                              classedboxes[event_name] = [current_event_box]
 
                 if inputtime > 0 and inputtime%self.imaget == 0:                         
@@ -679,7 +684,7 @@ class NEATDynamic(object):
             if event_label > 0:
                #best_sorted_event_box = self.classedboxes[event_name][0]
                if self.remove_markers is not None:
-                   best_sorted_event_box = gold_nms(self.heatmap, self.classedboxes, event_name, 1, self.iou_threshold, self.event_threshold, self.imagex, self.imagey, 1 )
+                   best_sorted_event_box = gold_nms(self.heatmap,self.eventmarkers, self.classedboxes, event_name, 1, self.iou_threshold, self.event_threshold, self.imagex, self.imagey, 1 )
 
                if self.remove_markers == None:
                    best_sorted_event_box = dynamic_nms(self.heatmap,self.maskimage,  self.classedboxes, event_name,  self.downsamplefactor, self.iou_threshold, self.event_threshold, self.imagex, self.imagey, self.fidelity )

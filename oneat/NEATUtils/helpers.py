@@ -1045,7 +1045,7 @@ def saveimage(ColorimageStatic,ColorimageDynamic , xlocations, ylocations, tloca
                     if event_label == 5:
                         ColorimageStatic[Z, :, :, 2] = img[:, :, 0]
 
-def gold_nms(heatmap, classedboxes, event_name, downsamplefactor, iou_threshold, event_threshold, gridx, gridy, fidelity):
+def gold_nms(heatmap,eventmarkers, classedboxes, event_name, downsamplefactor, iou_threshold, event_threshold, gridx, gridy, fidelity):
 
                sorted_event_box = classedboxes[event_name][0]
                scores = [ sorted_event_box[i][event_name]  for i in range(len(sorted_event_box))]
@@ -1056,6 +1056,7 @@ def gold_nms(heatmap, classedboxes, event_name, downsamplefactor, iou_threshold,
                                                               ycenter = iou_current_event_box['ycenter']* downsamplefactor
                                                               tcenter = iou_current_event_box['real_time_event']
                                                               score = iou_current_event_box[event_name]
+                                                              eventmarkers[tcenter, ycenter, xcenter] = 1
                                                               for x in range(int(xcenter - 8), int(xcenter + 8)):
                                                                   for y in range(int(ycenter - 8), int(ycenter + 8)):
                                                                       if y < heatmap.shape[1] and x < heatmap.shape[2]:
