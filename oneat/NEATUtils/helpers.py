@@ -1293,7 +1293,7 @@ def yoloprediction(sy, sx, time_prediction, stride, inputtime, config, key_categ
     return LocationBoxes
 
 
-def focyoloprediction(sy, sx, z_prediction, stride, inputz, config, key_categories, key_cord, nboxes):
+def focyoloprediction(sy, sx, z_prediction, stride, inputz, config, key_categories):
     LocationBoxes = []
     j = 0
     k = 1

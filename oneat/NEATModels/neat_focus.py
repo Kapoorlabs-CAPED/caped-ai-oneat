@@ -337,7 +337,7 @@ class NEATFocus(object):
                                      #For each tile the prediction vector has shape N H W Categories + Training Vector labels
                                      for i in range(0, sum_z_prediction.shape[0]):
                                           z_prediction =  sum_z_prediction[i]
-                                          boxprediction = focyoloprediction(ally[p], allx[p], z_prediction, self.stride, inputz, self.config, self.key_categories, self.key_cord, 1, 'detection', 'dynamic' )
+                                          boxprediction = focyoloprediction(ally[p], allx[p], z_prediction, self.stride, inputz, self.config, self.key_categories)
                                           
                                           if boxprediction is not None:
                                                   eventboxes = eventboxes + boxprediction
