@@ -39,13 +39,15 @@ EventBoxname = 'EventIDBox'
 
 class NEATViz(object):
 
-        def __init__(self, imagedir, heatmapimagedir, savedir, categories_json, event_threshold, heatname = '_Heat', fileextension = '*tif', blur_radius = 5, start_project_mid = 0, end_project_mid = 0 ):
+        def __init__(self, imagedir, heatmapimagedir, segimagedir, savedir, categories_json, event_threshold, heatname = '_Heat', eventname = '_Event', fileextension = '*tif', blur_radius = 5, start_project_mid = 0, end_project_mid = 0 ):
             
             
                self.imagedir = imagedir
                self.heatmapimagedir = heatmapimagedir
+               self.segimagedir = segimagedir
                self.savedir = savedir
                self.heatname = heatname
+               self.eventname = eventname
                self.event_threshold = event_threshold
                self.categories_json = categories_json
                self.start_project_mid = start_project_mid
@@ -251,9 +253,13 @@ class NEATViz(object):
                 if self.heatmapimagedir is not None:
                      try:
                         self.heat_image = imread(self.heatmapimagedir + imagename + self.heatname + '.tif')
+                        self.event_markers = imread(self.heatmapimagedir + imagename + self.eventname + '.tif')
                      except:
                          self.heat_image = None   
-                    
+                         self.event_markers = None
+                if self.segimagedir is not None:
+                     self.seg_image = imread(self.segimagedir + imagename + '.tif')
+
                 if len(self.image.shape) == 4:
                     self.image =  MidSlices(self.image, self.start_project_mid, self.end_project_mid, axis = 1)
                     
@@ -264,7 +270,28 @@ class NEATViz(object):
                         self.viewer.add_image(self.heat_image, name= 'Image' + imagename + self.heatname )
                      except:
                          pass   
-                                                    
+                if self.segimagedir is not NOne and self .event_markers is not None:
+                    self.location_image = LocationMap(event_markers, seg_image)     
+                    try:
+                        self.viewer.add_image(self.location_image, name= 'Location Map' + imagename )
+                     except:
+                         pass
+def LocationMap(event_markers, seg_image):
+
+       location_image = np.zeros(seg_image.shape)
+       for i in range(0, event_markers.shape[0]):
+
+                 current_markers = event_markers[i,:]
+                 properties = measure.regionprops(current_markers.astype('uint16'))
+                 for prop in properties:
+                     location = prop.centroid
+                     label = seg_image[i, (int)location[0], (int)location[1]]
+                     all_pixels = np.where(seg_image[i,:] == label)
+                     location_image[i,all_pixels] = 1
+                     if i > 0:
+                         location_image[i,:] = location_image[i,:] + location_image[i - 1,:]
+        return location_image
+
 def MidSlices(Image, start_project_mid, end_project_mid, axis = 1):
     
     
