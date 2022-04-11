@@ -253,8 +253,8 @@ class NEATDynamic(object):
 
         sgd = tf.keras.optimizers.Adam(learning_rate=self.learning_rate)
         self.Trainingmodel.compile(optimizer=sgd, loss=self.yololoss, metrics=['accuracy'])
-
         self.Trainingmodel.summary()
+        
         # Keras callbacks
         lrate = callbacks.ReduceLROnPlateau(monitor='loss', factor=0.1, patience=4, verbose=1)
         hrate = callbacks.History()
@@ -329,7 +329,7 @@ class NEATDynamic(object):
     
     def predict(self, imagename,  savedir, n_tiles=(1, 1), overlap_percent=0.8,
                 event_threshold=0.5, event_confidence = 0.5, iou_threshold=0.1,  fidelity=1, downsamplefactor = 1, start_project_mid = 4, end_project_mid = 4,
-                erosion_iterations = 1, markers = None, marker_tree = None, watershed = None, stardist = None, remove_markers = True, maskmodel = None, segdir = None, normalize = True):
+                erosion_iterations = 1, markers = None, marker_tree = None, watershed = None, stardist = None, remove_markers = True, maskmodel = None, segdir = None, normalize = True, center_oneat = True):
 
 
         self.watershed = watershed
@@ -372,7 +372,7 @@ class NEATDynamic(object):
         self.event_confidence = event_confidence
         self.downsamplefactor = downsamplefactor
         self.originalimage = self.image
-
+        self.center_oneat = center_oneat
         if self.normalize: 
            self.image = normalizeFloatZeroOne(self.image.astype('float32'), 1, 99.8)
 
@@ -435,7 +435,14 @@ class NEATDynamic(object):
                                      #For each tile the prediction vector has shape N H W Categories + Training Vector labels
                                      for i in range(0, sum_time_prediction.shape[0]):
                                           time_prediction =  sum_time_prediction[i]
-                                          boxprediction = yoloprediction(ally[p], allx[p], time_prediction, self.stride, inputtime , self.config, self.key_categories, self.key_cord, self.nboxes, 'detection', 'dynamic',marker_tree=self.marker_tree)
+                                          boxprediction = yoloprediction(ally[p], 
+                                          allx[p], 
+                                          time_prediction, 
+                                          self.stride, inputtime , 
+                                          self.config, 
+                                          self.key_categories, 
+                                          self.key_cord, 
+                                          self.nboxes, 'detection', 'dynamic',marker_tree=self.marker_tree, center_oneat = self.center_oneat)
                                           
                                           if boxprediction is not None:
                                                   eventboxes = eventboxes + boxprediction
@@ -494,7 +501,7 @@ class NEATDynamic(object):
                             boxprediction = yoloprediction(ally[p], allx[p], time_prediction, self.stride,
                                                            inputtime, self.config,
                                                            self.key_categories, self.key_cord, self.nboxes, 'detection',
-                                                           'dynamic', self.marker_tree)
+                                                           'dynamic', marker_tree = self.marker_tree, center_oneat = self.center_oneat)
                                           
                             if boxprediction is not None:
                                 eventboxes = eventboxes + boxprediction
@@ -626,7 +633,7 @@ class NEATDynamic(object):
                                           boxprediction = yoloprediction(0, 0 , time_prediction, self.stride,
                                                            inputtime, self.config,
                                                            self.key_categories, self.key_cord, self.nboxes, 'detection',
-                                                           'dynamic')
+                                                           'dynamic', center_oneat = self.center_oneat)
 
 
                                 if len(boxprediction) > 0:
@@ -702,34 +709,7 @@ class NEATDynamic(object):
             save_dynamic_csv(self.imagename, self.key_categories, self.iou_classedboxes, self.savedir, self.downsamplefactor, self.ndim, z = self.z, maskimage = self.maskimage)          
   
 
-    def saveimage(self, xlocations, ylocations, tlocations, angles, radius, scores):
-
-        # Blue color in BGR
-        textcolor = (255, 0, 0)
-
-        # Line thickness of 2 px
-        thickness = 2
-        for j in range(len(xlocations)):
-            startlocation = (int(xlocations[j] - radius[j]), int(ylocations[j] - radius[j]))
-            endlocation = (int(xlocations[j] + radius[j]), int(ylocations[j] + radius[j]))
-            Z = int(tlocations[j])
-
-            image = self.Colorimage[Z, :, :, 1]
-            if scores[j] >= 1.0 - 1.0E-5:
-                color = (0, 0, 255)
-                image = self.Colorimage[Z, :, :, 2]
-            img = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-            cv2.rectangle(img, startlocation, endlocation, textcolor, thickness)
-
-            cv2.putText(img, str('%.4f' % (scores[j])), startlocation, cv2.FONT_HERSHEY_SIMPLEX, 1, textcolor,
-                        thickness, cv2.LINE_AA)
-            if scores[j] >= 1.0 - 1.0E-5:
-                self.Colorimage[Z, :, :, 2] = img[:, :, 0]
-            else:
-                self.Colorimage[Z, :, :, 1] = img[:, :, 0]
-            if self.yolo_v2:
-                x1 = xlocations[j]
-                y1 = ylocations[j]
+    
 
     def showNapari(self, imagedir, savedir, yolo_v2=False):
 

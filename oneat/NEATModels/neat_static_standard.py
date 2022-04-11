@@ -9,7 +9,7 @@ Created on Sat May 23 15:13:01 2020
 from oneat.NEATUtils import plotters
 import numpy as np
 from oneat.NEATUtils import helpers
-from oneat.NEATUtils.helpers import save_json, load_json, yoloprediction, nonfcn_yoloprediction, normalizeFloatZeroOne, \
+from oneat.NEATUtils.helpers import  load_json, yoloprediction, normalizeFloatZeroOne, \
  goodboxes, save_static_csv, DownsampleData
 from keras import callbacks
 import os
@@ -166,7 +166,7 @@ class NEATStatic(object):
             self.last_activation = 'softmax'
             self.entropy = 'notbinary'
 
-        self.yolo_loss = static_yolo_loss_segfree(self.categories, self.gridx, self.gridy, self.nboxes, self.box_vector,
+        self.yololoss = static_yolo_loss_segfree(self.categories, self.gridx, self.gridy, self.nboxes, self.box_vector,
                                                   self.entropy, self.yolo_v0)
 
     def loadData(self):
@@ -234,8 +234,8 @@ class NEATStatic(object):
                                               startfilter=self.startfilter, last_activation=self.last_activation,
                                               input_weights=self.model_weights)
 
-        sgd = optimizers.SGD(lr=self.learning_rate, momentum=0.99, decay=1e-6, nesterov=True)
-        self.Trainingmodel.compile(optimizer=sgd, loss=self.yolo_loss, metrics=['accuracy'])
+        sgd = tf.keras.optimizers.Adam(learning_rate=self.learning_rate)
+        self.Trainingmodel.compile(optimizer=sgd, loss=self.yololoss, metrics=['accuracy'])
         self.Trainingmodel.summary()
 
         # Keras callbacks
@@ -259,7 +259,7 @@ class NEATStatic(object):
         self.Trainingmodel.save(self.model_dir + self.model_name)
 
     def predict(self, imagename, savedir, event_threshold, n_tiles=(1, 1), overlap_percent=0.8, iou_threshold=0.01,
-                fcn=True, height=None, width=None, RGB=False, fidelity = 1, downsamplefactor = 1, normalize = True):
+                height=None, width=None, RGB=False, fidelity = 1, downsamplefactor = 1, normalize = True, center_oneat = True):
 
         self.imagename = imagename
         self.image = imread(imagename)
@@ -270,7 +270,7 @@ class NEATStatic(object):
                                          dtype='uint16')
         self.savedir = savedir
         self.n_tiles = n_tiles
-        self.fcn = fcn
+        self.center_oneat = center_oneat
         self.RGB = RGB
         self.height = height
         self.width = width
@@ -309,13 +309,8 @@ class NEATStatic(object):
                 if self.normalize:
                     smallimage = normalizeFloatZeroOne(smallimage, 1, 99.8)
                 # Break image into tiles if neccessary
-                if fcn:
-
-                    predictions, allx, ally = self.predict_main(smallimage)
-                else:
-
-                    self.make_non_fcn(smallimage)
-                    predictions, allx, ally = self.predict_nonfcn(smallimage)
+                predictions, allx, ally = self.predict_main(smallimage)
+                
                 # Iterate over tiles
                 for p in range(0, len(predictions)):
 
@@ -327,7 +322,7 @@ class NEATStatic(object):
                             time_prediction = sum_time_prediction[i]
                             boxprediction = yoloprediction(ally[p], allx[p], time_prediction, self.stride, inputtime,
                                                            self.staticconfig, self.key_categories, self.key_cord,
-                                                           self.nboxes, 'detection', 'static')
+                                                           self.nboxes, 'detection', 'static', center_oneat = self.center_oneat)
 
                             if boxprediction is not None:
                                 eventboxes = eventboxes + boxprediction
@@ -358,14 +353,9 @@ class NEATStatic(object):
             if self.normalize:
                 smallimage = normalizeFloatZeroOne(smallimage, 1, 99.8)
             # Break image into tiles if neccessary
-            if fcn:
+            predictions, allx, ally = self.predict_main(smallimage)
 
-                predictions, allx, ally = self.predict_main(smallimage)
-
-            else:
-
-                self.make_non_fcn(smallimage)
-                predictions, allx, ally = self.predict_nonfcn(smallimage)
+           
             # Iterate over tiles
             for p in range(0, len(predictions)):
 
@@ -376,14 +366,10 @@ class NEATStatic(object):
                     for i in range(0, sum_time_prediction.shape[0]):
                         time_prediction = sum_time_prediction[i]
 
-                        if self.fcn:
-                            boxprediction = yoloprediction(ally[p], allx[p], time_prediction, self.stride, 0,
+                        boxprediction = yoloprediction(ally[p], allx[p], time_prediction, self.stride, 0,
                                                            self.staticconfig, self.key_categories, self.key_cord,
-                                                           self.nboxes, 'detection', 'static')
-                        else:
-                            boxprediction = nonfcn_yoloprediction(ally[p], allx[p], time_prediction, self.stride, 0,
-                                                                  self.staticconfig, self.key_categories, self.key_cord,
-                                                                  self.nboxes, 'detection', 'static')
+                                                           self.nboxes, 'detection', 'static', center_oneat = self.center_oneat)
+                    
 
                         if boxprediction is not None:
                             eventboxes = eventboxes + boxprediction
@@ -603,20 +589,7 @@ class NEATStatic(object):
 
         return predictions, allx, ally
 
-    def predict_nonfcn(self, sliceregion):
-
-        predictions = []
-        allx = []
-        ally = []
-        if len(self.patch) > 0:
-            for i in range(0, len(self.patch)):
-                sum_time_prediction = self.make_patches(self.patch[i])
-
-                predictions.append(sum_time_prediction)
-                allx.append(self.sx[i])
-                ally.append(self.sy[i])
-
-        return predictions, allx, ally
+   
 
     def make_patches(self, sliceregion):
 
@@ -626,38 +599,7 @@ class NEATStatic(object):
 
         return prediction_vector
 
-    def make_non_fcn(self, sliceregion):
-
-        jumpx = int(self.overlap_percent / 4 * self.imagex)
-        jumpy = int(self.overlap_percent / 4 * self.imagey)
-
-        patchshape = (self.imagey, self.imagex)
-        rowstart = 0;
-        colstart = 0
-        pairs = []
-        # row is y, col is x
-
-        while rowstart < sliceregion.shape[0] - self.imagey:
-            colstart = 0
-            while colstart < sliceregion.shape[1] - self.imagex:
-                # Start iterating over the tile with jumps = stride of the fully convolutional network.
-                pairs.append([rowstart, colstart])
-                colstart += jumpx
-            rowstart += jumpy
-
-        patch = []
-        rowout = []
-        column = []
-        for pair in pairs:
-            smallpatch, smallrowout, smallcolumn = chunk_list(sliceregion, patchshape, pair)
-
-            patch.append(smallpatch)
-            rowout.append(smallrowout)
-            column.append(smallcolumn)
-
-        self.patch = patch
-        self.sy = rowout
-        self.sx = column
+    
 
 
 def chunk_list(image, patchshape, pair):

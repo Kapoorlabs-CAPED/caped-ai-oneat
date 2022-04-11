@@ -1272,7 +1272,7 @@ Prediction function for whole image/tile, output is Prediction vector for each i
 
 
 def yoloprediction(sy, sx, time_prediction, stride, inputtime, config, key_categories, key_cord, nboxes, mode,
-                   event_type, marker_tree=None):
+                   event_type, marker_tree=None, center_oneat = True):
     LocationBoxes = []
     j = 0
     k = 1
@@ -1285,7 +1285,7 @@ def yoloprediction(sy, sx, time_prediction, stride, inputtime, config, key_categ
         if k > time_prediction.shape[0]:
             break;
         Classybox = predictionloop(j, k, sx, sy, nboxes, stride, time_prediction, config, key_categories, key_cord,
-                                   inputtime, mode, event_type, marker_tree = marker_tree)
+                                   inputtime, mode, event_type, marker_tree = marker_tree, center_oneat = center_oneat)
         # Append the box and the maximum likelehood detected class
         if Classybox is not None:
                 LocationBoxes.append(Classybox)
@@ -1305,8 +1305,7 @@ def focyoloprediction(sy, sx, z_prediction, stride, inputz, config, key_categori
 
         if k > z_prediction.shape[1]:
             break;
-
-        Classybox = focpredictionloop(j, k, sx, sy, nboxes, stride, z_prediction, config, key_categories, key_cord,
+        Classybox = focpredictionloop(j, k, sx, sy, stride, z_prediction, config, key_categories,
                                       inputz)
         # Append the box and the maximum likelehood detected class
         if Classybox is not None:
@@ -1314,21 +1313,10 @@ def focyoloprediction(sy, sx, z_prediction, stride, inputz, config, key_categori
     return LocationBoxes
 
 
-def nonfcn_yoloprediction(sy, sx, time_prediction, stride, inputtime, config, key_categories, key_cord, nboxes, mode,
-                          event_type, marker_tree=None):
-    LocationBoxes = []
-    j = 1
-    k = 1
-    Classybox = predictionloop(j, k, sx, sy, nboxes, stride, time_prediction, config, key_categories, key_cord,
-                               inputtime, mode, event_type, marker_tree = marker_tree)
-    # Append the box and the maximum likelehood detected class
-    if Classybox is not None:
-        LocationBoxes.append(Classybox)
-    return LocationBoxes
 
 
 def predictionloop(j, k, sx, sy, nboxes, stride, time_prediction, config, key_categories, key_cord, inputtime, mode,
-                   event_type, marker_tree = None):
+                   event_type, marker_tree = None, center_oneat = True):
     total_classes = len(key_categories)
     total_coords = len(key_cord)
     y = (k - 1) * stride
@@ -1450,11 +1438,21 @@ def predictionloop(j, k, sx, sy, nboxes, stride, time_prediction, config, key_ca
             nearest_location = get_nearest(marker_tree, ycentermean, xcentermean, real_time_event)
             if nearest_location is not None:
                ycentermean, xcentermean = nearest_location
-        box = {'xstart': xstart, 'ystart': ystart, 'tstart': boxtstartmean, 'xcenterraw': xcenterrawmean,
-                'ycenterraw': ycenterrawmean, 'tcenterraw': tcenterrawmean, 'xcenter': xcentermean,
-                'ycenter': ycentermean, 'real_time_event': real_time_event, 'box_time_event': box_time_event,
-                'height': heightmean, 'width': widthmean, 'confidence': confidencemean, 'realangle': realangle,
-                'rawangle': rawangle}
+        if center_oneat:
+            if xcentermean > 0.4 and xcentermean < 0.6 and ycentermean > 0.4 and ycentermean < 0.6 and tcentermean > 0.4 and tcentermean < 0.6:       
+                    box = {'xstart': xstart, 'ystart': ystart, 'tstart': boxtstartmean, 'xcenterraw': xcenterrawmean,
+                            'ycenterraw': ycenterrawmean, 'tcenterraw': tcenterrawmean, 'xcenter': xcentermean,
+                            'ycenter': ycentermean, 'real_time_event': real_time_event, 'box_time_event': box_time_event,
+                            'height': heightmean, 'width': widthmean, 'confidence': confidencemean, 'realangle': realangle,
+                            'rawangle': rawangle}
+
+        else:
+                    box = {'xstart': xstart, 'ystart': ystart, 'tstart': boxtstartmean, 'xcenterraw': xcenterrawmean,
+                            'ycenterraw': ycenterrawmean, 'tcenterraw': tcenterrawmean, 'xcenter': xcentermean,
+                            'ycenter': ycentermean, 'real_time_event': real_time_event, 'box_time_event': box_time_event,
+                            'height': heightmean, 'width': widthmean, 'confidence': confidencemean, 'realangle': realangle,
+                            'rawangle': rawangle}
+                                         
         if event_type == 'static':
             real_time_event = int(inputtime)
             box_time_event = int(inputtime)
@@ -1471,7 +1469,7 @@ def predictionloop(j, k, sx, sy, nboxes, stride, time_prediction, config, key_ca
     
 
 
-def focpredictionloop(j, k, sx, sy, nboxes, stride, time_prediction, config, key_categories, key_cord, inputz):
+def focpredictionloop(j, k, sx, sy, stride, time_prediction, config, key_categories, inputz):
     total_classes = len(key_categories)
     y = (k - 1) * stride
     x = (j - 1) * stride
