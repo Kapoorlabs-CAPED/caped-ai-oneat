@@ -271,10 +271,10 @@ class NEATViz(object):
                      except:
                          pass   
                 if self.segimagedir is not None and self .event_markers is not None:
-                    self.location_image = LocationMap(event_markers, seg_image)     
+                    self.location_image = LocationMap(self.event_markers, self.seg_image)     
                     try:
                         self.viewer.add_image(self.location_image, name= 'Location Map' + imagename )
-                     except:
+                    except:
                          pass
 def LocationMap(event_markers, seg_image):
 
