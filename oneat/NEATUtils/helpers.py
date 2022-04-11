@@ -715,12 +715,14 @@ def compare_function_sec(box1, box2, gridx, gridy):
             xB = min(x1 + w1, x2 + w2)
             yA = max(y1, y2)
             yB = min(y1 + h1, y2+ h2)
+            if abs(xA - xB) <= gridx and abs(yA - yB) <= gridy:
+                    intersect = max(0, xB - xA ) * max(0, yB - yA )
 
-            intersect = max(0, xB - xA ) * max(0, yB - yA )
+                    area = h2 * w2 + h1 * w1 - intersect
 
-            area = h2 * w2 + h1 * w1 - intersect
-
-            return float(np.true_divide(intersect, area))
+                    return float(np.true_divide(intersect, area))
+            else:
+                    return -2        
 
 
 
