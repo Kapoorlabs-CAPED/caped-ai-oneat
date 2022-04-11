@@ -253,10 +253,14 @@ class NEATViz(object):
                 if self.heatmapimagedir is not None:
                      try:
                         self.heat_image = imread(self.heatmapimagedir + imagename + self.heatname + '.tif')
-                        self.event_markers = imread(self.heatmapimagedir + imagename + self.eventname + '.tif')
+                        
                      except:
                          self.heat_image = None   
-                         self.event_markers = None
+                         
+                     try:
+                         self.event_markers = imread(self.heatmapimagedir + imagename + self.eventname + '.tif')
+                     except:
+                          self.event_markers = None 
                 if self.segimagedir is not None:
                      self.seg_image = imread(self.segimagedir + imagename + '.tif')
 
