@@ -285,7 +285,7 @@ def LocationMap(event_markers, seg_image):
                  properties = measure.regionprops(current_markers.astype('uint16'))
                  for prop in properties:
                      location = prop.centroid
-                     label = seg_image[i, (int)location[0], (int)location[1]]
+                     label = seg_image[i, int(location[0]), int(location[1])]
                      all_pixels = np.where(seg_image[i,:] == label)
                      location_image[i,all_pixels] = 1
                      if i > 0:
