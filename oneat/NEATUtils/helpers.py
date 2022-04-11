@@ -1439,7 +1439,7 @@ def predictionloop(j, k, sx, sy, nboxes, stride, time_prediction, config, key_ca
             if nearest_location is not None:
                ycentermean, xcentermean = nearest_location
         if center_oneat:
-            if xcentermean > 0.4 and xcentermean < 0.6 and ycentermean > 0.4 and ycentermean < 0.6 and tcentermean > 0.4 and tcentermean < 0.6:       
+            if xcenterrawmean > 0.4 and xcenterrawmean < 0.6 and ycenterrawmean > 0.4 and ycenterrawmean < 0.6 and tcenterrawmean > 0.4 and tcenterrawmean < 0.6:       
                     box = {'xstart': xstart, 'ystart': ystart, 'tstart': boxtstartmean, 'xcenterraw': xcenterrawmean,
                             'ycenterraw': ycenterrawmean, 'tcenterraw': tcenterrawmean, 'xcenter': xcentermean,
                             'ycenter': ycentermean, 'real_time_event': real_time_event, 'box_time_event': box_time_event,
@@ -1459,11 +1459,11 @@ def predictionloop(j, k, sx, sy, nboxes, stride, time_prediction, config, key_ca
             realangle = 0
             rawangle = 0
             if marker_tree is not None:
-            nearest_location = get_nearest(marker_tree, ycentermean, xcentermean, real_time_event)
-            if nearest_location is not None:
-               ycentermean, xcentermean = nearest_location
+                nearest_location = get_nearest(marker_tree, ycentermean, xcentermean, real_time_event)
+                if nearest_location is not None:
+                    ycentermean, xcentermean = nearest_location
             if center_oneat:
-                if xcentermean > 0.4 and xcentermean < 0.6 and ycentermean > 0.4 and ycentermean < 0.6:       
+                if xcenterrawmean > 0.4 and xcenterrawmean < 0.6 and ycenterrawmean > 0.4 and ycenterrawmean < 0.6:       
                         box = {'xstart': xstart, 'ystart': ystart, 'tstart': boxtstartmean, 'xcenterraw': xcenterrawmean,
                                 'ycenterraw': ycenterrawmean, 'tcenterraw': tcenterrawmean, 'xcenter': xcentermean,
                                 'ycenter': ycentermean, 'real_time_event': real_time_event, 'box_time_event': box_time_event,
