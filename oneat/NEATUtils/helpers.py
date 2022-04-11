@@ -1447,6 +1447,8 @@ def predictionloop(j, k, sx, sy, nboxes, stride, time_prediction, config, key_ca
                             'ycenter': ycentermean, 'real_time_event': real_time_event, 'box_time_event': box_time_event,
                             'height': heightmean, 'width': widthmean, 'confidence': confidencemean, 'realangle': realangle,
                             'rawangle': rawangle}
+            else:
+                    box = None                
 
         else:
                     box = {'xstart': xstart, 'ystart': ystart, 'tstart': boxtstartmean, 'xcenterraw': xcenterrawmean,
@@ -1471,6 +1473,8 @@ def predictionloop(j, k, sx, sy, nboxes, stride, time_prediction, config, key_ca
                                 'ycenter': ycentermean, 'real_time_event': real_time_event, 'box_time_event': box_time_event,
                                 'height': heightmean, 'width': widthmean, 'confidence': confidencemean, 'realangle': realangle,
                                 'rawangle': rawangle}
+                else:
+                    box = None                
 
             else:
                         box = {'xstart': xstart, 'ystart': ystart, 'tstart': boxtstartmean, 'xcenterraw': xcenterrawmean,
@@ -1480,12 +1484,12 @@ def predictionloop(j, k, sx, sy, nboxes, stride, time_prediction, config, key_ca
                                 'rawangle': rawangle}
 
     
-
-        # Make a single dict object containing the class and the box vectors return also the max prob label
-        for d in [Class, box]:
-            classybox.update(d)
-        
-        return classybox    
+        if box is not None:
+                # Make a single dict object containing the class and the box vectors return also the max prob label
+                for d in [Class, box]:
+                    classybox.update(d)
+                
+                return classybox    
     
 
 
