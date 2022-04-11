@@ -39,7 +39,7 @@ EventBoxname = 'EventIDBox'
 
 class NEATViz(object):
 
-        def __init__(self, imagedir, heatmapimagedir, segimagedir, savedir, categories_json, event_threshold, heatname = '_Heat', eventname = '_Event', fileextension = '*tif', blur_radius = 5, start_project_mid = 0, end_project_mid = 0 ):
+        def __init__(self, imagedir, heatmapimagedir,  savedir, categories_json, event_threshold, segimagedir = None, heatname = '_Heat', eventname = '_Event', fileextension = '*tif', blur_radius = 5, start_project_mid = 0, end_project_mid = 0 ):
             
             
                self.imagedir = imagedir
