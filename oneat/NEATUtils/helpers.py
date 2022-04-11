@@ -1056,7 +1056,7 @@ def gold_nms(heatmap,eventmarkers, classedboxes, event_name, downsamplefactor, i
                                                               ycenter = iou_current_event_box['ycenter']* downsamplefactor
                                                               tcenter = iou_current_event_box['real_time_event']
                                                               score = iou_current_event_box[event_name]
-                                                              eventmarkers[tcenter, ycenter, xcenter] = 1
+                                                              eventmarkers[int(tcenter), int(ycenter), int(xcenter)] = 1
                                                               for x in range(int(xcenter - 8), int(xcenter + 8)):
                                                                   for y in range(int(ycenter - 8), int(ycenter + 8)):
                                                                       if y < heatmap.shape[1] and x < heatmap.shape[2]:
