@@ -290,7 +290,7 @@ def LocationMap(event_markers, seg_image):
                      location_image[i,all_pixels] = 1
                      if i > 0:
                          location_image[i,:] = location_image[i,:] + location_image[i - 1,:]
-        return location_image
+       return location_image
 
 def MidSlices(Image, start_project_mid, end_project_mid, axis = 1):
     
