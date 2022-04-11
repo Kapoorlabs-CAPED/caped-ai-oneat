@@ -254,7 +254,7 @@ class NEATDynamic(object):
         sgd = tf.keras.optimizers.Adam(learning_rate=self.learning_rate)
         self.Trainingmodel.compile(optimizer=sgd, loss=self.yololoss, metrics=['accuracy'])
         self.Trainingmodel.summary()
-        
+
         # Keras callbacks
         lrate = callbacks.ReduceLROnPlateau(monitor='loss', factor=0.1, patience=4, verbose=1)
         hrate = callbacks.History()
@@ -501,7 +501,7 @@ class NEATDynamic(object):
                             boxprediction = yoloprediction(ally[p], allx[p], time_prediction, self.stride,
                                                            inputtime, self.config,
                                                            self.key_categories, self.key_cord, self.nboxes, 'detection',
-                                                           'dynamic', marker_tree = self.marker_tree, center_oneat = self.center_oneat)
+                                                           'dynamic', marker_tree = self.marker_tree, center_oneat = False)
                                           
                             if boxprediction is not None:
                                 eventboxes = eventboxes + boxprediction
