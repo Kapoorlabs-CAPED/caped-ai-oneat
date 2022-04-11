@@ -622,30 +622,28 @@ class NEATDynamic(object):
                                 xcenter = location[i][1]
                                   
                                 predictions, allx, ally = self.predict_main(crop_image)
-                                #Iterate over tiles
-                                for p in range(0,len(predictions)):
-
-                                  sum_time_prediction = predictions[p]
-                                  if sum_time_prediction is not None:
+                                sum_time_prediction = predictions[0]
+                                if sum_time_prediction is not None:
                                      #For each tile the prediction vector has shape N H W Categories + Training Vector labels
-                                     for i in range(0, sum_time_prediction.shape[0]):
-                                          time_prediction =  sum_time_prediction[i]
-                                          boxprediction = yoloprediction(0, 0 , time_prediction, self.stride,
+                                     time_prediction =  sum_time_prediction[0]
+                                     boxprediction = yoloprediction(0, 0 , time_prediction, self.stride,
                                                            inputtime, self.config,
                                                            self.key_categories, self.key_cord, self.nboxes, 'detection',
                                                            'dynamic', center_oneat = self.center_oneat)
 
 
-                                if len(boxprediction) > 0:
-                                      boxprediction[0]['xcenter'] = xcenter
-                                      boxprediction[0]['ycenter'] = ycenter
-                                      boxprediction[0]['xstart'] = xcenter - int(self.imagex/2) * self.downsamplefactor
-                                      boxprediction[0]['ystart'] = ycenter - int(self.imagey/2) * self.downsamplefactor  
+                               
+                                     boxprediction[0]['xcenter'] = xcenter
+                                     boxprediction[0]['ycenter'] = ycenter
+                                     boxprediction[0]['xstart'] = xcenter - int(self.imagex/2) * self.downsamplefactor
+                                     boxprediction[0]['ystart'] = ycenter - int(self.imagey/2) * self.downsamplefactor  
 
                                  
                                                  
-                                if boxprediction is not None:
-                                          eventboxes = eventboxes + boxprediction
+                                     if boxprediction is not None:
+                                           eventboxes = eventboxes + boxprediction
+
+                                           
                 for (event_name,event_label) in self.key_categories.items(): 
                                            
                                         if event_label > 0:
