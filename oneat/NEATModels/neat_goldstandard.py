@@ -606,10 +606,10 @@ class NEATDynamic(object):
                 tree, location = self.marker_tree[str(int(inputtime))]
                 for i in range(len(location)):
                     
-                    crop_xminus = location[i][1]  - int(self.imagex/2) * self.downsamplefactor - 1
-                    crop_xplus = location[i][1]  + int(self.imagex/2) * self.downsamplefactor + 1
-                    crop_yminus = location[i][0]  - int(self.imagey/2) * self.downsamplefactor - 1
-                    crop_yplus = location[i][0]   + int(self.imagey/2) * self.downsamplefactor + 1
+                    crop_xminus = location[i][1]  - int(self.imagex/2) * self.downsamplefactor 
+                    crop_xplus = location[i][1]  + int(self.imagex/2) * self.downsamplefactor 
+                    crop_yminus = location[i][0]  - int(self.imagey/2) * self.downsamplefactor 
+                    crop_yplus = location[i][0]   + int(self.imagey/2) * self.downsamplefactor 
                     region =(slice(inputtime,inputtime + int(self.imaget)),slice(int(crop_yminus), int(crop_yplus)),
                           slice(int(crop_xminus), int(crop_xplus)))
                     
@@ -631,17 +631,12 @@ class NEATDynamic(object):
                                                            self.key_categories, self.key_cord, self.nboxes, 'detection',
                                                            'dynamic', center_oneat = self.center_oneat)
 
-
-                               
-                                     boxprediction[0]['xcenter'] = xcenter
-                                     boxprediction[0]['ycenter'] = ycenter
-                                     boxprediction[0]['xstart'] = xcenter - int(self.imagex/2) * self.downsamplefactor
-                                     boxprediction[0]['ystart'] = ycenter - int(self.imagey/2) * self.downsamplefactor  
-
-                                 
-                                                 
                                      if boxprediction is not None:
-                                           eventboxes = eventboxes + boxprediction
+                                            boxprediction[0]['xcenter'] = xcenter
+                                            boxprediction[0]['ycenter'] = ycenter
+                                            boxprediction[0]['xstart'] = xcenter - int(self.imagex/2) * self.downsamplefactor
+                                            boxprediction[0]['ystart'] = ycenter - int(self.imagey/2) * self.downsamplefactor  
+                                            eventboxes = eventboxes + boxprediction
 
                                            
                 for (event_name,event_label) in self.key_categories.items(): 
