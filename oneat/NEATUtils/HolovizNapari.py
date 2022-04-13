@@ -18,7 +18,7 @@ import json
 from scipy import spatial
 from pathlib import Path
 from scipy import spatial
-import itertools
+from skimage.measure import label, regionprops
 from napari.qt.threading import thread_worker
 import matplotlib.pyplot  as plt
 from matplotlib.backends.backend_qt5agg import \
@@ -287,12 +287,12 @@ def LocationMap(event_markers, seg_image):
        location_image = np.zeros(seg_image.shape)
        for i in range(0, event_markers.shape[0]):
 
-                 current_markers = event_markers[i,:]
+                 current_markers = label(event_markers[i,:])
                  properties = measure.regionprops(current_markers.astype('uint16'))
                  for prop in properties:
                      location = prop.centroid
-                     label = seg_image[i, int(location[0]), int(location[1])]
-                     all_pixels = np.where(seg_image[i,:] == label)
+                     current_label = seg_image[i, int(location[0]), int(location[1])]
+                     all_pixels = np.where(seg_image[i,:] == current_label)
                      location_image[i,all_pixels] = 1
                      if i > 0:
                          location_image[i,:] = location_image[i,:] + location_image[i - 1,:]
