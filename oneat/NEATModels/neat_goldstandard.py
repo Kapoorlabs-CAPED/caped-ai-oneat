@@ -631,11 +631,11 @@ class NEATDynamic(object):
                                                            self.key_categories, self.key_cord, self.nboxes, 'detection',
                                                            'dynamic', center_oneat = self.center_oneat)
 
-                                     if boxprediction is not None:
-                                            boxprediction['xcenter'] = xcenter
-                                            boxprediction['ycenter'] = ycenter
-                                            boxprediction['xstart'] = xcenter - int(self.imagex/2) * self.downsamplefactor
-                                            boxprediction['ystart'] = ycenter - int(self.imagey/2) * self.downsamplefactor  
+                                     if boxprediction is not None and len(boxprediction) > 0:
+                                            boxprediction[0]['xcenter'] = xcenter
+                                            boxprediction[0]['ycenter'] = ycenter
+                                            boxprediction[0]['xstart'] = xcenter - int(self.imagex/2) * self.downsamplefactor
+                                            boxprediction[0]['ystart'] = ycenter - int(self.imagey/2) * self.downsamplefactor  
                                             eventboxes = eventboxes + boxprediction
 
                                            
