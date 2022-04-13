@@ -1441,7 +1441,7 @@ def predictionloop(j, k, sx, sy, nboxes, stride, time_prediction, config, key_ca
             if nearest_location is not None:
                ycentermean, xcentermean = nearest_location
         if center_oneat:
-            if ("%.2f" %xcenterrawmean) == 0.50 and ("%.2f" %ycenterrawmean) == 0.50 and ("%.2f" %tcenterrawmean) == 0.50:       
+            if xcenterrawmean > 0.495 and xcenterrawmean < 0.505 and ycenterrawmean > 0.495 and ycenterrawmean < 0.505 and tcenterrawmean > 0.495 and tcenterrawmean < 0.505:       
                     box = {'xstart': xstart, 'ystart': ystart, 'tstart': boxtstartmean, 'xcenterraw': xcenterrawmean,
                             'ycenterraw': ycenterrawmean, 'tcenterraw': tcenterrawmean, 'xcenter': xcentermean,
                             'ycenter': ycentermean, 'real_time_event': real_time_event, 'box_time_event': box_time_event,
@@ -1467,7 +1467,7 @@ def predictionloop(j, k, sx, sy, nboxes, stride, time_prediction, config, key_ca
                 if nearest_location is not None:
                     ycentermean, xcentermean = nearest_location
             if center_oneat:
-                if ("%.2f" %xcenterrawmean) == 0.50 and ("%.2f" %ycenterrawmean) == 0.50:       
+                if xcenterrawmean > 0.495 and xcenterrawmean < 0.5050 and ycenterrawmean > 0.495 and ycenterrawmean < 0.505:       
                         box = {'xstart': xstart, 'ystart': ystart, 'tstart': boxtstartmean, 'xcenterraw': xcenterrawmean,
                                 'ycenterraw': ycenterrawmean, 'tcenterraw': tcenterrawmean, 'xcenter': xcentermean,
                                 'ycenter': ycentermean, 'real_time_event': real_time_event, 'box_time_event': box_time_event,
