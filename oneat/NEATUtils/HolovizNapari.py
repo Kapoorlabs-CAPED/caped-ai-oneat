@@ -263,12 +263,13 @@ class NEATViz(object):
                           self.event_markers = None 
                 if self.segimagedir is not None:
                      self.seg_image = imread(self.segimagedir + imagename + '.tif')
+                     if len(self.seg_image.shape) == 4:
+                         self.seg_image =  MidSlices(self.seg_image, self.start_project_mid, self.end_project_mid, axis = 1)
 
                 if len(self.image.shape) == 4:
                     self.image =  MidSlices(self.image, self.start_project_mid, self.end_project_mid, axis = 1)
 
-                if len(self.seg_image.shape) == 4:
-                    self.seg_image =  MidSlices(self.seg_image, self.start_project_mid, self.end_project_mid, axis = 1)    
+                    
                 
                 self.viewer.add_image(self.image, name= 'Image' + imagename )
                 if self.heatmapimagedir is not None:
