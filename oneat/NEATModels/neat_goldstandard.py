@@ -686,7 +686,7 @@ class NEATDynamic(object):
                if self.remove_markers is not None:
                    best_sorted_event_box = gold_nms(self.heatmap,self.eventmarkers, self.classedboxes, event_name, 1, self.iou_threshold, self.event_threshold, self.imagex, self.imagey, 1 )
 
-               if self.remove_markers == None:
+               if self.remove_markers is None:
                    best_sorted_event_box = dynamic_nms(self.heatmap,self.maskimage,  self.classedboxes, event_name,  self.downsamplefactor, self.iou_threshold, self.event_threshold, self.imagex, self.imagey, self.fidelity )
 
                best_iou_classedboxes[event_name] = [best_sorted_event_box]
@@ -698,7 +698,7 @@ class NEATDynamic(object):
     def to_csv(self):
          if self.remove_markers is not None:
             save_dynamic_csv(self.imagename, self.key_categories, self.iou_classedboxes, self.savedir, 1, self.ndim, z = self.z, maskimage = self.maskimage)        
-         if self.markers is None:
+         if self.remove_markers is None:
             save_dynamic_csv(self.imagename, self.key_categories, self.iou_classedboxes, self.savedir, self.downsamplefactor, self.ndim, z = self.z, maskimage = self.maskimage)          
   
 
