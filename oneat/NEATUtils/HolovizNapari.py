@@ -18,8 +18,7 @@ import json
 from scipy import spatial
 from pathlib import Path
 from scipy import spatial
-from skimage.measure import label, regionprops
-from napari.qt.threading import thread_worker
+from skimage.measure import label
 import matplotlib.pyplot  as plt
 from matplotlib.backends.backend_qt5agg import \
     FigureCanvasQTAgg as FigureCanvas
@@ -28,9 +27,8 @@ from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QComboBox, QPushButton, QSlider
 import h5py
 from skimage import measure
-from scipy.ndimage import gaussian_filter
 import pandas as pd
-import imageio
+from scipy.ndimage.morphology import binary_dilation
 from oneat.NEATUtils.napari_animation._qt import AnimationWidget
 from dask.array.image import imread as daskread
 Boxname = 'ImageIDBox'
@@ -204,6 +202,7 @@ class NEATViz(object):
             listscore = self.Score.tolist()
             listconfidence = self.Confidence.tolist()
             event_locations = []
+            event_locations_dict = {}
             size_locations = []
             score_locations = []
             confidence_locations = []
@@ -219,6 +218,16 @@ class NEATViz(object):
                  confidence = listconfidence[i]   
                  if score > self.event_threshold[self.event_label]:
                          event_locations.append([int(tcenter), int(ycenter), int(xcenter)])   
+
+                         if int(tcenter) in event_locations_dict.keys():
+                                current_list = event_locations_dict[int(tcenter)]
+                                current_list.append([int(ycenter), int(xcenter)])
+                                event_locations_dict[int(tcenter)] = current_list 
+                         else:
+                                current_list = []
+                                current_list.append([int(ycenter), int(xcenter)])
+                                event_locations_dict[int(tcenter)] = current_list    
+
                          size_locations.append(size)
                          score_locations.append(score)
                          confidence_locations.append(confidence)
@@ -230,6 +239,8 @@ class NEATViz(object):
             'size': 12,
             'color': 'pink',
         }
+            self.event_locations = event_locations 
+            self.event_locations_dict = event_locations_dict
             for layer in list(self.viewer.layers):
                               
                              if 'Detections'  in layer.name or layer.name in 'Detections' :
@@ -237,7 +248,12 @@ class NEATViz(object):
             if len(score_locations) > 0:                             
                    self.viewer.add_points(event_locations, size = size_locations , properties = point_properties, text = text_properties,  name = 'Detections' + self.event_name, face_color = [0]*4, edge_color = "red", edge_width = 4) 
                    
-
+            if self.segimagedir is not None:
+                    self.location_image = LocationMap(self.event_locations_dict, self.seg_image)     
+                    try:
+                        self.viewer.add_image(self.location_image, name= 'Location Map' + imagename )
+                    except:
+                         pass
                                      
                                         
             
@@ -257,10 +273,7 @@ class NEATViz(object):
                      except:
                          self.heat_image = None   
                          
-                     try:
-                         self.event_markers = imread(self.heatmapimagedir + imagename + self.eventname + '.tif')
-                     except:
-                          self.event_markers = None 
+                    
                 if self.segimagedir is not None:
                      self.seg_image = imread(self.segimagedir + imagename + '.tif')
                      if len(self.seg_image.shape) == 4:
@@ -277,26 +290,30 @@ class NEATViz(object):
                         self.viewer.add_image(self.heat_image, name= 'Image' + imagename + self.heatname )
                      except:
                          pass   
-                if self.segimagedir is not None and self .event_markers is not None:
-                    self.location_image = LocationMap(self.event_markers, self.seg_image)     
-                    try:
-                        self.viewer.add_image(self.location_image, name= 'Location Map' + imagename )
-                    except:
-                         pass
-def LocationMap(event_markers, seg_image):
+               
+def LocationMap(event_locations_dict, seg_image):
 
        location_image = np.zeros(seg_image.shape)
-       for i in range(0, event_markers.shape[0]):
-
-                 current_markers = label(event_markers[i,:])
-                 properties = measure.regionprops(current_markers.astype('uint16'))
-                 for prop in properties:
-                     location = prop.centroid
-                     current_label = seg_image[i, int(location[0]), int(location[1])]
-                     all_pixels = np.where(seg_image[i,:] == current_label)
-                     location_image[i,all_pixels] = 1
-                     if i > 0:
-                         location_image[i,:] = location_image[i,:] + location_image[i - 1,:]
+       for i in range(seg_image.shape[0]):
+            if int(i) in event_locations_dict.keys():
+                currentindices = event_locations_dict[int(i)]
+                current_seg_image = seg_image[i,:]
+                waterproperties = measure.regionprops(current_seg_image)
+                indices = [prop.centroid for prop in waterproperties]
+                if len(indices) > 0:
+                    tree = spatial.cKDTree(indices)
+                    if len(currentindices) > 0:
+                        for j in range(0, len(currentindices)):
+                            index = currentindices[j] 
+                            closest_marker_index = tree.query(index)
+                            current_seg_label = current_seg_image[int(indices[closest_marker_index[1]][0]), int(
+                            indices[closest_marker_index[1]][1])]
+                            all_pixels = np.where(current_seg_image == current_seg_label)
+                            all_pixels = np.asarray(all_pixels)
+                            for k in range(all_pixels.shape[1]):
+                                location_image[i,all_pixels[0,k], all_pixels[1,k]] = 1
+            if i > 0:
+                location_image[i,:] = np.add(location_image[i -1,:],location_image[i,:])
        return location_image
 
 def MidSlices(Image, start_project_mid, end_project_mid, axis = 1):
