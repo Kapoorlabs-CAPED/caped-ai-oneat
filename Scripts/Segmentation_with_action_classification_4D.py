@@ -58,9 +58,12 @@ for imagename in X:
    
      markers, marker_tree =  model.get_markers(imagename, 
                                                 savedir,
+                                                segdir,
                                                 start_project_mid = start_project_mid,
                                                 end_project_mid = end_project_mid,  
-                                                segdir = segdir)
+                                                )
+
+                                   
      model.predict(imagename,
                            savedir, 
                            n_tiles = n_tiles, 
@@ -69,7 +72,6 @@ for imagename in X:
                            iou_threshold = iou_threshold,
                            fidelity = fidelity,
                            markers = markers, marker_tree = marker_tree, 
-                          
                            remove_markers = remove_markers,
                            downsamplefactor = downsamplefactor,
                            start_project_mid = start_project_mid,
