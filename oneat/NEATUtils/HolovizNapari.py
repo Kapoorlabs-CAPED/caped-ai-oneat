@@ -308,10 +308,11 @@ def LocationMap(event_locations_dict, seg_image):
                             closest_marker_index = tree.query(index)
                             current_seg_label = current_seg_image[int(indices[closest_marker_index[1]][0]), int(
                             indices[closest_marker_index[1]][1])]
-                            all_pixels = np.where(current_seg_image == current_seg_label)
-                            all_pixels = np.asarray(all_pixels)
-                            for k in range(all_pixels.shape[1]):
-                                location_image[i,all_pixels[0,k], all_pixels[1,k]] = 1
+                            if current_seg_label > 0:
+                                all_pixels = np.where(current_seg_image == current_seg_label)
+                                all_pixels = np.asarray(all_pixels)
+                                for k in range(all_pixels.shape[1]):
+                                    location_image[i,all_pixels[0,k], all_pixels[1,k]] = 1
             if i > 0:
                 location_image[i,:] = np.add(location_image[i -1,:],location_image[i,:])
        return location_image

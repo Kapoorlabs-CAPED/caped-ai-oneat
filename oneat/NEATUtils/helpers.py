@@ -1,4 +1,5 @@
 from __future__ import print_function, unicode_literals, absolute_import, division
+from cmath import sqrt
 # import matplotlib.pyplot as plt
 import numpy as np
 import collections
@@ -699,6 +700,11 @@ def get_max_score_index(scores, threshold=0, top_k=0, descending=True):
 
               
 
+def distance(x1, x2, y1, y2):
+
+    distance = (x1 - x2) * (x1 -x2) + (y1 - y2) * (y1 -y2)
+
+    return sqrt(distance)
 
 def compare_function_sec(box1, box2, gridx, gridy):
             w1, h1 = box1['width'], box1['height']
@@ -715,14 +721,16 @@ def compare_function_sec(box1, box2, gridx, gridy):
             xB = min(x1 + w1, x2 + w2)
             yA = max(y1, y2)
             yB = min(y1 + h1, y2+ h2)
-            if abs(xA - xB) < gridx - 1 and abs(yA - yB) < gridy - 1:
-                    intersect = max(0, xB - xA ) * max(0, yB - yA )
 
-                    area = h2 * w2 + h1 * w1 - intersect
+            return distance(x1 + w1, x2 + w2, y1 + h1, y2+ h2)
+            #if abs(xA - xB) < gridx - 1 and abs(yA - yB) < gridy - 1:
+                    #intersect = max(0, xB - xA ) * max(0, yB - yA )
 
-                    return float(np.true_divide(intersect, area))
-            else:
-                    return -2        
+                    #area = h2 * w2 + h1 * w1 - intersect
+
+                    #return float(np.true_divide(intersect, area))
+            #else:
+                    #return -2        
 
 
 
@@ -777,7 +785,7 @@ def goodboxes(boxes, scores, nms_threshold, score_threshold, gridx, gridy,
 
                 overlap = compare_function_sec(boxes[i], boxes[j], gridx, gridy)
                 # if there is sufficient overlap, suppress the current bounding box
-                if overlap > abs(nms_threshold):
+                if overlap > abs(nms_threshold) * sqrt(gridx*gridx + gridy*gridy):
                         count = count + 1
                         if count >= fidelity:
                             
