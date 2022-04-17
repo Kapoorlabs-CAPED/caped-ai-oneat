@@ -1,7 +1,7 @@
 from oneat.NEATUtils import plotters
 import numpy as np
 from oneat.NEATUtils import helpers
-from oneat.NEATUtils.helpers import MidSlices, get_nearest,  load_json, yoloprediction, normalizeFloatZeroOne, GenerateMarkers, Generate_only_mask, MakeTrees, DownsampleData,save_dynamic_csv, dynamic_nms, gold_nms
+from oneat.NEATUtils.helpers import MidSlices, get_nearest,  load_json, yoloprediction, normalizeFloatZeroOne, GenerateMarkers, MakeTrees, DownsampleData,save_dynamic_csv, dynamic_nms, gold_nms
 from keras import callbacks
 import os
 import keras
@@ -274,80 +274,41 @@ class NEATDynamic(object):
 
         self.Trainingmodel.save(self.model_dir + self.model_name)
 
-    def get_markers(self, imagename, savedir, n_tiles,  segdir = None, use_seg_only = True, starmodel = None, maskmodel = None, start_project_mid = 4, end_project_mid = 4,
-     downsamplefactor = 1, remove_markers = True):
+    def get_markers(self, imagename, savedir, segdir, start_project_mid = 4, end_project_mid = 4,
+     downsamplefactor = 1):
 
-        self.starmodel = starmodel
         self.imagename = imagename
         self.image = imread(imagename)
         self.segdir = segdir
-        self.maskmodel = maskmodel
         Name = os.path.basename(os.path.splitext(self.imagename)[0])
         self.savedir = savedir
         Path(self.savedir).mkdir(exist_ok=True)
         self.downsamplefactor = downsamplefactor
-        self.n_tiles = n_tiles
-        print('Obtaining Markers, Mask and Watershed image')
-        if self.segdir is None:
-            self.markers, self.watershed, self.stardist, self.mask = GenerateMarkers(self.image, self.n_tiles, model = self.starmodel, maskmodel = self.maskmodel, segimage = self.segimage, 
-            start_project_mid = start_project_mid, end_project_mid = end_project_mid)
-            self.segdir = self.savedir + '/' + 'Segmentation'
-            Path(self.segdir).mkdir(exist_ok=True)
-            imwrite(self.segdir + '/' + Name + '_markers' + '.tif', self.markers.astype('int32'))
-            imwrite(self.segdir + '/' + Name + '_vollseg' + '.tif', self.watershed.astype('int32'))
-            imwrite(self.segdir + '/' + Name + '_stardist' + '.tif', self.stardist.astype('int32'))
-            imwrite(self.segdir + '/' + Name + '_mask' + '.tif', self.mask.astype('uint16'))
-
-
-        else:
-            try:
-                self.markers = imread(self.segdir + '/' + Name + '_markers' + '.tif')
-                self.watershed = imread(self.segdir + '/' + Name + '_vollseg' + '.tif')
-                self.stardist = imread(self.segdir + '/' + Name + '_stardist' + '.tif')
-                self.mask = imread(self.segdir + '/' + Name + '_mask' + '.tif')
-                if remove_markers:
-                    self.markers = DownsampleData(self.markers, self.downsamplefactor)
-                for i in range(0, self.markers.shape[0]):
-                    self.markers[i,:] = self.markers[i,:] > 0
-                    self.markers[i,:] = label(self.markers[i,:].astype('uint16'))
-                    
-
-
-            except:
-        
-                if use_seg_only:
-                    self.segimage = imread(self.segdir + '/' + Name + '.tif')
-                self.markers, self.watershed, self.stardist, self.mask = GenerateMarkers(self.image, self.n_tiles, model = self.starmodel, maskmodel = self.maskmodel, segimage = self.segimage, 
-            start_project_mid = start_project_mid, end_project_mid = end_project_mid)
-                self.segdir = self.savedir + '/' + 'Segmentation'
-                Path(self.segdir).mkdir(exist_ok=True)
-                imwrite(self.segdir + '/' + Name + '_markers' + '.tif', self.markers.astype('int32'))
+        print('Obtaining Markers')
+        self.segimage = imread(self.segdir + '/' + Name + '.tif')
+        self.markers = GenerateMarkers(self.image, segimage = self.segimage, 
+        start_project_mid = start_project_mid, end_project_mid = end_project_mid)
+        self.segdir = self.savedir + '/' + 'Segmentation'
+        Path(self.segdir).mkdir(exist_ok=True)
+        imwrite(self.segdir + '/' + Name + '_markers' + '.tif', self.markers.astype('int32'))
         self.marker_tree = MakeTrees(self.markers)
 
 
-        return self.markers, self.marker_tree, self.watershed, self.stardist, self.mask
+        return self.markers, self.marker_tree
     
     def predict(self, imagename,  savedir, n_tiles=(1, 1), overlap_percent=0.8,
                 event_threshold=0.5, event_confidence = 0.5, iou_threshold=0.1,  fidelity=1, downsamplefactor = 1, start_project_mid = 4, end_project_mid = 4,
-                erosion_iterations = 1, markers = None, marker_tree = None, watershed = None, stardist = None, remove_markers = True, maskmodel = None, segdir = None, normalize = True, center_oneat = True):
+                erosion_iterations = 1, markers = None, marker_tree = None, remove_markers = True,segdir = None, normalize = True, center_oneat = True):
 
 
-        self.watershed = watershed
-        self.stardist = stardist
+        
         self.segdir = segdir
         self.imagename = imagename
         self.Name = os.path.basename(os.path.splitext(self.imagename)[0])
-        if self.segdir is not None:
-            try:
-                self.maskimage = imread(self.segdir + '/' + self.Name + '_mask' + '.tif')
-            except:
-                self.maskimage = None    
-        else:
-            self.maskimage = None    
+         
         self.image = imread(imagename)
         self.start_project_mid = start_project_mid
         self.end_project_mid = end_project_mid
-        self.maskmodel = maskmodel
         self.ndim = len(self.image.shape)
         self.normalize = normalize
         self.z = 0
@@ -376,15 +337,6 @@ class NEATDynamic(object):
         if self.normalize: 
            self.image = normalizeFloatZeroOne(self.image.astype('float32'), 1, 99.8)
 
-        if self.maskmodel is not None and self.maskimage is None:
-
-            print(f'Generating mask, hang on')
-            self.segdir = self.savedir + '/' + 'Segmentation'
-            Path(self.segdir).mkdir(exist_ok=True)
-            self.maskimage = Generate_only_mask(self.image, self.maskmodel, self.n_tiles)
-            self.maskimage = binary_erosion(self.maskimage, iterations = self.erosion_iterations)
-            imwrite(self.segdir + '/' + self.Name + '_mask' + '.tif', self.maskimage.astype('float32'))
-            print(f'Mask generated and saved at {self.segdir}')
         
 
         self.model = load_model(self.model_dir + self.model_name + '.h5',
@@ -676,7 +628,7 @@ class NEATDynamic(object):
         for (event_name,event_label) in self.key_categories.items():
             if event_label == 0:
                #best_sorted_event_box = self.classedboxes[event_name][0]
-               best_sorted_event_box = dynamic_nms(self.heatmap,self.maskimage, self.classedboxes, event_name,  self.downsamplefactor, self.iou_threshold, self.event_threshold, self.imagex, self.imagey, self.fidelity, generate_map = False )
+               best_sorted_event_box = dynamic_nms(self.heatmap, self.classedboxes, event_name,  self.downsamplefactor, self.iou_threshold, self.event_threshold, self.imagex, self.imagey, self.fidelity, generate_map = False )
 
                best_iou_classedboxes[event_name] = [best_sorted_event_box]
 
@@ -695,7 +647,7 @@ class NEATDynamic(object):
                    best_sorted_event_box = gold_nms(self.heatmap,self.eventmarkers, self.classedboxes, event_name, 1, self.iou_threshold, self.event_threshold, self.imagex, self.imagey, 1 )
 
                if self.remove_markers is None:
-                   best_sorted_event_box = dynamic_nms(self.heatmap,self.maskimage,  self.classedboxes, event_name,  self.downsamplefactor, self.iou_threshold, self.event_threshold, self.imagex, self.imagey, self.fidelity )
+                   best_sorted_event_box = dynamic_nms(self.heatmap,self.classedboxes, event_name,  self.downsamplefactor, self.iou_threshold, self.event_threshold, self.imagex, self.imagey, self.fidelity )
 
                best_iou_classedboxes[event_name] = [best_sorted_event_box]
 
@@ -705,9 +657,9 @@ class NEATDynamic(object):
 
     def to_csv(self):
          if self.remove_markers is not None:
-            save_dynamic_csv(self.imagename, self.key_categories, self.iou_classedboxes, self.savedir, 1, self.ndim, z = self.z, maskimage = self.maskimage)        
+            save_dynamic_csv(self.imagename, self.key_categories, self.iou_classedboxes, self.savedir, 1, self.ndim, z = self.z)        
          if self.remove_markers is None:
-            save_dynamic_csv(self.imagename, self.key_categories, self.iou_classedboxes, self.savedir, self.downsamplefactor, self.ndim, z = self.z, maskimage = self.maskimage)          
+            save_dynamic_csv(self.imagename, self.key_categories, self.iou_classedboxes, self.savedir, self.downsamplefactor, self.ndim, z = self.z)          
   
 
     

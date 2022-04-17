@@ -56,12 +56,11 @@ X = glob.glob(Raw_path)
  
 for imagename in X:
    
-     markers, marker_tree, watershed, stardist, mask =  model.get_markers(imagename, 
-                                                                  savedir, 
-                                                                  n_tiles = n_tiles, 
-                                                                  segdir =segdir,
-                                                                  use_seg_only = use_seg_only,
-                                                                  remove_markers = remove_markers)
+     markers, marker_tree =  model.get_markers(imagename, 
+                                                savedir,
+                                                start_project_mid = start_project_mid,
+                                                end_project_mid = end_project_mid,  
+                                                segdir = segdir)
      model.predict(imagename,
                            savedir, 
                            n_tiles = n_tiles, 
@@ -70,7 +69,7 @@ for imagename in X:
                            iou_threshold = iou_threshold,
                            fidelity = fidelity,
                            markers = markers, marker_tree = marker_tree, 
-                           watershed = watershed, stardist = stardist, 
+                          
                            remove_markers = remove_markers,
                            downsamplefactor = downsamplefactor,
                            start_project_mid = start_project_mid,

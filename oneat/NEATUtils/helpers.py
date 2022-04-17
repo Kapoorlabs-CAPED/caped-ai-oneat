@@ -510,86 +510,15 @@ def MidSlices(Image, start_project_mid, end_project_mid, axis = 1):
     return MaxProject
 
 
-def GenerateMarkers(Image, n_tiles, model = None,  maskmodel = None, segimage = None, 
-            start_project_mid = 4, end_project_mid = 4):
+def GenerateMarkers(Image,segimage, start_project_mid = 4, end_project_mid = 4):
 
     ndim = len(Image.shape)
     Markers = np.zeros([Image.shape[0], Image.shape[-2], Image.shape[-1]])
-    if segimage is None:
-        Watershed = np.zeros([Image.shape[0], Image.shape[-2], Image.shape[-1]])
-        Star = np.zeros([Image.shape[0], Image.shape[-2], Image.shape[-1]])
-    else:
-        Watershed = segimage
-        Star = segimage
-        if ndim == 4:
-                    Watershed =  MidSlices(Watershed, start_project_mid, end_project_mid, axis = 1)
-                    Star =  MidSlices(Star, start_project_mid, end_project_mid, axis = 1)
-    if maskmodel is not None:
-        Mask = np.zeros([Image.shape[0], Image.shape[-2], Image.shape[-1]])
-    else:
-        Mask = None  
-           
-
-    if segimage is None and model is not None:
-            
-            for i in tqdm(range(0, Image.shape[0])):
-                smallimage = Image[i, :]
-                if maskmodel is not None:
-                        maskimage = GenerateMask(smallimage, maskmodel, n_tiles)
-                        maskimage = fill_label_holes(maskimage.astype('uint16'))
-                        if ndim == 4:
-                            maskimage =  MidSlices(maskimage, start_project_mid, end_project_mid, axis = 0)
-                        Mask[i,:] = maskimage
-                else:
-                        maskimage = None
-                if ndim == 3:                
-                   smallimage = normalize(smallimage, 1, 99.8, axis=(0, 1))
-                if ndim == 4:
-                   smallimage = normalize(smallimage, 1, 99.8, axis=(0, 1, 2)) 
-                starimage, details = model.predict_instances(smallimage, n_tiles=n_tiles)
-                properties = measure.regionprops(starimage)
-                Coordinates = [prop.centroid for prop in properties]
-                if ndim == 3:
-                    Coordinates = sorted(Coordinates, key=lambda k: [k[1], k[0]])
-                    Coordinates.append((0, 0))
-                if ndim == 4:
-                    Coordinates = sorted(Coordinates, key=lambda k: [k[2], k[1], k[0]])
-                    Coordinates.append((0, 0, 0))    
-                Coordinates = np.asarray(Coordinates)
-
-                coordinates_int = np.round(Coordinates).astype(int)
-                markers_raw = np.zeros_like(smallimage)
-                markers_raw[tuple(coordinates_int.T)] = 1 + np.arange(len(Coordinates))
-
-                markers = dilation(markers_raw, disk(2))
-                if ndim == 4:
-                            markers = morphology.dilation(
-                               markers_raw.astype('uint16'), morphology.ball(2))
-                if ndim == 3:       
-                            markers = morphology.dilation(markers_raw.astype('uint16'), morphology.disk(2))
-                watershedImage = watershed(-smallimage, markers, mask=maskimage.copy())
-                if ndim == 4:
-                            markers =  MidSlices(markers, start_project_mid, end_project_mid, axis = 0)
-                            watershedImage =  MidSlices(watershedImage, start_project_mid, end_project_mid, axis = 0)
-                            starimage =  MidSlices(starimage, start_project_mid, end_project_mid, axis = 0)
-                Markers[i, :] = label(markers.astype('uint16'))
-                Watershed[i,:] = watershedImage
-                Star[i,:] = starimage
-    if segimage is not None:
-          
-       
-                for i in tqdm(range(0, segimage.shape[0])):
+    
+    for i in tqdm(range(0, segimage.shape[0])):
                         properties = measure.regionprops(segimage[i,:])
                         smallimage = Image[i, :]
-                        if maskmodel is not None:
-                                maskimage = GenerateMask(smallimage, maskmodel, n_tiles)
-                                maskimage = fill_label_holes(maskimage.astype('uint16'))
-                                if ndim == 4:
-                                     maskimage =  MidSlices(maskimage, start_project_mid, end_project_mid, axis = 0)
-
-                                Mask[i,:] = maskimage
-                        else:
-                                maskimage = None
+                        
                         Coordinates = [prop.centroid for prop in properties]
  
                         if ndim == 3:
@@ -612,7 +541,7 @@ def GenerateMarkers(Image, n_tiles, model = None,  maskmodel = None, segimage = 
                         Markers[i, :] = label(markers.astype('uint16'))
 
 
-    return Markers, Watershed, Star, Mask
+    return Markers
 
 
 def GenerateMask(Image, model, n_tiles):
@@ -1102,7 +1031,7 @@ def gold_nms(heatmap,eventmarkers, classedboxes, event_name, downsamplefactor, i
 
 
 
-def dynamic_nms(heatmap, maskimage, classedboxes, event_name, downsamplefactor, iou_threshold, event_threshold, gridx, gridy, fidelity, generate_map = True):
+def dynamic_nms(heatmap, classedboxes, event_name, downsamplefactor, iou_threshold, event_threshold, gridx, gridy, fidelity, generate_map = True):
                 
                sorted_event_box = classedboxes[event_name][0]
                scores = [ sorted_event_box[i][event_name]  for i in range(len(sorted_event_box))]
@@ -1114,14 +1043,7 @@ def dynamic_nms(heatmap, maskimage, classedboxes, event_name, downsamplefactor, 
                                                           ycenter = iou_current_event_box['ycenter']* downsamplefactor
                                                           tcenter = iou_current_event_box['real_time_event']
                                                           score = iou_current_event_box[event_name]
-                                                      
-                                                          if maskimage is not None:
-                                                              if maskimage[int(tcenter), int(ycenter), int(xcenter)] > 0:
-                                                                      filtered_good_sorted_event_box.append(iou_current_event_box)
-                                                                      
-                                                          else:
-                                                              
-                                                              filtered_good_sorted_event_box.append(iou_current_event_box)
+                                                          filtered_good_sorted_event_box.append(iou_current_event_box)
                if generate_map:                                              
                                for iou_current_event_box in sorted_event_box:
                                                           xcenter = iou_current_event_box['xcenter']* downsamplefactor
@@ -1129,17 +1051,9 @@ def dynamic_nms(heatmap, maskimage, classedboxes, event_name, downsamplefactor, 
                                                           tcenter = iou_current_event_box['real_time_event']
                                                           score = iou_current_event_box[event_name]
                                                       
-                                                          if maskimage is not None:
-                                                             
-                                                                      for x in range(int(xcenter - 8), int(xcenter + 8)):
-                                                                          for y in range(int(ycenter - 8), int(ycenter + 8)):
-                                                                              if y < heatmap.shape[1] and x < heatmap.shape[2]:
-                                                                                  heatmap[int(tcenter), int(y), int(x)] = heatmap[int(tcenter), int(y), int(x)] + score
-                                                                              
-                                                          else:
-                                                              
-                                                              for x in range(int(xcenter - 8), int(xcenter + 8)):
-                                                                  for y in range(int(ycenter - 8), int(ycenter + 8)):
+                                                                                                                     
+                                                         for x in range(int(xcenter - 8), int(xcenter + 8)):
+                                                              for y in range(int(ycenter - 8), int(ycenter + 8)):
                                                                       if y < heatmap.shape[1] and x < heatmap.shape[2]:
                                                                           heatmap[int(tcenter), int(y), int(x)] = heatmap[int(tcenter), int(y), int(x)] + score
             
