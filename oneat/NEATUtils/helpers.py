@@ -702,9 +702,9 @@ def get_max_score_index(scores, threshold=0, top_k=0, descending=True):
 
 def distance(x1, x2, y1, y2):
 
-    distance = (x1 - x2) * (x1 -x2) + (y1 - y2) * (y1 -y2)
+    distance = abs((x1 - x2) * (x1 -x2) + (y1 - y2) * (y1 -y2))
 
-    return sqrt(distance)
+    return abs(sqrt(distance))
 
 def compare_function_sec(box1, box2, gridx, gridy):
             w1, h1 = box1['width'], box1['height']
@@ -785,7 +785,7 @@ def goodboxes(boxes, scores, nms_threshold, score_threshold, gridx, gridy,
 
                 overlap = compare_function_sec(boxes[i], boxes[j], gridx, gridy)
                 # if there is sufficient overlap, suppress the current bounding box
-                if overlap > abs(nms_threshold) * sqrt(gridx*gridx + gridy*gridy):
+                if overlap >= abs(nms_threshold * sqrt(gridx*gridx + gridy*gridy)):
                         count = count + 1
                         if count >= fidelity:
                             
@@ -839,7 +839,7 @@ def goldboxes(boxes, scores, nms_threshold, score_threshold, gridx, gridy):
 
                 overlap = compare_function_sec(boxes[i], boxes[j], gridx, gridy)
                 # if there is sufficient overlap, suppress the current bounding box
-                if overlap > abs(nms_threshold):
+                if overlap >= abs(nms_threshold * sqrt(gridx*gridx + gridy*gridy)):
                        
                         suppress.append(pos)
             # delete all indexes from the index list that are in the suppression list
