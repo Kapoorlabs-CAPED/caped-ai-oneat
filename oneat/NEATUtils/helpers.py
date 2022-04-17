@@ -715,14 +715,18 @@ def compare_function_sec(box1, box2, gridx, gridy):
             y1 = box1['ystart']
             y2 = box2['ystart']
 
-  
+            x1center = box1['xcenter']
+            x2center = box2['xcenter']
+
+            y1center = box1['ycenter']
+            y2center = box2['ycenter']
            
             xA = max(x1 , x2 )
             xB = min(x1 + w1, x2 + w2)
             yA = max(y1, y2)
             yB = min(y1 + h1, y2+ h2)
 
-            return distance(x1 + w1, x2 + w2, y1 + h1, y2+ h2)
+            return distance(x1center, x2center, y1center, y2center)
             #if abs(xA - xB) < gridx - 1 and abs(yA - yB) < gridy - 1:
                     #intersect = max(0, xB - xA ) * max(0, yB - yA )
 
