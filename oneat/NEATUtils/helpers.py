@@ -1052,7 +1052,7 @@ def dynamic_nms(heatmap, classedboxes, event_name, downsamplefactor, iou_thresho
                                                           score = iou_current_event_box[event_name]
                                                       
                                                                                                                      
-                                                         for x in range(int(xcenter - 8), int(xcenter + 8)):
+                                                          for x in range(int(xcenter - 8), int(xcenter + 8)):
                                                               for y in range(int(ycenter - 8), int(ycenter + 8)):
                                                                       if y < heatmap.shape[1] and x < heatmap.shape[2]:
                                                                           heatmap[int(tcenter), int(y), int(x)] = heatmap[int(tcenter), int(y), int(x)] + score
