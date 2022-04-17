@@ -655,10 +655,12 @@ class NEATDynamic(object):
                                                     
                                              classedboxes[event_name] = [current_event_box]
 
-                self.nms()
-                classedboxes =  self.iou_classedboxes 
+
                 self.classedboxes = classedboxes    
                 self.eventboxes =  eventboxes
+                self.nms()
+                classedboxes =  self.iou_classedboxes 
+                
                 if inputtime > 0 and inputtime%(self.imaget) == 0:                         
                         self.nms()
                         self.to_csv()
