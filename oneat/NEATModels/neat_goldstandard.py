@@ -289,16 +289,15 @@ class NEATDynamic(object):
         self.markers = GenerateMarkers(self.image, segimage = self.segimage, 
         start_project_mid = start_project_mid, end_project_mid = end_project_mid)
         self.segdir = self.savedir + '/' + 'Segmentation'
-        Path(self.segdir).mkdir(exist_ok=True)
-        imwrite(self.segdir + '/' + Name + '_markers' + '.tif', self.markers.astype('int32'))
+       
         self.marker_tree = MakeTrees(self.markers)
 
 
-        return self.markers, self.marker_tree
+        return self.marker_tree
     
     def predict(self, imagename,  savedir, n_tiles=(1, 1), overlap_percent=0.8,
                 event_threshold=0.5, event_confidence = 0.5, iou_threshold=0.1,  fidelity=1, downsamplefactor = 1, start_project_mid = 4, end_project_mid = 4,
-                erosion_iterations = 1, markers = None, marker_tree = None, remove_markers = True,segdir = None, normalize = True, center_oneat = True):
+                erosion_iterations = 1,  marker_tree = None, remove_markers = True,segdir = None, normalize = True, center_oneat = True):
 
 
         
@@ -342,7 +341,6 @@ class NEATDynamic(object):
         self.model = load_model(self.model_dir + self.model_name + '.h5',
                                 custom_objects={'loss': self.yololoss, 'Concat': Concat})
 
-        self.markers = markers
         self.marker_tree = marker_tree
         self.remove_markers = remove_markers
         if self.remove_markers:
@@ -496,44 +494,8 @@ class NEATDynamic(object):
                 eventboxes = []
                 classedboxes = {}                    
             #Image back to the same co ordinate system
-        self.markers = DownsampleData(self.markers, int(1.0//self.downsamplefactor))
         self.image = DownsampleData(self.image, int(1.0//self.downsamplefactor))
-        for i in range(0, self.markers.shape[0]):
-                    self.markers[i,:] = self.markers[i,:] > 0
-                    self.markers[i,:] = label(self.markers[i,:].astype('uint16'))
-
-        new_markers = np.zeros_like(self.markers)
-        for i in tqdm(range(0, new_markers.shape[0])):
-
-                Clean_Coordinates = []
-                try:
-                   tree, location = self.marker_tree[str(int(i))]
-                except:
-                    location = []   
-                try:
-                   remove_location = remove_candidates[str(int(i))]
-                except:
-                    remove_location = []   
-                if len(location) > 0:
-                        for value in location:
-                            if value not in remove_location:
-                                Clean_Coordinates.append(value)
-
-                                
-                        Clean_Coordinates = sorted(Clean_Coordinates, key=lambda k: [k[1], k[0]])
-                        Clean_Coordinates = np.asarray(Clean_Coordinates)
-                        coordinates_int = np.round(Clean_Coordinates).astype(int)
-                        markers_raw = np.zeros_like(new_markers[i,:])
-                        markers_raw[tuple(coordinates_int.T)] = 1 + np.arange(len(Clean_Coordinates))
-                        markers_current = dilation(markers_raw, disk(2))
-                        new_markers[i, :] = label(markers_current.astype('uint16'))                            
-         
-        markerdir = self.savedir + '/' + 'Clean_Markers'  
-        Path(markerdir).mkdir(exist_ok=True)
-        Name = os.path.basename(os.path.splitext(self.imagename)[0])
-        print('Writing the clean markers')
-        self.marker_tree = MakeTrees(new_markers)
-        imwrite(markerdir + '/' + Name + '.tif', new_markers.astype('float32'))    
+       
         
 
 

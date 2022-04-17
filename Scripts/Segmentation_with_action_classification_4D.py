@@ -56,7 +56,7 @@ X = glob.glob(Raw_path)
  
 for imagename in X:
    
-     markers, marker_tree =  model.get_markers(imagename, 
+     marker_tree =  model.get_markers(imagename, 
                                                 savedir,
                                                 segdir,
                                                 start_project_mid = start_project_mid,
@@ -71,7 +71,7 @@ for imagename in X:
                            event_confidence = event_confidence,
                            iou_threshold = iou_threshold,
                            fidelity = fidelity,
-                           markers = markers, marker_tree = marker_tree, 
+                           marker_tree = marker_tree, 
                            remove_markers = remove_markers,
                            downsamplefactor = downsamplefactor,
                            start_project_mid = start_project_mid,
