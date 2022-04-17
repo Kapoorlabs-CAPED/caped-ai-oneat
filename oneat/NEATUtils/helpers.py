@@ -715,26 +715,22 @@ def compare_function_sec(box1, box2, gridx, gridy):
             y1 = box1['ystart']
             y2 = box2['ystart']
 
-            x1center = box1['xcenter']
-            x2center = box2['xcenter']
-
-            y1center = box1['ycenter']
-            y2center = box2['ycenter']
+    
            
             xA = max(x1 , x2 )
             xB = min(x1 + w1, x2 + w2)
             yA = max(y1, y2)
             yB = min(y1 + h1, y2+ h2)
 
-            return distance(x1center, x2center, y1center, y2center)
-            #if abs(xA - xB) < gridx - 1 and abs(yA - yB) < gridy - 1:
-                    #intersect = max(0, xB - xA ) * max(0, yB - yA )
+           
+            if abs(xA - xB) < gridx - 1 and abs(yA - yB) < gridy - 1:
+                    intersect = max(0, xB - xA ) * max(0, yB - yA )
 
-                    #area = h2 * w2 + h1 * w1 - intersect
+                    area = h2 * w2 + h1 * w1 - intersect
 
-                    #return float(np.true_divide(intersect, area))
-            #else:
-                    #return -2        
+                    return float(np.true_divide(intersect, area))
+            else:
+                    return -2        
 
 
 
@@ -789,7 +785,7 @@ def goodboxes(boxes, scores, nms_threshold, score_threshold, gridx, gridy,
 
                 overlap = compare_function_sec(boxes[i], boxes[j], gridx, gridy)
                 # if there is sufficient overlap, suppress the current bounding box
-                if overlap >= abs(nms_threshold * (gridx*gridx + gridy*gridy)):
+                if overlap >= abs(nms_threshold):
                         count = count + 1
                         if count >= fidelity:
                             
@@ -843,7 +839,7 @@ def goldboxes(boxes, scores, nms_threshold, score_threshold, gridx, gridy):
 
                 overlap = compare_function_sec(boxes[i], boxes[j], gridx, gridy)
                 # if there is sufficient overlap, suppress the current bounding box
-                if overlap >= abs(nms_threshold * (gridx*gridx + gridy*gridy)):
+                if overlap >= abs(nms_threshold):
                        
                         suppress.append(pos)
             # delete all indexes from the index list that are in the suppression list
