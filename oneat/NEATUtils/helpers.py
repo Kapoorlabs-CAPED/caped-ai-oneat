@@ -706,7 +706,9 @@ def distance(x1, x2, y1, y2):
 
     return dist
 
-def compare_function_sec(box1, box2, gridx, gridy):
+
+
+def compare_function(box1, box2, gridx, gridy):
             w1, h1 = box1['width'], box1['height']
             w2, h2 = box2['width'], box2['height']
             x1 = box1['xstart']
@@ -715,8 +717,6 @@ def compare_function_sec(box1, box2, gridx, gridy):
             y1 = box1['ystart']
             y2 = box2['ystart']
 
-    
-           
             xA = max(x1 , x2 )
             xB = min(x1 + w1, x2 + w2)
             yA = max(y1, y2)
@@ -730,7 +730,29 @@ def compare_function_sec(box1, box2, gridx, gridy):
 
                     return float(np.true_divide(intersect, area))
             else:
-                    return -2        
+                    return -2 
+
+def compare_function_sec(box1, box2):
+            w1, h1 = box1['width'], box1['height']
+            w2, h2 = box2['width'], box2['height']
+            x1 = box1['xstart']
+            x2 = box2['xstart']
+            
+            y1 = box1['ystart']
+            y2 = box2['ystart']
+
+            x1center = box1['xcenter']
+            x2center = box2['xcenter']
+
+            y1center = box1['ycenter']
+            y2center = box2['ycenter']
+           
+            xA = max(x1 , x2 )
+            xB = min(x1 + w1, x2 + w2)
+            yA = max(y1, y2)
+            yB = min(y1 + h1, y2+ h2)
+
+            return distance(x1center, x2center, y1center, y2center)
 
 
 
@@ -783,9 +805,9 @@ def goodboxes(boxes, scores, nms_threshold, score_threshold, gridx, gridy,
             # grab the current index
                 j = idxs[pos]
 
-                overlap = compare_function_sec(boxes[i], boxes[j], gridx, gridy)
+                overlap = compare_function_sec(boxes[i], boxes[j])
                 # if there is sufficient overlap, suppress the current bounding box
-                if overlap >= abs(nms_threshold):
+                if overlap <= abs(nms_threshold * (gridx*gridx + gridy*gridy)):
                         count = count + 1
                         if count >= fidelity:
                             
@@ -837,9 +859,9 @@ def goldboxes(boxes, scores, nms_threshold, score_threshold, gridx, gridy):
             # grab the current index
                 j = idxs[pos]
 
-                overlap = compare_function_sec(boxes[i], boxes[j], gridx, gridy)
+                overlap = compare_function_sec(boxes[i], boxes[j])
                 # if there is sufficient overlap, suppress the current bounding box
-                if overlap >= abs(nms_threshold):
+                if overlap <= abs(nms_threshold * (gridx*gridx + gridy*gridy)):
                        
                         suppress.append(pos)
             # delete all indexes from the index list that are in the suppression list
@@ -887,7 +909,7 @@ def simpleaveragenms(boxes, scores, nms_threshold, score_threshold, event_name, 
             j = idxs[pos]
 
             # compute the ratio of overlap between the two boxes and the area of the second box
-            overlap = compare_function_sec(boxes[i], boxes[j], gridx, gridy)
+            overlap = compare_function(boxes[i], boxes[j], gridx, gridy)
 
             # if there is sufficient overlap, suppress the current bounding box
             if overlap > nms_threshold:
