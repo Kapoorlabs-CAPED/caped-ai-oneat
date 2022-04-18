@@ -510,15 +510,15 @@ def MidSlices(Image, start_project_mid, end_project_mid, axis = 1):
     return MaxProject
 
 
-def GenerateMarkers(Image,segimage, start_project_mid = 4, end_project_mid = 4):
+def GenerateMarkers(segimage, start_project_mid = 4, end_project_mid = 4):
 
-    ndim = len(Image.shape)
-    Markers = np.zeros([Image.shape[0], Image.shape[-2], Image.shape[-1]])
+    ndim = len(segimage.shape)
+    Markers = np.zeros([segimage.shape[0], segimage.shape[-2], segimage.shape[-1]])
     
     for i in tqdm(range(0, segimage.shape[0])):
-                        properties = measure.regionprops(segimage[i,:])
-                        smallimage = Image[i, :]
-                        
+
+                        smallimage = segimage[i, :]
+                        properties = measure.regionprops(smallimage)
                         Coordinates = [prop.centroid for prop in properties]
  
                         if ndim == 3:

@@ -274,34 +274,29 @@ class NEATDynamic(object):
 
         self.Trainingmodel.save(self.model_dir + self.model_name)
 
-    def get_markers(self, imagename, savedir, segdir, start_project_mid = 4, end_project_mid = 4,
+    def get_markers(self, imagename, segdir, start_project_mid = 4, end_project_mid = 4,
      downsamplefactor = 1):
 
         self.imagename = imagename
-        self.image = imread(imagename)
         self.segdir = segdir
         Name = os.path.basename(os.path.splitext(self.imagename)[0])
-        self.savedir = savedir
-        Path(self.savedir).mkdir(exist_ok=True)
+        
         self.downsamplefactor = downsamplefactor
         print('Obtaining Markers')
         self.segimage = imread(self.segdir + '/' + Name + '.tif')
-        self.markers = GenerateMarkers(self.image, segimage = self.segimage, 
+        self.markers = GenerateMarkers(self.segimage, 
         start_project_mid = start_project_mid, end_project_mid = end_project_mid)
-        self.segdir = self.savedir + '/' + 'Segmentation'
-       
         self.marker_tree = MakeTrees(self.markers)
-
+        self.segimage = None         
 
         return self.marker_tree
     
     def predict(self, imagename,  savedir, n_tiles=(1, 1), overlap_percent=0.8,
                 event_threshold=0.5, event_confidence = 0.5, iou_threshold=0.1,  fidelity=1, downsamplefactor = 1, start_project_mid = 4, end_project_mid = 4,
-                erosion_iterations = 1,  marker_tree = None, remove_markers = True,segdir = None, normalize = True, center_oneat = True):
+                erosion_iterations = 1,  marker_tree = None, remove_markers = True, normalize = True, center_oneat = True):
 
 
         
-        self.segdir = segdir
         self.imagename = imagename
         self.Name = os.path.basename(os.path.splitext(self.imagename)[0])
          
@@ -322,6 +317,7 @@ class NEATDynamic(object):
         self.heatmap = np.zeros(self.image.shape, dtype = 'float32')  
         self.eventmarkers = np.zeros(self.image.shape, dtype = 'uint16')
         self.savedir = savedir
+        Path(self.savedir).mkdir(exist_ok=True)
         if len(n_tiles) > 2:
             n_tiles = (n_tiles[-2], n_tiles[-1])
         self.n_tiles = n_tiles

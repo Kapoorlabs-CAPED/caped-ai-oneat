@@ -41,7 +41,7 @@ segdir = 'D:/TestDatasets/Oneat/Xenopus_oneat/seg/'
 model_dir = 'D:/TrainingModels/Oneat/'
 savedir= 'D:/TestDatasets/Oneat/Xenopus_oneat/resultsGOLD_d29f32_fid4_iou0.4/'
 model_name = 'Cellsplitsxenopus_xy64_tm1tp1_s3d29f32'
-use_seg_only = True
+
 remove_markers = True
 division_categories_json = model_dir + 'Cellsplitcategoriesxenopus.json'
 catconfig = load_json(division_categories_json)
@@ -55,9 +55,8 @@ Raw_path = os.path.join(imagedir, '*tif')
 X = glob.glob(Raw_path)
  
 for imagename in X:
-   
+  
      marker_tree =  model.get_markers(imagename, 
-                                                savedir,
                                                 segdir,
                                                 start_project_mid = start_project_mid,
                                                 end_project_mid = end_project_mid,  
