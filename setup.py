@@ -25,7 +25,6 @@ setup(
         
         "pandas",
         "vollseg",
-        "numpy==1.20.0",
         "scipy",
         "tifffile",
         "matplotlib",

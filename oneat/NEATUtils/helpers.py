@@ -1384,22 +1384,13 @@ def predictionloop(j, k, sx, sy, nboxes, stride, time_prediction, config, key_ca
             nearest_location = get_nearest(marker_tree, ycentermean, xcentermean, real_time_event)
             if nearest_location is not None:
                ycentermean, xcentermean = nearest_location
-        if center_oneat:
-            if xcenterrawmean > 0.45 and xcenterrawmean < 0.55 and ycenterrawmean > 0.45 and ycenterrawmean < 0.55 and tcenterrawmean > 0.45 and tcenterrawmean < 0.55 and mode == 'detection':       
-                    box = {'xstart': xstart, 'ystart': ystart, 'tstart': boxtstartmean, 'xcenterraw': xcenterrawmean,
+             
+               box = {'xstart': xstart, 'ystart': ystart, 'tstart': boxtstartmean, 'xcenterraw': xcenterrawmean,
                             'ycenterraw': ycenterrawmean, 'tcenterraw': tcenterrawmean, 'xcenter': xcentermean,
                             'ycenter': ycentermean, 'real_time_event': real_time_event, 'box_time_event': box_time_event,
                             'height': heightmean, 'width': widthmean, 'confidence': confidencemean, 'realangle': realangle,
                             'rawangle': rawangle}
-            else:
-                    box = None                
-
-        else:
-                    box = {'xstart': xstart, 'ystart': ystart, 'tstart': boxtstartmean, 'xcenterraw': xcenterrawmean,
-                            'ycenterraw': ycenterrawmean, 'tcenterraw': tcenterrawmean, 'xcenter': xcentermean,
-                            'ycenter': ycentermean, 'real_time_event': real_time_event, 'box_time_event': box_time_event,
-                            'height': heightmean, 'width': widthmean, 'confidence': confidencemean, 'realangle': realangle,
-                            'rawangle': rawangle}
+           
                                          
         if event_type == 'static':
             real_time_event = int(inputtime)
@@ -1410,22 +1401,13 @@ def predictionloop(j, k, sx, sy, nboxes, stride, time_prediction, config, key_ca
                 nearest_location = get_nearest(marker_tree, ycentermean, xcentermean, real_time_event)
                 if nearest_location is not None:
                     ycentermean, xcentermean = nearest_location
-            if center_oneat:
-                if xcenterrawmean > 0.45 and xcenterrawmean < 0.55 and ycenterrawmean > 0.45 and ycenterrawmean < 0.55 and mode == 'detection':       
-                        box = {'xstart': xstart, 'ystart': ystart, 'tstart': boxtstartmean, 'xcenterraw': xcenterrawmean,
+           
+                    box = {'xstart': xstart, 'ystart': ystart, 'tstart': boxtstartmean, 'xcenterraw': xcenterrawmean,
                                 'ycenterraw': ycenterrawmean, 'tcenterraw': tcenterrawmean, 'xcenter': xcentermean,
                                 'ycenter': ycentermean, 'real_time_event': real_time_event, 'box_time_event': box_time_event,
                                 'height': heightmean, 'width': widthmean, 'confidence': confidencemean, 'realangle': realangle,
                                 'rawangle': rawangle}
-                else:
-                    box = None                
-
-            else:
-                        box = {'xstart': xstart, 'ystart': ystart, 'tstart': boxtstartmean, 'xcenterraw': xcenterrawmean,
-                                'ycenterraw': ycenterrawmean, 'tcenterraw': tcenterrawmean, 'xcenter': xcentermean,
-                                'ycenter': ycentermean, 'real_time_event': real_time_event, 'box_time_event': box_time_event,
-                                'height': heightmean, 'width': widthmean, 'confidence': confidencemean, 'realangle': realangle,
-                                'rawangle': rawangle}
+                
 
     
         if box is not None:

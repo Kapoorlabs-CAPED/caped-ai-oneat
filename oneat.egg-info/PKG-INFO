@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: oneat
-Version: 2.2.9
+Version: 2.4.8
 Summary: Static and Dynamic classification tool.
 Home-page: https://github.com/Kapoorlabs-CAPED/CAPED-AI-oneat/
 Author: Varun Kapoor
@@ -75,6 +75,7 @@ oneat comes with different options to combine segmentation with classification o
 
 | Example Dataset   | DataSet | Trained Model | Notebook Code | Heat Map  | Csv output  | Visualization Notebook |
 | --- |--- | --- |--- | --- |--- |--- |
+| <img src="https://github.com/Kapoorlabs-CAPED/CAPED-AI-oneat/blob/main/images/Xenopus_example.jpeg"  title="Xenopus nuclei in 3D/4D" width="200">| [Example timelapse](https://zenodo.org/record/6403439/files/Nuclei3D.zip)| [Oneat model](https://zenodo.org/record/6466021#.Yl2CjtpBxhE) | [Colab Notebook]() |[Heat Map]() |[Csv File]()  | [Napari notebook] ()|
 | <img src="https://github.com/Kapoorlabs-CAPED/CAPED-AI-oneat/blob/main/images/ch_0_crop.png"  title="Low Contrast DPC (Digital Phase Contrast)" width="200">| [Example timelapse](https://zenodo.org/record/6371249/files/20210904_TL2%20-%20R05-C03-F0_ch_0.tif)| [Oneat model]() | [Colab Notebook]() |[Heat Map]() |[Csv File]()  | [Napari notebook] ()|
 | <img src="https://github.com/Kapoorlabs-CAPED/CAPED-AI-oneat/blob/main/images/ch_1_crop.png"  title="High Contrast DPC (Digital Phase Contrast)" width="200">| [Example timelapse](https://zenodo.org/record/6371249/files/20210904_TL2%20-%20R05-C03-F0_ch_1.tif)| [Oneat model]() | [Colab Notebook]() |[Heat Map]() |[Csv File]()  | [Napari notebook] ()|
 | <img src="https://github.com/Kapoorlabs-CAPED/CAPED-AI-oneat/blob/main/images/ch_3_crop.png"  title="EGFP-Î±-tubulin" width="200">| [Example timelapse](https://zenodo.org/record/6371249/files/20210904_TL2%20-%20R05-C03-F0_ch_3.tif)| [Oneat model]() | [Colab Notebook]() |[Heat Map]() |[Csv File]()  | [Napari notebook] ()|
