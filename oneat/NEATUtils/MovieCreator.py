@@ -8,8 +8,6 @@ import os
 import glob
 from skimage.measure import regionprops
 from skimage import measure
-from scipy import spatial 
-from tqdm import tqdm
 from pathlib import Path
 from sklearn.model_selection import train_test_split
 from .helpers import  normalizeFloatZeroOne
@@ -72,7 +70,7 @@ def SegFreeMovieLabelDataSet(image_dir, csv_dir, save_dir, static_name, static_l
                                                     print(Csvname)
                                                     image = imread(fname)
                                                     if normPatch ==False and normalizeimage == True:
-                                                       image = normalizeFloatZeroOne( image.astype('float16'),1,99.8)
+                                                       image = normalizeFloatZeroOne( image.astype('float32'),1,99.8)
                                                     dataset = pd.read_csv(csvfname)
                                                     time = dataset[dataset.keys()[0]][1:]
                                                     y = dataset[dataset.keys()[1]][1:]
@@ -173,7 +171,7 @@ def SimpleMovieMaker(time, y, x, image, crop_size,gridx, gridy, total_categories
                                 #Define the movie region volume that was cut
                                 crop_image = image[region]   
                                 if normPatch:
-                                    crop_image = normalizeFloatZeroOne( crop_image.astype('float16'),1,99.8)
+                                    crop_image = normalizeFloatZeroOne( crop_image.astype('float32'),1,99.8)
                                 seglocationx = (newcenter[1] - crop_xminus)
                                 seglocationy = (newcenter[0] - crop_yminus)
                                 Label[total_categories] =  seglocationx/sizex
@@ -187,7 +185,7 @@ def SimpleMovieMaker(time, y, x, image, crop_size,gridx, gridy, total_categories
                                 #Write the image as 32 bit tif file 
                                 if(crop_image.shape[0] == size_tplus + size_tminus + 1 and crop_image.shape[1]== imagesizey and crop_image.shape[2]== imagesizex):
 
-                                           imwrite((save_dir + '/' + newname + '.tif'  ) , crop_image.astype('float16'))    
+                                           imwrite((save_dir + '/' + newname + '.tif'  ) , crop_image.astype('float32'))    
                                            Event_data.append([Label[i] for i in range(0,len(Label))])
                                            if(os.path.exists(save_dir + '/' + (newname) + ".csv")):
                                                         os.remove(save_dir + '/' + (newname) + ".csv")
@@ -209,7 +207,7 @@ def SimpleMovieMaker4D(normalizeimage, time, z, y, x, image, crop_size, gridx, g
 
        image = image[:,z,:,:]
        if normalizeimage:
-                    image = normalizeFloatZeroOne( image.astype('float16'),1,99.8)
+                    image = normalizeFloatZeroOne( image.astype('float32'),1,99.8)
 
        if time > 0:
                
@@ -238,7 +236,7 @@ def SimpleMovieMaker4D(normalizeimage, time, z, y, x, image, crop_size, gridx, g
                                 #Define the movie region volume that was cut
                                 crop_image = image[region]   
                                 if normPatch:
-                                    crop_image = normalizeFloatZeroOne( crop_image.astype('float16'),1,99.8)
+                                    crop_image = normalizeFloatZeroOne( crop_image.astype('float32'),1,99.8)
 
                                 seglocationx = (newcenter[1] - crop_xminus)
                                 seglocationy = (newcenter[0] - crop_yminus)
@@ -253,7 +251,7 @@ def SimpleMovieMaker4D(normalizeimage, time, z, y, x, image, crop_size, gridx, g
                                 #Write the image as 32 bit tif file 
                                 if(crop_image.shape[0] == size_tplus + size_tminus + 1 and crop_image.shape[1]== imagesizey and crop_image.shape[2]== imagesizex):
 
-                                           imwrite((save_dir + '/' + newname + '.tif'  ) , crop_image.astype('float16'))    
+                                           imwrite((save_dir + '/' + newname + '.tif'  ) , crop_image.astype('float32'))    
                                            Event_data.append([Label[i] for i in range(0,len(Label))])
                                            if(os.path.exists(save_dir + '/' + (newname) + ".csv")):
                                                         os.remove(save_dir + '/' + (newname) + ".csv")
@@ -290,7 +288,7 @@ yolo_v1 = True, yolo_v2 = False,  tshift  = 1, normalizeimage = True):
                           
                          image = imread(fname)
                          if normalizeimage:
-                            image = normalizeFloatZeroOne( image.astype('float16'),1,99.8)
+                            image = normalizeFloatZeroOne( image.astype('float32'),1,99.8)
                          segimage = imread(Segfname)
                         
                          for csvfname in filesCsv:
@@ -464,7 +462,7 @@ def MovieMaker(time, y, x, angle, image, segimage, crop_size, gridx, gridy, offs
                                         #Write the image as 32 bit tif file 
                                         if(crop_image.shape[0] == size_tplus + size_tminus + 1 and crop_image.shape[1]== imagesizey and crop_image.shape[2]== imagesizex):
 
-                                                   imwrite((save_dir + '/' + newname + '.tif'  ) , crop_image.astype('float16'))    
+                                                   imwrite((save_dir + '/' + newname + '.tif'  ) , crop_image.astype('float32'))    
                                                    Event_data.append([Label[i] for i in range(0,len(Label))])
                                                    if(os.path.exists(save_dir + '/' + (newname) + ".csv")):
                                                                 os.remove(save_dir + '/' + (newname) + ".csv")
@@ -499,7 +497,7 @@ def MovieMaker4D(normalizeimage, time, z, y, x, angle, image, segimage, crop_siz
        image = image[:,z,:,:]
        segimage = segimage[:,z,:,:]
        if normalizeimage:
-                image = normalizeFloatZeroOne( image.astype('float16'),1,99.8)
+                image = normalizeFloatZeroOne( image.astype('float32'),1,99.8)
        if time > 0:
 
                #slice the images
@@ -561,7 +559,7 @@ def MovieMaker4D(normalizeimage, time, z, y, x, angle, image, segimage, crop_siz
                                         #Write the image as 32 bit tif file 
                                         if(crop_image.shape[0] == size_tplus + size_tminus + 1 and crop_image.shape[1]== imagesizey and crop_image.shape[2]== imagesizex):
 
-                                                   imwrite((save_dir + '/' + newname + '.tif'  ) , crop_image.astype('float16'))    
+                                                   imwrite((save_dir + '/' + newname + '.tif'  ) , crop_image.astype('float32'))    
                                                    Event_data.append([Label[i] for i in range(0,len(Label))])
                                                    if(os.path.exists(save_dir + '/' + (newname) + ".csv")):
                                                                 os.remove(save_dir + '/' + (newname) + ".csv")
@@ -605,7 +603,7 @@ def ImageLabelDataSet(image_dir, seg_image_dir, csv_dir,save_dir, static_name, s
                           
                           
                          image = imread(fname)
-                         image = normalizeFloatZeroOne( image.astype('float16'),1,99.8)   
+                         image = normalizeFloatZeroOne( image.astype('float32'),1,99.8)   
                          segimage = imread(Segfname)
                          for i in  range(0, len(static_name)):
                              event_name = static_name[i]
@@ -646,7 +644,7 @@ def SegFreeImageLabelDataSet(image_dir, csv_dir,save_dir, static_name, static_la
                          name = os.path.basename(os.path.splitext(fname)[0])   
                          image = imread(fname)
                        
-                         image = normalizeFloatZeroOne( image.astype('float16'),1,99.8)   
+                         image = normalizeFloatZeroOne( image.astype('float32'),1,99.8)   
                          for i in  range(0, len(static_name)):
                              event_name = static_name[i]
                              trainlabel = static_label[i]
@@ -782,7 +780,7 @@ def  ImageMaker(time, y, x, image, segimage, crop_size, gridX, gridY, offset, to
                                                             Label[total_categories + 4] = 1 
 
                                                     if(crop_image.shape[1]== ImagesizeY and crop_image.shape[2]== ImagesizeX):
-                                                             imwrite((save_dir + '/' + newname + '.tif'  ) , crop_image.astype('float16'))  
+                                                             imwrite((save_dir + '/' + newname + '.tif'  ) , crop_image.astype('float32'))  
                                                              Event_data.append([Label[i] for i in range(0,len(Label))])
                                                              if(os.path.exists(save_dir + '/' + (newname) + ".csv")):
                                                                 os.remove(save_dir + '/' + (newname) + ".csv")
@@ -851,7 +849,7 @@ def  SegFreeImageMaker(time, y, x, image, crop_size, gridX, gridY, offset, total
                                                             Label[total_categories + 4] = 1 
 
                                                     if(crop_image.shape[1]== ImagesizeY and crop_image.shape[2]== ImagesizeX):
-                                                             imwrite((save_dir + '/' + newname + '.tif'  ) , crop_image.astype('float16'))  
+                                                             imwrite((save_dir + '/' + newname + '.tif'  ) , crop_image.astype('float32'))  
                                                              Event_data.append([Label[i] for i in range(0,len(Label))])
                                                              if(os.path.exists(save_dir + '/' + (newname) + ".csv")):
                                                                 os.remove(save_dir + '/' + (newname) + ".csv")
