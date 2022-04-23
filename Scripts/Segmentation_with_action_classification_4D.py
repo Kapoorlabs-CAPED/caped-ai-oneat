@@ -31,7 +31,7 @@ downsamplefactor = 1
 start_project_mid = 4
 end_project_mid = 1
 normalize = True
-
+nms_function = 'iou'
 
 # In[ ]:
 
@@ -72,6 +72,7 @@ for imagename in X:
                            fidelity = fidelity,
                            marker_tree = marker_tree, 
                            remove_markers = remove_markers,
+                           nms_function = nms_function,
                            downsamplefactor = downsamplefactor,
                            start_project_mid = start_project_mid,
                            end_project_mid = end_project_mid,

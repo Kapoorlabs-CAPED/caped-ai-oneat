@@ -25,6 +25,7 @@ event_threshold = 0.9999
 event_confidence = 0.99
 iou_threshold = 0.6
 fidelity = 16
+nms_function = 'iou'
 downsamplefactor = 1
 
 
@@ -55,4 +56,5 @@ for imagename in X:
                            event_confidence = event_confidence,
                            iou_threshold = iou_threshold,
                            fidelity = fidelity,
+                           nms_function = nms_function,
                            downsamplefactor = downsamplefactor )

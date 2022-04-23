@@ -690,7 +690,7 @@ def compare_function_sec(box1, box2):
 
 
 def goodboxes(boxes, scores, nms_threshold, score_threshold, gridx, gridy,
-               fidelity=1):
+               fidelity=1, nms_function = 'iou' ):
 
 
 
@@ -733,10 +733,15 @@ def goodboxes(boxes, scores, nms_threshold, score_threshold, gridx, gridy,
         for pos in (range(0, last)):
             # grab the current index
                 j = idxs[pos]
-
-                overlap = compare_function_sec(boxes[i], boxes[j])
+                
+                if nms_function == 'dist':
+                    overlap = compare_function_sec(boxes[i], boxes[j])
+                    overlap_veto = nms_threshold * (gridx*gridx + gridy*gridy)
+                else:
+                    overlap = compare_function(boxes[i], boxes[j])
+                    overlap_veto = nms_threshold    
                 # if there is sufficient overlap, suppress the current bounding box
-                if overlap <= abs(nms_threshold * (gridx*gridx + gridy*gridy)):
+                if overlap <= overlap_veto:
                         count = count + 1
                         if count >= fidelity:
                             
@@ -748,7 +753,7 @@ def goodboxes(boxes, scores, nms_threshold, score_threshold, gridx, gridy,
     # return only the indicies of the bounding boxes that were picked
     return Averageboxes
 
-def goldboxes(boxes, scores, nms_threshold, score_threshold, gridx, gridy):
+def goldboxes(boxes, scores, nms_threshold, score_threshold, gridx, gridy, nms_function = 'iou'):
 
 
 
@@ -788,9 +793,14 @@ def goldboxes(boxes, scores, nms_threshold, score_threshold, gridx, gridy):
             # grab the current index
                 j = idxs[pos]
 
-                overlap = compare_function_sec(boxes[i], boxes[j])
+                if nms_function == 'dist':
+                    overlap = compare_function_sec(boxes[i], boxes[j])
+                    overlap_veto = nms_threshold * (gridx*gridx + gridy*gridy)
+                else:
+                    overlap = compare_function(boxes[i], boxes[j])
+                    overlap_veto = nms_threshold 
                 # if there is sufficient overlap, suppress the current bounding box
-                if overlap <= abs(nms_threshold * (gridx*gridx + gridy*gridy)):
+                if overlap <= abs(overlap_veto):
                        
                         suppress.append(pos)
             # delete all indexes from the index list that are in the suppression list
@@ -798,7 +808,7 @@ def goldboxes(boxes, scores, nms_threshold, score_threshold, gridx, gridy):
     # return only the indicies of the bounding boxes that were picked
     return Averageboxes
 
-def simpleaveragenms(boxes, scores, nms_threshold, score_threshold, event_name, gridx, gridy):
+def simpleaveragenms(boxes, scores, nms_threshold, score_threshold, event_name, gridx, gridy, nms_function = 'iou'):
     if len(boxes) == 0:
         return []
 
@@ -838,10 +848,15 @@ def simpleaveragenms(boxes, scores, nms_threshold, score_threshold, event_name, 
             j = idxs[pos]
 
             # compute the ratio of overlap between the two boxes and the area of the second box
-            overlap = compare_function(boxes[i], boxes[j], gridx, gridy)
+            if nms_function == 'dist':
+                    overlap = compare_function_sec(boxes[i], boxes[j])
+                    overlap_veto = nms_threshold * (gridx*gridx + gridy*gridy)
+            else:
+                    overlap = compare_function(boxes[i], boxes[j])
+                    overlap_veto = nms_threshold
 
             # if there is sufficient overlap, suppress the current bounding box
-            if overlap > nms_threshold:
+            if overlap > overlap_veto:
                 boxAscore = boxes[i][event_name]
                 boxAXstart = boxes[i]['xstart']
                 boxAYstart = boxes[i]['ystart']
@@ -1006,22 +1021,23 @@ def saveimage(ColorimageStatic,ColorimageDynamic , xlocations, ylocations, tloca
                     if event_label == 5:
                         ColorimageStatic[Z, :, :, 2] = img[:, :, 0]
 
-def gold_nms(heatmap,eventmarkers, classedboxes, event_name, downsamplefactor, iou_threshold, event_threshold, gridx, gridy, fidelity):
+def gold_nms(heatmap,eventmarkers, classedboxes, event_name, downsamplefactor, iou_threshold, event_threshold, gridx, gridy, generate_map, nms_function):
 
                sorted_event_box = classedboxes[event_name][0]
                scores = [ sorted_event_box[i][event_name]  for i in range(len(sorted_event_box))]
                
-               good_sorted_event_box = goldboxes(sorted_event_box, scores, iou_threshold, event_threshold,  gridx, gridy)
+               good_sorted_event_box = goldboxes(sorted_event_box, scores, iou_threshold, event_threshold,  gridx, gridy, nms_function = nms_function)
                for iou_current_event_box in sorted_event_box:
                                                               xcenter = iou_current_event_box['xcenter']* downsamplefactor
                                                               ycenter = iou_current_event_box['ycenter']* downsamplefactor
                                                               tcenter = iou_current_event_box['real_time_event']
                                                               score = iou_current_event_box[event_name]
                                                               eventmarkers[int(tcenter), int(ycenter), int(xcenter)] = 1
-                                                              for x in range(int(xcenter - 8), int(xcenter + 8)):
-                                                                  for y in range(int(ycenter - 8), int(ycenter + 8)):
-                                                                      if y < heatmap.shape[1] and x < heatmap.shape[2]:
-                                                                          heatmap[int(tcenter), int(y), int(x)] = heatmap[int(tcenter), int(y), int(x)] + score
+                                                              if generate_map:
+                                                                    for x in range(int(xcenter - 8), int(xcenter + 8)):
+                                                                        for y in range(int(ycenter - 8), int(ycenter + 8)):
+                                                                            if y < heatmap.shape[1] and x < heatmap.shape[2]:
+                                                                                heatmap[int(tcenter), int(y), int(x)] = heatmap[int(tcenter), int(y), int(x)] + score
 
                     
                return good_sorted_event_box
@@ -1031,11 +1047,11 @@ def gold_nms(heatmap,eventmarkers, classedboxes, event_name, downsamplefactor, i
 
 
 
-def dynamic_nms(heatmap, classedboxes, event_name, downsamplefactor, iou_threshold, event_threshold, gridx, gridy, fidelity, generate_map = True):
+def dynamic_nms(heatmap, classedboxes, event_name, downsamplefactor, iou_threshold, event_threshold, gridx, gridy, fidelity, generate_map = True, nms_function = 'iou'):
                 
                sorted_event_box = classedboxes[event_name][0]
                scores = [ sorted_event_box[i][event_name]  for i in range(len(sorted_event_box))]
-               best_sorted_event_box = goodboxes(sorted_event_box, scores, iou_threshold, event_threshold,  gridx, gridy, fidelity)
+               best_sorted_event_box = goodboxes(sorted_event_box, scores, iou_threshold, event_threshold,  gridx, gridy, fidelity = fidelity, nms_function = nms_function)
                
                filtered_good_sorted_event_box = []
                for iou_current_event_box in best_sorted_event_box:
@@ -1064,11 +1080,11 @@ def dynamic_nms(heatmap, classedboxes, event_name, downsamplefactor, iou_thresho
                return filtered_good_sorted_event_box
            
 
-def microscope_dynamic_nms( classedboxes, event_name, iou_threshold, event_threshold, gridx, gridy, fidelity):
+def microscope_dynamic_nms( classedboxes, event_name, iou_threshold, event_threshold, gridx, gridy, fidelity, nms_function):
     
                sorted_event_box = classedboxes[event_name][0]
                scores = [ sorted_event_box[i][event_name]  for i in range(len(sorted_event_box))]
-               best_sorted_event_box = goodboxes(sorted_event_box, scores, iou_threshold, event_threshold,  gridx, gridy, fidelity)
+               best_sorted_event_box = goodboxes(sorted_event_box, scores, iou_threshold, event_threshold,  gridx, gridy, fidelity, nms_function)
                
                return best_sorted_event_box
 

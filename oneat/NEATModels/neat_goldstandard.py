@@ -293,13 +293,13 @@ class NEATDynamic(object):
     
     def predict(self, imagename,  savedir, n_tiles=(1, 1), overlap_percent=0.8,
                 event_threshold=0.5, event_confidence = 0.5, iou_threshold=0.1,  fidelity=1, downsamplefactor = 1, start_project_mid = 4, end_project_mid = 4,
-                erosion_iterations = 1,  marker_tree = None, remove_markers = True, normalize = True, center_oneat = True):
+                erosion_iterations = 1,  marker_tree = None, remove_markers = True, normalize = True, center_oneat = True, nms_function = 'iou'):
 
 
         
         self.imagename = imagename
         self.Name = os.path.basename(os.path.splitext(self.imagename)[0])
-         
+        self.nms_function = nms_function 
         self.image = imread(imagename)
         self.start_project_mid = start_project_mid
         self.end_project_mid = end_project_mid
@@ -344,11 +344,14 @@ class NEATDynamic(object):
 
         
         if self.remove_markers == True:
+           self.generate_maps = True 
            self.first_pass_predict()
            self.second_pass_predict()
-        if self.remove_markers == False:  
+        if self.remove_markers == False:
+           self.generate_maps = False   
            self.second_pass_predict()
         if self.remove_markers == None:
+           self.generate_maps = True 
            self.default_pass_predict() 
 
     def default_pass_predict(self):
@@ -408,10 +411,9 @@ class NEATDynamic(object):
                                                  
                                 self.classedboxes = classedboxes    
                                 self.eventboxes =  eventboxes
-                                #nms over time
-                                self.nms()
-                                classedboxes =  self.iou_classedboxes 
-                                if inputtime > 0 and inputtime%(self.imaget * 2) == 0:
+                                
+                                
+                                if inputtime > 0 and inputtime%(self.imaget) == 0:
                                     
                                     self.nms()
                                     self.to_csv()
@@ -568,10 +570,10 @@ class NEATDynamic(object):
 
                 self.classedboxes = classedboxes    
                 self.eventboxes =  eventboxes
-                self.nms()
-                classedboxes =  self.iou_classedboxes 
                 
-                if inputtime > 0 and inputtime%(self.imaget * 2) == 0:                         
+               
+                
+                if inputtime > 0 and inputtime%(self.imaget) == 0:                         
                         self.nms()
                         self.to_csv()
                         eventboxes = []
@@ -586,7 +588,7 @@ class NEATDynamic(object):
         for (event_name,event_label) in self.key_categories.items():
             if event_label == 0:
                #best_sorted_event_box = self.classedboxes[event_name][0]
-               best_sorted_event_box = dynamic_nms(self.heatmap, self.classedboxes, event_name,  self.downsamplefactor, self.iou_threshold, self.event_threshold, self.imagex, self.imagey, self.fidelity, generate_map = False )
+               best_sorted_event_box = dynamic_nms(self.heatmap, self.classedboxes, event_name,  self.downsamplefactor, self.iou_threshold, self.event_threshold, self.imagex, self.imagey, self.fidelity, generate_map = self.generate_maps, nms_function = self.nms_function )
 
                best_iou_classedboxes[event_name] = [best_sorted_event_box]
 
@@ -602,10 +604,10 @@ class NEATDynamic(object):
             if event_label > 0:
                #best_sorted_event_box = self.classedboxes[event_name][0]
                if self.remove_markers is not None:
-                   best_sorted_event_box = gold_nms(self.heatmap,self.eventmarkers, self.classedboxes, event_name, 1, self.iou_threshold, self.event_threshold, self.imagex, self.imagey, 1 )
+                   best_sorted_event_box = gold_nms(self.heatmap,self.eventmarkers, self.classedboxes, event_name, 1, self.iou_threshold, self.event_threshold, self.imagex, self.imagey,generate_map = self.generate_maps, nms_function = self.nms_function )
 
                if self.remove_markers is None:
-                   best_sorted_event_box = dynamic_nms(self.heatmap,self.classedboxes, event_name,  self.downsamplefactor, self.iou_threshold, self.event_threshold, self.imagex, self.imagey, self.fidelity )
+                   best_sorted_event_box = dynamic_nms(self.heatmap,self.classedboxes, event_name,  self.downsamplefactor, self.iou_threshold, self.event_threshold, self.imagex, self.imagey, self.fidelity,generate_map = self.generate_maps, nms_function = self.nms_function )
 
                best_iou_classedboxes[event_name] = [best_sorted_event_box]
 
