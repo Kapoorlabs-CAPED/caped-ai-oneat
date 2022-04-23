@@ -738,7 +738,7 @@ def goodboxes(boxes, scores, nms_threshold, score_threshold, gridx, gridy,
                     overlap = compare_function_sec(boxes[i], boxes[j])
                     overlap_veto = nms_threshold * (gridx*gridx + gridy*gridy)
                 else:
-                    overlap = compare_function(boxes[i], boxes[j])
+                    overlap = compare_function(boxes[i], boxes[j], gridx, gridy)
                     overlap_veto = nms_threshold    
                 # if there is sufficient overlap, suppress the current bounding box
                 if overlap <= overlap_veto:
@@ -797,7 +797,7 @@ def goldboxes(boxes, scores, nms_threshold, score_threshold, gridx, gridy, nms_f
                     overlap = compare_function_sec(boxes[i], boxes[j])
                     overlap_veto = nms_threshold * (gridx*gridx + gridy*gridy)
                 else:
-                    overlap = compare_function(boxes[i], boxes[j])
+                    overlap = compare_function(boxes[i], boxes[j], gridx, gridy)
                     overlap_veto = nms_threshold 
                 # if there is sufficient overlap, suppress the current bounding box
                 if overlap <= abs(overlap_veto):
@@ -852,7 +852,7 @@ def simpleaveragenms(boxes, scores, nms_threshold, score_threshold, event_name, 
                     overlap = compare_function_sec(boxes[i], boxes[j])
                     overlap_veto = nms_threshold * (gridx*gridx + gridy*gridy)
             else:
-                    overlap = compare_function(boxes[i], boxes[j])
+                    overlap = compare_function(boxes[i], boxes[j], gridx, gridy)
                     overlap_veto = nms_threshold
 
             # if there is sufficient overlap, suppress the current bounding box
