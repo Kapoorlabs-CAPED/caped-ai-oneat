@@ -28,7 +28,7 @@ from qtpy.QtWidgets import QComboBox, QPushButton, QSlider
 import h5py
 from skimage import measure
 import pandas as pd
-from scipy.ndimage.morphology import binary_dilation
+from scipy.ndimage import binary_dilation
 from oneat.NEATUtils.napari_animation._qt import AnimationWidget
 from dask.array.image import imread as daskread
 Boxname = 'ImageIDBox'

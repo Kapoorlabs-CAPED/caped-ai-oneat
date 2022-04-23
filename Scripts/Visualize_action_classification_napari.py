@@ -3,15 +3,9 @@
 
 # In[17]:
 
-
-
-import sys
-import os
-import glob
-
 from oneat.NEATUtils import NEATViz
 
-get_ipython().run_line_magic('gui', 'qt')
+
 
 
 # In[19]:

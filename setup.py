@@ -31,7 +31,9 @@ setup(
         "imagecodecs",
         "napari[all]",
         "diplib",
-        "opencv-python" 
+        "opencv-python-headless" ,
+        "sklearn",
+        "daskread"
        
     ],
     packages=setuptools.find_packages(),
