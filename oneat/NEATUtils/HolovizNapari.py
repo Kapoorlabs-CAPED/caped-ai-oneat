@@ -5,7 +5,7 @@ Created on Wed Aug  4 14:50:47 2021
 
 @author: vkapoor
 """
-from tifffile import imread, imwrite
+from tifffile import  imwrite
 import csv
 import napari
 import glob
@@ -264,18 +264,18 @@ class NEATViz(object):
                                                     self.viewer.layers.remove(layer)
                                                     
                                                     
-                self.image = imread(image_toread)
+                self.image = daskread(image_toread)[0]
                 
                 if self.heatmapimagedir is not None:
                      try:
-                        self.heat_image = imread(self.heatmapimagedir + imagename + self.heatname + '.tif')
+                        self.heat_image = daskread(self.heatmapimagedir + imagename + self.heatname + '.tif')[0]
                         
                      except:
                          self.heat_image = None   
                          
                     
                 if self.segimagedir is not None:
-                     self.seg_image = imread(self.segimagedir + imagename + '.tif')
+                     self.seg_image = daskread(self.segimagedir + imagename + '.tif')[0]
                      if len(self.seg_image.shape) == 4:
                          self.seg_image =  MidSlices(self.seg_image, self.start_project_mid, self.end_project_mid, axis = 1)
 
@@ -297,7 +297,7 @@ def LocationMap(event_locations_dict, seg_image):
        for i in range(seg_image.shape[0]):
             if int(i) in event_locations_dict.keys():
                 currentindices = event_locations_dict[int(i)]
-                current_seg_image = seg_image[i,:]
+                current_seg_image = seg_image[i,:].compute()
                 waterproperties = measure.regionprops(current_seg_image)
                 indices = [prop.centroid for prop in waterproperties]
                 if len(indices) > 0:
