@@ -41,7 +41,7 @@ class NEATPredict(NEATDynamic):
                 Z_start = 0, downsample=1, roi_start = 0, roi_end = 1, movie_name_list = {}, movie_input = {}, Z_movie_name_list = [], Z_movie_input = [],
                 fileextension='*TIF', nb_prediction=3, n_tiles=(1, 1), Z_n_tiles=(1, 2, 2),
                 overlap_percent=0.6, event_threshold = 0.5, event_confidence = 0.5, iou_threshold=0.01, projection_model=None, delay_projection=4,
-                fidelity=4, jumpindex = 1, normalize = True,  optional_name = None, center_oneat = True):
+                fidelity=4, jumpindex = 1, normalize = True,  optional_name = None, center_oneat = True, nms_function = 'iou'):
 
         self.imagedir = imagedir
         self.basedirResults = self.imagedir + '/' + "live_results"
@@ -62,6 +62,7 @@ class NEATPredict(NEATDynamic):
         self.nb_prediction = nb_prediction
         self.fileextension = fileextension
         self.n_tiles = n_tiles
+        self.nms_function = nms_function
         self.roi_start = roi_start
         self.roi_end = roi_end
         self.Z_n_tiles = Z_n_tiles
@@ -250,7 +251,7 @@ class NEATPredict(NEATDynamic):
         for (event_name,event_label) in self.key_categories.items():
             if event_label > 0:
               
-               best_sorted_event_box = microscope_dynamic_nms( self.classedboxes, event_name, self.iou_threshold, self.event_threshold, self.imagex, self.imagey, self.fidelity)
+               best_sorted_event_box = microscope_dynamic_nms( self.classedboxes, event_name, self.iou_threshold, self.event_threshold, self.imagex, self.imagey, self.fidelity, self.nms_function)
                
                
                best_iou_classedboxes[event_name] = [best_sorted_event_box]
