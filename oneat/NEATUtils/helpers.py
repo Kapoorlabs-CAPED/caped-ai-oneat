@@ -1401,14 +1401,14 @@ def predictionloop(j, k, sx, sy, nboxes, stride, time_prediction, config, key_ca
             if nearest_location is not None:
                ycentermean, xcentermean = nearest_location
              
-               box = {'xstart': xstart, 'ystart': ystart, 'tstart': boxtstartmean, 'xcenterraw': xcenterrawmean,
+        box = {'xstart': xstart, 'ystart': ystart, 'tstart': boxtstartmean, 'xcenterraw': xcenterrawmean,
                             'ycenterraw': ycenterrawmean, 'tcenterraw': tcenterrawmean, 'xcenter': xcentermean,
                             'ycenter': ycentermean, 'real_time_event': real_time_event, 'box_time_event': box_time_event,
                             'height': heightmean, 'width': widthmean, 'confidence': confidencemean, 'realangle': realangle,
                             'rawangle': rawangle}
            
                                          
-        if event_type == 'static':
+    if event_type == 'static':
             real_time_event = int(inputtime)
             box_time_event = int(inputtime)
             realangle = 0
@@ -1418,7 +1418,7 @@ def predictionloop(j, k, sx, sy, nboxes, stride, time_prediction, config, key_ca
                 if nearest_location is not None:
                     ycentermean, xcentermean = nearest_location
            
-                    box = {'xstart': xstart, 'ystart': ystart, 'tstart': boxtstartmean, 'xcenterraw': xcenterrawmean,
+            box = {'xstart': xstart, 'ystart': ystart, 'tstart': boxtstartmean, 'xcenterraw': xcenterrawmean,
                                 'ycenterraw': ycenterrawmean, 'tcenterraw': tcenterrawmean, 'xcenter': xcentermean,
                                 'ycenter': ycentermean, 'real_time_event': real_time_event, 'box_time_event': box_time_event,
                                 'height': heightmean, 'width': widthmean, 'confidence': confidencemean, 'realangle': realangle,
@@ -1426,7 +1426,7 @@ def predictionloop(j, k, sx, sy, nboxes, stride, time_prediction, config, key_ca
                 
 
     
-        if box is not None:
+    if box is not None:
                 # Make a single dict object containing the class and the box vectors return also the max prob label
                 for d in [Class, box]:
                     classybox.update(d)
