@@ -113,10 +113,8 @@ class NEATDynamic(object):
             self.lstm_hidden_unit = config.lstm_hidden_unit
         if self.config == None:
 
-            try:
-                self.config = load_json(self.model_dir + os.path.splitext(self.model_name)[0] + '_Parameter.json')
-            except:
-                self.config = load_json(self.model_dir + self.model_name + '_Parameter.json')
+            self.config = load_json(os.path.join(self.model_dir, self.model_name) + '_Parameter.json')
+            
 
             self.npz_directory = self.config['npz_directory']
             self.npz_name = self.config['npz_name']
@@ -348,7 +346,7 @@ class NEATDynamic(object):
 
         
 
-        self.model = load_model(self.model_dir + self.model_name + '.h5',
+        self.model = load_model(os.path.join(self.model_dir, self.model_name) + '.h5',
                                 custom_objects={'loss': self.yololoss, 'Concat': Concat})
 
         self.marker_tree = marker_tree

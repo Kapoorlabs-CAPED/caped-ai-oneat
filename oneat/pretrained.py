@@ -31,11 +31,11 @@ def clear_models_and_aliases(*cls):
             if c in _ALIASES: del _ALIASES[c]
 
 
-def register_model(cls, key, url, hash, cordurl, cordhash, caturl, cathash, paramurl, paramhash):
+def register_model(cls, key, url, hash, cordkey, cordurl, cordhash, catkey, caturl, cathash, paramkey, paramurl, paramhash):
     # key must be a valid file/folder name in the file system
     models = _MODELS.setdefault(cls,OrderedDict())
     key not in models or warn("re-registering model '%s' (was already registered for '%s')" % (key, cls.__name__))
-    models[key] = dict(url=url, hash=hash, cordurl = cordurl, cordhash = cordhash, caturl = caturl, cathash = cathash, paramurl = paramurl, paramhash = paramhash)
+    models[key] = dict(url=url, hash=hash, cordkey = cordkey, cordurl = cordurl, cordhash = cordhash, catkey = catkey, caturl = caturl, cathash = cathash, paramkey = paramkey, paramurl = paramurl, paramhash = paramhash)
     
 
 
@@ -81,7 +81,7 @@ def get_registered_models(cls, return_aliases=True, verbose=False):
     return ((model_keys, model_aliases) if return_aliases else model_keys)
 
 
-def get_model_details(cls, key_or_alias, catconfig, cordconfig, verbose=False):
+def get_model_details(cls, key_or_alias, verbose=False):
     models = _MODELS.get(cls,{})
     if key_or_alias in models:
         key = key_or_alias
@@ -94,20 +94,30 @@ def get_model_details(cls, key_or_alias, catconfig, cordconfig, verbose=False):
     if verbose:
         print("Found model '{model}'{alias_str} for '{clazz}'.".format(
         model=key, clazz=cls.__name__, alias_str=('' if alias is None else " with alias '%s'" % alias)))
-    return key, alias, models[key], catconfig, cordconfig
+    return key, alias, models[key]
 
 
 def get_model_folder(cls, key_or_alias):
     key, alias, m = get_model_details(cls, key_or_alias)
     target = str(Path('models') / cls.__name__ / key)
-    path = Path(get_file(fname=key+'.zip', origin=m['url'], file_hash=m['hash'],
+    path_model = Path(get_file(fname=key+'.h5', origin=m['url'], file_hash=m['hash'],
                          cache_subdir=target, extract=True))
-    assert path.exists() and path.parent.exists()
-    return path.parent
+    path_cord = Path(get_file(fname=m['cordkey']+'.json', origin=m['cordurl'], file_hash=m['cordhash'],
+                         cache_subdir=target, extract=True))
+    path_cat = Path(get_file(fname=m['catkey']+'.json', origin=m['caturl'], file_hash=m['cathash'],
+                         cache_subdir=target, extract=True))
+    path_param = Path(get_file(fname=m['paramkey']+'.json', origin=m['paramurl'], file_hash=m['paramhash'],
+                         cache_subdir=target, extract=True))                                                               
+    assert path_model.exists() and path_model.parent.exists()
+    assert path_cord.exists() and path_cord.parent.exists()
+    assert path_cat.exists() and path_cat.parent.exists() 
+    assert path_param.exists() and path_param.parent.exists()
+
+    return path_model.parent, path_cord.parent, path_cat.parent, path_param.parent
 
 
-def get_model_instance(cls, key_or_alias, catconfig, cordconfig):
-    path = get_model_folder(cls, key_or_alias)
-    model = cls(config=None, model_dir = path.parent , model_name = path.stem, catconfig = catconfig, cordconfig = cordconfig)
+def get_model_instance(cls, key_or_alias):
+    path_model, path_cord, path_cat, path_param = get_model_folder(cls, key_or_alias)
+    model = cls(config=None, model_dir = str(path_model.parent) , model_name = path_model.stem, catconfig = path_cord.stem, cordconfig = path_cat.stem)
     model.basedir = None # make read-only
     return model
