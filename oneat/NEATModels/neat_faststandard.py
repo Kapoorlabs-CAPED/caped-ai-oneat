@@ -16,17 +16,17 @@ class NEATSynamic(NEATDynamic):
 
         super().__init__(config = config, model_dir = model_dir, model_name = model_name, catconfig = catconfig, cordconfig = cordconfig)
     @classmethod   
-    def local_from_pretrained(cls, name_or_alias=None):
+    def local_from_pretrained(cls, target, name_or_alias=None):
            try:
                print('class', cls, 'name' , name_or_alias )
                get_model_details(cls, name_or_alias, verbose=True)
-               return get_model_instance(cls, name_or_alias)
+               return get_model_instance(cls,  name_or_alias, target)
            except ValueError:
                if name_or_alias is not None:
                    print("Could not find model with name or alias '%s'" % (name_or_alias), file=sys.stderr)
                    sys.stderr.flush()
                get_registered_models(cls, verbose=True)    
-               
+
     def predict_synamic(self,imagename, savedir, n_tiles = (1,1), overlap_percent = 0.8, event_threshold = 0.5, event_confidence = 0.5, iou_threshold = 0.1, fidelity = 5,
      downsamplefactor = 1, erosion_iterations = 10,start_project_mid = 4, end_project_mid = 4, maskmodel = None, segdir = None, normalize = True, center_oneat = True, nms_function = 'iou'):
 

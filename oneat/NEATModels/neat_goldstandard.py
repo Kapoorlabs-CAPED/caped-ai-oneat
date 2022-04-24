@@ -225,7 +225,7 @@ class NEATDynamic(object):
         Y_rest = self.Y[:, :, :, self.categories:]
  
 
-        model_weights = self.model_dir + self.model_name
+        model_weights = os.path.join(self.model_dir, self.model_name) 
         if os.path.exists(model_weights):
 
             self.model_weights = model_weights
@@ -281,10 +281,10 @@ class NEATDynamic(object):
                                callbacks=[lrate, hrate, srate, prate])
 
         # Removes the old model to be replaced with new model, if old one exists
-        if os.path.exists(self.model_dir + self.model_name):
-            os.remove(self.model_dir + self.model_name)
+        if os.path.exists(os.path.join(self.model_dir, self.model_name) ):
+            os.remove(os.path.join(self.model_dir, self.model_name) )
 
-        self.Trainingmodel.save(self.model_dir + self.model_name)
+        self.Trainingmodel.save(os.path.join(self.model_dir, self.model_name) )
 
     def get_markers(self, imagename, segdir, start_project_mid = 4, end_project_mid = 4,
      downsamplefactor = 1):
@@ -345,7 +345,7 @@ class NEATDynamic(object):
            self.image = normalizeFloatZeroOne(self.image.astype('float32'), 1, 99.8)
 
         
-
+        print(self.model_dir, self.model_name, self.catconfig, self.cordconfig)
         self.model = load_model(os.path.join(self.model_dir, self.model_name) + '.h5',
                                 custom_objects={'loss': self.yololoss, 'Concat': Concat})
 

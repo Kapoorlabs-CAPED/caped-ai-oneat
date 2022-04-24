@@ -7,12 +7,12 @@ Created on Tue Dec 21 16:54:50 2021
 
 # -*- coding: utf-8 -*-
 from __future__ import print_function, unicode_literals, absolute_import, division
-
+import os, shutil
 from collections import OrderedDict
 from warnings import warn
 from csbdeep.utils import _raise
 from csbdeep.utils.six import Path
-
+from oneat.NEATUtils.helpers import load_json
 from csbdeep.utils.tf import keras_import
 get_file = keras_import('utils', 'get_file')
 
@@ -97,27 +97,23 @@ def get_model_details(cls, key_or_alias, verbose=False):
     return key, alias, models[key]
 
 
-def get_model_folder(cls, key_or_alias):
+def get_model_folder(cls, key_or_alias, target):
     key, alias, m = get_model_details(cls, key_or_alias)
-    target = str(Path('models') / cls.__name__ / key)
-    path_model = Path(get_file(fname=key+'.h5', origin=m['url'], file_hash=m['hash'],
+   
+    model_name = Path(get_file(fname=key+'.h5', origin=m['url'], file_hash=m['hash'],
                          cache_subdir=target, extract=True))
-    path_cord = Path(get_file(fname=m['cordkey']+'.json', origin=m['cordurl'], file_hash=m['cordhash'],
+    cord = load_json(get_file(fname=m['cordkey']+'.json', origin=m['cordurl'], file_hash=m['cordhash'],
                          cache_subdir=target, extract=True))
-    path_cat = Path(get_file(fname=m['catkey']+'.json', origin=m['caturl'], file_hash=m['cathash'],
+    cat = load_json(get_file(fname=m['catkey']+'.json', origin=m['caturl'], file_hash=m['cathash'],
                          cache_subdir=target, extract=True))
-    path_param = Path(get_file(fname=m['paramkey']+'.json', origin=m['paramurl'], file_hash=m['paramhash'],
-                         cache_subdir=target, extract=True))                                                               
-    assert path_model.exists() and path_model.parent.exists()
-    assert path_cord.exists() and path_cord.parent.exists()
-    assert path_cat.exists() and path_cat.parent.exists() 
-    assert path_param.exists() and path_param.parent.exists()
+                                                       
 
-    return path_model.parent, path_cord.parent, path_cat.parent, path_param.parent
+    return model_name.stem, cord, cat
 
 
-def get_model_instance(cls, key_or_alias):
-    path_model, path_cord, path_cat, path_param = get_model_folder(cls, key_or_alias)
-    model = cls(config=None, model_dir = str(path_model.parent) , model_name = path_model.stem, catconfig = path_cord.stem, cordconfig = path_cat.stem)
-    model.basedir = None # make read-only
+def get_model_instance(cls, key_or_alias, target):
+    model_name, cord, cat = get_model_folder(cls, key_or_alias, target)
+    print(target, model_name, cord, cat )
+    model = cls(config=None, model_dir = target , model_name = os.path.splitext(model_name)[0], catconfig = cat, cordconfig = cord)
+ 
     return model
