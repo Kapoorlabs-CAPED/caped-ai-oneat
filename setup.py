@@ -25,6 +25,7 @@ setup(
         
         "pandas",
         "vollseg",
+        "vollseg-napari",
         "scipy",
         "tifffile",
         "matplotlib",

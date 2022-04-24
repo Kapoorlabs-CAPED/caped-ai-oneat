@@ -5,6 +5,7 @@ from oneat.NEATUtils.helpers import MidSlices, get_nearest,  load_json, yolopred
 from keras import callbacks
 import os
 import keras
+import sys
 from scipy.ndimage.morphology import binary_dilation, binary_erosion
 import math
 from tqdm import tqdm
@@ -13,6 +14,7 @@ from oneat.NEATModels.nets import Concat
 from oneat.NEATModels.loss import dynamic_yolo_loss
 from keras import backend as K
 import tensorflow as tf
+from oneat.pretrained import get_registered_models, get_model_details, get_model_instance
 from tensorflow.keras import optimizers
 from pathlib import Path
 from keras.models import load_model
@@ -175,6 +177,18 @@ class NEATDynamic(object):
             self.entropy = 'notbinary'
         self.yololoss = dynamic_yolo_loss(self.categories, self.gridx, self.gridy, self.gridt, self.nboxes,
                                           self.box_vector, self.entropy, self.yolo_v0, self.yolo_v1, self.yolo_v2)
+
+    @classmethod   
+    def local_from_pretrained(cls, name_or_alias=None):
+           try:
+               print(cls)
+               get_model_details(cls, name_or_alias, verbose=True)
+               return get_model_instance(cls, name_or_alias)
+           except ValueError:
+               if name_or_alias is not None:
+                   print("Could not find model with name or alias '%s'" % (name_or_alias), file=sys.stderr)
+                   sys.stderr.flush()
+               get_registered_models(cls, verbose=True)  
 
     def loadData(self):
 

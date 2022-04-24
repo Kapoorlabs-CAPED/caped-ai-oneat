@@ -1,9 +1,13 @@
 pandas
 vollseg
+vollseg-napari
 scipy
 tifffile
 matplotlib
 imagecodecs
 napari[all]
 diplib
-opencv-python
+opencv-python-headless
+sklearn
+dask
+natsort
