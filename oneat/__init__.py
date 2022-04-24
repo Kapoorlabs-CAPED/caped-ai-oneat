@@ -31,10 +31,13 @@ def abspath(path):
 
 
 
-def test_image_brightfield():
-    from tifffile import imread
+def test_image_brightfield(target):
+    from tifffile import imread, imwrite
+    import os
     url = "https://zenodo.org/record/6480142/files/20210904_TL2%20-%20R05-C03-F0_ch_2.tif"
     hash = "67e13fa4df301dfe2c2a57f785aedada"
     fname = abspath(get_file(fname='brightfield', origin=url, file_hash=hash))
-   
+    image = imread(fname)
+    Name = os.path.basename(os.path.splitext(fname)[0])
+    imwrite(target + '/' + Name + '.tif', image.astype('float32'))
     return fname  
