@@ -33,7 +33,8 @@ setup(
         "diplib",
         "opencv-python-headless" ,
         "sklearn",
-        "dask"
+        "dask",
+        "natsort"
        
     ],
     packages=setuptools.find_packages(),

@@ -737,17 +737,25 @@ def goodboxes(boxes, scores, nms_threshold, score_threshold, gridx, gridy,
                 if nms_function == 'dist':
                     overlap = compare_function_sec(boxes[i], boxes[j])
                     overlap_veto = nms_threshold * (gridx*gridx + gridy*gridy)
+                    # if there is sufficient overlap, suppress the current bounding box
+                    if overlap <= overlap_veto:
+                            count = count + 1
+                            if count >= fidelity:
+                                
+                                if boxes[i] not in Averageboxes:
+                                  Averageboxes.append(boxes[i])
+                            suppress.append(pos)
                 else:
                     overlap = compare_function(boxes[i], boxes[j], gridx, gridy)
                     overlap_veto = nms_threshold    
-                # if there is sufficient overlap, suppress the current bounding box
-                if overlap <= overlap_veto:
+                    if overlap >= overlap_veto:
                         count = count + 1
                         if count >= fidelity:
                             
                             if boxes[i] not in Averageboxes:
                               Averageboxes.append(boxes[i])
                         suppress.append(pos)
+                
             # delete all indexes from the index list that are in the suppression list
         idxs = np.delete(idxs, suppress)
     # return only the indicies of the bounding boxes that were picked
@@ -796,12 +804,14 @@ def goldboxes(boxes, scores, nms_threshold, score_threshold, gridx, gridy, nms_f
                 if nms_function == 'dist':
                     overlap = compare_function_sec(boxes[i], boxes[j])
                     overlap_veto = nms_threshold * (gridx*gridx + gridy*gridy)
+                    # if there is sufficient overlap, suppress the current bounding box
+                    if overlap <= overlap_veto:
+                                
+                            suppress.append(pos)
                 else:
                     overlap = compare_function(boxes[i], boxes[j], gridx, gridy)
-                    overlap_veto = nms_threshold 
-                # if there is sufficient overlap, suppress the current bounding box
-                if overlap <= abs(overlap_veto):
-                       
+                    overlap_veto = nms_threshold    
+                    if overlap >= overlap_veto:
                         suppress.append(pos)
             # delete all indexes from the index list that are in the suppression list
         idxs = np.delete(idxs, suppress)
@@ -851,47 +861,84 @@ def simpleaveragenms(boxes, scores, nms_threshold, score_threshold, event_name, 
             if nms_function == 'dist':
                     overlap = compare_function_sec(boxes[i], boxes[j])
                     overlap_veto = nms_threshold * (gridx*gridx + gridy*gridy)
+                    if overlap < overlap_veto:
+                        boxAscore = boxes[i][event_name]
+                        boxAXstart = boxes[i]['xstart']
+                        boxAYstart = boxes[i]['ystart']
+                        boxAXcenter = boxes[i]['xcenter']
+                        boxAYcenter = boxes[i]['ycenter']
+                        boxArealz = boxes[i]['real_z_event']
+                        boxAheight = boxes[i]['height']
+                        boxAwidth = boxes[i]['width']
+                        boxAconfidence = boxes[i]['confidence']
+
+                        boxBscore = boxes[j][event_name]
+                        boxBXstart = boxes[j]['xstart']
+                        boxBYstart = boxes[j]['ystart']
+                        boxBXcenter = boxes[j]['xcenter']
+                        boxBYcenter = boxes[j]['ycenter']
+                        boxBrealz = boxes[j]['real_z_event']
+                        boxBheight = boxes[j]['height']
+                        boxBwidth = boxes[j]['width']
+                        boxBconfidence = boxes[j]['confidence']
+
+                        meanboxscore = (boxAscore + boxBscore) / 2
+                        meanboxXstart = (boxAXstart + boxBXstart) / 2
+                        meanboxYstart = (boxAYstart + boxBYstart) / 2
+                        meanboxXcenter = (boxAXcenter + boxBXcenter) / 2
+                        meanboxYcenter = (boxAYcenter + boxBYcenter) / 2
+                        meanboxrealz = (boxArealz + boxBrealz) / 2
+                        meanboxheight = (boxAheight + boxBheight) / 2
+                        meanboxwidth = (boxAwidth + boxBwidth) / 2
+                        meanboxconfidence = (boxAconfidence + boxBconfidence) / 2
+
+                        newbox = {'xstart': meanboxXstart, 'ystart': meanboxYstart, 'xcenter': meanboxXcenter,
+                                'ycenter': meanboxYcenter, 'real_z_event': meanboxrealz,
+                                'height': meanboxheight, 'width': meanboxwidth, 'confidence': meanboxconfidence,
+                                event_name: meanboxscore}
+                        suppress.append(pos)
             else:
                     overlap = compare_function(boxes[i], boxes[j], gridx, gridy)
                     overlap_veto = nms_threshold
+                    if overlap > overlap_veto:
+                        boxAscore = boxes[i][event_name]
+                        boxAXstart = boxes[i]['xstart']
+                        boxAYstart = boxes[i]['ystart']
+                        boxAXcenter = boxes[i]['xcenter']
+                        boxAYcenter = boxes[i]['ycenter']
+                        boxArealz = boxes[i]['real_z_event']
+                        boxAheight = boxes[i]['height']
+                        boxAwidth = boxes[i]['width']
+                        boxAconfidence = boxes[i]['confidence']
+
+                        boxBscore = boxes[j][event_name]
+                        boxBXstart = boxes[j]['xstart']
+                        boxBYstart = boxes[j]['ystart']
+                        boxBXcenter = boxes[j]['xcenter']
+                        boxBYcenter = boxes[j]['ycenter']
+                        boxBrealz = boxes[j]['real_z_event']
+                        boxBheight = boxes[j]['height']
+                        boxBwidth = boxes[j]['width']
+                        boxBconfidence = boxes[j]['confidence']
+
+                        meanboxscore = (boxAscore + boxBscore) / 2
+                        meanboxXstart = (boxAXstart + boxBXstart) / 2
+                        meanboxYstart = (boxAYstart + boxBYstart) / 2
+                        meanboxXcenter = (boxAXcenter + boxBXcenter) / 2
+                        meanboxYcenter = (boxAYcenter + boxBYcenter) / 2
+                        meanboxrealz = (boxArealz + boxBrealz) / 2
+                        meanboxheight = (boxAheight + boxBheight) / 2
+                        meanboxwidth = (boxAwidth + boxBwidth) / 2
+                        meanboxconfidence = (boxAconfidence + boxBconfidence) / 2
+
+                        newbox = {'xstart': meanboxXstart, 'ystart': meanboxYstart, 'xcenter': meanboxXcenter,
+                                'ycenter': meanboxYcenter, 'real_z_event': meanboxrealz,
+                                'height': meanboxheight, 'width': meanboxwidth, 'confidence': meanboxconfidence,
+                                event_name: meanboxscore}
+                        suppress.append(pos) 
 
             # if there is sufficient overlap, suppress the current bounding box
-            if overlap > overlap_veto:
-                boxAscore = boxes[i][event_name]
-                boxAXstart = boxes[i]['xstart']
-                boxAYstart = boxes[i]['ystart']
-                boxAXcenter = boxes[i]['xcenter']
-                boxAYcenter = boxes[i]['ycenter']
-                boxArealz = boxes[i]['real_z_event']
-                boxAheight = boxes[i]['height']
-                boxAwidth = boxes[i]['width']
-                boxAconfidence = boxes[i]['confidence']
-
-                boxBscore = boxes[j][event_name]
-                boxBXstart = boxes[j]['xstart']
-                boxBYstart = boxes[j]['ystart']
-                boxBXcenter = boxes[j]['xcenter']
-                boxBYcenter = boxes[j]['ycenter']
-                boxBrealz = boxes[j]['real_z_event']
-                boxBheight = boxes[j]['height']
-                boxBwidth = boxes[j]['width']
-                boxBconfidence = boxes[j]['confidence']
-
-                meanboxscore = (boxAscore + boxBscore) / 2
-                meanboxXstart = (boxAXstart + boxBXstart) / 2
-                meanboxYstart = (boxAYstart + boxBYstart) / 2
-                meanboxXcenter = (boxAXcenter + boxBXcenter) / 2
-                meanboxYcenter = (boxAYcenter + boxBYcenter) / 2
-                meanboxrealz = (boxArealz + boxBrealz) / 2
-                meanboxheight = (boxAheight + boxBheight) / 2
-                meanboxwidth = (boxAwidth + boxBwidth) / 2
-                meanboxconfidence = (boxAconfidence + boxBconfidence) / 2
-
-                newbox = {'xstart': meanboxXstart, 'ystart': meanboxYstart, 'xcenter': meanboxXcenter,
-                          'ycenter': meanboxYcenter, 'real_z_event': meanboxrealz,
-                          'height': meanboxheight, 'width': meanboxwidth, 'confidence': meanboxconfidence,
-                          event_name: meanboxscore}
-                suppress.append(pos) 
+            
                
            
                 
