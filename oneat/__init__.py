@@ -18,10 +18,10 @@ register_model(NEATSynamic,   'Cellsplitdetectorbrightfield',  'https://zenodo.o
 
 
 
-register_model(NEATSynamic,   'Cellsplitdetectorhdpc',  'https://zenodo.org/api/files/e9c36959-f379-48f6-ab0d-29f26bf446e0/Cellsplitdetectorhdpc.h5', '701d7fc8494b66a73b024f3d3c3d3dad',
+register_model(NEATSynamic,   'Cellsplitdetectorhdpc',  'https://zenodo.org/record/6483483/files/Cellsplitdetectorhdpc.h5', '701d7fc8494b66a73b024f3d3c3d3dad',
                                'Cellsplitcordhelaflou'         ,   'https://zenodo.org/record/6481021/files/Cellsplitcordhelaflou.json', 'aed21cb69d6fb8be32c47f78a39d32f5',
                                 'Cellsplitcategorieshelaflou'  , 'https://zenodo.org/record/6481021/files/Cellsplitcategorieshelaflou.json', '7a67a83f08fb1add3c1b1a3e0eeec773',
-                                 'Cellsplitdetectorhdpc_Parameter' , 'https://zenodo.org/api/files/9fd99dcc-1716-403f-aef5-f64629873aa8/Cellsplitdetectorhdpc_Parameter.json', '556f0ce063a4cacda6b9f27ae7aae69b'  )  
+                                 'Cellsplitdetectorhdpc_Parameter' , 'https://zenodo.org/record/6483483/files/Cellsplitdetectorhdpc_Parameter.json', '556f0ce063a4cacda6b9f27ae7aae69b'  )  
 
 register_aliases(NEATSynamic, 'Cellsplitdetectorbrightfield',  'Cellsplitdetectorbrightfield')
 register_aliases(NEATSynamic, 'Cellsplitdetectorhdpc',  'Cellsplitdetectorhdpc')
@@ -51,7 +51,7 @@ def test_image_brightfield(target):
 def test_image_hdpc(target):
     from tifffile import imread, imwrite
     import os
-    url = "https://zenodo.org/api/files/9fd99dcc-1716-403f-aef5-f64629873aa8/20210904_TL2%20-%20R05-C03-F0_ch_1.tif"
+    url = "https://zenodo.org/record/6483483/files/20210904_TL2%20-%20R05-C03-F0_ch_1.tif"
     hash = "ec6fde9a27a627866e88d44a6d98f41e"
     fname = abspath(get_file(fname='hdpc', origin=url, file_hash=hash))
     image = imread(fname)

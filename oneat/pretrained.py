@@ -106,13 +106,14 @@ def get_model_folder(cls, key_or_alias, target):
                          cache_subdir=target, extract=True))
     cat = load_json(get_file(fname=m['catkey']+'.json', origin=m['caturl'], file_hash=m['cathash'],
                          cache_subdir=target, extract=True))
-                                                       
+    param = load_json(get_file(fname=m['paramkey']+'.json', origin=m['paramurl'], file_hash=m['paramhash'],
+                         cache_subdir=target, extract=True))                                                   
 
-    return model_name.stem, cord, cat
+    return model_name.stem, cord, cat, param
 
 
 def get_model_instance(cls, key_or_alias, target):
-    model_name, cord, cat = get_model_folder(cls, key_or_alias, target)
+    model_name, cord, cat, param = get_model_folder(cls, key_or_alias, target)
   
     model = cls(config=None, model_dir = target , model_name = os.path.splitext(model_name)[0], catconfig = cat, cordconfig = cord)
  
