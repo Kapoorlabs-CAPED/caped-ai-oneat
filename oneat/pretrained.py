@@ -113,7 +113,7 @@ def get_model_folder(cls, key_or_alias, target):
 
 def get_model_instance(cls, key_or_alias, target):
     model_name, cord, cat = get_model_folder(cls, key_or_alias, target)
-    print(target, model_name, cord, cat )
+  
     model = cls(config=None, model_dir = target , model_name = os.path.splitext(model_name)[0], catconfig = cat, cordconfig = cord)
  
     return model
