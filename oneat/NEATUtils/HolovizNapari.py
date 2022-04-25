@@ -105,9 +105,10 @@ class NEATViz(object):
                  self.viewer.window._qt_window.resizeDocks([dock_widget], [width], Qt.Horizontal)   
 
                  
-                 self.animation_widget = AnimationWidget(self.viewer, self.savedir, 'Name', 0, 100)
+                 self.animation_widget = AnimationWidget(self.viewer, self.savedir, 'Name', 0, 1000)
+                 
                  self.viewer.window.add_dock_widget(self.animation_widget, area='right')
-                 self.viewer.update_console({'animation': self.animation_widget.animation})
+                 
                  
                  eventidbox.currentIndexChanged.connect(lambda eventid = eventidbox : self.csv_add(
                          
@@ -138,7 +139,11 @@ class NEATViz(object):
             
             
             self.event_name = csv_event_name
-            self.animation_widget = AnimationWidget(self.viewer, self.savedir, imagename + csv_event_name, 0, self.image.shape[0])
+            self.animation_widget.frameWidget.endframeSpinBox.setRange(0, self.image.shape[0])
+            self.animation_widget.frameWidget.startframeSpinBox.setRange(0, self.image.shape[0])
+            self.animation_widget.frameWidget.endframeSpinBox.setValue(self.image.shape[0])
+            self.animation_widget.pathText.setText(self.savedir + imagename + '.gif')
+            self.viewer.update_console({'animation': self.animation_widget.animation})
             self.csvname = None
             for (event_name,event_label) in self.key_categories.items():
                                 
@@ -251,7 +256,7 @@ class NEATViz(object):
             if self.segimagedir is not None:
                     self.location_image = LocationMap(self.event_locations_dict, self.seg_image)     
                     try:
-                        self.viewer.add_image(self.location_image, name= 'Location Map' + imagename )
+                        self.viewer.add_image(self.location_image, name= 'Location Map' + imagename, blending= 'additive' )
                     except:
                          pass
                                      
@@ -287,7 +292,7 @@ class NEATViz(object):
                 self.viewer.add_image(self.image, name= 'Image' + imagename )
                 if self.heatmapimagedir is not None:
                      try:
-                        self.viewer.add_image(self.heat_image, name= 'Image' + imagename + self.heatname )
+                        self.viewer.add_image(self.heat_image, name= 'Image' + imagename + self.heatname, blending= 'additive', colormap='inferno' )
                      except:
                          pass   
                

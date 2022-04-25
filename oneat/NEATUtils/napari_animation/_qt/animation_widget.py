@@ -56,12 +56,12 @@ class AnimationWidget(QWidget):
         self._layout.addWidget(self.saveButton)
 
         self.frameWidget.endframeSpinBox.setRange(0, end)
-
+        self.frameWidget.startframeSpinBox.setRange(0, end)
         self.frameWidget.endframeSpinBox.setValue(end)
         self.frameWidget.startframeSpinBox.setValue(start)
         # Create animation
         
-        self.animation = Animation(viewer, savedir)
+        self.animation = Animation(viewer,  savedir)
         # establish key bindings
         self._add_callbacks()
 

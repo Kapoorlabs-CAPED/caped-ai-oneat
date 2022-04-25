@@ -55,7 +55,7 @@ class Animation:
         self.key_frames = []
         for frame in tqdm(range(int(start), int(end))):
             self.frame = frame
-            print(self.frame)
+         
             new_state = {
                 'viewer': self._get_viewer_state(),
                 'steps': steps,
