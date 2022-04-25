@@ -58,7 +58,7 @@ oneat comes with different options to combine segmentation with classification o
 
 | Example Dataset   | DataSet | Trained Model | Notebook Code |
 | --- |--- | --- |--- |
-| <img src="https://github.com/Kapoorlabs-CAPED/CAPED-AI-oneat/blob/main/images/Xenopus_example.jpg"  title="Xenopus nuclei in 3D/4D" width="200">| [Example timelapse](https://zenodo.org/record/6403439/files/Nuclei3D.zip)| [Oneat model](https://zenodo.org/record/6466021#.Yl2CjtpBxhE) |  [Napari notebook](https://github.com/Kapoorlabs-CAPED/CAPED-AI-oneat/blob/main/Notebooks/Visualize_seg_with_action_classification_napari.ipynb)|
+| <img src="https://github.com/Kapoorlabs-CAPED/CAPED-AI-oneat/blob/main/images/Xenopus_example.jpg"  title="Xenopus nuclei in 3D/4D" width="200">| [Example timelapse](https://zenodo.org/record/6484966/files/C1-for_oneat_prediction.tif)| [Oneat model](https://zenodo.org/record/6484966/files/Cellsplitdetectorxenopus.h5) |  [Napari notebook](https://github.com/Kapoorlabs-CAPED/CAPED-AI-oneat/blob/main/Demo/Mitosis_xenopus_withoutsegmentation.ipynb)|
 |   |   |  | | 
 | <img src="https://github.com/Kapoorlabs-CAPED/CAPED-AI-oneat/blob/main/images/ch_2_crop.png"  title="Brightfield" width="200">| [Example timelapse](https://zenodo.org/record/6371249/files/20210904_TL2%20-%20R05-C03-F0_ch_2.tif)| [Oneat model](https://zenodo.org/record/6481021) | [Napari notebook](https://github.com/Kapoorlabs-CAPED/CAPED-AI-oneat/blob/main/Demo/Mitosis_hela_cells_brightfield.ipynb)|
 |   |   |  | | 
