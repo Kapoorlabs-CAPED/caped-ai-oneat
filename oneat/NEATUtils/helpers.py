@@ -652,7 +652,7 @@ def compare_function(box1, box2, gridx, gridy):
             yB = min(y1 + h1, y2+ h2)
 
            
-            if abs(xA - xB) < gridx - 1 and abs(yA - yB) < gridy - 1:
+            if abs(xA - xB) < gridx - 1 or abs(yA - yB) < gridy - 1:
                     intersect = max(0, xB - xA ) * max(0, yB - yA )
 
                     area = h2 * w2 + h1 * w1 - intersect
