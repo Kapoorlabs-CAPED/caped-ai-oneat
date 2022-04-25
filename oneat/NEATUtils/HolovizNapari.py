@@ -325,8 +325,7 @@ def LocationMap(event_locations_dict, seg_image):
 def MidSlices(Image, start_project_mid, end_project_mid, axis = 1):
     
     
-    SmallImage = Image.take(indices = range(Image.shape[axis]//2 - start_project_mid, Image.shape[axis]//2 + end_project_mid), axis = axis)
-    
+    SmallImage = Image.compute().take(indices = range(Image.shape[axis]//2 - start_project_mid, Image.shape[axis]//2 + end_project_mid), axis = axis)
     MaxProject = np.amax(SmallImage, axis = axis)
         
     return MaxProject  
