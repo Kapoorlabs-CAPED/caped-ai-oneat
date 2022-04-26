@@ -42,7 +42,6 @@ model_dir = 'D:/TrainingModels/Oneat/'
 savedir= 'D:/TestDatasets/Oneat/Xenopus_oneat/resultsGOLD_d29f32_fid4_iou0.4/'
 model_name = 'Cellsplitsxenopus_xy64_tm1tp1_s3d29f32'
 
-remove_markers = True
 division_categories_json = model_dir + 'Cellsplitcategoriesxenopus.json'
 catconfig = load_json(division_categories_json)
 division_cord_json = model_dir + 'Cellsplitcordxenopus.json'
@@ -71,7 +70,6 @@ for imagename in X:
                            iou_threshold = iou_threshold,
                            fidelity = fidelity,
                            marker_tree = marker_tree, 
-                           remove_markers = remove_markers,
                            nms_function = nms_function,
                            downsamplefactor = downsamplefactor,
                            start_project_mid = start_project_mid,

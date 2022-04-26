@@ -356,7 +356,7 @@ class NEATDynamic(object):
 
         
         if self.remove_markers == True:
-           self.generate_maps = True 
+           self.generate_maps = False 
            self.first_pass_predict()
            self.second_pass_predict()
         if self.remove_markers == False:

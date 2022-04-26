@@ -40,7 +40,7 @@ model_dir = 'D:/TrainingModels/Oneat/'
 savedir= 'D:/TestDatasets/Oneat/Drosophila_oneat/Results/'
 model_name = 'Celldeathpredictordrosophila'
 
-remove_markers = True
+
 division_categories_json = model_dir + 'Cellsplitcategoriesdrosophila.json'
 catconfig = load_json(division_categories_json)
 division_cord_json = model_dir + 'Cellsplitcorddrosophila.json'
@@ -65,7 +65,6 @@ for imagename in X:
                            iou_threshold = iou_threshold,
                            fidelity = fidelity,
                            marker_tree = marker_tree, 
-                           remove_markers = remove_markers,
                            nms_function = nms_function,
                            downsamplefactor = downsamplefactor,
                            normalize = normalize)
