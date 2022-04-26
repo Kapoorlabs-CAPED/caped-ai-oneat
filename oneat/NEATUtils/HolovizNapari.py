@@ -5,7 +5,7 @@ Created on Wed Aug  4 14:50:47 2021
 
 @author: vkapoor
 """
-from tifffile import  imwrite
+from tifffile import imread,  imwrite
 import csv
 import napari
 import glob
@@ -33,11 +33,11 @@ from oneat.NEATUtils.napari_animation._qt import AnimationWidget
 from dask.array.image import imread as daskread
 Boxname = 'ImageIDBox'
 EventBoxname = 'EventIDBox'
-
+default_reader = 'tifffile'
 
 class NEATViz(object):
 
-        def __init__(self, imagedir, heatmapimagedir,  savedir, categories_json, event_threshold, segimagedir = None, heatname = '_Heat', eventname = '_Event', fileextension = '*tif', blur_radius = 5, start_project_mid = 0, end_project_mid = 0 ):
+        def __init__(self, imagedir, heatmapimagedir,  savedir, categories_json, event_threshold, imagereader = default_reader , segimagedir = None, heatname = '_Heat', eventname = '_Event', fileextension = '*tif', blur_radius = 5, start_project_mid = 0, end_project_mid = 0 ):
             
             
                self.imagedir = imagedir
@@ -52,6 +52,11 @@ class NEATViz(object):
                self.end_project_mid = end_project_mid
                self.fileextension = fileextension
                self.blur_radius = blur_radius
+               self.imagereader = imagereader
+               if self.imagereader == default_reader:
+                   self.use_dask = False
+               else:
+                   self.use_dask = True    
                Path(self.savedir).mkdir(exist_ok=True)
                self.viewer = napari.Viewer()
                self.time = 0
@@ -254,7 +259,7 @@ class NEATViz(object):
                    self.viewer.add_points(event_locations, size = size_locations , properties = point_properties, text = text_properties,  name = 'Detections' + self.event_name, face_color = [0]*4, edge_color = "red") 
                    
             if self.segimagedir is not None:
-                    self.location_image = LocationMap(self.event_locations_dict, self.seg_image)     
+                    self.location_image = LocationMap(self.event_locations_dict, self.seg_image, self.use_dask)     
                     try:
                         self.viewer.add_image(self.location_image, name= 'Location Map' + imagename, blending= 'additive' )
                     except:
@@ -268,24 +273,32 @@ class NEATViz(object):
                                          if 'Image' in layer.name or layer.name in 'Image':
                                                     self.viewer.layers.remove(layer)
                                                     
-                                                    
-                self.image = daskread(image_toread)[0]
+                if self.imagereader != default_reader:                                      
+                   self.image = daskread(image_toread)[0]
+                else:
+                   self.image = imread(image_toread)    
                 
                 if self.heatmapimagedir is not None:
                      try:
-                        self.heat_image = daskread(self.heatmapimagedir + imagename + self.heatname + '.tif')[0]
+                        if self.imagereader != default_reader: 
+                           self.heat_image = daskread(self.heatmapimagedir + imagename + self.heatname + '.tif')[0]
+                        else:
+                           self.heat_image = imread(self.heatmapimagedir + imagename + self.heatname + '.tif')
                         
                      except:
                          self.heat_image = None   
                          
                     
                 if self.segimagedir is not None:
-                     self.seg_image = daskread(self.segimagedir + imagename + '.tif')[0]
+                     if self.imagereader != default_reader:
+                         self.seg_image = daskread(self.segimagedir + imagename + '.tif')[0]
+                     else:
+                         self.seg_image = imread(self.segimagedir + imagename + '.tif')    
                      if len(self.seg_image.shape) == 4:
-                         self.seg_image =  MidSlices(self.seg_image, self.start_project_mid, self.end_project_mid, axis = 1)
+                         self.seg_image =  MidSlices(self.seg_image, self.start_project_mid, self.end_project_mid, self.use_dask, axis = 1)
 
                 if len(self.image.shape) == 4:
-                    self.image =  MidSlices(self.image, self.start_project_mid, self.end_project_mid, axis = 1)
+                    self.image =  MidSlices(self.image, self.start_project_mid, self.end_project_mid, self.use_dask, axis = 1)
 
                     
                 
@@ -296,13 +309,16 @@ class NEATViz(object):
                      except:
                          pass   
                
-def LocationMap(event_locations_dict, seg_image):
+def LocationMap(event_locations_dict, seg_image, use_dask):
 
        location_image = np.zeros(seg_image.shape)
        for i in range(seg_image.shape[0]):
             if int(i) in event_locations_dict.keys():
                 currentindices = event_locations_dict[int(i)]
-                current_seg_image = seg_image[i,:].compute()
+                if use_dask:
+                    current_seg_image = seg_image[i,:].compute()
+                else:
+                    current_seg_image = seg_image[i,:]    
                 waterproperties = measure.regionprops(current_seg_image)
                 indices = [prop.centroid for prop in waterproperties]
                 if len(indices) > 0:
@@ -322,10 +338,12 @@ def LocationMap(event_locations_dict, seg_image):
                 location_image[i,:] = np.add(location_image[i -1,:],location_image[i,:])
        return location_image
 
-def MidSlices(Image, start_project_mid, end_project_mid, axis = 1):
+def MidSlices(Image, start_project_mid, end_project_mid, use_dask, axis = 1):
     
-    
-    SmallImage = Image.compute().take(indices = range(Image.shape[axis]//2 - start_project_mid, Image.shape[axis]//2 + end_project_mid), axis = axis)
+    if use_dask:
+       SmallImage = Image.compute().take(indices = range(Image.shape[axis]//2 - start_project_mid, Image.shape[axis]//2 + end_project_mid), axis = axis)
+    else:
+       SmallImage = Image.take(indices = range(Image.shape[axis]//2 - start_project_mid, Image.shape[axis]//2 + end_project_mid), axis = axis)    
     MaxProject = np.amax(SmallImage, axis = axis)
         
     return MaxProject  
