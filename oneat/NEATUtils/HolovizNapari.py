@@ -137,7 +137,7 @@ class NEATViz(object):
                     
                  self.viewer.window.add_dock_widget(imageidbox, name="Image", area='left') 
                  self.viewer.window.add_dock_widget(eventidbox, name="Event", area='left')  
-                 
+                 napari.run()
                  
                         
         def csv_add(self, imagename, csv_event_name ):
