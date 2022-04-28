@@ -124,13 +124,14 @@ class NEATViz(object):
                  dock_widget = self.viewer.window.add_dock_widget(
                  self.multiplot_widget, name="EventStats", area='right')
                  self.multiplot_widget.figure.tight_layout()
-                 self.viewer.window._qt_window.resizeDocks([dock_widget], [width], Qt.Horizontal)   
+                   
 
                  
                  self.animation_widget = AnimationWidget(self.viewer, self.savedir, 'Name', 0, 1000)
-                 
-                 self.viewer.window.add_dock_widget(self.animation_widget, area='right')
+                 self.animation_widget.setMaximumHeight(240)
 
+                 self.viewer.window.add_dock_widget(self.animation_widget, area='right',)
+                 self.viewer.window._qt_window.resizeDocks([dock_widget], [width], Qt.Horizontal) 
                  self.image_add(
                          imageidbox.currentText(),
                          os.path.basename(os.path.splitext(imageidbox.currentText())[0])
