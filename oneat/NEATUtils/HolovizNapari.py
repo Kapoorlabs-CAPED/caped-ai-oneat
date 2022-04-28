@@ -31,10 +31,26 @@ import pandas as pd
 from scipy.ndimage import binary_dilation
 from oneat.NEATUtils.napari_animation._qt import AnimationWidget
 from dask.array.image import imread as daskread
-Boxname = 'ImageIDBox'
-EventBoxname = 'EventIDBox'
-default_reader = 'tifffile'
 
+default_reader = 'tifffile'
+event_count_plot = 'Plot selected event count'
+cell_count_plot = 'Plot cell count'
+event_norm_count_plot = 'Plot selected normalized event count'
+
+def CellCount(seg_image, use_dask):
+
+    cell_count = {}
+    for i in range(seg_image.shape[0]):
+            
+                if use_dask:
+                    current_seg_image = seg_image[i,:].compute()
+                else:
+                    current_seg_image = seg_image[i,:]    
+                waterproperties = measure.regionprops(current_seg_image)
+                indices = [prop.centroid for prop in waterproperties]
+                
+                cell_count[int(i)] = len(indices) 
+    return cell_count
 class NEATViz(object):
 
         def __init__(self, imagedir, heatmapimagedir,  savedir, categories_json, event_threshold, imagereader = default_reader , segimagedir = None, heatname = '_Heat', eventname = '_Event', fileextension = '*tif', blur_radius = 5, start_project_mid = 0, end_project_mid = 0 ):
@@ -85,18 +101,19 @@ class NEATViz(object):
                  
                  
                  eventidbox = QComboBox()
-                 eventidbox.addItem(EventBoxname)
+                 plotidbox = QComboBox()
+                 plotidbox.addItem(event_count_plot)
+                 plotidbox.addItem(cell_count_plot)
+                 plotidbox.addItem('Plot selected normalized event count')
+                 
                  for (event_name,event_label) in self.key_categories.items():
-                     
-                     eventidbox.addItem(event_name)
+                     if event_label > 0:
+                         eventidbox.addItem(event_name)
                     
                  imageidbox = QComboBox()   
-                 imageidbox.addItem(Boxname)   
                  detectionsavebutton = QPushButton('Save Clicks')
                  
                  for i in range(0, len(Imageids)):
-                     
-                     
                      imageidbox.addItem(str(Imageids[i]))
                      
                      
@@ -113,11 +130,26 @@ class NEATViz(object):
                  self.animation_widget = AnimationWidget(self.viewer, self.savedir, 'Name', 0, 1000)
                  
                  self.viewer.window.add_dock_widget(self.animation_widget, area='right')
+
+                 self.image_add(
+                         imageidbox.currentText(),
+                         os.path.basename(os.path.splitext(imageidbox.currentText())[0])
+                    
+                )
+
+                 self.csv_add(
+                         os.path.basename(os.path.splitext(imageidbox.currentText())[0]),
+                         eventidbox.currentText()
+                    
+                )
                  
-                 
+                 self.plot_add(
+                         os.path.basename(os.path.splitext(imageidbox.currentText())[0]),
+                       
+                         plotidbox.currentText()
+                    
+                )
                  eventidbox.currentIndexChanged.connect(lambda eventid = eventidbox : self.csv_add(
-                         
-                         
                          os.path.basename(os.path.splitext(imageidbox.currentText())[0]),
                          eventidbox.currentText()
                     
@@ -126,20 +158,80 @@ class NEATViz(object):
                  
                  imageidbox.currentIndexChanged.connect(
                  lambda trackid = imageidbox: self.image_add(
-                         
                          imageidbox.currentText(),
-                         
                          os.path.basename(os.path.splitext(imageidbox.currentText())[0])
                     
                 )
-            )            
+            )     
+
+                 plotidbox.currentIndexChanged.connect(lambda eventid = plotidbox : self.plot_add(
+                         os.path.basename(os.path.splitext(imageidbox.currentText())[0]),
+                     
+                         plotidbox.currentText()
+                    
+                )
+            )       
                  
                     
                  self.viewer.window.add_dock_widget(imageidbox, name="Image", area='left') 
                  self.viewer.window.add_dock_widget(eventidbox, name="Event", area='left')  
+                 self.viewer.window.add_dock_widget(plotidbox, name="Plot", area='right')
                  napari.run()
                  
-                        
+        def plot_add(self, imagename, plot_event_name):
+
+           
+
+
+            timelist = []
+            eventlist= []
+            normeventlist = []
+            celllist = []
+            self.ax.cla()
+            for i in range(0, self.image.shape[0]):
+                
+                   currentT   = np.round(self.dataset["T"]).astype('int')
+                   currentZ = np.round(self.dataset["Z"]).astype('int')
+                   currentScore = self.dataset["Score"]
+                   currentConf = self.dataset["Confidence"]
+                   condition = currentT == i
+                   condition_indices = self.dataset_index[condition]
+                   conditionScore = currentScore[condition_indices]
+                   score_condition = conditionScore > self.event_threshold[self.event_label]
+                   countT = len(conditionScore[score_condition])
+                   timelist.append(i)
+                   eventlist.append(countT)
+                   if self.seg_image is not None:
+                      all_cells = self.cell_count[i]
+                      celllist.append(all_cells)
+                      normeventlist.append(countT/all_cells)
+            if plot_event_name == event_count_plot:    
+                    self.ax.plot(timelist, eventlist, '-r')
+                    self.ax.set_title(self.event_name + "Events")
+                    self.ax.set_xlabel("Time")
+                    self.ax.set_ylabel("Counts")
+                    self.figure.canvas.draw()
+                    self.figure.canvas.flush_events()
+                    plt.savefig(self.savedir  + self.event_name + event_count_plot + (os.path.splitext(os.path.basename(imagename))[0]  + '.png'), dpi = 300)
+
+            if plot_event_name == event_norm_count_plot:    
+                    self.ax.plot(timelist, normeventlist, '-r')
+                    self.ax.set_title(self.event_name + "Normalized Events")
+                    self.ax.set_xlabel("Time")
+                    self.ax.set_ylabel("Normalized Counts")
+                    self.figure.canvas.draw()
+                    self.figure.canvas.flush_events()
+                    plt.savefig(self.savedir  + self.event_name + event_norm_count_plot + (os.path.splitext(os.path.basename(imagename))[0]  + '.png'), dpi = 300)
+
+            if plot_event_name == cell_count_plot:    
+                    self.ax.plot(timelist, celllist, '-r')
+                    self.ax.set_title("Total Cell counts")
+                    self.ax.set_xlabel("Time")
+                    self.ax.set_ylabel("Total Cell Counts")
+                    self.figure.canvas.draw()
+                    self.figure.canvas.flush_events()
+                    plt.savefig(self.savedir  + cell_count_plot + (os.path.splitext(os.path.basename(imagename))[0]  + '.png'), dpi = 300)        
+
         def csv_add(self, imagename, csv_event_name ):
             
             
@@ -176,32 +268,7 @@ class NEATViz(object):
             
             
             
-            timelist = []
-            eventlist= []
-            for i in range(0, self.image.shape[0]):
-                
-                   currentT   = np.round(self.dataset["T"]).astype('int')
-                   currentZ = np.round(self.dataset["Z"]).astype('int')
-                   currentScore = self.dataset["Score"]
-                   currentConf = self.dataset["Confidence"]
-                   condition = currentT == i
-                   condition_indices = self.dataset_index[condition]
-                   conditionScore = currentScore[condition_indices]
-                
-                   score_condition = conditionScore > self.event_threshold[self.event_label]
-                
-                   countT = len(conditionScore[score_condition])
-                   timelist.append(i)
-                   eventlist.append(countT)
-                
-                
-            self.ax.plot(timelist, eventlist, '-r')
-            self.ax.set_title(self.event_name + "Events")
-            self.ax.set_xlabel("Time")
-            self.ax.set_ylabel("Counts")
-            self.figure.canvas.draw()
-            self.figure.canvas.flush_events()
-            plt.savefig(self.savedir  + self.event_name   + '.png')        
+                    
 
             listtime = self.T.tolist()
             listz = self.Z.tolist()
@@ -259,7 +326,7 @@ class NEATViz(object):
                    self.viewer.add_points(event_locations, size = size_locations , properties = point_properties, text = text_properties,  name = 'Detections' + self.event_name, face_color = [0]*4, edge_color = "red") 
                    
             if self.segimagedir is not None:
-                    self.location_image = LocationMap(self.event_locations_dict, self.seg_image, self.use_dask)     
+                    self.location_image, self.cell_count = LocationMap(self.event_locations_dict, self.seg_image, self.use_dask)     
                     try:
                         self.viewer.add_image(self.location_image, name= 'Location Map' + imagename, blending= 'additive' )
                     except:
@@ -308,19 +375,29 @@ class NEATViz(object):
                         self.viewer.add_image(self.heat_image, name= 'Image' + imagename + self.heatname, blending= 'additive', colormap='inferno' )
                      except:
                          pass   
-               
-def LocationMap(event_locations_dict, seg_image, use_dask):
 
+
+
+
+
+
+
+def LocationMap(event_locations_dict, seg_image, use_dask):
+       cell_count = {} 
        location_image = np.zeros(seg_image.shape)
        for i in range(seg_image.shape[0]):
+            if use_dask:
+                    current_seg_image = seg_image[i,:].compute()
+            else:
+                    current_seg_image = seg_image[i,:]
+            waterproperties = measure.regionprops(current_seg_image)
+            indices = [prop.centroid for prop in waterproperties]
+            cell_count[int(i)] = len(indices)        
+
             if int(i) in event_locations_dict.keys():
                 currentindices = event_locations_dict[int(i)]
-                if use_dask:
-                    current_seg_image = seg_image[i,:].compute()
-                else:
-                    current_seg_image = seg_image[i,:]    
-                waterproperties = measure.regionprops(current_seg_image)
-                indices = [prop.centroid for prop in waterproperties]
+                    
+                
                 if len(indices) > 0:
                     tree = spatial.cKDTree(indices)
                     if len(currentindices) > 0:
@@ -336,7 +413,7 @@ def LocationMap(event_locations_dict, seg_image, use_dask):
                                     location_image[i,all_pixels[0,k], all_pixels[1,k]] = 1
             if i > 0:
                 location_image[i,:] = np.add(location_image[i -1,:],location_image[i,:])
-       return location_image
+       return location_image, cell_count
 
 def MidSlices(Image, start_project_mid, end_project_mid, use_dask, axis = 1):
     
