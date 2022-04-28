@@ -202,7 +202,7 @@ class NEATViz(object):
                    countT = len(conditionScore[score_condition])
                    timelist.append(i)
                    eventlist.append(countT)
-                   if self.seg_image is not None:
+                   if self.segimagedir is not None and self.seg_image is not None:
                       all_cells = self.cell_count[i]
                       celllist.append(all_cells)
                       normeventlist.append(countT/all_cells)
