@@ -341,8 +341,7 @@ class NEATDynamic(object):
         self.downsamplefactor = downsamplefactor
         self.originalimage = self.image
         self.center_oneat = center_oneat
-        if self.normalize: 
-           self.image = normalizeFloatZeroOne(self.image.astype('float32'), 1, 99.8)
+       
 
         
         print(self.model_dir, self.model_name, self.catconfig, self.cordconfig)
@@ -384,7 +383,8 @@ class NEATDynamic(object):
                                       imwrite((heatsavename + '.tif' ), self.heatmap)
                                       
                                 smallimage = CreateVolume(self.image, self.imaget, inputtime)
-                               
+                                if self.normalize: 
+                                      smallimage = normalizeFloatZeroOne(smallimage.astype('float32'), 1, 99.8)
                                 # Cut off the region for training movie creation
                                 #Break image into tiles if neccessary
                                 predictions, allx, ally = self.predict_main(smallimage)
@@ -447,7 +447,8 @@ class NEATDynamic(object):
                 
                 remove_candidates_list = []
                 smallimage = CreateVolume(self.image, self.imaget, inputtime)
-              
+                if self.normalize: 
+                                      smallimage = normalizeFloatZeroOne(smallimage.astype('float32'), 1, 99.8)
                 # Cut off the region for training movie creation
                 # Break image into tiles if neccessary
                 predictions, allx, ally = self.predict_main(smallimage)
@@ -540,6 +541,8 @@ class NEATDynamic(object):
                           slice(int(crop_xminus), int(crop_xplus)))
                     
                     crop_image = self.image[region] 
+                    if self.normalize: 
+                                      crop_image = normalizeFloatZeroOne(crop_image.astype('float32'), 1, 99.8)
                     if crop_image.shape[0] >= self.imaget and  crop_image.shape[1] >= self.imagey * self.downsamplefactor and crop_image.shape[2] >= self.imagex * self.downsamplefactor:                                                
                                 #Now apply the prediction for counting real events
                                 
