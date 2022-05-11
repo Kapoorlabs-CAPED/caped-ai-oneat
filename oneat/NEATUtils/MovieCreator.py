@@ -6,6 +6,7 @@ from tifffile import imread, imwrite
 import pandas as pd
 import os
 import glob
+import json
 from skimage.measure import regionprops
 from skimage import measure
 from pathlib import Path
@@ -258,6 +259,101 @@ def SimpleMovieMaker4D(normalizeimage, time, z, y, x, image, crop_size, gridx, g
                                            writer = csv.writer(open(save_dir + '/' + (newname) + ".csv", "a"))
                                            writer.writerows(Event_data)                                                                    
     
+def Midog_to_oneat(midog_folder, annotation_file, crop_size, save_dir):
+
+    rows = []
+    annotations = {}
+    with open(annotation_file) as f:
+        data = json.load(f)
+
+        #categories = {cat["id"]: cat["name"] for cat in data["categories"]}
+        categories = {1: 'mitotic figure', 2: 'hard negative'}
+        total_categories = 2
+        for row in data["images"]:
+            file_name = row["file_name"]
+            image_id = row["id"]
+            width = row["width"]
+            height = row["height"]
+
+            tumortype = id_to_tumortype[image_id]
+            
+            for annotation in [anno for anno in data['annotations'] if anno["image_id"] == image_id]:
+                box = annotation["bbox"]
+                cat = categories[annotation["category_id"]]
+
+                rows.append([image_id, width, height, box, cat, tumortype])
+            annotations["file_name"] = rows
+    
+
+    midog_ids = list(range(1, 151))
+    clc_ids = list(range(151,195))
+    cly_ids = list(range(195,250))
+    ccmct_ids = list(range(250,300))
+    net_ids = list(range(300,355))
+    mel_ids = list(range(355,406))
+
+    all_ids = {'human breast cancer': midog_ids,
+            'canine lung cancer': clc_ids,
+            'canine lymphoma' : cly_ids,
+            'canine cutaneous mast cell tumor' : ccmct_ids,
+            'human neuroendocrine tumor' : net_ids,
+            'human melanoma' : mel_ids}
+
+    id_to_tumortype = {id:list(k for k in all_ids if id in all_ids[k])[0] for id in range(1,406)}
+    for tumortype, ids in zip(list(all_ids.keys()), list(all_ids.values())):
+
+        for image_id in ids:
+
+            image_id += 1
+            
+            file_path = midog_folder / f"{image_id:03d}.tiff"
+            Name = os.path.basename(os.path.splitext(file_path)[0])
+            if file_path.exists():
+                img = imread(file_path)
+                image = np.array(img)
+                image = normalizeFloatZeroOne( image.astype('float32'),1,99.8)
+            image_annotation_array = annotations[Name]
+
+            for image_annotation in image_annotation_array:
+                Label = np.zeros([total_categories + 5]) 
+                Event_data = []
+                image_id, image_width, image_height, box, cat, tumortype = image_annotation
+                x0, y0, x1, y1 = box
+                height = y1 - y0
+                width = x1 - x0
+                x = (x0 + x1) //2
+                y = (y0 + y1) //2
+                # if cat == 1 then it is mitosis if cat == 2 it is hard negative
+                if cat == 1:
+                    trainlabel = 1
+                else:
+                    trainlabel = 0   
+                ImagesizeX, ImagesizeY = crop_size
+                crop_Xminus = x  - int(ImagesizeX/2)
+                crop_Xplus = x   + int(ImagesizeX/2)
+                crop_Yminus = y  - int(ImagesizeY/2)
+                crop_Yplus = y   + int(ImagesizeY/2)
+                region =(slice(int(crop_Yminus), int(crop_Yplus)),
+                                                           slice(int(crop_Xminus), int(crop_Xplus)))
+
+                crop_image = image[region]      
+
+
+                Label[trainlabel] = 1
+                Label[total_categories] =  x/ImagesizeX
+                Label[total_categories + 1] = y/ImagesizeY
+                Label[total_categories + 2] = width
+                Label[total_categories + 3] = height
+                Label[total_categories + 4] = 1 
+
+                if(crop_image.shape[1]== ImagesizeY and crop_image.shape[2]== ImagesizeX):
+                            imwrite((save_dir + '/' + Name + '.tif'  ) , crop_image.astype('float32'))  
+                            Event_data.append([Label[i] for i in range(0,len(Label))])
+                            if(os.path.exists(save_dir + '/' + (Name) + ".csv")):
+                                os.remove(save_dir + '/' + (Name) + ".csv")
+                            writer = csv.writer(open(save_dir + '/' + (Name) + ".csv", "a"))
+                            writer.writerows(Event_data)
+
 def MovieLabelDataSet(image_dir, seg_image_dir, csv_dir, save_dir, static_name, static_label, csv_name_diff, crop_size, gridx = 1, gridy = 1, offset = 0, yolo_v0 = False, 
 yolo_v1 = True, yolo_v2 = False,  tshift  = 1, normalizeimage = True):
     
