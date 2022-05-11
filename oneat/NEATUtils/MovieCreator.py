@@ -282,7 +282,7 @@ def Midog_to_oneat(midog_folder, annotation_file, crop_size, save_dir):
                 cat = categories[annotation["category_id"]]
 
                 rows.append([image_id, width, height, box, cat, tumortype])
-            annotations["file_name"] = rows
+            annotations[file_name] = rows
     
 
     midog_ids = list(range(1, 151))
