@@ -310,7 +310,7 @@ def Midog_to_oneat(midog_folder, annotation_file, crop_size, save_dir):
             Name = os.path.basename(os.path.splitext(file_path)[0])
             if file_path.exists():
                 img = imread(file_path)
-                image = np.array(img)
+               
                 image = normalizeFloatZeroOne( image.astype('float32'),1,99.8)
             image_annotation_array = annotations[Name]
 
@@ -346,7 +346,7 @@ def Midog_to_oneat(midog_folder, annotation_file, crop_size, save_dir):
                 Label[total_categories + 3] = height
                 Label[total_categories + 4] = 1 
 
-                if(crop_image.shape[1]== ImagesizeY and crop_image.shape[2]== ImagesizeX):
+                if(crop_image.shape[0]== ImagesizeY and crop_image.shape[1]== ImagesizeX):
                             imwrite((save_dir + '/' + Name + '.tif'  ) , crop_image.astype('float32'))  
                             Event_data.append([Label[i] for i in range(0,len(Label))])
                             if(os.path.exists(save_dir + '/' + (Name) + ".csv")):
