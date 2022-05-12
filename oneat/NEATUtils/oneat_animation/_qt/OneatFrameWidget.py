@@ -1,7 +1,9 @@
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import QComboBox, QWidget, QFormLayout, QSpinBox
 from oneat.NEATUtils.napari_animation.easing import Easing
-
+from matplotlib.backends.backend_qt5agg import \
+    FigureCanvasQTAgg as FigureCanvas
+import matplotlib.pyplot as plt
 
 class OneatFrameWidget(QWidget):
     """Widget for interatviely making animations using the napari viewer."""
@@ -22,8 +24,8 @@ class OneatFrameWidget(QWidget):
         index = self.imageidbox.findText('linear', Qt.MatchFixedString)
         self.imageidbox.setCurrentIndex(index)
 
-        self.stepsSpinBox = QSpinBox()
-        self.stepsSpinBox.setValue(1)
+        self.heatstepsSpinBox = QSpinBox()
+        self.heatstepsSpinBox.setValue(1)
 
         self.stepsSpinBox = QSpinBox()
         self.stepsSpinBox.setValue(1)
@@ -39,11 +41,19 @@ class OneatFrameWidget(QWidget):
         index = self.easeComboBox.findText('linear', Qt.MatchFixedString)
         self.easeComboBox.setCurrentIndex(index)
 
+
+        self.figure = plt.figure(figsize=(4, 4))
+        self.multiplot_widget = FigureCanvas(self.figure)
+        self.ax = self.multiplot_widget.figure.subplots(1, 1)
+        
+
+        self._layout.addWidget(self.multiplot_widget)
         self._layout.addRow('Event', self.eventidbox)
-        self._layout.addRow('Plot', self.plotidbox)
         self._layout.addRow('Image/Movie', self.imageidbox)
-        self._layout.addRow('Heat Map Steps', self.stepsSpinBox)
-        self._layout.addRow('Steps', self.stepsSpinBox)
-        self._layout.addRow('Ease', self.easeComboBox)
+        self._layout.addRow('Plot', self.plotidbox)
+        self._layout.addRow('Heat Map Steps', self.heatstepsSpinBox)
         self._layout.addRow('StartFrame', self.startframeSpinBox)
         self._layout.addRow('EndFrame', self.endframeSpinBox)
+        self._layout.addRow('Animations Saving Steps', self.stepsSpinBox)
+        self._layout.addRow('Animation Saving Rate', self.easeComboBox)
+        

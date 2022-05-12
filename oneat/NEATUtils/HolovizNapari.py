@@ -15,7 +15,7 @@ import random
 import sys
 import numpy as np
 import json
-from scipy import spatial
+
 from pathlib import Path
 from scipy import spatial
 from skimage.measure import label
@@ -76,6 +76,7 @@ class NEATViz(object):
                    self.use_dask = True    
                Path(self.savedir).mkdir(exist_ok=True)
                self.viewer = napari.Viewer()
+               
                self.time = 0
                self.load_json()
                self.key_categories = self.load_json()
@@ -113,72 +114,15 @@ class NEATViz(object):
                  self.oneat_widget.frameWidget.plotidbox.addItem('Plot selected normalized event count')
                
                  detectionsavebutton = QPushButton('Save Clicks')
-                     
-                 self.figure = plt.figure(figsize=(4, 4))
-                 self.multiplot_widget = FigureCanvas(self.figure)
-                 self.ax = self.multiplot_widget.figure.subplots(1, 1)
-                 width = 400
-                 dock_widget = self.viewer.window.add_dock_widget(
-                 self.multiplot_widget, name="EventStats", area='right')
-                 self.multiplot_widget.figure.tight_layout()
-
-                 self.animation_widget = AnimationWidget(self.viewer, self.savedir, 'Name', 0, 1000)
-                 self.animation_widget.setMaximumHeight(240)
-
-                 self.viewer.window.add_dock_widget(self.animation_widget, area='right',)
-                 self.viewer.window._qt_window.resizeDocks([dock_widget], [width], Qt.Horizontal) 
-                 self.image_add(
-                         imageidbox.currentText(),
-                         os.path.basename(os.path.splitext(imageidbox.currentText())[0])
-                    
-                )
-
-                 self.csv_add(
-                         os.path.basename(os.path.splitext(imageidbox.currentText())[0]),
-                         eventidbox.currentText()
-                    
-                )
+                   
                  
-                 self.plot_add(
-                         os.path.basename(os.path.splitext(imageidbox.currentText())[0]),
-                       
-                         plotidbox.currentText()
-                    
-                )
-                 eventidbox.currentIndexChanged.connect(lambda eventid = eventidbox : self.csv_add(
-                         os.path.basename(os.path.splitext(imageidbox.currentText())[0]),
-                         eventidbox.currentText()
-                    
-                )
-            )    
-                 
-                 imageidbox.currentIndexChanged.connect(
-                 lambda trackid = imageidbox: self.image_add(
-                         imageidbox.currentText(),
-                         os.path.basename(os.path.splitext(imageidbox.currentText())[0])
-                    
-                )
-            )     
-
-                 plotidbox.currentIndexChanged.connect(lambda eventid = plotidbox : self.plot_add(
-                         os.path.basename(os.path.splitext(imageidbox.currentText())[0]),
-                     
-                         plotidbox.currentText()
-                    
-                )
-            )       
-                 
-                    
-                 self.viewer.window.add_dock_widget(imageidbox, name="Image", area='left') 
-                 self.viewer.window.add_dock_widget(eventidbox, name="Event", area='left')  
-                 self.viewer.window.add_dock_widget(plotidbox, name="Plot", area='right')
                  napari.run()
                  
         def plot_add(self, imagename, plot_event_name):
 
            
 
-
+            
             timelist = []
             eventlist= []
             normeventlist = []
@@ -314,10 +258,12 @@ class NEATViz(object):
         }
             self.event_locations = event_locations 
             self.event_locations_dict = event_locations_dict
+            
             for layer in list(self.viewer.layers):
                               
                              if 'Detections'  in layer.name or layer.name in 'Detections' :
                                         self.viewer.layers.remove(layer) 
+                                        
             if len(score_locations) > 0:                             
                    self.viewer.add_points(event_locations, size = size_locations , properties = point_properties, text = text_properties,  name = 'Detections' + self.event_name, face_color = [0]*4, edge_color = "red") 
                    
