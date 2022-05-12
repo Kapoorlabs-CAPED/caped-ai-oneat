@@ -30,6 +30,7 @@ from skimage import measure
 import pandas as pd
 from scipy.ndimage import binary_dilation
 from oneat.NEATUtils.napari_animation._qt import AnimationWidget
+from oneat.NEATUtils.oneat_animation._qt import OneatWidget
 from dask.array.image import imread as daskread
 
 default_reader = 'tifffile'
@@ -91,31 +92,27 @@ class NEATViz(object):
         
         def showNapari(self):
                  
-                 
+                 self.oneat_widget = OneatWidget(self.viewer, self.savedir, 'Name')
                  Raw_path = os.path.join(self.imagedir, self.fileextension)
                  X = glob.glob(Raw_path)
                  Imageids = []
                  
                  for imagename in X:
                      Imageids.append(imagename)
-                 
-                 
-                 eventidbox = QComboBox()
-                 plotidbox = QComboBox()
-                 plotidbox.addItem(event_count_plot)
-                 plotidbox.addItem(cell_count_plot)
-                 plotidbox.addItem('Plot selected normalized event count')
+
+                 for i in range(0, len(Imageids)):
+                     self.oneat_widget.frameWidget.imageidbox.addItem(str(Imageids[i]))
                  
                  for (event_name,event_label) in self.key_categories.items():
                      if event_label > 0:
-                         eventidbox.addItem(event_name)
-                    
-                 imageidbox = QComboBox()   
+                         self.oneat_widget.frameWidget.eventidbox.addItem(event_name)
+
+
+                 self.oneat_widget.frameWidget.plotidbox.addItem(event_count_plot)
+                 self.oneat_widget.frameWidget.plotidbox.addItem(cell_count_plot)
+                 self.oneat_widget.frameWidget.plotidbox.addItem('Plot selected normalized event count')
+               
                  detectionsavebutton = QPushButton('Save Clicks')
-                 
-                 for i in range(0, len(Imageids)):
-                     imageidbox.addItem(str(Imageids[i]))
-                     
                      
                  self.figure = plt.figure(figsize=(4, 4))
                  self.multiplot_widget = FigureCanvas(self.figure)
@@ -124,9 +121,7 @@ class NEATViz(object):
                  dock_widget = self.viewer.window.add_dock_widget(
                  self.multiplot_widget, name="EventStats", area='right')
                  self.multiplot_widget.figure.tight_layout()
-                   
 
-                 
                  self.animation_widget = AnimationWidget(self.viewer, self.savedir, 'Name', 0, 1000)
                  self.animation_widget.setMaximumHeight(240)
 
