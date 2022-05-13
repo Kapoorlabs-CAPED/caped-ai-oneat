@@ -65,13 +65,14 @@ class OneatVisualization:
                         all_cells = CellCount(seg_image, use_dask)[i]
                         celllist.append(all_cells)
                         normeventlist.append(countT/all_cells)
-                self.ax.plot(timelist, eventlist, '-r')
-                self.ax.set_title(event_name + "Events")
-                self.ax.set_xlabel("Time")
-                self.ax.set_ylabel("Counts")
-                self.figure.canvas.draw()
-                self.figure.canvas.flush_events()
-                plt.savefig(self.savedir  + event_name + event_count_plot + (os.path.splitext(os.path.basename(imagename))[0]  + '.png'), dpi = 300)
+                if plot_event_name == event_count_plot:    
+                        self.ax.plot(timelist, eventlist, '-r')
+                        self.ax.set_title(event_name + "Events")
+                        self.ax.set_xlabel("Time")
+                        self.ax.set_ylabel("Counts")
+                        self.figure.canvas.draw()
+                        self.figure.canvas.flush_events()
+                        plt.savefig(self.savedir  + event_name + event_count_plot + (os.path.splitext(os.path.basename(imagename))[0]  + '.png'), dpi = 300)
 
                 if plot_event_name == event_norm_count_plot and len(normeventlist) > 0:    
                         self.ax.plot(timelist, normeventlist, '-r')
