@@ -267,8 +267,7 @@ def LocationMap(event_locations_dict, seg_image, use_dask, heatmapsteps):
                                 for k in range(all_pixels.shape[1]):
                                     location_image[i,all_pixels[0,k], all_pixels[1,k]] = 1
             
-            if i > heatmapsteps:
-                location_image = average_heat_map(location_image, heatmapsteps)
+       location_image = average_heat_map(location_image, heatmapsteps)
 
 
        return location_image, cell_count
@@ -277,7 +276,9 @@ def LocationMap(event_locations_dict, seg_image, use_dask, heatmapsteps):
 def average_heat_map(image, sliding_window):
 
     for i in range(image.shape[0]):
+        
         for j in range(0,sliding_window):
+            if i - j > 0:
               image[i,:] = np.add(image[i,:] , image[i - j,:])
     return image          
 
