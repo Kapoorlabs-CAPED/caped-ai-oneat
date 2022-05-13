@@ -1,6 +1,6 @@
 from qtpy.QtCore import Qt
-from qtpy.QtWidgets import QComboBox, QWidget, QFormLayout, QSpinBox, QSlider
-from oneat.NEATUtils.napari_animation.easing import Easing
+from qtpy.QtWidgets import QComboBox, QWidget, QFormLayout, QSpinBox, QSlider, QLabel
+
 from matplotlib.backends.backend_qt5agg import \
     FigureCanvasQTAgg as FigureCanvas
 import matplotlib.pyplot as plt
@@ -29,13 +29,18 @@ class OneatFrameWidget(QWidget):
 
         self.scoreSlider = QSlider(Qt.Horizontal, parent=self)
         self.scoreSlider.setToolTip("Scroll through probability score")
-        self.scoreSlider.setRange(0, 1)
-        self.scoreSlider.setSingleStep(0.01)
+        self.scoreSlider.setRange(0, 1000)
+        self.scoreSlider.setSingleStep(1)
+
+        self.label = QLabel('0', self)
+        self.label.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
+        self.label.setMinimumWidth(80)
 
 
         self.figure = plt.figure(figsize=(4, 4))
         self.multiplot_widget = FigureCanvas(self.figure)
-        self.ax = self.multiplot_widget.self.figure.subplots(1, 1)
+        
+        self.ax = self.multiplot_widget.figure.subplots(1, 1)
         
 
         self._layout.addWidget(self.multiplot_widget)

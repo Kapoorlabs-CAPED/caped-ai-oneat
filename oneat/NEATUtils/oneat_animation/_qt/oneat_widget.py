@@ -5,7 +5,7 @@ import napari
 from dask.array.image import imread as daskread
 from tifffile import imread,  imwrite
 from ..OneatVisualization import OneatVisualization
-
+from napari_animation._qt import AnimationWidget
 
 class OneatWidget(QWidget):
     """Widget for interatviely making oneat visualizations using the napari viewer.
@@ -63,11 +63,11 @@ class OneatWidget(QWidget):
         self.frameWidget.plotidbox.addItem(cell_count_plot)
         self.frameWidget.plotidbox.addItem(event_norm_count_plot)
         self.frameWidget.heatstepsSpinBox = heatmapsteps
-        self.frameWidget.scoreSlider.valueChanged.connect(self._on_slider_moved)
+        self.frameWidget.scoreSlider.valueChanged.connect(self.updateLabel)
 
-
+        event_threshold = float(self.frameWidget.label.text())
         self.frameWidget.imageidbox.currentIndexChanged.connect(lambda eventid = self.frameWidget.imageidbox :
-        self._capture_image_callback(segimagedir, event_threshold, heatname, start_project_mid, end_project_mid, use_dask ))
+        self._capture_image_callback(segimagedir,event_threshold , heatname, start_project_mid, end_project_mid, use_dask ))
 
         self.frameWidget.eventidbox.currentIndexChanged.connect(lambda eventid = self.frameWidget.eventidbox :
         self._capture_csv_callback(segimagedir, event_threshold, use_dask, heatmapsteps ))
@@ -78,10 +78,9 @@ class OneatWidget(QWidget):
        
         
     
-    def _on_slider_moved(self, event=None):
-        frame_index = event
-        self.event_threshold = frame_index
-        print(self.event_threshold)
+    def updateLabel(self, value):
+
+        self.frameWidget.label.setText(str(value))
 
     def _capture_csv_callback(self, segimagedir, event_threshold, use_dask, heatmapsteps):
         

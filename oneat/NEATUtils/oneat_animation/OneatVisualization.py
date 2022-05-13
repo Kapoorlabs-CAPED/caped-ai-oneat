@@ -59,7 +59,7 @@ class OneatVisualization:
                     condition = currentT == i
                     condition_indices = dataset_index[condition]
                     conditionScore = currentScore[condition_indices]
-                    score_condition = conditionScore > event_threshold[event_label]
+                    score_condition = conditionScore > event_threshold
                     countT = len(conditionScore[score_condition])
                     timelist.append(i)
                     eventlist.append(countT)
@@ -189,7 +189,7 @@ class OneatVisualization:
                         size = listsize[i]
                         score = listscore[i]
                         confidence = listconfidence[i]   
-                        if score > event_threshold[event_label]:
+                        if score > event_threshold:
                                 event_locations.append([int(tcenter), int(ycenter), int(xcenter)])   
 
                                 if int(tcenter) in event_locations_dict.keys():
