@@ -29,7 +29,7 @@ class OneatFrameWidget(QWidget):
 
         self.scoreSlider = QSlider(Qt.Horizontal, parent=self)
         self.scoreSlider.setToolTip("Scroll through probability score")
-        self.scoreSlider.setRange(0, 1000)
+        self.scoreSlider.setRange(0, 5000)
         self.scoreSlider.setSingleStep(1)
 
         self.label = QLabel('0', self)

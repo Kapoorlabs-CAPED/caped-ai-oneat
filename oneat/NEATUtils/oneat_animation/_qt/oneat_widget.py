@@ -90,7 +90,7 @@ class OneatWidget(QWidget):
 
     def updateLabel(self, value):
 
-        real_value = float(80 + float(value)/50)/100 
+        real_value = float(80 + float(value)/250)/100 
         real_value = f'{real_value:.5f}'
         self.frameWidget.label.setText(str(real_value))
        
