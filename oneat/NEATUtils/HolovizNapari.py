@@ -32,7 +32,18 @@ default_reader = 'tifffile'
 
 class NEATViz(object):
 
-        def __init__(self, imagedir, heatmapimagedir,  savedir, categories_json, imagereader = default_reader , segimagedir = None, heatname = '_Heat', eventname = '_Event', fileextension = '*tif', blur_radius = 5, start_project_mid = 0, end_project_mid = 0 ):
+        def __init__(self, imagedir,   
+                        savedir, 
+                        categories_json, 
+                        imagereader = default_reader , 
+                        heatmapimagedir = None, 
+                        segimagedir = None, 
+                        heatname = '_Heat', 
+                        eventname = '_Event', 
+                        fileextension = '*tif', 
+                        blur_radius = 5, 
+                        start_project_mid = 0, 
+                        end_project_mid = 0 ):
             
             
                self.imagedir = imagedir
@@ -72,9 +83,10 @@ class NEATViz(object):
         def showNapari(self):
                  
                  self.oneat_widget = OneatWidget(self.viewer, self.savedir, 'Name', 
-                 self.key_categories, self.use_dask, self.segimagedir,
-                 self.heatmapimagedir, self.heatname, self.start_project_mid,
-                 self.end_project_mid )
+                 self.key_categories, use_dask = self.use_dask, segimagedir = self.segimagedir,
+                 heatimagedir = self.heatmapimagedir, heatname = self.heatname, 
+                 start_project_mid = self.start_project_mid,
+                 end_project_mid = self.end_project_mid )
                  Raw_path = os.path.join(self.imagedir, self.fileextension)
                  X = glob.glob(Raw_path)
                  Imageids = []

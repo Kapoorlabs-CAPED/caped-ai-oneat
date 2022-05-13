@@ -1,5 +1,5 @@
 from qtpy.QtCore import Qt
-from qtpy.QtWidgets import QComboBox, QWidget, QFormLayout, QSpinBox, QSlider, QLabel
+from qtpy.QtWidgets import QComboBox, QWidget, QFormLayout, QSpinBox, QSlider, QLabel, QPushButton
 
 from matplotlib.backends.backend_qt5agg import \
     FigureCanvasQTAgg as FigureCanvas
@@ -36,6 +36,7 @@ class OneatFrameWidget(QWidget):
         self.label.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
         self.label.setMinimumWidth(80)
 
+        self.recomputeButton = QPushButton("Recompute with new score", parent=self) 
 
         self.figure = plt.figure(figsize=(4, 4))
         self.multiplot_widget = FigureCanvas(self.figure)
@@ -49,4 +50,6 @@ class OneatFrameWidget(QWidget):
         self._layout.addRow('Plot', self.plotidbox)
         self._layout.addRow('Heat Map Steps', self.heatstepsSpinBox)
         self._layout.addRow('Score slider', self.scoreSlider)
+        self._layout.addRow('Score threshold', self.label)
+        self._layout.addRow( self.recomputeButton)
         

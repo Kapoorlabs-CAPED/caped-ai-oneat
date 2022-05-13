@@ -30,6 +30,8 @@ class OneatVisualization:
         normeventlist = []
         celllist = []
         self.ax.cla()
+        csvname = None
+        image = None
         for (event_name,event_label) in self.key_categories.items():
                                 
                                 if event_label > 0 and csv_event_name == event_name:
@@ -46,9 +48,11 @@ class OneatVisualization:
                 dataset_index = dataset.index
         for layer in list(self.viewer.layers):
             if isinstance(layer, napari.layers.Image):
-                    image = layer
+                    image = layer.data
             if isinstance(layer, napari.layers.Labels):
-                    seg_image = layer        
+                    seg_image = layer.data    
+
+
         if image is not None:            
                 for i in range(0, image.shape[0]):
                     
@@ -76,7 +80,7 @@ class OneatVisualization:
                         self.figure.canvas.flush_events()
                         plt.savefig(self.savedir  + event_name + event_count_plot + (os.path.splitext(os.path.basename(imagename))[0]  + '.png'), dpi = 300)
 
-                if plot_event_name == event_norm_count_plot:    
+                if plot_event_name == event_norm_count_plot and len(normeventlist) > 0:    
                         self.ax.plot(timelist, normeventlist, '-r')
                         self.ax.set_title(event_name + "Normalized Events")
                         self.ax.set_xlabel("Time")
@@ -85,7 +89,7 @@ class OneatVisualization:
                         self.figure.canvas.flush_events()
                         plt.savefig(self.savedir  + event_name + event_norm_count_plot + (os.path.splitext(os.path.basename(imagename))[0]  + '.png'), dpi = 300)
 
-                if plot_event_name == cell_count_plot:    
+                if plot_event_name == cell_count_plot and len(celllist) > 0:    
                         self.ax.plot(timelist, celllist, '-r')
                         self.ax.set_title("Total Cell counts")
                         self.ax.set_xlabel("Time")
@@ -98,10 +102,19 @@ class OneatVisualization:
 
 
 
-    def show_image(self, image_toread, imagename, segimagedir = None, heatmapimagedir = None, heatname = '_Heat', start_project_mid = 0, end_project_mid = 0, use_dask = False):
+    def show_image(self, 
+                image_toread, 
+                imagename, 
+                segimagedir = None, 
+                heatmapimagedir = None, 
+                heatname = '_Heat', 
+                start_project_mid = 0, 
+                end_project_mid = 0, 
+                use_dask = False):
+
 
         for layer in list(self.viewer.layers):
-                                         if 'Image' in layer.name or layer.name in 'Image':
+                                         if ['Image', 'SegImage'] in layer.name or layer.name in ['Image', 'SegImage']:
                                                     self.viewer.layers.remove(layer)
                                                     
         if use_dask:                                      
@@ -115,23 +128,20 @@ class OneatVisualization:
                         heat_image = daskread(heatmapimagedir + imagename + heatname + '.tif')[0]
                     else:
                         heat_image = imread(heatmapimagedir + imagename + heatname + '.tif')
-                    
                 except:
                     heat_image = None   
-                    
-            
+           
         if  segimagedir is not None:
+                print(segimagedir)
                 if use_dask:
                     seg_image = daskread(segimagedir + imagename + '.tif')[0]
                 else:
                     seg_image = imread(segimagedir + imagename + '.tif')    
                 if len(seg_image.shape) == 4:
                      seg_image =  MidSlices(seg_image, start_project_mid, end_project_mid, use_dask, axis = 1)
-
+                self.viewer.add_labels(seg_image.astype('uint16'), name = 'SegImage'+ imagename)
         if len(image.shape) == 4:
               image =  MidSlices(image, start_project_mid, end_project_mid, use_dask, axis = 1)
-
-            
         
         self.viewer.add_image(image, name= 'Image' + imagename )
         if heatmapimagedir is not None:
@@ -223,7 +233,7 @@ class OneatVisualization:
                 if segimagedir is not None:
                         for layer in list(self.viewer.layers):
                             if isinstance(layer, napari.layers.Labels):
-                                    seg_image = layer
+                                    seg_image = layer.data
 
                                     location_image, cell_count = LocationMap(event_locations_dict, seg_image, use_dask, heatmapsteps)     
                                     try:

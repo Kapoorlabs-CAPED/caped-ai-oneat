@@ -28,7 +28,6 @@ class OneatWidget(QWidget):
         viewer: 'napari.viewer.Viewer',
         savedir: None,
         savename: None,
-     
         key_categories : None,
         use_dask = False,
         event_threshold = None,
@@ -64,6 +63,7 @@ class OneatWidget(QWidget):
         self.frameWidget.plotidbox.addItem(event_norm_count_plot)
         self.frameWidget.heatstepsSpinBox = heatmapsteps
         self.frameWidget.scoreSlider.valueChanged.connect(self.updateLabel)
+        
 
         event_threshold = float(self.frameWidget.label.text())
         self.frameWidget.imageidbox.currentIndexChanged.connect(lambda eventid = self.frameWidget.imageidbox :
@@ -71,16 +71,27 @@ class OneatWidget(QWidget):
 
         self.frameWidget.eventidbox.currentIndexChanged.connect(lambda eventid = self.frameWidget.eventidbox :
         self._capture_csv_callback(segimagedir, event_threshold, use_dask, heatmapsteps ))
-        
  
         self.frameWidget.plotidbox.currentIndexChanged.connect(lambda eventid = self.frameWidget.imageidbox :
         self._capture_plot_callback(segimagedir,event_count_plot, cell_count_plot, event_norm_count_plot, use_dask, event_threshold))
+
+        self.frameWidget.recomputeButton.clicked.connect(lambda eventid = self.frameWidget.recomputeButton :
+        self._start_callbacks(segimagedir, use_dask, event_threshold, 
+    heatmapsteps,event_count_plot, cell_count_plot, event_norm_count_plot ))
        
-        
-    
+    def _start_callbacks(self,segimagedir, use_dask, event_threshold, 
+    heatmapsteps,event_count_plot, cell_count_plot, event_norm_count_plot ):
+
+           self._capture_csv_callback(segimagedir, event_threshold, use_dask, heatmapsteps)
+
+
+           self._capture_plot_callback(segimagedir,event_count_plot, cell_count_plot, event_norm_count_plot, use_dask, event_threshold)
+
     def updateLabel(self, value):
 
-        self.frameWidget.label.setText(str(value))
+        real_value = float(80 + float(value)/50)/100 
+        real_value = f'{real_value:.5f}'
+        self.frameWidget.label.setText(str(real_value))
 
     def _capture_csv_callback(self, segimagedir, event_threshold, use_dask, heatmapsteps):
         
