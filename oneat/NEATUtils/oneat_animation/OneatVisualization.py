@@ -9,7 +9,7 @@ from tifffile import imread,  imwrite
 from skimage import morphology
 import csv
 import matplotlib.pyplot as plt
-
+import cv2
 class OneatVisualization:
 
     def __init__(self, viewer: napari.Viewer,key_categories, 
@@ -106,9 +106,9 @@ class OneatVisualization:
                 end_project_mid = 0, 
                 use_dask = False):
 
-
+        name_remove = ('Image', 'SegImage')
         for layer in list(self.viewer.layers):
-                                         if ['Image', 'SegImage'] in layer.name or layer.name in ['Image', 'SegImage']:
+                                         if  any(name in layer.name for name in name_remove):
                                                     self.viewer.layers.remove(layer)
                                                     
         if use_dask:                                      
@@ -216,10 +216,10 @@ class OneatVisualization:
                 'size': 12,
                 'color': 'pink',
             }
-                
+                name_remove = ('Detections','Location Map')
                 for layer in list(self.viewer.layers):
                                     
-                                    if ['Detections','Location Map']  in layer.name or layer.name in ['Detections', 'Location Map'] :
+                                    if  any(name in layer.name for name in name_remove):
                                             self.viewer.layers.remove(layer) 
                 if len(score_locations) > 0:                             
                         self.viewer.add_points(event_locations, size = size_locations , properties = point_properties, text = text_properties,  name = 'Detections' + event_name, face_color = [0]*4, edge_color = "red") 

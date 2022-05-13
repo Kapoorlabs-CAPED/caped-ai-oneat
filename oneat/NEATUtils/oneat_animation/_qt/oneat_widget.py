@@ -58,6 +58,7 @@ class OneatWidget(QWidget):
         self._layout.addWidget(animation)
         self.oneatvisualization = OneatVisualization(viewer ,key_categories,  savedir, savename, self.frameWidget.ax, self.frameWidget.figure)
 
+        self.frameWidget.plotidbox.addItem('Select a type of plot')
         self.frameWidget.plotidbox.addItem(event_count_plot)
         self.frameWidget.plotidbox.addItem(cell_count_plot)
         self.frameWidget.plotidbox.addItem(event_norm_count_plot)
