@@ -266,14 +266,20 @@ def LocationMap(event_locations_dict, seg_image, use_dask, heatmapsteps):
                                 all_pixels = np.asarray(all_pixels)
                                 for k in range(all_pixels.shape[1]):
                                     location_image[i,all_pixels[0,k], all_pixels[1,k]] = 1
-            if i > 0:
-                   j = j + 1
-                   location_image[i,:] = np.add(location_image[i -1,:],location_image[i,:])
-                   if j%heatmapsteps == 0:
-                       location_image[i -1,:] = 0
-                    
+            
+            if i > heatmapsteps:
+                location_image = average_heat_map(location_image, heatmapsteps)
+
+
        return location_image, cell_count
 
+
+def average_heat_map(image, sliding_window):
+
+    for i in range(image.shape[0]):
+        for j in range(0,sliding_window):
+              image[i,:] = np.add(image[i,:] , image[i - j,:])
+    return image          
 
 def MidSlices(Image, start_project_mid, end_project_mid, use_dask, axis = 1):
     
