@@ -1,2 +1,2 @@
 from ._qt import OneatWidget
-from .oneatvisualization import Visualization
+from .OneatVisualization import  OneatVisualization

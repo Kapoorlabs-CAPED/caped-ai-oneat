@@ -35,7 +35,8 @@ setup(
         "opencv-python-headless" ,
         "sklearn",
         "dask",
-        "natsort"
+        "natsort",
+        "napari-animation",
        
     ],
     packages=setuptools.find_packages(),

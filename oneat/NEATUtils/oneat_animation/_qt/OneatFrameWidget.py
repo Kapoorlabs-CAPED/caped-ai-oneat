@@ -1,5 +1,5 @@
 from qtpy.QtCore import Qt
-from qtpy.QtWidgets import QComboBox, QWidget, QFormLayout, QSpinBox
+from qtpy.QtWidgets import QComboBox, QWidget, QFormLayout, QSpinBox, QSlider
 from oneat.NEATUtils.napari_animation.easing import Easing
 from matplotlib.backends.backend_qt5agg import \
     FigureCanvasQTAgg as FigureCanvas
@@ -27,24 +27,15 @@ class OneatFrameWidget(QWidget):
         self.heatstepsSpinBox = QSpinBox()
         self.heatstepsSpinBox.setValue(1)
 
-        self.stepsSpinBox = QSpinBox()
-        self.stepsSpinBox.setValue(1)
-
-        self.startframeSpinBox = QSpinBox()
-        self.startframeSpinBox.setValue(0)
-
-        self.endframeSpinBox = QSpinBox()
-        self.endframeSpinBox.setValue(10)
-
-        self.easeComboBox = QComboBox()
-        self.easeComboBox.addItems([e.name.lower() for e in Easing])
-        index = self.easeComboBox.findText('linear', Qt.MatchFixedString)
-        self.easeComboBox.setCurrentIndex(index)
+        self.scoreSlider = QSlider(Qt.Horizontal, parent=self)
+        self.scoreSlider.setToolTip("Scroll through probability score")
+        self.scoreSlider.setRange(0, 1)
+        self.scoreSlider.setSingleStep(0.01)
 
 
         self.figure = plt.figure(figsize=(4, 4))
         self.multiplot_widget = FigureCanvas(self.figure)
-        self.ax = self.multiplot_widget.figure.subplots(1, 1)
+        self.ax = self.multiplot_widget.self.figure.subplots(1, 1)
         
 
         self._layout.addWidget(self.multiplot_widget)
@@ -52,8 +43,5 @@ class OneatFrameWidget(QWidget):
         self._layout.addRow('Image/Movie', self.imageidbox)
         self._layout.addRow('Plot', self.plotidbox)
         self._layout.addRow('Heat Map Steps', self.heatstepsSpinBox)
-        self._layout.addRow('StartFrame', self.startframeSpinBox)
-        self._layout.addRow('EndFrame', self.endframeSpinBox)
-        self._layout.addRow('Animations Saving Steps', self.stepsSpinBox)
-        self._layout.addRow('Animation Saving Rate', self.easeComboBox)
+        self._layout.addRow('Score slider', self.scoreSlider)
         
