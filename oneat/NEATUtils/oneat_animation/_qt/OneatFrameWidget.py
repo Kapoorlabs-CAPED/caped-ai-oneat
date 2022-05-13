@@ -31,6 +31,7 @@ class OneatFrameWidget(QWidget):
         self.scoreSlider.setToolTip("Scroll through probability score")
         self.scoreSlider.setRange(0, 5000)
         self.scoreSlider.setSingleStep(1)
+        self.scoreSlider.setTickInterval(1)
 
         self.label = QLabel('0', self)
         self.label.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
