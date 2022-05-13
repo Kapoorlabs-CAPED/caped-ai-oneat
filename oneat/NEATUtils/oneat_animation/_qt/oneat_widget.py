@@ -87,14 +87,12 @@ class OneatWidget(QWidget):
 
            self._capture_plot_callback(segimagedir,event_count_plot, cell_count_plot, event_norm_count_plot, use_dask, event_threshold)
 
-    def updateLabel(self, value, segimagedir, use_dask, event_threshold, 
-    heatmapsteps,event_count_plot, cell_count_plot, event_norm_count_plot):
+    def updateLabel(self, value):
 
         real_value = float(80 + float(value)/50)/100 
         real_value = f'{real_value:.5f}'
         self.frameWidget.label.setText(str(real_value))
-        self._start_callbacks(segimagedir, use_dask, event_threshold, 
-    heatmapsteps,event_count_plot, cell_count_plot, event_norm_count_plot )
+       
 
     def _capture_csv_callback(self, segimagedir, event_threshold, use_dask, heatmapsteps):
         

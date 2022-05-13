@@ -219,7 +219,7 @@ class OneatVisualization:
                 
                 for layer in list(self.viewer.layers):
                                     
-                                    if 'Detections'  in layer.name or layer.name in 'Detections' :
+                                    if ['Detections','Location Map']  in layer.name or layer.name in ['Detections', 'Location Map'] :
                                             self.viewer.layers.remove(layer) 
                 if len(score_locations) > 0:                             
                         self.viewer.add_points(event_locations, size = size_locations , properties = point_properties, text = text_properties,  name = 'Detections' + event_name, face_color = [0]*4, edge_color = "red") 
@@ -267,12 +267,10 @@ def LocationMap(event_locations_dict, seg_image, use_dask, heatmapsteps):
                                 for k in range(all_pixels.shape[1]):
                                     location_image[i,all_pixels[0,k], all_pixels[1,k]] = 1
             if i > 0:
-                   if heatmapsteps > 0 and j%heatmapsteps == 0:
-                       location_image[i - 1] = 0
-                       j = 0
                    j = j + 1
-                   if heatmapsteps!=0:
-                      location_image[i,:] = np.add(location_image[i -1,:],location_image[i,:])
+                   location_image[i,:] = np.add(location_image[i -1,:],location_image[i,:])
+                   if j%heatmapsteps == 0:
+                       location_image[i -1,:] = 0
                     
        return location_image, cell_count
 
