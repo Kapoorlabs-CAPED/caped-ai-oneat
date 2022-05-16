@@ -1,3 +1,4 @@
+from poplib import POP3_SSL_PORT
 import pandas as pd
 import numpy as np
 import os
@@ -40,21 +41,23 @@ class OneatVisualization:
          print('curr',currenttime)
         
          tree = spatial.cKDTree(event_locations)
-         for i in range(nms_time):
+         for i in range(1, nms_time):
                     backtime = currenttime - i
                  
                     if int(backtime) in self.event_locations_dict.keys():
                      
                       back_event_locations = self.event_locations_dict[int(backtime)]
+                      print('back', backtime)
                       for location in back_event_locations:
                         if (int(backtime), int(location[0]), int(location[1])) in self.event_locations_score_dict:   
                             backscore = self.event_locations_score_dict[int(backtime), int(location[0]), int(location[1])]
                             distance, nearest_location = tree.query(location)
                             nearest_location = int(event_locations[nearest_location][0]), int(event_locations[nearest_location][1])
-
+                            
                             if distance <= nms_space:
                                 if (int(currenttime), int(nearest_location[0]), int(nearest_location[1])) in self.event_locations_score_dict:
                                     currentscore = self.event_locations_score_dict[int(currenttime), int(nearest_location[0]), int(nearest_location[1])]
+                                    print('back',distance, currentscore, backscore)
                                     if currentscore > backscore:
                                         self.event_locations_score_dict.pop(( int(backtime), int(location[0]), int(location[1])))
                                     else:
@@ -71,11 +74,13 @@ class OneatVisualization:
                                 if distance <= nms_space:
                                             if (int(currenttime), int(nearest_location[0]), int(nearest_location[1])) in self.event_locations_score_dict:
                                                 currentscore = self.event_locations_score_dict[int(currenttime), int(nearest_location[0]), int(nearest_location[1])]
-
+                                                print('fwd',distance, currentscore, forwardscore)
                                                 if currentscore > forwardscore:
                                                     self.event_locations_score_dict.pop((int(forwardtime), int(location[0]), int(location[1])))
+                                                    
                                                 else:
-                                                    self.event_locations_score_dict.pop((int(currenttime), int(nearest_location[0]), int(nearest_location[1])))          
+                                                    self.event_locations_score_dict.pop((int(currenttime), int(nearest_location[0]), int(nearest_location[1])))   
+     print(len(self.event_locations_score_dict))                                                      
 
      self.show_clean_csv()                        
 
@@ -86,6 +91,7 @@ class OneatVisualization:
                      
                 for location  in dict_locations:
                      self.event_locations_clean.append(location)
+                     print(location)
                 name_remove = ('Clean Detections','Clean Location Map')
                 for layer in list(self.viewer.layers):
                                     

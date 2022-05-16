@@ -54,7 +54,7 @@ class OneatFrameWidget(QWidget):
         
 
 
-        self.recomputeButton = QPushButton("Recompute with new score", parent=self) 
+        self.recomputeButton = QPushButton("Recompute with changed parameters", parent=self) 
 
         self.figure = plt.figure(figsize=(4, 4))
         self.multiplot_widget = FigureCanvas(self.figure)

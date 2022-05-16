@@ -102,11 +102,11 @@ class OneatWidget(QWidget):
 
     def update_nms_time(self, event):
         """update state of 'heatmapsteps' at current key-frame to reflect GUI state"""
-        self.update_nms_time = self.frameWidget.nmstimeSpinBox.value()
+        self.nms_time = self.frameWidget.nmstimeSpinBox.value()
 
     def update_nms_space(self, event):
         """update state of 'heatmapsteps' at current key-frame to reflect GUI state"""
-        self.update_nms_space = self.frameWidget.nmsspaceSpinBox.value()    
+        self.nms_space = self.frameWidget.nmsspaceSpinBox.value()    
  
     def update_heat_steps(self, event):
         """update state of 'heatmapsteps' at current key-frame to reflect GUI state"""
