@@ -47,31 +47,34 @@ class OneatVisualization:
                      
                       back_event_locations = self.event_locations_dict[int(backtime)]
                       for location in back_event_locations:
-                        backscore = self.event_locations_score_dict[int(backtime), int(location[0]), int(location[1])]
-                        distance, nearest_location = tree.query(location)
-                       
-                      if distance <= nms_space:
-                                nearest_location = int(event_locations[nearest_location][0]), int(event_locations[nearest_location][1])
-                                currentscore = self.event_locations_score_dict[int(currenttime), int(nearest_location[0]), int(nearest_location[1])]
-
-                                if currentscore > backscore:
-                                    self.event_locations_score_dict.pop(( int(backtime), int(location[0]), int(location[1])))
-                                else:
-                                    self.event_locations_score_dict.pop(( int(currenttime), int(nearest_location[0]), int(nearest_location[1]) ))    
+                        if int(backtime), int(location[0]), int(location[1]) in self.event_locations_score_dict:   
+                            backscore = self.event_locations_score_dict[int(backtime), int(location[0]), int(location[1])]
+                            distance, nearest_location = tree.query(location)
+                        
+                            if distance <= nms_space:
+                                if int(currenttime), int(nearest_location[0]), int(nearest_location[1]) in self.event_locations_score_dict:
+                                    nearest_location = int(event_locations[nearest_location][0]), int(event_locations[nearest_location][1])
+                                    currentscore = self.event_locations_score_dict[int(currenttime), int(nearest_location[0]), int(nearest_location[1])]
+                                    if currentscore > backscore:
+                                        self.event_locations_score_dict.pop(( int(backtime), int(location[0]), int(location[1])))
+                                    else:
+                                        self.event_locations_score_dict.pop(( int(currenttime), int(nearest_location[0]), int(nearest_location[1]) ))    
                     forwardtime = currenttime + i
                     if int(forwardtime) in self.event_locations_dict.keys():
                       forward_event_locations = self.event_locations_dict[int(forwardtime)]
                       for location in forward_event_locations:
-                        backscore = self.event_locations_score_dict[int(forwardtime), int(location[0]), int(location[1])]
-                        distance, nearest_location = tree.query(location)
-                      if distance <= nms_space:
-                                nearest_location = int(event_locations[nearest_location][0]), int(event_locations[nearest_location][1])
-                                currentscore = self.event_locations_score_dict[int(currenttime), int(nearest_location[0]), int(nearest_location[1])]
+                        if int(forwardtime), int(location[0]), int(location[1]) in elf.event_locations_score_dict:   
+                                forwardscore = self.event_locations_score_dict[int(forwardtime), int(location[0]), int(location[1])]
+                                distance, nearest_location = tree.query(location)
+                                if distance <= nms_space:
+                                            nearest_location = int(event_locations[nearest_location][0]), int(event_locations[nearest_location][1])
+                                            if int(currenttime), int(nearest_location[0]), int(nearest_location[1]) in self.event_locations_score_dict:
+                                                currentscore = self.event_locations_score_dict[int(currenttime), int(nearest_location[0]), int(nearest_location[1])]
 
-                                if currentscore > backscore:
-                                    self.event_locations_score_dict.pop((int(forwardtime), int(location[0]), int(location[1])))
-                                else:
-                                    self.event_locations_score_dict.pop((int(currenttime), int(nearest_location[0]), int(nearest_location[1])))          
+                                                if currentscore > forwardscore:
+                                                    self.event_locations_score_dict.pop((int(forwardtime), int(location[0]), int(location[1])))
+                                                else:
+                                                    self.event_locations_score_dict.pop((int(currenttime), int(nearest_location[0]), int(nearest_location[1])))          
 
      self.show_clean_csv()                        
 
