@@ -489,15 +489,7 @@ def twod_zero_pad(image, PadX, PadY):
 
     return extendimage
 
-def Generate_only_mask(Image, maskmodel, n_tiles):
-  Mask = np.zeros([Image.shape[0], Image.shape[1], Image.shape[2]])
-  for i in (range(0, Image.shape[0])):
-        smallimage = Image[i, :]
-        maskimage = GenerateMask(smallimage, maskmodel, n_tiles)
-        maskimage = fill_label_holes(maskimage.astype('uint16'))
 
-        Mask[i,:] = maskimage
-  return Mask
 
 
 def MidSlices(Image, start_project_mid, end_project_mid, axis = 1):
@@ -544,22 +536,7 @@ def GenerateMarkers(segimage, start_project_mid = 4, end_project_mid = 4):
     return Markers
 
 
-def GenerateMask(Image, model, n_tiles):
-     
-    Segmented = model.predict(Image, 'YX', n_tiles=n_tiles)
-    try:
-            thresholds = threshold_multiotsu(Segmented, classes=2)
 
-            # Using the threshold values, we generate the three regions.
-            regions = np.digitize(Segmented, bins=thresholds)
-    except:
-
-            regions = Segmented
-
-    Binary = regions > 0
-        
-
-    return Binary  
 
 """
 This method takes the integer labelled segmentation image as input and creates a dictionary of markers at all timepoints for easy search

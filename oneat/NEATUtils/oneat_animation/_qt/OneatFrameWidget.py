@@ -28,6 +28,16 @@ class OneatFrameWidget(QWidget):
         self.heatstepsSpinBox.setValue(1)
         self.heatstepsSpinBox.setMaximum(100000)
         self.startprobSpinBox = QDoubleSpinBox()
+
+        self.nmstimeSpinBox = QSpinBox()
+        self.nmstimeSpinBox.setValue(1)
+        self.nmstimeSpinBox.setMaximum(100000)
+        self.nmstimeSpinBox = QDoubleSpinBox()
+
+        self.nmsspaceSpinBox = QSpinBox()
+        self.nmsspaceSpinBox.setValue(20)
+        self.nmsspaceSpinBox.setMaximum(100000)
+        self.nmsspaceSpinBox = QDoubleSpinBox()
       
         self.startprobSpinBox.setValue(0.9)
         self.startprobSpinBox.setDecimals(10)
@@ -58,6 +68,8 @@ class OneatFrameWidget(QWidget):
         self._layout.addRow('Image/Movie', self.imageidbox)
         self._layout.addRow('Event', self.eventidbox)
         self._layout.addRow('Heat Map Steps', self.heatstepsSpinBox)
+        self._layout.addRow('NMS time (px)', self.nmstimeSpinBox)
+        self._layout.addRow('NMS space (px)', self.nmsspaceSpinBox)
         self._layout.addRow('Lowest probability event', self.startprobSpinBox)
         self._layout.addRow('Score slider', self.scoreSlider)
         self._layout.addRow('Score threshold', self.label)

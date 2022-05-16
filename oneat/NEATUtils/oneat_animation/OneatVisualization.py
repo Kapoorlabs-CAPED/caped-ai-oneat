@@ -23,7 +23,61 @@ class OneatVisualization:
         self.figure = figure
         self.dataset = None
         self.event_name = None
-        self.cell_count = None        
+        self.cell_count = None      
+        self.event_locations = []
+        self.event_locations_dict = {}
+        self.event_locations_score_dict = {}
+        self.event_locations_score_nested_dict = {}
+        self.size_locations = []
+        self.score_locations = []
+        self.confidence_locations = []
+
+    # To prevent early detectin of events
+    def cluster_points(self, nms_space, nms_time):
+
+     for k,v in self.event_locations_dict.keys():
+
+         currenttime = k
+         event_locations = v
+         tree = spatial.cKDTree(event_locations)
+         for i in range(nms_time//2):
+                backtime = currenttime - i
+                if backtime in self.event_locations_dict.keys():
+                    back_event_locations = self.event_locations_dict[int(backtime)]
+                    back_event_locations_score_dict = self.event_locations_score_nested_dict[int(backtime)]
+                    
+                    for location in back_event_locations:
+                        backscore = back_event_locations_score_dict[location] 
+                        distance, nearest_location = tree.query(location)
+
+                        if distance <= nms_space:
+                            
+                                current_event_locations_score_dict = self.event_locations_score_nested_dict[int(currenttime)]
+                                currentscore = current_event_locations_score_dict[nearest_location]
+
+                                if currentscore > backscore:
+                                    self.event_locations_score_nested_dict[int(backtime)].pop(location)
+                                else:
+                                    self.event_locations_score_nested_dict[int(currenttime)].pop(nearest_location)    
+                forwardtime = currenttime + i
+                if forwardtime in self.event_locations_dict.keys():
+                    forward_event_locations = self.event_locations_dict[int(forwardtime)]
+                    forward_event_locations_score_dict = self.event_locations_score_nested_dict[int(forwardtime)]
+                    
+                    for location in forward_event_locations:
+                        forwardscore = forward_event_locations_score_dict[location] 
+                        distance, nearest_location = tree.query(location)
+
+                        if distance <= nms_space:
+                            
+                                current_event_locations_score_dict = self.event_locations_score_nested_dict[int(currenttime)]
+                                currentscore = current_event_locations_score_dict[nearest_location]
+
+                                if currentscore > forwardscore:
+                                    self.event_locations_score_nested_dict[int(forwardtime)].pop(location)
+                                else:
+                                    self.event_locations_score_nested_dict[int(currenttime)].pop(nearest_location)                  
+
     def show_plot(self, imagename, plot_event_name, event_count_plot, event_norm_count_plot, cell_count_plot, 
       segimagedir = None, event_threshold = 0 ):
 
@@ -143,7 +197,7 @@ class OneatVisualization:
         except:
              pass            
 
-    def show_csv(self, imagename, csv_event_name, segimagedir = None, event_threshold = 0, use_dask = False, heatmapsteps = 0):
+    def show_csv(self, imagename, csv_event_name, segimagedir = None, event_threshold = 0, use_dask = False, heatmapsteps = 0, nms_space = 0, nms_time = 0):
         csvname = None
         
         for (event_name,event_label) in self.key_categories.items():
@@ -180,11 +234,7 @@ class OneatVisualization:
                 listsize = Size.tolist()
                 listscore = Score.tolist()
                 listconfidence = Confidence.tolist()
-                event_locations = []
-                event_locations_dict = {}
-                size_locations = []
-                score_locations = []
-                confidence_locations = []
+                
             
                 for i in (range(len(listtime))):
                         
@@ -196,21 +246,26 @@ class OneatVisualization:
                         score = listscore[i]
                         confidence = listconfidence[i]   
                         if score > event_threshold:
-                                event_locations.append([int(tcenter), int(ycenter), int(xcenter)])   
+                                self.event_locations.append([int(tcenter), int(ycenter), int(xcenter)])   
 
-                                if int(tcenter) in event_locations_dict.keys():
-                                    current_list = event_locations_dict[int(tcenter)]
+                                if int(tcenter) in self.event_locations_dict.keys():
+                                    current_list = self.event_locations_dict[int(tcenter)]
                                     current_list.append([int(ycenter), int(xcenter)])
-                                    event_locations_dict[int(tcenter)] = current_list 
+                                    self.event_locations_dict[int(tcenter)] = current_list 
+                                    self.event_locations_score_dict[(int(ycenter), int(xcenter))] = score
+                                    self.event_locations_score_nested_dict[int(tcenter)] = self.event_locations_score_dict[(int(ycenter), int(xcenter))]
                                 else:
                                     current_list = []
                                     current_list.append([int(ycenter), int(xcenter)])
-                                    event_locations_dict[int(tcenter)] = current_list    
+                                    self.event_locations_dict[int(tcenter)] = current_list    
+                                    self.event_locations_score_dict[(int(ycenter), int(xcenter))] = score
+                                    self.event_locations_score_nested_dict[int(tcenter)] = self.event_locations_score_dict[(int(ycenter), int(xcenter))]
 
-                                size_locations.append(size)
-                                score_locations.append(score)
-                                confidence_locations.append(confidence)
-                point_properties = {'score' : np.array(score_locations), 'confidence' : np.array(confidence_locations)}    
+
+                                self.size_locations.append(size)
+                                self.score_locations.append(score)
+                                self.confidence_locations.append(confidence)
+                point_properties = {'score' : np.array(self.score_locations), 'confidence' : np.array(self.confidence_locations)}    
                 text_properties = {
                 'text': event_name +': {score:.5f}' + '\n' + 'Confidence' +  ': {confidence:.5f}',
                 'anchor': 'upper_left',
@@ -223,15 +278,15 @@ class OneatVisualization:
                                     
                                     if  any(name in layer.name for name in name_remove):
                                             self.viewer.layers.remove(layer) 
-                if len(score_locations) > 0:                             
-                        self.viewer.add_points(event_locations, size = size_locations , properties = point_properties, text = text_properties,  name = 'Detections' + event_name, face_color = [0]*4, edge_color = "red") 
+                if len(self.score_locations) > 0:                             
+                        self.viewer.add_points(self.event_locations, size = self.size_locations , properties = point_properties, text = text_properties,  name = 'Detections' + event_name, face_color = [0]*4, edge_color = "red") 
                         
                 if segimagedir is not None:
                         for layer in list(self.viewer.layers):
                             if isinstance(layer, napari.layers.Labels):
                                     seg_image = layer.data
 
-                                    location_image, self.cell_count = LocationMap(event_locations_dict, seg_image, use_dask, heatmapsteps)     
+                                    location_image, self.cell_count = LocationMap(self.event_locations_dict, seg_image, use_dask, heatmapsteps)     
                                     try:
                                         self.viewer.add_image(location_image, name= 'Location Map' + imagename, blending= 'additive' )
                                     except:
@@ -593,6 +648,10 @@ def GetMarkers(image):
     markers = morphology.dilation(MarkerImage, morphology.disk(2))        
    
     return markers    
+
+
+
+
 
 
   
