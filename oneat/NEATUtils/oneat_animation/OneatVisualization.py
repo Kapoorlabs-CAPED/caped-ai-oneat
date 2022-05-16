@@ -35,14 +35,14 @@ class OneatVisualization:
     # To prevent early detectin of events
     def cluster_points(self, nms_space, nms_time):
 
-     for k,v in self.event_locations_dict.keys():
-
+     for (k,v) in self.event_locations_dict.items():
+         print(k)
          currenttime = k
          event_locations = v
          tree = spatial.cKDTree(event_locations)
          for i in range(nms_time//2):
                 backtime = currenttime - i
-                if backtime in self.event_locations_dict.keys():
+                if backtime in self.event_locations_dict.items():
                     back_event_locations = self.event_locations_dict[int(backtime)]
                     back_event_locations_score_dict = self.event_locations_score_nested_dict[int(backtime)]
                     
@@ -60,7 +60,7 @@ class OneatVisualization:
                                 else:
                                     self.event_locations_score_nested_dict[int(currenttime)].pop(nearest_location)    
                 forwardtime = currenttime + i
-                if forwardtime in self.event_locations_dict.keys():
+                if forwardtime in self.event_locations_dict.items():
                     forward_event_locations = self.event_locations_dict[int(forwardtime)]
                     forward_event_locations_score_dict = self.event_locations_score_nested_dict[int(forwardtime)]
                     
@@ -76,7 +76,28 @@ class OneatVisualization:
                                 if currentscore > forwardscore:
                                     self.event_locations_score_nested_dict[int(forwardtime)].pop(location)
                                 else:
-                                    self.event_locations_score_nested_dict[int(currenttime)].pop(nearest_location)                  
+                                    self.event_locations_score_nested_dict[int(currenttime)].pop(nearest_location)         
+
+     self.show_clean_csv()                        
+
+    def show_clean_csv(self):
+ 
+                self.event_locations_clean = []                
+                for (k, v) in self.event_locations_score_nested_dict.items():
+
+                      time = k
+                      locations = v
+                      for location in locations:
+                          self.event_locations_clean.append([time, location[0], location[1]])
+
+                name_remove = ('Clean Detections','Clean Location Map')
+                for layer in list(self.viewer.layers):
+                                    
+                                    if  any(name in layer.name for name in name_remove):
+                                            self.viewer.layers.remove(layer) 
+                if len(self.score_locations) > 0:                             
+                        self.viewer.add_points(self.event_locations_clean,  name = 'Clean Detections', face_color = [0]*4, edge_color = "green") 
+                        
 
     def show_plot(self, imagename, plot_event_name, event_count_plot, event_norm_count_plot, cell_count_plot, 
       segimagedir = None, event_threshold = 0 ):
@@ -212,7 +233,7 @@ class OneatVisualization:
                                      
                                      csvname = self.savedir + "/" + event_name + "Location" + (os.path.splitext(os.path.basename(imagename))[0] + '.csv')
         if csvname is not None:    
-            try:  
+            
                 self.event_name = csv_event_name                         
                 self.dataset   = pd.read_csv(csvname, delimiter = ',')
                 self.dataset_index =  self.dataset.index
@@ -287,14 +308,13 @@ class OneatVisualization:
                                     seg_image = layer.data
 
                                     location_image, self.cell_count = LocationMap(self.event_locations_dict, seg_image, use_dask, heatmapsteps)     
-                                    try:
-                                        self.viewer.add_image(location_image, name= 'Location Map' + imagename, blending= 'additive' )
-                                    except:
-                                            pass
+                                    self.viewer.add_labels(location_image.astype('uint16'), name= 'Location Map' + imagename )
+                                    
+            
 
-            except:
+                self.cluster_points(nms_space, nms_time)
 
-                pass                            
+                                       
 
 
 def LocationMap(event_locations_dict, seg_image, use_dask, heatmapsteps):
