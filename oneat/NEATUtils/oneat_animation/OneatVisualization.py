@@ -86,8 +86,8 @@ class OneatVisualization:
                 for (k, v) in self.event_locations_score_nested_dict.items():
 
                       time = k
-                      locations = v
-                      for location in locations:
+                      dict_locations = v
+                      for location  in dict_locations.keys():
                           self.event_locations_clean.append([time, location[0], location[1]])
 
                 name_remove = ('Clean Detections','Clean Location Map')
@@ -95,14 +95,12 @@ class OneatVisualization:
                                     
                                     if  any(name in layer.name for name in name_remove):
                                             self.viewer.layers.remove(layer) 
-                if len(self.score_locations) > 0:                             
-                        self.viewer.add_points(self.event_locations_clean,  name = 'Clean Detections', face_color = [0]*4, edge_color = "green") 
+                self.viewer.add_points(self.event_locations_clean,  name = 'Clean Detections', face_color = [0]*4, edge_color = "green") 
                         
 
     def show_plot(self, imagename, plot_event_name, event_count_plot, event_norm_count_plot, cell_count_plot, 
       segimagedir = None, event_threshold = 0 ):
 
-        print('event threshold in plot', event_threshold)
         timelist = []
         eventlist= []
         normeventlist = []
@@ -274,13 +272,13 @@ class OneatVisualization:
                                     current_list.append([int(ycenter), int(xcenter)])
                                     self.event_locations_dict[int(tcenter)] = current_list 
                                     self.event_locations_score_dict[(int(ycenter), int(xcenter))] = score
-                                    self.event_locations_score_nested_dict[int(tcenter)] = self.event_locations_score_dict[(int(ycenter), int(xcenter))]
+                                    self.event_locations_score_nested_dict[int(tcenter)] = self.event_locations_score_dict
                                 else:
                                     current_list = []
                                     current_list.append([int(ycenter), int(xcenter)])
                                     self.event_locations_dict[int(tcenter)] = current_list    
                                     self.event_locations_score_dict[(int(ycenter), int(xcenter))] = score
-                                    self.event_locations_score_nested_dict[int(tcenter)] = self.event_locations_score_dict[(int(ycenter), int(xcenter))]
+                                    self.event_locations_score_nested_dict[int(tcenter)] = self.event_locations_score_dict
 
 
                                 self.size_locations.append(size)

@@ -62,7 +62,6 @@ class OneatWidget(QWidget):
         self.heatmapsteps = self.frameWidget.heatstepsSpinBox.value()
         self.event_threshold = float(self.frameWidget.label.text())
 
-        print('Initial', self.heatmapsteps, " ", self.event_threshold, " ", self.start_prob )  
 
         self.frameWidget.plotidbox.addItem('Select a type of plot')
         self.frameWidget.plotidbox.addItem(event_count_plot)
