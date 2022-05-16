@@ -63,7 +63,7 @@ class OneatVisualization:
                     if int(forwardtime) in self.event_locations_dict.keys():
                       forward_event_locations = self.event_locations_dict[int(forwardtime)]
                       for location in forward_event_locations:
-                        if (int(forwardtime), int(location[0]), int(location[1])) in elf.event_locations_score_dict:   
+                        if (int(forwardtime), int(location[0]), int(location[1])) in self.event_locations_score_dict:   
                                 forwardscore = self.event_locations_score_dict[int(forwardtime), int(location[0]), int(location[1])]
                                 distance, nearest_location = tree.query(location)
                                 nearest_location = int(event_locations[nearest_location][0]), int(event_locations[nearest_location][1])
