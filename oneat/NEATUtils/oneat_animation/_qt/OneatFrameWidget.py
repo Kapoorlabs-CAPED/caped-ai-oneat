@@ -1,6 +1,6 @@
 from qtpy.QtCore import Qt
-from qtpy.QtWidgets import QComboBox, QWidget, QFormLayout, QSpinBox, QSlider, QLabel, QPushButton
-
+from qtpy.QtWidgets import QComboBox, QWidget, QFormLayout, QSpinBox, QSlider, QLabel, QPushButton, QDoubleSpinBox
+import sys
 from matplotlib.backends.backend_qt5agg import \
     FigureCanvasQTAgg as FigureCanvas
 import matplotlib.pyplot as plt
@@ -26,16 +26,25 @@ class OneatFrameWidget(QWidget):
 
         self.heatstepsSpinBox = QSpinBox()
         self.heatstepsSpinBox.setValue(1)
+        self.heatstepsSpinBox.setMaximum(100000)
+        self.startprobSpinBox = QDoubleSpinBox()
+      
+        self.startprobSpinBox.setValue(0.9)
+        self.startprobSpinBox.setDecimals(10)
 
         self.scoreSlider = QSlider(Qt.Horizontal, parent=self)
         self.scoreSlider.setToolTip("Scroll through probability score")
         self.scoreSlider.setRange(0, 5000)
         self.scoreSlider.setSingleStep(1)
         self.scoreSlider.setTickInterval(1)
+        self.scoreSlider.setValue(0)
 
-        self.label = QLabel('0', self)
+        self.label = QLabel(self)
         self.label.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
         self.label.setMinimumWidth(80)
+        self.label.setText(f'{0.9:.5f}') 
+        
+
 
         self.recomputeButton = QPushButton("Recompute with new score", parent=self) 
 
@@ -46,11 +55,12 @@ class OneatFrameWidget(QWidget):
         
 
         self._layout.addWidget(self.multiplot_widget)
-        self._layout.addRow('Event', self.eventidbox)
         self._layout.addRow('Image/Movie', self.imageidbox)
-        self._layout.addRow('Plot', self.plotidbox)
+        self._layout.addRow('Event', self.eventidbox)
         self._layout.addRow('Heat Map Steps', self.heatstepsSpinBox)
+        self._layout.addRow('Lowest probability event', self.startprobSpinBox)
         self._layout.addRow('Score slider', self.scoreSlider)
         self._layout.addRow('Score threshold', self.label)
+        self._layout.addRow('Plot', self.plotidbox)
         self._layout.addRow( self.recomputeButton)
         

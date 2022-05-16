@@ -30,11 +30,9 @@ class OneatWidget(QWidget):
         savename: None,
         key_categories : None,
         use_dask = False,
-        event_threshold = None,
         segimagedir = None,
         heatimagedir = None,
         heatname = '_Heat',
-        heatmapsteps = 1,
         start_project_mid = 0, 
         end_project_mid = 1,
         event_count_plot = 'Plot selected event count',
@@ -48,60 +46,72 @@ class OneatWidget(QWidget):
         self.setLayout(self._layout)
 
         self._layout.addWidget(QLabel('Oneat Visualization Wizard', parent=self))
-
+        
         self.frameWidget = OneatFrameWidget(parent=self)
         self._layout.addWidget(self.frameWidget)
         self._layout.addStretch(1)
 
         animation = AnimationWidget(viewer)
-        
+        self.start_prob = self.frameWidget.startprobSpinBox.value()
         self._layout.addWidget(animation)
         self.oneatvisualization = OneatVisualization(viewer ,key_categories,  savedir, savename, self.frameWidget.ax, self.frameWidget.figure)
+       
+        self.heatmapsteps = self.frameWidget.heatstepsSpinBox.value()
+        self.event_threshold = float(self.frameWidget.label.text())
+
+        print('Initial', self.heatmapsteps, " ", self.event_threshold, " ", self.start_prob )  
 
         self.frameWidget.plotidbox.addItem('Select a type of plot')
         self.frameWidget.plotidbox.addItem(event_count_plot)
         self.frameWidget.plotidbox.addItem(cell_count_plot)
         self.frameWidget.plotidbox.addItem(event_norm_count_plot)
-        self.frameWidget.heatstepsSpinBox = heatmapsteps
+        self.frameWidget.heatstepsSpinBox.valueChanged.connect(self.update_heat_steps)
+        self.frameWidget.startprobSpinBox.valueChanged.connect(self.update_start_prob)
         self.frameWidget.scoreSlider.valueChanged.connect(self.updateLabel)
-        
+    
 
-        event_threshold = float(self.frameWidget.label.text())
+        
         self.frameWidget.imageidbox.currentIndexChanged.connect(lambda eventid = self.frameWidget.imageidbox :
-        self._capture_image_callback(segimagedir,event_threshold , heatname, start_project_mid, end_project_mid, use_dask ))
+        self._capture_image_callback(segimagedir, heatimagedir, heatname, start_project_mid, end_project_mid, use_dask ))
 
         self.frameWidget.eventidbox.currentIndexChanged.connect(lambda eventid = self.frameWidget.eventidbox :
-        self._capture_csv_callback(segimagedir, event_threshold, use_dask, heatmapsteps ))
+        self._capture_csv_callback(segimagedir,  use_dask ))
  
         self.frameWidget.plotidbox.currentIndexChanged.connect(lambda eventid = self.frameWidget.imageidbox :
-        self._capture_plot_callback(segimagedir,event_count_plot, cell_count_plot, event_norm_count_plot, use_dask, event_threshold))
+        self._capture_plot_callback(segimagedir,event_count_plot, cell_count_plot, event_norm_count_plot))
 
         self.frameWidget.recomputeButton.clicked.connect(lambda eventid = self.frameWidget.recomputeButton :
-        self._start_callbacks(segimagedir, use_dask, event_threshold, 
-    heatmapsteps,event_count_plot, cell_count_plot, event_norm_count_plot ))
+        self._start_callbacks(segimagedir, use_dask, 
+    event_count_plot, cell_count_plot, event_norm_count_plot ))
+
        
-    def _start_callbacks(self,segimagedir, use_dask, event_threshold, 
-    heatmapsteps,event_count_plot, cell_count_plot, event_norm_count_plot ):
+    def _start_callbacks(self,segimagedir, use_dask, 
+    event_count_plot, cell_count_plot, event_norm_count_plot ):
 
-           self._capture_csv_callback(segimagedir, event_threshold, use_dask, heatmapsteps)
+           self._capture_csv_callback(segimagedir, use_dask)
+           self._capture_plot_callback(segimagedir,event_count_plot, cell_count_plot, event_norm_count_plot)
 
-
-           self._capture_plot_callback(segimagedir,event_count_plot, cell_count_plot, event_norm_count_plot, use_dask, event_threshold)
+    def update_start_prob(self, event):
+        """update state of 'heatmapsteps' at current key-frame to reflect GUI state"""
+        self.start_prob = self.frameWidget.startprobSpinBox.value()
+ 
+    def update_heat_steps(self, event):
+        """update state of 'heatmapsteps' at current key-frame to reflect GUI state"""
+        self.heatmapsteps = self.frameWidget.heatstepsSpinBox.value()
 
     def updateLabel(self, value):
 
-        real_value = float(80 + float(value)/250)/100 
-        real_value = f'{real_value:.5f}'
+        real_value = float(self.start_prob + (1.0 - self.start_prob)/5000 * float(value)) 
         self.frameWidget.label.setText(str(real_value))
-       
+        self.event_threshold = float(real_value)
 
-    def _capture_csv_callback(self, segimagedir, event_threshold, use_dask, heatmapsteps):
+    def _capture_csv_callback(self, segimagedir, use_dask):
         
          get_image_text = self.frameWidget.imageidbox.currentText()
          csv_event_name = self.frameWidget.eventidbox.currentText()
          imagename = os.path.basename(os.path.splitext(get_image_text)[0])
-         self.oneatvisualization.show_csv(imagename, csv_event_name, segimagedir = segimagedir, event_threshold = event_threshold, 
-         use_dask = use_dask, heatmapsteps = heatmapsteps)
+         self.oneatvisualization.show_csv(imagename, csv_event_name, segimagedir = segimagedir, event_threshold = self.event_threshold, 
+         use_dask = use_dask, heatmapsteps = self.heatmapsteps)
                  
 
     def _capture_image_callback(self, segimagedir, heatmapimagedir, heatname, start_project_mid, end_project_mid, use_dask):
@@ -111,11 +121,10 @@ class OneatWidget(QWidget):
          self.oneatvisualization.show_image(get_image_text, imagename, segimagedir, heatmapimagedir, heatname,
          start_project_mid, end_project_mid, use_dask)
    
-    def _capture_plot_callback(self, segimagedir,event_count_plot, cell_count_plot, event_norm_count_plot, use_dask, event_threshold):
+    def _capture_plot_callback(self, segimagedir,event_count_plot, cell_count_plot, event_norm_count_plot):
 
          get_image_text = self.frameWidget.imageidbox.currentText()
          imagename = os.path.basename(os.path.splitext(get_image_text)[0])
-         event_name = self.frameWidget.eventidbox.currentText()
          plot_event_name = self.frameWidget.plotidbox.currentText()
          self.oneatvisualization.show_plot(imagename, plot_event_name,event_count_plot,event_norm_count_plot,cell_count_plot,
-          event_name,  use_dask, segimagedir, event_threshold)
+           segimagedir, self.event_threshold)

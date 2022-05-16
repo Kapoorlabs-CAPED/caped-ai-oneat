@@ -21,76 +21,73 @@ class OneatVisualization:
         self.key_categories = key_categories
         self.ax = ax
         self.figure = figure
-        
+        self.dataset = None
+        self.event_name = None
+        self.cell_count = None        
     def show_plot(self, imagename, plot_event_name, event_count_plot, event_norm_count_plot, cell_count_plot, 
-    csv_event_name, use_dask, segimagedir = None, event_threshold = 0 ):
+      segimagedir = None, event_threshold = 0 ):
 
+        print('event threshold in plot', event_threshold)
         timelist = []
         eventlist= []
         normeventlist = []
         celllist = []
         self.ax.cla()
-        csvname = None
         image = None
-        for (event_name,event_label) in self.key_categories.items():
-                                
-                                if event_label > 0 and csv_event_name == event_name:
-                                     self.event_label = event_label                         
-                                     csvname = self.savedir + "/" + event_name + "Location" + (os.path.splitext(os.path.basename(imagename))[0] + '.csv')
-        if csvname is not None:                             
-                dataset   = pd.read_csv(csvname, delimiter = ',')
-                dataset_index = dataset.index
-        for layer in list(self.viewer.layers):
-            if isinstance(layer, napari.layers.Image):
-                    image = layer.data
-            if isinstance(layer, napari.layers.Labels):
-                    seg_image = layer.data    
+        
+        if self.dataset is not None:                             
+               
+                for layer in list(self.viewer.layers):
+                    if isinstance(layer, napari.layers.Image):
+                            image = layer.data
+                    if isinstance(layer, napari.layers.Labels):
+                            seg_image = layer.data    
 
 
-        if image is not None:            
-                for i in range(0, image.shape[0]):
-                    
-                    currentT   = np.round(dataset["T"]).astype('int')
-                    currentZ = np.round(dataset["Z"]).astype('int')
-                    currentScore = dataset["Score"]
-                    currentConf = dataset["Confidence"]
-                    condition = currentT == i
-                    condition_indices = dataset_index[condition]
-                    conditionScore = currentScore[condition_indices]
-                    score_condition = conditionScore > event_threshold
-                    countT = len(conditionScore[score_condition])
-                    timelist.append(i)
-                    eventlist.append(countT)
-                    if segimagedir is not None and seg_image is not None:
-                        all_cells = CellCount(seg_image, use_dask)[i]
-                        celllist.append(all_cells)
-                        normeventlist.append(countT/all_cells)
-                if plot_event_name == event_count_plot:    
-                        self.ax.plot(timelist, eventlist, '-r')
-                        self.ax.set_title(event_name + "Events")
-                        self.ax.set_xlabel("Time")
-                        self.ax.set_ylabel("Counts")
-                        self.figure.canvas.draw()
-                        self.figure.canvas.flush_events()
-                        plt.savefig(self.savedir  + event_name + event_count_plot + (os.path.splitext(os.path.basename(imagename))[0]  + '.png'), dpi = 300)
+                if image is not None:            
+                        for i in range(0, image.shape[0]):
+                            
+                            currentT   = np.round(self.dataset["T"]).astype('int')
+                            currentZ = np.round(self.dataset["Z"]).astype('int')
+                            currentScore = self.dataset["Score"]
+                            currentConf = self.dataset["Confidence"]
+                            condition = currentT == i
+                            condition_indices = self.dataset_index[condition]
+                            conditionScore = currentScore[condition_indices]
+                            score_condition = conditionScore > event_threshold
+                            countT = len(conditionScore[score_condition])
+                            timelist.append(i)
+                            eventlist.append(countT)
+                            if segimagedir is not None and seg_image is not None:
+                                all_cells = self.cell_count[i]
+                                celllist.append(all_cells)
+                                normeventlist.append(countT/all_cells)
+                        if plot_event_name == event_count_plot:    
+                                self.ax.plot(timelist, eventlist, '-r')
+                                self.ax.set_title(self.event_name + "Events")
+                                self.ax.set_xlabel("Time")
+                                self.ax.set_ylabel("Counts")
+                                self.figure.canvas.draw()
+                                self.figure.canvas.flush_events()
+                                plt.savefig(self.savedir  + self.event_name + event_count_plot + (os.path.splitext(os.path.basename(imagename))[0]  + '.png'), dpi = 300)
 
-                if plot_event_name == event_norm_count_plot and len(normeventlist) > 0:    
-                        self.ax.plot(timelist, normeventlist, '-r')
-                        self.ax.set_title(event_name + "Normalized Events")
-                        self.ax.set_xlabel("Time")
-                        self.ax.set_ylabel("Normalized Counts")
-                        self.figure.canvas.draw()
-                        self.figure.canvas.flush_events()
-                        plt.savefig(self.savedir  + event_name + event_norm_count_plot + (os.path.splitext(os.path.basename(imagename))[0]  + '.png'), dpi = 300)
+                        if plot_event_name == event_norm_count_plot and len(normeventlist) > 0:    
+                                self.ax.plot(timelist, normeventlist, '-r')
+                                self.ax.set_title(self.event_name + "Normalized Events")
+                                self.ax.set_xlabel("Time")
+                                self.ax.set_ylabel("Normalized Counts")
+                                self.figure.canvas.draw()
+                                self.figure.canvas.flush_events()
+                                plt.savefig(self.savedir  + self.event_name + event_norm_count_plot + (os.path.splitext(os.path.basename(imagename))[0]  + '.png'), dpi = 300)
 
-                if plot_event_name == cell_count_plot and len(celllist) > 0:    
-                        self.ax.plot(timelist, celllist, '-r')
-                        self.ax.set_title("Total Cell counts")
-                        self.ax.set_xlabel("Time")
-                        self.ax.set_ylabel("Total Cell Counts")
-                        self.figure.canvas.draw()
-                        self.figure.canvas.flush_events()
-                        plt.savefig(self.savedir  + cell_count_plot + (os.path.splitext(os.path.basename(imagename))[0]  + '.png'), dpi = 300)        
+                        if plot_event_name == cell_count_plot and len(celllist) > 0:    
+                                self.ax.plot(timelist, celllist, '-r')
+                                self.ax.set_title("Total Cell counts")
+                                self.ax.set_xlabel("Time")
+                                self.ax.set_ylabel("Total Cell Counts")
+                                self.figure.canvas.draw()
+                                self.figure.canvas.flush_events()
+                                plt.savefig(self.savedir  + cell_count_plot + (os.path.splitext(os.path.basename(imagename))[0]  + '.png'), dpi = 300)        
 
 
 
@@ -110,42 +107,45 @@ class OneatVisualization:
         for layer in list(self.viewer.layers):
                                          if  any(name in layer.name for name in name_remove):
                                                     self.viewer.layers.remove(layer)
-                                                    
-        if use_dask:                                      
-             image = daskread(image_toread)[0]
-        else:
-             image = imread(image_toread)    
-        
-        if heatmapimagedir is not None:
-                try:
-                    if use_dask: 
-                        heat_image = daskread(heatmapimagedir + imagename + heatname + '.tif')[0]
+        try:                                            
+            if use_dask:                                      
+                image = daskread(image_toread)[0]
+            else:
+                image = imread(image_toread)    
+            
+            if heatmapimagedir is not None:
+                    try:
+                        if use_dask: 
+                            heat_image = daskread(heatmapimagedir + imagename + heatname + '.tif')[0]
+                        else:
+                            heat_image = imread(heatmapimagedir + imagename + heatname + '.tif')
+                    except:
+                        heat_image = None   
+            
+            if  segimagedir is not None:
+                    if use_dask:
+                        seg_image = daskread(segimagedir + imagename + '.tif')[0]
                     else:
-                        heat_image = imread(heatmapimagedir + imagename + heatname + '.tif')
-                except:
-                    heat_image = None   
-           
-        if  segimagedir is not None:
-                print(segimagedir)
-                if use_dask:
-                    seg_image = daskread(segimagedir + imagename + '.tif')[0]
-                else:
-                    seg_image = imread(segimagedir + imagename + '.tif')    
-                if len(seg_image.shape) == 4:
-                     seg_image =  MidSlices(seg_image, start_project_mid, end_project_mid, use_dask, axis = 1)
-                self.viewer.add_labels(seg_image.astype('uint16'), name = 'SegImage'+ imagename)
-        if len(image.shape) == 4:
-              image =  MidSlices(image, start_project_mid, end_project_mid, use_dask, axis = 1)
-        
-        self.viewer.add_image(image, name= 'Image' + imagename )
-        if heatmapimagedir is not None:
-                try:
-                  self.viewer.add_image(heat_image, name= 'Image' + imagename + heatname, blending= 'additive', colormap='inferno' )
-                except:
-                    pass   
+                        seg_image = imread(segimagedir + imagename + '.tif')    
+                    if len(seg_image.shape) == 4:
+                        seg_image =  MidSlices(seg_image, start_project_mid, end_project_mid, use_dask, axis = 1)
+                    self.viewer.add_labels(seg_image.astype('uint16'), name = 'SegImage'+ imagename)
+            if len(image.shape) == 4:
+                image =  MidSlices(image, start_project_mid, end_project_mid, use_dask, axis = 1)
+            
+            self.viewer.add_image(image, name= 'Image' + imagename )
+            if heatmapimagedir is not None:
+                    try:
+                      self.viewer.add_image(heat_image, name= 'Image' + imagename + heatname, blending= 'additive', colormap='inferno' )
+                    except:
+                        pass   
+
+        except:
+             pass            
 
     def show_csv(self, imagename, csv_event_name, segimagedir = None, event_threshold = 0, use_dask = False, heatmapsteps = 0):
         csvname = None
+        
         for (event_name,event_label) in self.key_categories.items():
                                 
                                 if event_label > 0 and csv_event_name == event_name:
@@ -157,18 +157,20 @@ class OneatVisualization:
                                        
                                      
                                      csvname = self.savedir + "/" + event_name + "Location" + (os.path.splitext(os.path.basename(imagename))[0] + '.csv')
-        if csvname is not None:                             
-                dataset   = pd.read_csv(csvname, delimiter = ',')
-                dataset_index = dataset.index
+        if csvname is not None:    
+            try:  
+                self.event_name = csv_event_name                         
+                self.dataset   = pd.read_csv(csvname, delimiter = ',')
+                self.dataset_index =  self.dataset.index
                 self.ax.cla()
                 #Data is written as T, Y, X, Score, Size, Confidence
-                T = dataset[dataset.keys()[0]][0:]
-                Z = dataset[dataset.keys()[1]][0:]
-                Y = dataset[dataset.keys()[2]][0:]
-                X = dataset[dataset.keys()[3]][0:]
-                Score = dataset[dataset.keys()[4]][0:]
-                Size = dataset[dataset.keys()[5]][0:]
-                Confidence = dataset[dataset.keys()[6]][0:]
+                T =  self.dataset[ self.dataset.keys()[0]][0:]
+                Z =  self.dataset[ self.dataset.keys()[1]][0:]
+                Y = self.dataset[self.dataset.keys()[2]][0:]
+                X = self.dataset[self.dataset.keys()[3]][0:]
+                Score = self.dataset[self.dataset.keys()[4]][0:]
+                Size = self.dataset[self.dataset.keys()[5]][0:]
+                Confidence = self.dataset[self.dataset.keys()[6]][0:]
 
                 listtime = T.tolist()
                 listz = Z.tolist()
@@ -229,11 +231,15 @@ class OneatVisualization:
                             if isinstance(layer, napari.layers.Labels):
                                     seg_image = layer.data
 
-                                    location_image, cell_count = LocationMap(event_locations_dict, seg_image, use_dask, heatmapsteps)     
+                                    location_image, self.cell_count = LocationMap(event_locations_dict, seg_image, use_dask, heatmapsteps)     
                                     try:
                                         self.viewer.add_image(location_image, name= 'Location Map' + imagename, blending= 'additive' )
                                     except:
                                             pass
+
+            except:
+
+                pass                            
 
 
 def LocationMap(event_locations_dict, seg_image, use_dask, heatmapsteps):
@@ -275,11 +281,15 @@ def LocationMap(event_locations_dict, seg_image, use_dask, heatmapsteps):
 
 def average_heat_map(image, sliding_window):
 
+    j = 0
     for i in range(image.shape[0]):
         
-        for j in range(0,sliding_window):
-            if i - j > 0:
-              image[i,:] = np.add(image[i,:] , image[i - j,:])
+              j = j + 1
+              if i > 0:
+                image[i,:] = np.add(image[i,:] , image[i - 1,:])
+              if j == sliding_window:
+                  image[i,:] = np.subtract(image[i,:] , image[i - 1,:])
+                  j = 0
     return image          
 
 def MidSlices(Image, start_project_mid, end_project_mid, use_dask, axis = 1):
@@ -585,17 +595,4 @@ def GetMarkers(image):
     return markers    
 
 
-def CellCount(seg_image, use_dask):
-
-    cell_count = {}
-    for i in range(seg_image.shape[0]):
-            
-                if use_dask:
-                    current_seg_image = seg_image[i,:].compute()
-                else:
-                    current_seg_image = seg_image[i,:]    
-                waterproperties = measure.regionprops(current_seg_image)
-                indices = [prop.centroid for prop in waterproperties]
-                
-                cell_count[int(i)] = len(indices) 
-    return cell_count    
+  

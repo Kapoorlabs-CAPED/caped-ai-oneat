@@ -90,7 +90,8 @@ class NEATViz(object):
                  Raw_path = os.path.join(self.imagedir, self.fileextension)
                  X = glob.glob(Raw_path)
                  Imageids = []
-                 
+                 self.oneat_widget.frameWidget.imageidbox.addItem('Select Image')
+                 self.oneat_widget.frameWidget.eventidbox.addItem('Select Event')
                  for imagename in X:
                      Imageids.append(imagename)
 
