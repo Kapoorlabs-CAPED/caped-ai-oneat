@@ -27,7 +27,6 @@ class OneatVisualization:
         self.event_locations = []
         self.event_locations_dict = {}
         self.event_locations_score_dict = {}
-        self.event_locations_score_nested_dict = {}
         self.size_locations = []
         self.score_locations = []
         self.confidence_locations = []
@@ -36,60 +35,53 @@ class OneatVisualization:
     def cluster_points(self, nms_space, nms_time):
 
      for (k,v) in self.event_locations_dict.items():
-         print(k)
          currenttime = k
          event_locations = v
+         print('curr',currenttime)
+        
          tree = spatial.cKDTree(event_locations)
-         for i in range(nms_time//2):
-                backtime = currenttime - i
-                if backtime in self.event_locations_dict.items():
-                    back_event_locations = self.event_locations_dict[int(backtime)]
-                    back_event_locations_score_dict = self.event_locations_score_nested_dict[int(backtime)]
-                    
-                    for location in back_event_locations:
-                        backscore = back_event_locations_score_dict[location] 
+         for i in range(nms_time):
+                    backtime = currenttime - i
+                 
+                    if int(backtime) in self.event_locations_dict.keys():
+                     
+                      back_event_locations = self.event_locations_dict[int(backtime)]
+                      for location in back_event_locations:
+                        backscore = self.event_locations_score_dict[int(backtime), int(location[0]), int(location[1])]
                         distance, nearest_location = tree.query(location)
-
-                        if distance <= nms_space:
-                            
-                                current_event_locations_score_dict = self.event_locations_score_nested_dict[int(currenttime)]
-                                currentscore = current_event_locations_score_dict[nearest_location]
+                       
+                      if distance <= nms_space:
+                                nearest_location = int(event_locations[nearest_location][0]), int(event_locations[nearest_location][1])
+                                currentscore = self.event_locations_score_dict[int(currenttime), int(nearest_location[0], int(nearest_location[1]))]
 
                                 if currentscore > backscore:
-                                    self.event_locations_score_nested_dict[int(backtime)].pop(location)
+                                    self.event_locations_score_dict.pop(int(backtime), int(location[0]), int(location[1]))
                                 else:
-                                    self.event_locations_score_nested_dict[int(currenttime)].pop(nearest_location)    
-                forwardtime = currenttime + i
-                if forwardtime in self.event_locations_dict.items():
-                    forward_event_locations = self.event_locations_dict[int(forwardtime)]
-                    forward_event_locations_score_dict = self.event_locations_score_nested_dict[int(forwardtime)]
-                    
-                    for location in forward_event_locations:
-                        forwardscore = forward_event_locations_score_dict[location] 
+                                    self.event_locations_score_dict.pop(int(currenttime), int(nearest_location[0], int(nearest_location[1])))    
+                    forwardtime = currenttime + i
+                    if int(forwardtime) in self.event_locations_dict.keys():
+                      forward_event_locations = self.event_locations_dict[int(forwardtime)]
+                      for location in forward_event_locations:
+                        backscore = self.event_locations_score_dict[int(forwardtime), int(location[0]), int(location[1])]
                         distance, nearest_location = tree.query(location)
+                      if distance <= nms_space:
+                                nearest_location = int(event_locations[nearest_location][0]), int(event_locations[nearest_location][1])
+                                currentscore = self.event_locations_score_dict[int(currenttime), int(nearest_location[0], int(nearest_location[1]))]
 
-                        if distance <= nms_space:
-                            
-                                current_event_locations_score_dict = self.event_locations_score_nested_dict[int(currenttime)]
-                                currentscore = current_event_locations_score_dict[nearest_location]
-
-                                if currentscore > forwardscore:
-                                    self.event_locations_score_nested_dict[int(forwardtime)].pop(location)
+                                if currentscore > backscore:
+                                    self.event_locations_score_dict.pop(int(forwardtime), int(location[0]), int(location[1]))
                                 else:
-                                    self.event_locations_score_nested_dict[int(currenttime)].pop(nearest_location)         
+                                    self.event_locations_score_dict.pop(int(currenttime), int(nearest_location[0], int(nearest_location[1])))          
 
      self.show_clean_csv()                        
 
     def show_clean_csv(self):
  
                 self.event_locations_clean = []                
-                for (k, v) in self.event_locations_score_nested_dict.items():
-
-                      time = k
-                      dict_locations = v
-                      for location  in dict_locations.keys():
-                          self.event_locations_clean.append([time, location[0], location[1]])
-
+                dict_locations =self.event_locations_score_dict.keys()
+                     
+                for location  in dict_locations:
+                     self.event_locations_clean.append(location)
                 name_remove = ('Clean Detections','Clean Location Map')
                 for layer in list(self.viewer.layers):
                                     
@@ -271,15 +263,12 @@ class OneatVisualization:
                                     current_list = self.event_locations_dict[int(tcenter)]
                                     current_list.append([int(ycenter), int(xcenter)])
                                     self.event_locations_dict[int(tcenter)] = current_list 
-                                    self.event_locations_score_dict[(int(ycenter), int(xcenter))] = score
-                                    self.event_locations_score_nested_dict[int(tcenter)] = self.event_locations_score_dict
+                                    self.event_locations_score_dict[(int(tcenter), int(ycenter), int(xcenter))] = score
                                 else:
                                     current_list = []
                                     current_list.append([int(ycenter), int(xcenter)])
                                     self.event_locations_dict[int(tcenter)] = current_list    
-                                    self.event_locations_score_dict[(int(ycenter), int(xcenter))] = score
-                                    self.event_locations_score_nested_dict[int(tcenter)] = self.event_locations_score_dict
-
+                                    self.event_locations_score_dict[int(tcenter), int(ycenter), int(xcenter)] = score
 
                                 self.size_locations.append(size)
                                 self.score_locations.append(score)
