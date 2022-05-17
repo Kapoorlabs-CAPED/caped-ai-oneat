@@ -126,7 +126,7 @@ class OneatVisualization:
                     self.cleantimelist.append(j)
                     self.cleaneventlist.append(countT)
                     if self.segimagedir is not None and self.seg_image is not None:
-                        all_cells = self.cell_count[i]
+                        all_cells = self.cell_count[j]
                         self.cleancelllist.append(all_cells)
                         self.cleannormeventlist.append(countT/all_cells)
                 
