@@ -30,7 +30,7 @@ class OneatFrameWidget(QWidget):
         self.startprobSpinBox = QDoubleSpinBox()
 
         self.nmstimeSpinBox = QSpinBox()
-        self.nmstimeSpinBox.setValue(1)
+        self.nmstimeSpinBox.setValue(4)
         self.nmstimeSpinBox.setMaximum(100000)
 
         self.nmsspaceSpinBox = QDoubleSpinBox()
@@ -58,7 +58,7 @@ class OneatFrameWidget(QWidget):
 
         self.figure = plt.figure(figsize=(4, 4))
         self.multiplot_widget = FigureCanvas(self.figure)
-        
+        self.multiplot_widget.setMinimumSize(200,200)
         self.ax = self.multiplot_widget.figure.subplots(1, 1)
         
 

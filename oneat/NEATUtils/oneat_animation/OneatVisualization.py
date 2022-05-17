@@ -25,20 +25,34 @@ class OneatVisualization:
         self.dataset = None
         self.event_name = None
         self.cell_count = None      
+        self.image = None
+        self.seg_image = None
         self.event_locations = []
         self.event_locations_dict = {}
         self.event_locations_score_dict = {}
         self.size_locations = []
         self.score_locations = []
         self.confidence_locations = []
-
+        self.event_locations_clean = [] 
+        self.cleantimelist = []
+        self.cleaneventlist= []
+        self.cleannormeventlist = []
+        self.cleancelllist = []
+        self.segimagedir  = None
+        self.plot_event_name = None 
+        self.event_count_plot = None
+        self.event_norm_count_plot = None 
+        self.cell_count_plot = None
+        self.imagename = None
+        
     # To prevent early detectin of events
     def cluster_points(self, nms_space, nms_time):
 
+     print('before',len(self.event_locations_score_dict))
      for (k,v) in self.event_locations_dict.items():
          currenttime = k
          event_locations = v
-         print('curr',currenttime)
+       
         
          tree = spatial.cKDTree(event_locations)
          for i in range(1, nms_time):
@@ -47,7 +61,6 @@ class OneatVisualization:
                     if int(backtime) in self.event_locations_dict.keys():
                      
                       back_event_locations = self.event_locations_dict[int(backtime)]
-                      print('back', backtime)
                       for location in back_event_locations:
                         if (int(backtime), int(location[0]), int(location[1])) in self.event_locations_score_dict:   
                             backscore = self.event_locations_score_dict[int(backtime), int(location[0]), int(location[1])]
@@ -57,7 +70,6 @@ class OneatVisualization:
                             if distance <= nms_space:
                                 if (int(currenttime), int(nearest_location[0]), int(nearest_location[1])) in self.event_locations_score_dict:
                                     currentscore = self.event_locations_score_dict[int(currenttime), int(nearest_location[0]), int(nearest_location[1])]
-                                    print('back',distance, currentscore, backscore)
                                     if currentscore > backscore:
                                         self.event_locations_score_dict.pop(( int(backtime), int(location[0]), int(location[1])))
                                     else:
@@ -74,31 +86,51 @@ class OneatVisualization:
                                 if distance <= nms_space:
                                             if (int(currenttime), int(nearest_location[0]), int(nearest_location[1])) in self.event_locations_score_dict:
                                                 currentscore = self.event_locations_score_dict[int(currenttime), int(nearest_location[0]), int(nearest_location[1])]
-                                                print('fwd',distance, currentscore, forwardscore)
                                                 if currentscore > forwardscore:
                                                     self.event_locations_score_dict.pop((int(forwardtime), int(location[0]), int(location[1])))
                                                     
                                                 else:
                                                     self.event_locations_score_dict.pop((int(currenttime), int(nearest_location[0]), int(nearest_location[1])))   
-     print(len(self.event_locations_score_dict))                                                      
-
+                                                       
+     print('after',len(self.event_locations_score_dict))
      self.show_clean_csv()                        
 
     def show_clean_csv(self):
  
-                self.event_locations_clean = []                
+                self.event_locations_clean.clear()              
                 dict_locations =self.event_locations_score_dict.keys()
                      
                 for location  in dict_locations:
                      self.event_locations_clean.append(location)
-                     print(location)
+                     
                 name_remove = ('Clean Detections','Clean Location Map')
                 for layer in list(self.viewer.layers):
                                     
                                     if  any(name in layer.name for name in name_remove):
                                             self.viewer.layers.remove(layer) 
                 self.viewer.add_points(self.event_locations_clean,  name = 'Clean Detections', face_color = [0]*4, edge_color = "green") 
-                        
+                
+                
+                df = pd.DataFrame (self.event_locations_clean, columns = ['T', 'Y', 'X'])
+                T_pred = df[df.keys()[0]][0:]
+                listtime_pred = T_pred.tolist()
+                
+                for j in range(self.image.shape[0]):
+                    cleanlist = [] 
+                    for i in range(len(listtime_pred)):
+                      
+                        if j == listtime_pred[i]:
+                            cleanlist.append(listtime_pred[i])
+                            
+                    countT = len(cleanlist)
+                    self.cleantimelist.append(j)
+                    self.cleaneventlist.append(countT)
+                    if self.segimagedir is not None and self.seg_image is not None:
+                        all_cells = self.cell_count[i]
+                        self.cleancelllist.append(all_cells)
+                        self.cleannormeventlist.append(countT/all_cells)
+                
+               
 
     def show_plot(self, imagename, plot_event_name, event_count_plot, event_norm_count_plot, cell_count_plot, 
       segimagedir = None, event_threshold = 0 ):
@@ -108,24 +140,30 @@ class OneatVisualization:
         normeventlist = []
         celllist = []
         self.ax.cla()
-        image = None
         
+        self.segimagedir = segimagedir
+        self.plot_event_name = plot_event_name
+        self.event_count_plot = event_count_plot 
+        self.event_norm_count_plot = event_norm_count_plot 
+        self.cell_count_plot = cell_count_plot 
+        self.imagename = imagename
         if self.dataset is not None:                             
                
                 for layer in list(self.viewer.layers):
                     if isinstance(layer, napari.layers.Image):
-                            image = layer.data
+                            self.image = layer.data
                     if isinstance(layer, napari.layers.Labels):
-                            seg_image = layer.data    
+                            self.seg_image = layer.data    
 
 
-                if image is not None:            
-                        for i in range(0, image.shape[0]):
+                if self.image is not None:    
+                        currentT   = np.round(self.dataset["T"]).astype('int')
+                        currentZ = np.round(self.dataset["Z"]).astype('int')
+                        currentScore = self.dataset["Score"]
+                        currentConf = self.dataset["Confidence"]   
                             
-                            currentT   = np.round(self.dataset["T"]).astype('int')
-                            currentZ = np.round(self.dataset["Z"]).astype('int')
-                            currentScore = self.dataset["Score"]
-                            currentConf = self.dataset["Confidence"]
+                        for i in range(0, self.image.shape[0]):
+                            
                             condition = currentT == i
                             condition_indices = self.dataset_index[condition]
                             conditionScore = currentScore[condition_indices]
@@ -133,39 +171,41 @@ class OneatVisualization:
                             countT = len(conditionScore[score_condition])
                             timelist.append(i)
                             eventlist.append(countT)
-                            if segimagedir is not None and seg_image is not None:
+                            if self.segimagedir is not None and self.seg_image is not None:
+                                
                                 all_cells = self.cell_count[i]
                                 celllist.append(all_cells)
                                 normeventlist.append(countT/all_cells)
-                        if plot_event_name == event_count_plot:    
+                        if self.plot_event_name == self.event_count_plot:    
                                 self.ax.plot(timelist, eventlist, '-r')
+                                self.ax.plot(self.cleantimelist, self.cleaneventlist, '-g')
                                 self.ax.set_title(self.event_name + "Events")
                                 self.ax.set_xlabel("Time")
                                 self.ax.set_ylabel("Counts")
                                 self.figure.canvas.draw()
                                 self.figure.canvas.flush_events()
-                                plt.savefig(self.savedir  + self.event_name + event_count_plot + (os.path.splitext(os.path.basename(imagename))[0]  + '.png'), dpi = 300)
+                                
+                                self.figure.savefig(self.savedir  + self.event_name + self.event_count_plot + (os.path.splitext(os.path.basename(self.imagename))[0]  + '.png'), dpi = 300)
 
-                        if plot_event_name == event_norm_count_plot and len(normeventlist) > 0:    
+                        if self.plot_event_name == self.event_norm_count_plot and len(normeventlist) > 0:    
                                 self.ax.plot(timelist, normeventlist, '-r')
+                                self.ax.plot(self.cleantimelist, self.cleannormeventlist, '-g')
                                 self.ax.set_title(self.event_name + "Normalized Events")
                                 self.ax.set_xlabel("Time")
                                 self.ax.set_ylabel("Normalized Counts")
                                 self.figure.canvas.draw()
                                 self.figure.canvas.flush_events()
-                                plt.savefig(self.savedir  + self.event_name + event_norm_count_plot + (os.path.splitext(os.path.basename(imagename))[0]  + '.png'), dpi = 300)
+                                
+                                self.figure.savefig(self.savedir  + self.event_name + self.event_norm_count_plot + (os.path.splitext(os.path.basename(self.imagename))[0]  + '.png'), dpi = 300)
 
-                        if plot_event_name == cell_count_plot and len(celllist) > 0:    
+                        if self.plot_event_name == self.cell_count_plot and len(celllist) > 0:    
                                 self.ax.plot(timelist, celllist, '-r')
                                 self.ax.set_title("Total Cell counts")
                                 self.ax.set_xlabel("Time")
                                 self.ax.set_ylabel("Total Cell Counts")
                                 self.figure.canvas.draw()
                                 self.figure.canvas.flush_events()
-                                plt.savefig(self.savedir  + cell_count_plot + (os.path.splitext(os.path.basename(imagename))[0]  + '.png'), dpi = 300)        
-
-
-
+                                self.figure.savefig(self.savedir  + self.cell_count_plot + (os.path.splitext(os.path.basename(self.imagename))[0]  + '.png'), dpi = 300)        
 
 
     def show_image(self, 
@@ -184,9 +224,9 @@ class OneatVisualization:
                                                     self.viewer.layers.remove(layer)
         try:                                            
             if use_dask:                                      
-                image = daskread(image_toread)[0]
+                self.image = daskread(image_toread)[0]
             else:
-                image = imread(image_toread)    
+                self.image = imread(image_toread)    
             
             if heatmapimagedir is not None:
                     try:
@@ -199,16 +239,16 @@ class OneatVisualization:
             
             if  segimagedir is not None:
                     if use_dask:
-                        seg_image = daskread(segimagedir + imagename + '.tif')[0]
+                        self.seg_image = daskread(segimagedir + imagename + '.tif')[0]
                     else:
-                        seg_image = imread(segimagedir + imagename + '.tif')    
-                    if len(seg_image.shape) == 4:
-                        seg_image =  MidSlices(seg_image, start_project_mid, end_project_mid, use_dask, axis = 1)
-                    self.viewer.add_labels(seg_image.astype('uint16'), name = 'SegImage'+ imagename)
-            if len(image.shape) == 4:
-                image =  MidSlices(image, start_project_mid, end_project_mid, use_dask, axis = 1)
+                        self.seg_image = imread(segimagedir + imagename + '.tif')    
+                    if len(self.seg_image.shape) == 4:
+                        self.seg_image =  MidSlices(self.seg_image, start_project_mid, end_project_mid, use_dask, axis = 1)
+                    self.viewer.add_labels(self.seg_image.astype('uint16'), name = 'SegImage'+ imagename)
+            if len(self.image.shape) == 4:
+                self.image =  MidSlices(self.image, start_project_mid, end_project_mid, use_dask, axis = 1)
             
-            self.viewer.add_image(image, name= 'Image' + imagename )
+            self.viewer.add_image(self.image, name= 'Image' + imagename )
             if heatmapimagedir is not None:
                     try:
                       self.viewer.add_image(heat_image, name= 'Image' + imagename + heatname, blending= 'additive', colormap='inferno' )
@@ -219,19 +259,16 @@ class OneatVisualization:
              pass            
 
     def show_csv(self, imagename, csv_event_name, segimagedir = None, event_threshold = 0, use_dask = False, heatmapsteps = 0, nms_space = 0, nms_time = 0):
-        csvname = None
         
+        csvname = None
+        self.event_locations_score_dict.clear()
+        for layer in list(self.viewer.layers):
+                    if 'Detections'  in layer.name or layer.name in 'Detections' :
+                            self.viewer.layers.remove(layer)   
         for (event_name,event_label) in self.key_categories.items():
-                                
-                                if event_label > 0 and csv_event_name == event_name:
-                                     self.event_label = event_label                         
-                                     for layer in list(self.viewer.layers):
-                                          
-                                         if 'Detections'  in layer.name or layer.name in 'Detections' :
-                                                    self.viewer.layers.remove(layer)           
-                                       
-                                     
-                                     csvname = self.savedir + "/" + event_name + "Location" + (os.path.splitext(os.path.basename(imagename))[0] + '.csv')
+                    if event_label > 0 and csv_event_name == event_name:
+                            self.event_label = event_label                         
+                            csvname = self.savedir + "/" + event_name + "Location" + (os.path.splitext(os.path.basename(imagename))[0] + '.csv')
         if csvname is not None:    
             
                 self.event_name = csv_event_name                         
@@ -302,9 +339,9 @@ class OneatVisualization:
                 if segimagedir is not None:
                         for layer in list(self.viewer.layers):
                             if isinstance(layer, napari.layers.Labels):
-                                    seg_image = layer.data
+                                    self.seg_image = layer.data
 
-                                    location_image, self.cell_count = LocationMap(self.event_locations_dict, seg_image, use_dask, heatmapsteps)     
+                                    location_image, self.cell_count = LocationMap(self.event_locations_dict, self.seg_image, use_dask, heatmapsteps)     
                                     self.viewer.add_labels(location_image.astype('uint16'), name= 'Location Map' + imagename )
                                     
             
