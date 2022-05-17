@@ -96,13 +96,50 @@ class OneatVisualization:
      self.show_clean_csv()                        
 
     def show_clean_csv(self):
- 
+                self.cleaneventlist = []
+                self.cleantimelist = [] 
                 self.event_locations_clean.clear()              
                 dict_locations =self.event_locations_score_dict.keys()
-                     
+                tlocations = []
+                zlocations = []   
+                ylocations = []
+                xlocations = []
+                scores = []
+                radiuses = []
+                confidences = []
+                angles = []
+                for location, score in self.event_locations_score_dict.items():
+                     tlocations.append(location[0])
+                     if len(self.image.shape) == 4:
+                        zlocations.append(self.image.shape[1]//2)
+                     else:
+                         zlocations.append(0)
+                     ylocations.append(location[1])
+                     xlocations.append(location[2])
+                     scores.append(score) 
+                     radiuses.append(20)
+                     confidences.append(1)
+                     angles.append(2)
                 for location  in dict_locations:
                      self.event_locations_clean.append(location)
-                     
+                          
+
+                event_count = np.column_stack(
+                            [tlocations, zlocations, ylocations, xlocations, scores, radiuses, confidences, angles])
+                event_count = sorted(event_count, key=lambda x: x[0], reverse=False)
+                event_data = []
+                csvname = self.savedir + "/" + 'Clean' +  self.event_name + "Location" + (
+                os.path.splitext(os.path.basename(self.imagename))[0])
+                writer = csv.writer(open(csvname + ".csv", "a"))
+                filesize = os.stat(csvname + ".csv").st_size
+
+                if filesize < 1:
+                            writer.writerow(['T', 'Z', 'Y', 'X', 'Score', 'Size', 'Confidence', 'Angle'])
+                for line in event_count:
+                            if line not in event_data:
+                                event_data.append(line)
+                            writer.writerows(event_data)
+                            event_data = []     
                 name_remove = ('Clean Detections','Clean Location Map')
                 for layer in list(self.viewer.layers):
                                     
@@ -144,7 +181,7 @@ class OneatVisualization:
         self.event_count_plot = event_count_plot 
         self.event_norm_count_plot = event_norm_count_plot 
         self.cell_count_plot = cell_count_plot 
-        self.imagename = imagename
+        
         if self.dataset is not None:                             
                
                 for layer in list(self.viewer.layers):
@@ -174,9 +211,12 @@ class OneatVisualization:
                                 all_cells = self.cell_count[i]
                                 celllist.append(all_cells)
                                 normeventlist.append(countT/all_cells)
-                        self.cleannormeventlist = []        
-                        for k in range(len(self.cleaneventlist)):
-                            self.cleannormeventlist.append(self.cleaneventlist[k]/ celllist[k])      
+                        self.cleannormeventlist = []    
+                        if len(self.cleaneventlist) > 0:    
+                                print(len(self.cleaneventlist), len(celllist)) 
+                                for k in range(len(self.cleaneventlist)):
+                                    print(self.cleaneventlist[k], celllist[k])  
+                                    self.cleannormeventlist.append(self.cleaneventlist[k]/ celllist[k])      
                         if self.plot_event_name == self.event_count_plot:    
                                 self.ax.plot(timelist, eventlist, '-r')
                                 self.ax.plot(self.cleantimelist, self.cleaneventlist, '-g')
@@ -218,7 +258,7 @@ class OneatVisualization:
                 start_project_mid = 0, 
                 end_project_mid = 0, 
                 use_dask = False):
-
+        self.imagename = imagename
         name_remove = ('Image', 'SegImage')
         for layer in list(self.viewer.layers):
                                          if  any(name in layer.name for name in name_remove):
@@ -268,7 +308,7 @@ class OneatVisualization:
                             self.viewer.layers.remove(layer)   
         for (event_name,event_label) in self.key_categories.items():
                     if event_label > 0 and csv_event_name == event_name:
-                            self.event_label = event_label                         
+                            self.event_label = event_label     
                             csvname = self.savedir + "/" + event_name + "Location" + (os.path.splitext(os.path.basename(imagename))[0] + '.csv')
         if csvname is not None:    
             
