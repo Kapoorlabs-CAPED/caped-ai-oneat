@@ -125,10 +125,8 @@ class OneatVisualization:
                     countT = len(cleanlist)
                     self.cleantimelist.append(j)
                     self.cleaneventlist.append(countT)
-                    if self.segimagedir is not None and self.seg_image is not None:
-                        all_cells = self.cell_count[j]
-                        self.cleancelllist.append(all_cells)
-                        self.cleannormeventlist.append(countT/all_cells)
+                   
+                        
                 
                
 
@@ -176,6 +174,8 @@ class OneatVisualization:
                                 all_cells = self.cell_count[i]
                                 celllist.append(all_cells)
                                 normeventlist.append(countT/all_cells)
+                        for k in range(len(self.cleaneventlist)):
+                            self.cleannormeventlist.append(self.cleaneventlist[k]/ celllist[k])      
                         if self.plot_event_name == self.event_count_plot:    
                                 self.ax.plot(timelist, eventlist, '-r')
                                 self.ax.plot(self.cleantimelist, self.cleaneventlist, '-g')
