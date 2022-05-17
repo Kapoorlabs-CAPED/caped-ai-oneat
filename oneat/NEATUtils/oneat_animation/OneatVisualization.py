@@ -174,6 +174,7 @@ class OneatVisualization:
                                 all_cells = self.cell_count[i]
                                 celllist.append(all_cells)
                                 normeventlist.append(countT/all_cells)
+                        self.cleannormeventlist = []        
                         for k in range(len(self.cleaneventlist)):
                             self.cleannormeventlist.append(self.cleaneventlist[k]/ celllist[k])      
                         if self.plot_event_name == self.event_count_plot:    
