@@ -127,9 +127,12 @@ class OneatVisualization:
                 event_count = np.column_stack(
                             [tlocations, zlocations, ylocations, xlocations, scores, radiuses, confidences, angles])
                 event_count = sorted(event_count, key=lambda x: x[0], reverse=False)
+                
                 event_data = []
                 csvname = self.savedir + "/" + 'Clean' +  self.event_name + "Location" + (
                 os.path.splitext(os.path.basename(self.imagename))[0])
+                if(os.path.exists(csvname + ".csv")):
+                            os.remove(csvname + ".csv")
                 writer = csv.writer(open(csvname + ".csv", "a"))
                 filesize = os.stat(csvname + ".csv").st_size
 
