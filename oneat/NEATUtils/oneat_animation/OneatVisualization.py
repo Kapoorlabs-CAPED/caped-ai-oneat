@@ -44,6 +44,7 @@ class OneatVisualization:
         self.event_norm_count_plot = None 
         self.cell_count_plot = None
         self.imagename = None
+        self.originalimage = None
         
     # To prevent early detectin of events
     def cluster_points(self, nms_space, nms_time):
@@ -109,14 +110,14 @@ class OneatVisualization:
                 confidences = []
                 angles = []
                 for location, score in self.event_locations_score_dict.items():
-                     tlocations.append(location[0])
-                     if len(self.image.shape) == 4:
-                        zlocations.append(self.image.shape[1]//2)
+                     tlocations.append(float(location[0]))
+                     if len(self.originalimage.shape) == 4:
+                        zlocations.append(float(self.originalimage.shape[1]//2))
                      else:
                          zlocations.append(0)
-                     ylocations.append(location[1])
-                     xlocations.append(location[2])
-                     scores.append(score) 
+                     ylocations.append(float(location[1]))
+                     xlocations.append(float(location[2]))
+                     scores.append(float(score)) 
                      radiuses.append(20)
                      confidences.append(1)
                      angles.append(2)
@@ -133,7 +134,7 @@ class OneatVisualization:
                 os.path.splitext(os.path.basename(self.imagename))[0])
                 if(os.path.exists(csvname + ".csv")):
                             os.remove(csvname + ".csv")
-                writer = csv.writer(open(csvname + ".csv", "a"))
+                writer = csv.writer(open(csvname + ".csv", "a", newline=''))
                 filesize = os.stat(csvname + ".csv").st_size
 
                 if filesize < 1:
@@ -290,8 +291,10 @@ class OneatVisualization:
                         self.seg_image =  MidSlices(self.seg_image, start_project_mid, end_project_mid, use_dask, axis = 1)
                     self.viewer.add_labels(self.seg_image.astype('uint16'), name = 'SegImage'+ imagename)
             if len(self.image.shape) == 4:
+                self.originalimage = self.image
                 self.image =  MidSlices(self.image, start_project_mid, end_project_mid, use_dask, axis = 1)
-            
+            else:
+                self.originalimage = self.image
             self.viewer.add_image(self.image, name= 'Image' + imagename )
             if heatmapimagedir is not None:
                     try:

@@ -985,7 +985,7 @@ def save_static_csv(ColorimageStatic,ColorimageDynamic,imagename, key_categories
                 event_data = []
                 csvname = savedir + "/" + event_name + "Location" + (
                 os.path.splitext(os.path.basename(imagename))[0])
-                writer = csv.writer(open(csvname + ".csv", "a"))
+                writer = csv.writer(open(csvname + ".csv", "a", newline=''))
                 filesize = os.stat(csvname + ".csv").st_size
                 if filesize < 1:
                     writer.writerow(['T', 'Y', 'X', 'Score', 'Size', 'Confidence'])
@@ -1161,11 +1161,11 @@ def save_dynamic_csv(imagename, key_categories, iou_classedboxes, savedir, downs
                                 zlocations.append(z)        
                 event_count = np.column_stack(
                             [tlocations, zlocations, ylocations, xlocations, scores, radiuses, confidences, angles])
-                event_count = sorted(event_count, key=lambda x: x[0], reverse=False)
+                event_count = sorted(event_count, key=lambda x: x[0], reverse=False) 
                 event_data = []
                 csvname = savedir + "/" + event_name + "Location" + (
                 os.path.splitext(os.path.basename(imagename))[0])
-                writer = csv.writer(open(csvname + ".csv", "a"))
+                writer = csv.writer(open(csvname + ".csv", "a", newline=''))
                 filesize = os.stat(csvname + ".csv").st_size
 
                 if filesize < 1:
@@ -1589,5 +1589,5 @@ def save_csv(save_dir, Event_Count, Name):
 
     for line in Event_Count:
         Event_data.append(line)
-    writer = csv.writer(open(save_dir + "/" + (Name) + ".csv", "w"))
+    writer = csv.writer(open(save_dir + "/" + (Name) + ".csv", "w", newline=''))
     writer.writerows(Event_data)
