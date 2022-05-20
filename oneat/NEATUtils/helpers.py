@@ -1165,6 +1165,7 @@ def save_dynamic_csv(imagename, key_categories, iou_classedboxes, savedir, downs
                 event_data = []
                 csvname = savedir + "/" + event_name + "Location" + (
                 os.path.splitext(os.path.basename(imagename))[0])
+                
                 writer = csv.writer(open(csvname + ".csv", "a", newline=''))
                 filesize = os.stat(csvname + ".csv").st_size
 
