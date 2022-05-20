@@ -15,7 +15,6 @@ from oneat.NEATModels.loss import dynamic_yolo_loss
 from keras import backend as K
 import tensorflow as tf
 from oneat.pretrained import get_registered_models, get_model_details, get_model_instance
-from tensorflow.keras import optimizers
 from pathlib import Path
 from keras.models import load_model
 from tifffile import imread, imwrite
@@ -323,7 +322,8 @@ class NEATDynamic(object):
            print(f'Image {self.image.shape} is {self.ndim} dimensional, projecting around the center {self.image.shape[1]//2} - {self.start_project_mid} to {self.image.shape[1]//2} + {self.end_project_mid}') 
            self.image =  MidSlices(self.image, self.start_project_mid, self.end_project_mid, axis = 1)
            
-      
+        if self.normalize: 
+                    self.image = normalizeFloatZeroOne(self.image.astype('float32'), 1, 99.8)
         self.erosion_iterations = erosion_iterations
         
         self.heatmap = np.zeros(self.image.shape, dtype = 'float32')  
@@ -383,8 +383,7 @@ class NEATDynamic(object):
                                       imwrite((heatsavename + '.tif' ), self.heatmap)
                                       
                                 smallimage = CreateVolume(self.image, self.imaget, inputtime)
-                                if self.normalize: 
-                                      smallimage = normalizeFloatZeroOne(smallimage.astype('float32'), 1, 99.8)
+                                
                                 # Cut off the region for training movie creation
                                 #Break image into tiles if neccessary
                                 predictions, allx, ally = self.predict_main(smallimage)
@@ -447,8 +446,7 @@ class NEATDynamic(object):
                 
                 remove_candidates_list = []
                 smallimage = CreateVolume(self.image, self.imaget, inputtime)
-                if self.normalize: 
-                                      smallimage = normalizeFloatZeroOne(smallimage.astype('float32'), 1, 99.8)
+               
                 # Cut off the region for training movie creation
                 # Break image into tiles if neccessary
                 predictions, allx, ally = self.predict_main(smallimage)
@@ -541,11 +539,10 @@ class NEATDynamic(object):
                           slice(int(crop_xminus), int(crop_xplus)))
                     
                     crop_image = self.image[region] 
-                    if self.normalize: 
-                                      crop_image = normalizeFloatZeroOne(crop_image.astype('float32'), 1, 99.8)
+                    
                     if crop_image.shape[0] >= self.imaget and  crop_image.shape[1] >= self.imagey * self.downsamplefactor and crop_image.shape[2] >= self.imagex * self.downsamplefactor:                                                
                                 #Now apply the prediction for counting real events
-                                
+                               
                                 crop_image = DownsampleData(crop_image, self.downsamplefactor)
                                 ycenter = location[i][0]
                                 xcenter = location[i][1]

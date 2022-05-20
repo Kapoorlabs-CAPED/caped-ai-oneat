@@ -29,11 +29,8 @@ oneat/NEATUtils/Zmapgen.py
 oneat/NEATUtils/__init__.py
 oneat/NEATUtils/helpers.py
 oneat/NEATUtils/plotters.py
-oneat/NEATUtils/napari_animation/__init__.py
-oneat/NEATUtils/napari_animation/animation.py
-oneat/NEATUtils/napari_animation/easing.py
-oneat/NEATUtils/napari_animation/utils.py
-oneat/NEATUtils/napari_animation/_qt/__init__.py
-oneat/NEATUtils/napari_animation/_qt/animation_widget.py
-oneat/NEATUtils/napari_animation/_qt/frame_widget.py
-oneat/NEATUtils/napari_animation/_qt/keyframeslist_widget.py
+oneat/NEATUtils/oneat_animation/OneatVisualization.py
+oneat/NEATUtils/oneat_animation/__init__.py
+oneat/NEATUtils/oneat_animation/_qt/OneatFrameWidget.py
+oneat/NEATUtils/oneat_animation/_qt/__init__.py
+oneat/NEATUtils/oneat_animation/_qt/oneat_widget.py

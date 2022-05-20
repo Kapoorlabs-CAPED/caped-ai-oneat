@@ -11,3 +11,4 @@ opencv-python-headless
 sklearn
 dask
 natsort
+napari-animation
