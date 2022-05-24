@@ -1139,7 +1139,7 @@ def save_dynamic_csv(imagename, key_categories, iou_classedboxes, savedir, downs
                         iou_current_event_box['height'] * iou_current_event_box['height'] + iou_current_event_box[
                             'width'] * iou_current_event_box['width']) // 2
                     radius = radius * downsamplefactor
-
+                    
                     if maskimage is not None:
                         if maskimage[int(tcenter), int(ycenter), int(xcenter)] > 0:
                                 xlocations.append(xcenter)
