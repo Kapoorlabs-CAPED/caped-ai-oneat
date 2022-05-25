@@ -326,7 +326,7 @@ def Midog_to_oneat(midog_folder, annotation_file,event_type_name_label, all_ids,
 
                 crop_image = image[region]      
 
-
+                
                 Label[trainlabel] = 1
                 Label[total_categories] =  0.5
                 Label[total_categories + 1] = 0.5

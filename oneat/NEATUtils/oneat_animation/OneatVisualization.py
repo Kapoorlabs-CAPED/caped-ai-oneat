@@ -309,6 +309,10 @@ class OneatVisualization:
         
         csvname = None
         self.event_locations_score_dict.clear()
+        self.size_locations = []
+        self.score_locations = []
+        self.event_locations = []
+        self.confidence_locations = []
         for layer in list(self.viewer.layers):
                     if 'Detections'  in layer.name or layer.name in 'Detections' :
                             self.viewer.layers.remove(layer)   
