@@ -266,7 +266,7 @@ def Midog_to_oneat(midog_folder, annotation_file,event_type_name_label, all_ids,
     id_to_tumortype = {id:list(k for k in all_ids if id in all_ids[k])[0] for id in range(1,406)}
     with open(annotation_file) as f:
         data = json.load(f)
-
+    
         #categories = {cat["id"]: cat["name"] for cat in data["categories"]}
         categories = {1: 'mitotic figure', 2: 'hard negative'}
         total_categories = len(event_type_name_label.keys())
@@ -292,7 +292,7 @@ def Midog_to_oneat(midog_folder, annotation_file,event_type_name_label, all_ids,
 
         for image_id in ids:
 
-            image_id += 1
+            
             
             file_path = midog_folder + "/" +  f"{image_id:03d}.tiff"
             Name = os.path.basename(os.path.splitext(file_path)[0])
@@ -300,11 +300,14 @@ def Midog_to_oneat(midog_folder, annotation_file,event_type_name_label, all_ids,
             img = imread(file_path)
             image = normalizeFloatZeroOne( img.astype('float32'),1,99.8)
             image_annotation_array = annotations[Name + '.tiff']
+            image_id += 1
 
     for image_annotation in image_annotation_array:
+        
         Label = np.zeros([total_categories + 5]) 
         Event_data = []
         image_id, image_width, image_height, box, cat, tumortype = image_annotation
+        Name = image_id
         x0, y0, x1, y1 = box
         height = y1 - y0
         width = x1 - x0
