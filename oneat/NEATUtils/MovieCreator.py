@@ -301,47 +301,48 @@ def Midog_to_oneat(midog_folder, annotation_file,event_type_name_label, all_ids,
             image = normalizeFloatZeroOne( img.astype('float32'),1,99.8)
             image_annotation_array = annotations[Name + '.tiff']
 
-            for image_annotation in image_annotation_array:
-                Label = np.zeros([total_categories + 5]) 
-                Event_data = []
-                image_id, image_width, image_height, box, cat, tumortype = image_annotation
-                x0, y0, x1, y1 = box
-                height = y1 - y0
-                width = x1 - x0
-                x = (x0 + x1) //2
-                y = (y0 + y1) //2
-                # if cat == 1 then it is mitosis if cat == 2 it is hard negative
-                
-                if cat == 2:
-                    trainlabel = 0  
-                else:
-                    trainlabel = event_type_name_label[tumortype]
-                ImagesizeX, ImagesizeY = crop_size
-                crop_Xminus = x  - int(ImagesizeX/2)
-                crop_Xplus = x   + int(ImagesizeX/2)
-                crop_Yminus = y  - int(ImagesizeY/2)
-                crop_Yplus = y   + int(ImagesizeY/2)
-                region =(slice(int(crop_Yminus), int(crop_Yplus)),
-                                                           slice(int(crop_Xminus), int(crop_Xplus)))
+    for image_annotation in image_annotation_array:
+        Label = np.zeros([total_categories + 5]) 
+        Event_data = []
+        image_id, image_width, image_height, box, cat, tumortype = image_annotation
+        x0, y0, x1, y1 = box
+        height = y1 - y0
+        width = x1 - x0
+        x = (x0 + x1) //2
+        y = (y0 + y1) //2
+        # if cat == 1 then it is mitosis if cat == 2 it is hard negative
+        
+        if cat == 2:
+            trainlabel = 0  
+        else:
+            trainlabel = event_type_name_label[tumortype]
+        ImagesizeX, ImagesizeY = crop_size
+        crop_Xminus = x  - int(ImagesizeX/2)
+        crop_Xplus = x   + int(ImagesizeX/2)
+        crop_Yminus = y  - int(ImagesizeY/2)
+        crop_Yplus = y   + int(ImagesizeY/2)
+        region =(slice(int(crop_Yminus), int(crop_Yplus)),
+                                                    slice(int(crop_Xminus), int(crop_Xplus)))
 
-                crop_image = image[region]      
+        crop_image = image[region]      
 
-                
-                Label[trainlabel] = 1
-                Label[total_categories] =  0.5
-                Label[total_categories + 1] = 0.5
-                Label[total_categories + 2] = width/ImagesizeX
-                Label[total_categories + 3] = height/ImagesizeY
-                Label[total_categories + 4] = 1 
-                
-                count = count + 1
-                if(crop_image.shape[0]== ImagesizeY and crop_image.shape[1]== ImagesizeX):
-                            imwrite((save_dir + '/' + Name + str(count)  + '.tif'  ) , crop_image.astype('float32'))  
-                            Event_data.append([Label[i] for i in range(0,len(Label))])
-                            if(os.path.exists(save_dir + '/' + Name + str(count) + ".csv")):
-                                os.remove(save_dir + '/' + Name + str(count) + ".csv")
-                            writer = csv.writer(open(save_dir + '/' + Name + str(count) + ".csv", "a"))
-                            writer.writerows(Event_data)
+        
+        
+        Label[trainlabel] = 1
+        Label[total_categories] =  0.5
+        Label[total_categories + 1] = 0.5
+        Label[total_categories + 2] = width/ImagesizeX
+        Label[total_categories + 3] = height/ImagesizeY
+        Label[total_categories + 4] = 1 
+        
+        count = count + 1
+        if(crop_image.shape[0]== ImagesizeY and crop_image.shape[1]== ImagesizeX):
+                    imwrite((save_dir + '/' + Name + str(count)  + '.tif'  ) , crop_image.astype('float32'))  
+                    Event_data.append([Label[i] for i in range(0,len(Label))])
+                    if(os.path.exists(save_dir + '/' + Name + str(count) + ".csv")):
+                        os.remove(save_dir + '/' + Name + str(count) + ".csv")
+                    writer = csv.writer(open(save_dir + '/' + Name + str(count) + ".csv", "a"))
+                    writer.writerows(Event_data)
 
 def MovieLabelDataSet(image_dir, seg_image_dir, csv_dir, save_dir, static_name, static_label, csv_name_diff, crop_size, gridx = 1, gridy = 1, offset = 0, yolo_v0 = False, 
 yolo_v1 = True, yolo_v2 = False,  tshift  = 1, normalizeimage = True):
