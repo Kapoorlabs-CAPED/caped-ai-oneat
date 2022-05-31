@@ -519,7 +519,7 @@ class NEATDynamic(object):
         eventsavename = self.savedir + "/" + (os.path.splitext(os.path.basename(self.imagename))[0])+ '_Event'
         
   
-        for inputtime in tqdm(range(0, self.image.shape[0])):
+        for inputtime in tqdm(range(int(self.imaget)//2, self.image.shape[0])):
              if inputtime < self.image.shape[0] - self.imaget:   
 
                 if inputtime%(self.image.shape[0]//4)==0 and inputtime > 0 or inputtime >= self.image.shape[0] - self.imaget - 1:
@@ -534,7 +534,7 @@ class NEATDynamic(object):
                     crop_xplus = location[i][1]  + int(self.imagex/2) * self.downsamplefactor 
                     crop_yminus = location[i][0]  - int(self.imagey/2) * self.downsamplefactor 
                     crop_yplus = location[i][0]   + int(self.imagey/2) * self.downsamplefactor 
-                    region =(slice(inputtime,inputtime + int(self.imaget)),slice(int(crop_yminus), int(crop_yplus)),
+                    region =(slice(inputtime - int(self.imaget)//2,inputtime + int(self.imaget)//2),slice(int(crop_yminus), int(crop_yplus)),
                           slice(int(crop_xminus), int(crop_xplus)))
                     
                     crop_image = self.image[region] 
@@ -557,6 +557,7 @@ class NEATDynamic(object):
                                                            'dynamic', center_oneat = self.center_oneat)
 
                                      if boxprediction is not None and len(boxprediction) > 0:
+                                            boxprediction[0]['real_time_event'] = inputtime
                                             boxprediction[0]['xcenter'] = xcenter
                                             boxprediction[0]['ycenter'] = ycenter
                                             boxprediction[0]['xstart'] = xcenter - int(self.imagex/2) * self.downsamplefactor

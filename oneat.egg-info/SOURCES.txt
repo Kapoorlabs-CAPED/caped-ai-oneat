@@ -8,6 +8,7 @@ oneat.egg-info/SOURCES.txt
 oneat.egg-info/dependency_links.txt
 oneat.egg-info/requires.txt
 oneat.egg-info/top_level.txt
+oneat/NEATModels/MidogConfig.py
 oneat/NEATModels/Staticconfig.py
 oneat/NEATModels/TrainConfig.py
 oneat/NEATModels/__init__.py
