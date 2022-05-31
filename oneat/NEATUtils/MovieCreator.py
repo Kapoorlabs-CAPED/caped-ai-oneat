@@ -307,7 +307,7 @@ def Midog_to_oneat(midog_folder, annotation_file,event_type_name_label, all_ids,
         Label = np.zeros([total_categories + 5]) 
         Event_data = []
         image_id, image_width, image_height, box, cat, tumortype = image_annotation
-        Name = image_id
+        Name = str(image_id)
         x0, y0, x1, y1 = box
         height = y1 - y0
         width = x1 - x0
