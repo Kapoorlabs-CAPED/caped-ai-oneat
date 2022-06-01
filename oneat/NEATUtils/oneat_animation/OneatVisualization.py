@@ -145,11 +145,12 @@ class OneatVisualization:
                             writer.writerows(event_data)
                             event_data = []     
                 name_remove = ('Clean Detections','Clean Location Map')
+                point_properties = {'size' : np.array(radiuses)}
                 for layer in list(self.viewer.layers):
                                     
                                     if  any(name in layer.name for name in name_remove):
                                             self.viewer.layers.remove(layer) 
-                self.viewer.add_points(self.event_locations_clean,  name = 'Clean Detections', face_color = [0]*4, edge_color = "green") 
+                self.viewer.add_points(self.event_locations_clean, size = radiuses, properties=point_properties,  name = 'Clean Detections', face_color = [0]*4, edge_color = "green") 
                 
                 
                 df = pd.DataFrame (self.event_locations_clean, columns = ['T', 'Y', 'X'])
@@ -217,9 +218,7 @@ class OneatVisualization:
                                 normeventlist.append(countT/all_cells)
                         self.cleannormeventlist = []    
                         if len(self.cleaneventlist) > 0:    
-                                print(len(self.cleaneventlist), len(celllist)) 
                                 for k in range(len(self.cleaneventlist)):
-                                    print(self.cleaneventlist[k], celllist[k])  
                                     self.cleannormeventlist.append(self.cleaneventlist[k]/ celllist[k])      
                         if self.plot_event_name == self.event_count_plot:    
                                 self.ax.plot(timelist, eventlist, '-r')
