@@ -562,7 +562,7 @@ class NEATDynamic(object):
                                             boxprediction[0]['xstart'] = xcenter - int(self.imagex/2) * self.downsamplefactor
                                             boxprediction[0]['ystart'] = ycenter - int(self.imagey/2) * self.downsamplefactor  
                                             eventboxes = eventboxes + boxprediction
-                                            #print(boxprediction[0])
+                                           
                                            
                 for (event_name,event_label) in self.key_categories.items(): 
                                            

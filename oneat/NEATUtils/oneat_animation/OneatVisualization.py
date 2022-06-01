@@ -71,7 +71,7 @@ class OneatVisualization:
                             if distance <= nms_space:
                                 if (int(currenttime), int(nearest_location[0]), int(nearest_location[1])) in self.event_locations_size_dict:
                                     currentsize, currentscore = self.event_locations_size_dict[int(currenttime), int(nearest_location[0]), int(nearest_location[1])]
-                                    if currentsize > backsize:
+                                    if currentscore > backscore:
                                         self.event_locations_size_dict.pop(( int(backtime), int(location[0]), int(location[1])))
                                     else:
                                         self.event_locations_size_dict.pop(( int(currenttime), int(nearest_location[0]), int(nearest_location[1]) ))    
@@ -87,7 +87,7 @@ class OneatVisualization:
                                 if distance <= nms_space:
                                             if (int(currenttime), int(nearest_location[0]), int(nearest_location[1])) in self.event_locations_size_dict:
                                                 currentsize, currentscore = self.event_locations_size_dict[int(currenttime), int(nearest_location[0]), int(nearest_location[1])]
-                                                if currentsize > forwardsize:
+                                                if currentscore > currentsize:
                                                     self.event_locations_size_dict.pop((int(forwardtime), int(location[0]), int(location[1])))
                                                     
                                                 else:
