@@ -1,7 +1,7 @@
 from oneat.NEATUtils import plotters
 import numpy as np
 from oneat.NEATUtils import helpers
-from oneat.NEATUtils.helpers import MidSlices, get_nearest,  load_json, yoloprediction, normalizeFloatZeroOne, GenerateMarkers, MakeTrees, DownsampleData,save_dynamic_csv, dynamic_nms, gold_nms
+from oneat.NEATUtils.helpers import MidSlices, MidSlicesSum, get_nearest,  load_json, yoloprediction, normalizeFloatZeroOne, GenerateMarkers, MakeTrees, DownsampleData,save_dynamic_csv, dynamic_nms, gold_nms
 from keras import callbacks
 import os
 import keras
@@ -320,7 +320,7 @@ class NEATDynamic(object):
         if self.ndim == 4:
            self.z = self.image.shape[1]//2
            print(f'Image {self.image.shape} is {self.ndim} dimensional, projecting around the center {self.image.shape[1]//2} - {self.start_project_mid} to {self.image.shape[1]//2} + {self.end_project_mid}') 
-           self.image =  MidSlices(self.image, self.start_project_mid, self.end_project_mid, axis = 1)
+           self.image =  MidSlicesSum(self.image, self.start_project_mid, self.end_project_mid, axis = 1)
            self.z = self.z - (self.start_project_mid + self.end_project_mid)//2
         if self.normalize: 
                     self.image = normalizeFloatZeroOne(self.image.astype('float32'), 1, 99.8)
@@ -519,7 +519,7 @@ class NEATDynamic(object):
         eventsavename = self.savedir + "/" + (os.path.splitext(os.path.basename(self.imagename))[0])+ '_Event'
         
   
-        for inputtime in tqdm(range(int(self.imaget)//2 + 1, self.image.shape[0])):
+        for inputtime in tqdm(range(int(self.imaget)//2, self.image.shape[0])):
              if inputtime < self.image.shape[0] - self.imaget:   
 
                 if inputtime%(self.image.shape[0]//4)==0 and inputtime > 0 or inputtime >= self.image.shape[0] - self.imaget - 1:
@@ -534,7 +534,7 @@ class NEATDynamic(object):
                     crop_xplus = location[i][1]  + int(self.imagex/2) * self.downsamplefactor 
                     crop_yminus = location[i][0]  - int(self.imagey/2) * self.downsamplefactor 
                     crop_yplus = location[i][0]   + int(self.imagey/2) * self.downsamplefactor 
-                    region =(slice(inputtime - int(self.imaget)//2 - 1,inputtime + int(self.imaget)//2),slice(int(crop_yminus), int(crop_yplus)),
+                    region =(slice(inputtime - int(self.imaget)//2,inputtime + int(self.imaget)//2 + 1),slice(int(crop_yminus), int(crop_yplus)),
                           slice(int(crop_xminus), int(crop_xplus)))
                     
                     crop_image = self.image[region] 

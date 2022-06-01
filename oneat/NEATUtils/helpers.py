@@ -501,6 +501,14 @@ def MidSlices(Image, start_project_mid, end_project_mid, axis = 1):
         
     return MaxProject
 
+def MidSlicesSum(Image, start_project_mid, end_project_mid, axis = 1):
+    
+    
+    SmallImage = Image.take(indices = range(Image.shape[axis]//2 - start_project_mid, Image.shape[axis]//2 + end_project_mid), axis = axis)
+    
+    MaxProject = np.sum(SmallImage, axis = axis)
+        
+    return MaxProject
 
 def GenerateMarkers(segimage, start_project_mid = 4, end_project_mid = 4):
 
