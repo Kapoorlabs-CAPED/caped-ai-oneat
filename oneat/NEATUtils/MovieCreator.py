@@ -5,6 +5,7 @@ import numpy as np
 from tifffile import imread, imwrite 
 import pandas as pd
 import os
+from tqdm import tqdm
 import glob
 import json
 from skimage.measure import regionprops
@@ -12,7 +13,7 @@ from skimage import measure
 from pathlib import Path
 from sklearn.model_selection import train_test_split
 from .helpers import  normalizeFloatZeroOne
-    
+from PIL import Image    
 """
 @author: Varun Kapoor
 In this program we create training movies and training images for ONEAT. The training data comprises of images and text labels attached to them.
@@ -259,6 +260,49 @@ def SimpleMovieMaker4D(normalizeimage, time, z, y, x, image, crop_size, gridx, g
                                            writer = csv.writer(open(save_dir + '/' + (newname) + ".csv", "a"))
                                            writer.writerows(Event_data)                                                                    
     
+def loadResizeImgs(im, size):
+    
+          
+            w,h = im.size
+            if w < h:
+                im = im.crop((0, (h-w)/2, w, (h+w)/2))
+            elif w > h:
+                im = im.crop(((w-h+1)/2,0, (w+h)/2, h))
+
+            return np.array(im.resize(size, Image.BILINEAR))
+            
+
+def Folder_to_oneat(dir, trainlabel, trainname, total_categories, size, save_dir):
+
+        Label = np.zeros([total_categories]) 
+        
+        count = 0
+        
+        files = sorted(glob.glob(dir + "/" + '*.png'))
+        for i in tqdm(range(len(files))):
+                file = files[i]
+                try:
+                    Event_data = [] 
+                   
+                    img = Image.open(file)
+                    img = loadResizeImgs(img, size)
+                    Name = str(trainname) + os.path.basename(os.path.splitext(file)[0])
+                    image = normalizeFloatZeroOne( img.astype('float32'),1,99.8)
+                    Label[trainlabel] = 1
+                    imwrite((save_dir + '/' + Name + str(count)  + '.tif'  ) , image.astype('float32'))  
+                    Event_data.append([Label[i] for i in range(0,len(Label))])
+                    if(os.path.exists(save_dir + '/' + Name + str(count) + ".csv")):
+                        os.remove(save_dir + '/' + Name + str(count) + ".csv")
+                    writer = csv.writer(open(save_dir + '/' + Name + str(count) + ".csv", "a"))
+                    writer.writerows(Event_data)
+                    count = count + 1
+                except Exception as e:
+                    print("[WW] ", str(e))
+                    continue
+           
+            
+            
+
 def Midog_to_oneat(midog_folder, annotation_file,event_type_name_label, all_ids, crop_size, save_dir):
 
     rows = []
@@ -296,7 +340,7 @@ def Midog_to_oneat(midog_folder, annotation_file,event_type_name_label, all_ids,
             
             file_path = midog_folder + "/" +  f"{image_id:03d}.tiff"
             Name = os.path.basename(os.path.splitext(file_path)[0])
-            print(file_path,Name, type(Name))
+           
             img = imread(file_path)
             image = normalizeFloatZeroOne( img.astype('float32'),1,99.8)
             image_annotation_array = annotations[Name + '.tiff']
