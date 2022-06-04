@@ -290,9 +290,8 @@ def static_yolo_loss_segfree(categories, grid_h, grid_w, nboxes, box_vector, ent
     def loss(y_true, y_pred):    
 
         cell_grid = get_cell_grid(grid_h, grid_w, nboxes)
-        true_box_class, true_box_xy = extract_ground_cell_truth_segfree(y_true, categories, grid_h, grid_w, nboxes, box_vector, yolo_v0)
-        pred_box_class, pred_box_xy = extract_ground_cell_pred_segfree(y_pred, categories, grid_h, grid_w, cell_grid, nboxes, box_vector, yolo_v0)
-
+        true_box_class, true_box_xy = extract_ground_cell_truth_segfree(y_true, categories, grid_h, grid_w, nboxes, box_vector)
+        pred_box_class, pred_box_xy = extract_ground_cell_pred_segfree(y_pred, categories, grid_h, grid_w, cell_grid, nboxes, box_vector)
         loss_xy = calc_loss_xy(true_box_xy, pred_box_xy)
 
         loss_class   = calc_loss_class(true_box_class, pred_box_class, entropy)
