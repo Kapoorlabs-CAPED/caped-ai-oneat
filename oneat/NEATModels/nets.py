@@ -96,7 +96,7 @@ def TDresnet_layer(inputs,
 
 
 
-def OSNET(input_shape, categories,unit, box_vector, nboxes = 1, stage_number = 3, last_conv_factor = 4, depth = 38, start_kernel = 3, mid_kernel = 3, lstm_kernel = 3, startfilter = 48,  input_weights = None,last_activation = 'softmax'):
+def OSNET(input_shape, categories,unit, box_vector, nboxes = 1, stage_number = 3, depth = 38, start_kernel = 3, mid_kernel = 3, lstm_kernel = 3, startfilter = 48,  input_weights = None,last_activation = 'softmax'):
     """ResNet Version 2 Model builder [b]
     depth of 29 == max pooling of 28 for image patch of 55
     depth of 56 == max pooling of 14 for image patch of 55
@@ -107,7 +107,7 @@ def OSNET(input_shape, categories,unit, box_vector, nboxes = 1, stage_number = 3
     # Start model definition.
     num_filters_in = startfilter
     num_res_blocks = int((depth - 2) / 9)
-
+    last_conv_factor =  2 ** (stage_number - 1)
     # v2 performs Conv2D with BN-ReLU on input before splitting into 2 paths
     x = ThreeDresnet_layer(inputs=img_input,
                      num_filters=num_filters_in,
@@ -231,7 +231,7 @@ def OSNET(input_shape, categories,unit, box_vector, nboxes = 1, stage_number = 3
     return model
 
 
-def ORNET(input_shape, categories,unit, box_vector,nboxes = 1, stage_number = 3, last_conv_factor = 4, depth = 38, start_kernel = 3, mid_kernel = 3, lstm_kernel = 3, startfilter = 32,  input_weights = None, last_activation = 'softmax'):
+def ORNET(input_shape, categories,unit, box_vector,nboxes = 1, stage_number = 3,  depth = 38, start_kernel = 3, mid_kernel = 3, lstm_kernel = 3, startfilter = 32,  input_weights = None, last_activation = 'softmax'):
     """ResNet Version 2 Model builder [b]
     depth of 29 == max pooling of 28 for image patch of 55
     depth of 56 == max pooling of 14 for image patch of 55
@@ -242,7 +242,7 @@ def ORNET(input_shape, categories,unit, box_vector,nboxes = 1, stage_number = 3,
     # Start model definition.
     num_filters_in = startfilter
     num_res_blocks = int((depth - 2) / 9)
-
+    last_conv_factor =  2 ** (stage_number - 1)
     # v2 performs Conv2D with BN-ReLU on input before splitting into 2 paths
     x = ThreeDresnet_layer(inputs=img_input,
                      num_filters=num_filters_in,
@@ -450,7 +450,7 @@ def ThreeDresnet_layer(inputs,
 
 
 
-def resnet_v2(input_shape, categories, box_vector,nboxes = 1, stage_number = 3, last_conv_factor = 4,  depth = 38,  start_kernel = 3, mid_kernel = 3, startfilter = 48,  input_weights = None, last_activation = 'softmax'):
+def resnet_v2(input_shape, categories, box_vector,nboxes = 1, stage_number = 3,  depth = 38,  start_kernel = 3, mid_kernel = 3, startfilter = 48,  input_weights = None, last_activation = 'softmax'):
     """ResNet Version 2 Model builder [b]
     Stacks of (1 x 1)-(3 x 3)-(1 x 1) BN-ReLU-Conv2D or also known as
     bottleneck layer
@@ -472,6 +472,8 @@ def resnet_v2(input_shape, categories, box_vector,nboxes = 1, stage_number = 3, 
     # Returns
         model (Model): Keras model instance
     """
+
+    last_conv_factor =  2 ** (stage_number - 1)
     img_input = layers.Input(shape = (None, None, input_shape[2]))
     if (depth - 2) % 9 != 0:
         raise ValueError('depth should be 9n+2 (eg 56 or 110 in [b])')
@@ -564,8 +566,10 @@ def resnet_v2(input_shape, categories, box_vector,nboxes = 1, stage_number = 3, 
         model.load_weights(input_weights, by_name =True)
         
     return model
-  
-def seqnet_v2(input_shape, categories, box_vector,nboxes = 1,stage_number = 3, last_conv_factor = 4, depth = 38, start_kernel = 3, mid_kernel = 3, startfilter = 48,  input_weights = None, last_activation = 'softmax'):
+
+
+
+def resnet_v2_class(input_shape, categories, box_vector,nboxes = 1, stage_number = 3,  depth = 38,  start_kernel = 3, mid_kernel = 3, startfilter = 48,  input_weights = None, last_activation = 'softmax'):
     """ResNet Version 2 Model builder [b]
     Stacks of (1 x 1)-(3 x 3)-(1 x 1) BN-ReLU-Conv2D or also known as
     bottleneck layer
@@ -587,6 +591,116 @@ def seqnet_v2(input_shape, categories, box_vector,nboxes = 1,stage_number = 3, l
     # Returns
         model (Model): Keras model instance
     """
+
+    last_conv_factor =  2 ** (stage_number - 1)
+    img_input = layers.Input(shape = (None, None, input_shape[2]))
+    if (depth - 2) % 9 != 0:
+        raise ValueError('depth should be 9n+2 (eg 56 or 110 in [b])')
+    # Start model definition.
+    num_filters_in = startfilter
+    num_res_blocks = int((depth - 2) / 9)
+
+    # v2 performs Conv2D with BN-ReLU on input before splitting into 2 paths
+    x = resnet_layer(inputs=img_input,
+                     num_filters=num_filters_in,
+                     kernel_size = start_kernel,
+                     conv_first=True)
+
+    # Instantiate the stack of residual units
+    for stage in range(stage_number):
+        for res_block in range(num_res_blocks):
+            activation = 'relu'
+            batch_normalization = True
+            strides = 1
+            if stage == 0:
+                num_filters_out = num_filters_in * 4
+                if res_block == 0:  # first layer and first stage
+                    activation = None
+                    batch_normalization = False
+            else:
+                num_filters_out = num_filters_in * 2
+                if res_block == 0:  # not first layer and not first stage
+                    strides = 2  # downsample
+
+            # bottleneck residual unit
+            y = resnet_layer(inputs=x,
+                             num_filters=num_filters_in,
+                             kernel_size=1,
+                             strides=strides,
+                             activation=activation,
+                             batch_normalization=batch_normalization,
+                             conv_first=False)
+            y = resnet_layer(inputs=y,
+                             num_filters=num_filters_in,
+                               kernel_size= mid_kernel,
+                             conv_first=False)
+            y = resnet_layer(inputs=y,
+                             num_filters=num_filters_out,
+                             kernel_size=1,
+                             conv_first=False)
+            if res_block == 0:
+                # linear projection residual shortcut connection to match
+                # changed dims
+                x = resnet_layer(inputs=x,
+                                 num_filters=num_filters_out,
+                                 kernel_size=1,
+                                 strides=strides,
+                                 activation=None,
+                                 batch_normalization=False)
+              
+            x = K.layers.add([x, y])
+        
+        num_filters_in = num_filters_out
+
+    # Add classifier on top.
+    # v2 has BN-ReLU before Pooling
+    x = (Conv2D(categories + nboxes * box_vector, kernel_size= mid_kernel,kernel_regularizer=regularizers.l2(reg_weight), padding = 'same'))(x)
+    x = BatchNormalization()(x)
+    x = Activation('relu')(x)
+    
+
+    
+    input_cat = Lambda(lambda x:x[:,:,:,0:categories])(x)
+    outputs = (Conv2D(categories, (round(input_shape[0]/last_conv_factor),round(input_shape[1]/last_conv_factor)),activation= last_activation ,kernel_regularizer=regularizers.l2(reg_weight), padding = 'valid'))(input_cat)
+   
+
+    block = Concat(-1)
+    inputs = img_input
+   
+     
+    # Create model.
+    model = models.Model(inputs, outputs)
+    
+    
+    if input_weights is not None:
+
+        model.load_weights(input_weights, by_name =True)
+        
+    return model    
+  
+def seqnet_v2(input_shape, categories, box_vector,nboxes = 1,stage_number = 3, depth = 38, start_kernel = 3, mid_kernel = 3, startfilter = 48,  input_weights = None, last_activation = 'softmax'):
+    """ResNet Version 2 Model builder [b]
+    Stacks of (1 x 1)-(3 x 3)-(1 x 1) BN-ReLU-Conv2D or also known as
+    bottleneck layer
+    First shortcut connection per layer is 1 x 1 Conv2D.
+    Second and onwards shortcut connection is identity.
+    At the beginning of each stage, the feature map size is halved (downsampled)
+    by a convolutional layer with strides=2, while the number of filter maps is
+    doubled. Within each stage, the layers have the same number filters and the
+    same filter map sizes.
+    Features maps sizes:
+    conv1  : 32x32,  16
+    stage 0: 32x32,  64
+    stage 1: 16x16, 128
+    stage 2:  8x8,  256
+    # Arguments
+        input_shape (tensor): shape of input image tensor
+        depth (int): number of core convolutional layers
+        num_classes (int): number of classes (CIFAR10 has 10)
+    # Returns
+        model (Model): Keras model instance
+    """
+    last_conv_factor =  2 ** (stage_number - 1)
     img_input = layers.Input(shape = (None, None, input_shape[2]))
     if (depth - 2) % 9 != 0:
         raise ValueError('depth should be 9n+2 (eg 56 or 110 in [b])')
@@ -667,7 +781,7 @@ def seqnet_v2(input_shape, categories, box_vector,nboxes = 1,stage_number = 3, l
     return model
       
 
-def resnet_3D_v2(input_shape, categories,box_vector, stage_number = 3, last_conv_factor = 4,  depth = 38,  start_kernel = 3, mid_kernel = 3, startfilter = 48,  input_weights = None, last_activation = 'softmax'):
+def resnet_3D_v2(input_shape, categories,box_vector, stage_number = 3, depth = 38,  start_kernel = 3, mid_kernel = 3, startfilter = 48,  input_weights = None, last_activation = 'softmax'):
     """ResNet Version 2 Model builder [b]
     Stacks of (1 x 1)-(3 x 3)-(1 x 1) BN-ReLU-Conv2D or also known as
     bottleneck layer
@@ -689,6 +803,7 @@ def resnet_3D_v2(input_shape, categories,box_vector, stage_number = 3, last_conv
     # Returns
         model (Model): Keras model instance
     """
+    last_conv_factor =  2 ** (stage_number - 1)
     img_input = layers.Input(shape = (input_shape[0], None, None, input_shape[3]))
     if (depth - 2) % 9 != 0:
         raise ValueError('depth should be 9n+2 (eg 56 or 110 in [b])')
@@ -781,7 +896,7 @@ def resnet_3D_v2(input_shape, categories,box_vector, stage_number = 3, last_conv
         
     return model
   
-def seqnet_3D_v2(input_shape, categories, box_vector, stage_number = 3, last_conv_factor = 4, depth = 38, start_kernel = 3, mid_kernel = 3, startfilter = 48,  input_weights = None, last_activation = 'softmax'):
+def seqnet_3D_v2(input_shape, categories, box_vector, stage_number = 3, depth = 38, start_kernel = 3, mid_kernel = 3, startfilter = 48,  input_weights = None, last_activation = 'softmax'):
     """ResNet Version 2 Model builder [b]
     Stacks of (1 x 1)-(3 x 3)-(1 x 1) BN-ReLU-Conv2D or also known as
     bottleneck layer
@@ -803,6 +918,7 @@ def seqnet_3D_v2(input_shape, categories, box_vector, stage_number = 3, last_con
     # Returns
         model (Model): Keras model instance
     """
+    last_conv_factor =  2 ** (stage_number - 1)
     img_input = layers.Input(shape = (input_shape[0], None, None, input_shape[3]))
     if (depth - 2) % 9 != 0:
         raise ValueError('depth should be 9n+2 (eg 56 or 110 in [b])')
