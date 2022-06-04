@@ -792,7 +792,7 @@ def SegFreeImageLabelDataSet(image_dir, csv_dir,save_dir, static_name, static_la
                                                SegFreeImageMaker(t, y[key], x[key], image, crop_size, gridx, gridy, offset, total_categories, trainlabel, name + event_name + str(count), save_dir)    
                                                count = count + 1                 
     
-def createNPZ(save_dir, axes, save_name = 'Yolov0oneat', save_name_val = 'Yolov0oneatVal', static = False):
+def createNPZ(save_dir, axes, save_name = 'Yolov0oneat', save_name_val = 'Yolov0oneatVal', expand = True, static = False, flip_channel_axis = False):
             
             data = []
             label = []   
@@ -805,8 +805,9 @@ def createNPZ(save_dir, axes, save_name = 'Yolov0oneat', save_name_val = 'Yolov0
             names = [Readname(fname)  for fname in files_raw]
             #Normalize everything before it goes inside the training
             for i in range(0,len(NormalizeImages)):
-
+                   
                        n = NormalizeImages[i]
+                   
                        blankX = n
                        csvfname = save_dir + '/' + names[i] + '.csv'   
                        arr = [] 
@@ -816,10 +817,11 @@ def createNPZ(save_dir, axes, save_name = 'Yolov0oneat', save_name_val = 'Yolov0
                              arr = np.array(arr)
                             
                        blankY = arr
-                       
                        blankY = np.expand_dims(blankY, -1)
-                       blankX = np.expand_dims(blankX, -1)
-
+                       if expand:
+                         
+                         blankX = np.expand_dims(blankX, -1)
+                     
                        data.append(blankX)
                        label.append(blankY)
 
@@ -827,8 +829,11 @@ def createNPZ(save_dir, axes, save_name = 'Yolov0oneat', save_name_val = 'Yolov0
 
             dataarr = np.asarray(data)
             labelarr = np.asarray(label)
+            if flip_channel_axis:
+                       np.swapaxes(dataarr, 1,-1)
             if static:
                 try:
+                    
                    dataarr = dataarr[:,0,:,:,:]
                 except:
                     
