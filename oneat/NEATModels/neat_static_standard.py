@@ -93,7 +93,7 @@ class NEATStatic(object):
             self.key_cord = staticconfig.key_cord
             self.categories = len(staticconfig.key_categories)
             self.stage_number = staticconfig.stage_number
-            self.last_conv_factor = staticconfig.last_conv_factor
+            self.last_conv_factor = 2 ** (self.stage_number - 1)
             self.depth = staticconfig.depth
             self.start_kernel = staticconfig.start_kernel
             self.mid_kernel = staticconfig.mid_kernel
@@ -142,7 +142,7 @@ class NEATStatic(object):
             self.yolo_v0 = self.staticconfig['yolo_v0']
             self.stride = self.staticconfig['stride']
             self.stage_number = self.staticconfig['stage_number']
-            self.last_conv_factor = self.staticconfig['last_conv_factor']
+            self.last_conv_factor = 2 ** (self.stage_number - 1)
 
         self.X = None
         self.Y = None
@@ -229,7 +229,7 @@ class NEATStatic(object):
 
         self.Trainingmodel = self.model_keras(input_shape, self.categories, box_vector=self.box_vector,
                                               nboxes=self.nboxes, stage_number=self.stage_number,
-                                              last_conv_factor=self.last_conv_factor, depth=self.depth,
+                                               depth=self.depth,
                                               start_kernel=self.start_kernel, mid_kernel=self.mid_kernel,
                                               startfilter=self.startfilter, last_activation=self.last_activation,
                                               input_weights=self.model_weights)

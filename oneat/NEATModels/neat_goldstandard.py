@@ -80,7 +80,7 @@ class NEATDynamic(object):
             self.npz_val_name = config.npz_val_name
             self.key_categories = config.key_categories
             self.stage_number = config.stage_number
-            self.last_conv_factor = config.last_conv_factor
+            self.last_conv_factor = 2 ** (self.stage_number - 1)
             self.show = config.show
             self.key_cord = config.key_cord
             self.box_vector = len(config.key_cord)
@@ -141,7 +141,7 @@ class NEATDynamic(object):
             self.size_tplus = self.config['size_tplus']
             self.nboxes = self.config['nboxes']
             self.stage_number = self.config['stage_number']
-            self.last_conv_factor = self.config['last_conv_factor']
+            self.last_conv_factor = 2 ** (self.stage_number - 1)
             self.gridx = 1
             self.gridy = 1
             self.gridt = 1
@@ -256,7 +256,7 @@ class NEATDynamic(object):
 
         self.Trainingmodel = self.model_keras(input_shape, self.categories, unit=self.lstm_hidden_unit,
                                               box_vector=Y_rest.shape[-1], nboxes=self.nboxes,
-                                              stage_number=self.stage_number, last_conv_factor=self.last_conv_factor,
+                                              stage_number=self.stage_number,
                                               depth=self.depth, start_kernel=self.start_kernel,
                                               mid_kernel=self.mid_kernel, lstm_kernel=self.lstm_kernel,
                                               startfilter=self.startfilter, input_weights=self.model_weights,
