@@ -87,7 +87,7 @@ def extract_ground_cell_pred(y_pred, categories, grid_h, grid_w, cell_grid, nbox
         
         pred_nboxes = K.reshape(y_pred[...,categories:], (-1, grid_h * grid_w, nboxes, box_vector))
     
-        pred_box_xy = pred_nboxes[...,0:2] + K.variable(cell_grid)
+        pred_box_xy = pred_nboxes[...,0:2] + (cell_grid)
     
         pred_box_wh = pred_nboxes[...,2:4]
         
