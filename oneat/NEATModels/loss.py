@@ -285,7 +285,7 @@ def static_yolo_loss(categories, grid_h, grid_w, nboxes, box_vector, entropy, yo
         
     return loss    
 
-def static_yolo_loss_segfree(categories, grid_h, grid_w, nboxes, box_vector, entropy, yolo_v0):
+def static_yolo_loss_segfree(categories, grid_h, grid_w, nboxes, box_vector, entropy):
     
     def loss(y_true, y_pred):    
 

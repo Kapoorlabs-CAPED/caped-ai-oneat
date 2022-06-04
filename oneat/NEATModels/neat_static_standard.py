@@ -166,7 +166,7 @@ class NEATStatic(object):
             self.last_activation = 'softmax'
             self.entropy = 'notbinary'
 
-        self.yololoss = static_yolo_loss_segfree(self.categories, self.gridx, self.gridy, self.nboxes, self.box_vector,
+        self.yololoss = static_yolo_loss(self.categories, self.gridx, self.gridy, self.nboxes, self.box_vector,
                                                   self.entropy, self.yolo_v0)
 
     def loadData(self):
