@@ -181,10 +181,12 @@ class NEATStatic(object):
         self.X = X
         if sum_channels:
             self.X = np.sum(X, -1)
+            self.X = np.expand_dims(self.X, -1)
         self.Y = Y[:, :, 0]
         self.X_val = X_val
         if sum_channels:
             self.X_val = np.sum(X_val, -1)
+            self.X_val = np.expand_dims(self.X_val, -1)
         self.Y_val = Y_val[:, :, 0]
         self.axes = axes
         self.Y = self.Y.reshape((self.Y.shape[0], 1, 1, self.Y.shape[1]))
