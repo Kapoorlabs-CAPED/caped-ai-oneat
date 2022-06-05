@@ -169,7 +169,7 @@ class NEATStatic(object):
         self.yololoss = static_yolo_loss(self.categories, self.gridx, self.gridy, self.nboxes, self.box_vector,
                                                   self.entropy, self.yolo_v0)
 
-    def loadData(self):
+    def loadData(self, snip_last = False):
 
         (X, Y), axes = helpers.load_full_training_data(self.npz_directory, self.npz_name, verbose=True)
 
@@ -179,8 +179,12 @@ class NEATStatic(object):
         self.Xoriginal_val = X_val
 
         self.X = X
+        if snip_last:
+            self.X = X[:,:,0:-2]
         self.Y = Y[:, :, 0]
         self.X_val = X_val
+        if snip_last:
+            self.X_val = X_val[:,:,0:-2]
         self.Y_val = Y_val[:, :, 0]
         self.axes = axes
         self.Y = self.Y.reshape((self.Y.shape[0], 1, 1, self.Y.shape[1]))
