@@ -16,7 +16,7 @@ import os
 from tqdm import tqdm
 from oneat.NEATModels import nets
 from oneat.NEATModels.nets import Concat
-from oneat.NEATModels.loss import static_yolo_loss, static_yolo_loss_segfree
+from oneat.NEATModels.loss import static_yolo_loss, static_yolo_loss_segfree, class_yolo_loss
 from keras import backend as K
 import tensorflow as tf
 # from IPython.display import clear_output
@@ -75,14 +75,14 @@ class NEATStatic(object):
     
     """
 
-    def __init__(self, staticconfig, model_dir, model_name, catconfig=None, cordconfig=None):
+    def __init__(self, staticconfig, model_dir, model_name, catconfig=None, cordconfig=None, class_only = False):
 
         self.staticconfig = staticconfig
         self.catconfig = catconfig
         self.cordconfig = cordconfig
         self.model_dir = model_dir
         self.model_name = model_name
-
+        self.class_only = class_only
         if self.staticconfig != None:
             self.npz_directory = staticconfig.npz_directory
             self.npz_name = staticconfig.npz_name
@@ -109,7 +109,7 @@ class NEATStatic(object):
             self.gridx = staticconfig.gridx
             self.gridy = staticconfig.gridy
             self.yolo_v0 = staticconfig.yolo_v0
-            self.stride = staticconfig.stride
+           
 
         if self.staticconfig == None:
 
@@ -140,7 +140,7 @@ class NEATStatic(object):
             self.gridx = self.staticconfig['gridx']
             self.gridy = self.staticconfig['gridy']
             self.yolo_v0 = self.staticconfig['yolo_v0']
-            self.stride = self.staticconfig['stride']
+        
             self.stage_number = self.staticconfig['stage_number']
             self.last_conv_factor = 2 ** (self.stage_number - 1)
 
@@ -152,22 +152,37 @@ class NEATStatic(object):
         self.Trainingmodel = None
         self.Xoriginal = None
         self.Xoriginal_val = None
+        if self.class_only == False:
+                if self.residual:
+                    self.model_keras = nets.resnet_v2
+                else:
+                    self.model_keras = nets.seqnet_v2
 
-        if self.residual:
-            self.model_keras = nets.resnet_v2
-        else:
-            self.model_keras = nets.seqnet_v2
+                if self.multievent == True:
+                    self.last_activation = 'sigmoid'
+                    self.entropy = 'binary'
 
-        if self.multievent == True:
-            self.last_activation = 'sigmoid'
-            self.entropy = 'binary'
+                if self.multievent == False:
+                    self.last_activation = 'softmax'
+                    self.entropy = 'notbinary'
 
-        if self.multievent == False:
-            self.last_activation = 'softmax'
-            self.entropy = 'notbinary'
+                self.yololoss = static_yolo_loss(self.categories, self.gridx, self.gridy, self.nboxes, self.box_vector,
+                                                        self.entropy, self.yolo_v0)
 
-        self.yololoss = static_yolo_loss(self.categories, self.gridx, self.gridy, self.nboxes, self.box_vector,
-                                                  self.entropy, self.yolo_v0)
+        if self.class_only:
+                
+                self.model_keras = nets.resnet_v2_class
+
+                if self.multievent == True:
+                    self.last_activation = 'sigmoid'
+                    self.entropy = 'binary'
+
+                if self.multievent == False:
+                    self.last_activation = 'softmax'
+                    self.entropy = 'notbinary'
+
+                self.yololoss = class_yolo_loss(self.categories, self.entropy)
+
 
     def loadData(self, sum_channels = False):
 

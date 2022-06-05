@@ -17,7 +17,8 @@ import argparse
 import numpy as np
 class static_config(argparse.Namespace):
     
-    def __init__(self, npz_directory = None, npz_name = None, npz_val_name = None, key_categories = None, key_cord = None, residual = True,stage_number = 3, last_conv_factor = 4,  stride = 4, gridx = 1, gridy = 1, nboxes = 1, 
+    def __init__(self, npz_directory = None, npz_name = None, npz_val_name = None, key_categories = None, key_cord = None, 
+    residual = True,stage_number = 3, gridx = 1, gridy = 1, nboxes = 1, 
                  depth = 29, start_kernel = 3, mid_kernel = 3,startfilter = 32, show = True, imagex = 64, imagey = 64,
                  epochs =100,  learning_rate = 1.0E-4, batch_size = 10, model_name = 'NEATModel', yolo_v0 = True, multievent = True,  **kwargs):
         
@@ -40,9 +41,9 @@ class static_config(argparse.Namespace):
            self.imagex = imagex
            self.imagey = imagey
            self.epochs = epochs
-           self.stride = stride
+     
            self.stage_number = stage_number
-           self.last_conv_factor = last_conv_factor
+           self.last_conv_factor = 2 ** (self.stage_number - 1)
            self.yolo_v0 = yolo_v0
            self.categories = len(self.key_categories)
            self.box_vector = len(self.key_cord)
@@ -70,7 +71,7 @@ class static_config(argparse.Namespace):
                  'nboxes' : self.nboxes,
                  'imagex' : self.imagex,
                  'imagey' : self.imagey,
-                 'stride' : self.stride,
+                
                  'epochs' : self.epochs,
                  'categories' : self.categories,
                  'box_vector' : self.box_vector,
@@ -118,7 +119,7 @@ class static_config(argparse.Namespace):
             ok['residual'] = isinstance(self.residual,bool)
             ok['yolo_v0'] = isinstance(self.yolo_v0,bool)
             ok['depth']         = _is_int(self.depth,1)
-            ok['stride']         = _is_int(self.stride,1)
+           
             ok['start_kernel']       = _is_int(self.start_kernel,1)
             ok['mid_kernel']         = _is_int(self.mid_kernel,1)
             ok['startfilter']        = _is_int(self.startfilter, 1)
