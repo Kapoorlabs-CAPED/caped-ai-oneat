@@ -323,7 +323,7 @@ def Midog_to_oneat(midog_folder, annotation_file,event_type_name_label, all_ids,
             
             for annotation in [anno for anno in data['annotations'] if anno["image_id"] == image_id]:
                 box = annotation["bbox"]
-                cat = categories[annotation["category_id"]]
+                cat = annotation["category_id"]
 
                 rows.append([image_id, width, height, box, cat, tumortype])
             annotations[file_name] = rows
@@ -358,10 +358,9 @@ def Midog_to_oneat(midog_folder, annotation_file,event_type_name_label, all_ids,
         x = (x0 + x1) //2
         y = (y0 + y1) //2
         # if cat == 1 then it is mitosis if cat == 2 it is hard negative
-        
         if cat == 2:
             trainlabel = 0  
-        else:
+        if cat == 1 :
             trainlabel = event_type_name_label[tumortype]
         ImagesizeX, ImagesizeY = crop_size
         crop_Xminus = x  - int(ImagesizeX/2)

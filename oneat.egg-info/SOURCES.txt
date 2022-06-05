@@ -1,6 +1,7 @@
 README.md
 setup.py
 oneat/__init__.py
+oneat/_version.py
 oneat/pretrained.py
 oneat/version.py
 oneat.egg-info/PKG-INFO
