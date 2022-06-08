@@ -89,7 +89,7 @@ class OneatVisualization:
                                 if distance <= nms_space:
                                             if (int(currenttime), int(nearest_location[0]), int(nearest_location[1])) in self.event_locations_size_dict:
                                                 currentsize, currentscore = self.event_locations_size_dict[int(currenttime), int(nearest_location[0]), int(nearest_location[1])]
-                                                if  currentsize > forwardsize:
+                                                if  currentsize >= forwardsize:
                                                     self.event_locations_size_dict.pop((int(forwardtime), int(location[0]), int(location[1])))
                                                     
                                                 else:
@@ -296,8 +296,7 @@ class OneatVisualization:
 
                     
                     self.viewer.add_labels(self.seg_image.astype('uint16'), name = 'SegImage'+ imagename)
-                    
-                    self.props = measure.regionprops(self.seg_image)
+                   
                     
                         
             if len(self.image.shape) == 4:
@@ -361,14 +360,7 @@ class OneatVisualization:
                         zcenter = listz[i]
                         ycenter = listy[i]
                         xcenter = listx[i]
-                        if self.seg_image is None:
-                          size = listsize[i]
-                        else:
-                          label = self.seg_image[tcenter,int(ycenter),int(xcenter)]  
-                          for prop in self.props:
-                              if label == prop.label:
-                                 size =  prop.area
-                                 break   
+                        size = listsize[i]
                         score = listscore[i]
                         confidence = listconfidence[i]   
                         if score > event_threshold:
