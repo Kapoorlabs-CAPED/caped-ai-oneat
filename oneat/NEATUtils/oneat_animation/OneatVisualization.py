@@ -298,8 +298,7 @@ class OneatVisualization:
                     self.viewer.add_labels(self.seg_image.astype('uint16'), name = 'SegImage'+ imagename)
                     
                     self.props = measure.regionprops(self.seg_image)
-                    for prop in self.props:
-                        self.labelsize[prop.label] = prop.area
+                    
                         
             if len(self.image.shape) == 4:
                 self.originalimage = self.image
@@ -366,7 +365,10 @@ class OneatVisualization:
                           size = listsize[i]
                         else:
                           label = self.seg_image[tcenter,int(ycenter),int(xcenter)]  
-                          size =  self.labelsize[label]   
+                          for prop in self.props:
+                              if label == prop.label:
+                                 size =  prop.area
+                                 break   
                         score = listscore[i]
                         confidence = listconfidence[i]   
                         if score > event_threshold:
