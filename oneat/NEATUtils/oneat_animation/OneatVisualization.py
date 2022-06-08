@@ -2,6 +2,7 @@ from poplib import POP3_SSL_PORT
 import pandas as pd
 import numpy as np
 import os
+from tqdm import tqdm
 import napari
 from scipy import spatial
 from skimage import measure
@@ -295,6 +296,10 @@ class OneatVisualization:
 
                     
                     self.viewer.add_labels(self.seg_image.astype('uint16'), name = 'SegImage'+ imagename)
+                    
+                    self.props = measure.regionprops(self.seg_image)
+                    for prop in self.props:
+                        self.labelsize[prop.label] = prop.area
             if len(self.image.shape) == 4:
                 self.originalimage = self.image
                 self.image =  MidSlices(self.image, start_project_mid, end_project_mid, use_dask, axis = 1)
@@ -344,11 +349,9 @@ class OneatVisualization:
                 listy = Y.tolist()
                 listx = X.tolist()
                 if self.seg_image is not None:
-                    self.props = measure.regionprops(self.seg_image)
-                    for prop in self.props:
-                        self.labelsize[prop.label] = prop.area
+                    
                     listsize = []
-                    for i in (range(len(listtime))):
+                    for i in tqdm(range(len(listtime))):
                             label = self.seg_image[int(listtime[i]),int(listy[i]),int(listx[i])]
                             listsize.append(self.labelsize[label])
                 
