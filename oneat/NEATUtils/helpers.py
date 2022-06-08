@@ -449,45 +449,6 @@ def dilate_label_holes(lbl_img, iterations):
         lbl_img_filled[mask_filled] = l
     return lbl_img_filled
 
-def zero_pad(image, TrainshapeX, TrainshapeY):
-    time = image.shape[0]
-    sizeY = image.shape[2]
-    sizeX = image.shape[1]
-
-    sizeXextend = sizeX
-    sizeYextend = sizeY
-
-    while sizeXextend % TrainshapeX != 0:
-        sizeXextend = sizeXextend + 1
-
-    while sizeYextend % TrainshapeY != 0:
-        sizeYextend = sizeYextend + 1
-
-    extendimage = np.zeros([time, sizeXextend, sizeYextend])
-
-    extendimage[0:time, 0:sizeX, 0:sizeY] = image
-
-    return extendimage
-
-
-def twod_zero_pad(image, PadX, PadY):
-    sizeY = image.shape[1]
-    sizeX = image.shape[0]
-
-    sizeXextend = sizeX
-    sizeYextend = sizeY
-
-    while sizeXextend % PadX != 0:
-        sizeXextend = sizeXextend + 1
-
-    while sizeYextend % PadY != 0:
-        sizeYextend = sizeYextend + 1
-
-    extendimage = np.zeros([sizeXextend, sizeYextend])
-
-    extendimage[0:sizeX, 0:sizeY] = image
-
-    return extendimage
 
 
 
@@ -510,7 +471,7 @@ def MidSlicesSum(Image, start_project_mid, end_project_mid, axis = 1):
         
     return MaxProject
 
-def GenerateMarkers(segimage, start_project_mid = 4, end_project_mid = 4):
+def GenerateMarkers(segimage,  start_project_mid = 4, end_project_mid = 4 ):
 
     ndim = len(segimage.shape)
     Markers = np.zeros([segimage.shape[0], segimage.shape[-2], segimage.shape[-1]])
@@ -539,7 +500,6 @@ def GenerateMarkers(segimage, start_project_mid = 4, end_project_mid = 4):
                             markers =  MidSlices(markers, start_project_mid, end_project_mid, axis = 0)
 
                         Markers[i, :] = label(markers.astype('uint16'))
-
 
     return Markers
 
@@ -1414,7 +1374,7 @@ def predictionloop(j, k, sx, sy, nboxes, stride, time_prediction, config, key_ca
 
     classybox = {}
         
-       
+    box = None   
     if event_type == 'dynamic':
         if mode == 'detection':
             real_time_event = tcentermean
@@ -1433,7 +1393,8 @@ def predictionloop(j, k, sx, sy, nboxes, stride, time_prediction, config, key_ca
             nearest_location = get_nearest(marker_tree, ycentermean, xcentermean, real_time_event)
             if nearest_location is not None:
                ycentermean, xcentermean = nearest_location
-             
+        #Correct for zero padding
+        
         box = {'xstart': xstart, 'ystart': ystart, 'tstart': boxtstartmean, 'xcenterraw': xcenterrawmean,
                             'ycenterraw': ycenterrawmean, 'tcenterraw': tcenterrawmean, 'xcenter': xcentermean,
                             'ycenter': ycentermean, 'real_time_event': real_time_event, 'box_time_event': box_time_event,
@@ -1527,53 +1488,8 @@ def draw_labelimages(image, location):
     return image
 
 
-def zero_pad(image, TrainshapeX, TrainshapeY):
-    time = image.shape[0]
-    sizeY = image.shape[2]
-    sizeX = image.shape[1]
-
-    sizeXextend = sizeX
-    sizeYextend = sizeY
-
-    while sizeXextend % TrainshapeX != 0:
-        sizeXextend = sizeXextend + 1
-
-    while sizeYextend % TrainshapeY != 0:
-        sizeYextend = sizeYextend + 1
-
-    extendimage = np.zeros([time, sizeXextend, sizeYextend])
-
-    extendimage[0:time, 0:sizeX, 0:sizeY] = image
-
-    return extendimage
 
 
-def twod_zero_pad(image, PadX, PadY):
-    sizeY = image.shape[1]
-    sizeX = image.shape[0]
-
-    sizeXextend = sizeX
-    sizeYextend = sizeY
-
-    while sizeXextend % PadX != 0:
-        sizeXextend = sizeXextend + 1
-
-    while sizeYextend % PadY != 0:
-        sizeYextend = sizeYextend + 1
-
-    extendimage = np.zeros([sizeXextend, sizeYextend])
-
-    extendimage[0:sizeX, 0:sizeY] = image
-
-    return extendimage
-
-
-def extra_pad(image, patchX, patchY):
-    extendimage = np.zeros([image.shape[0], image.shape[1] + patchX, image.shape[2] + patchY])
-
-    extendimage[0:image.shape[0], 0:image.shape[1], 0:image.shape[2]] = image
-
-    return extendimage
 
 
 def save_labelimages(save_dir, image, axes, fname, Name):

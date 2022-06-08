@@ -9,7 +9,7 @@ Created on Sat May 23 15:13:01 2020
 from oneat.NEATUtils import plotters
 import numpy as np
 from oneat.NEATUtils import helpers
-from oneat.NEATUtils.helpers import  load_json, yoloprediction, normalizeFloatZeroOne, \
+from oneat.NEATUtils.helpers import load_json, yoloprediction, normalizeFloatZeroOne, \
  goodboxes, save_static_csv, DownsampleData
 from keras import callbacks
 import os
@@ -439,68 +439,7 @@ class NEATStatic(object):
    
 
 
-    def showNapari(self, imagedir, savedir):
-
-        Raw_path = os.path.join(imagedir, '*tif')
-        X = glob.glob(Raw_path)
-        self.savedir = savedir
-        Imageids = []
-        self.viewer = napari.Viewer()
-        napari.run()
-        for imagename in X:
-            Imageids.append(imagename)
-
-        celltypeidbox = QComboBox()
-        celltypeidbox.addItem(CellTypeBoxname)
-        for (event_name, event_label) in self.key_categories.items():
-            celltypeidbox.addItem(event_name)
-
-        imageidbox = QComboBox()
-        imageidbox.addItem(Boxname)
-        detectionsavebutton = QPushButton(' Save detection Movie')
-
-        for i in range(0, len(Imageids)):
-            imageidbox.addItem(str(Imageids[i]))
-
-        figure = plt.figure(figsize=(4, 4))
-        multiplot_widget = FigureCanvas(figure)
-        ax = multiplot_widget.figure.subplots(1, 1)
-        width = 400
-
-        multiplot_widget.figure.tight_layout()
-
-        celltypeidbox.currentIndexChanged.connect(lambda eventid=celltypeidbox: CellTypeViewer(
-            self.viewer,
-            imread(imageidbox.currentText()),
-            celltypeidbox.currentText(),
-            self.key_categories,
-            os.path.basename(os.path.splitext(imageidbox.currentText())[0]),
-            savedir,
-            multiplot_widget,
-            ax,
-            figure,
-
-        )
-                                                  )
-
-        imageidbox.currentIndexChanged.connect(
-            lambda trackid=imageidbox: CellTypeViewer(
-                self.viewer,
-                imread(imageidbox.currentText()),
-                celltypeidbox.currentText(),
-                self.key_categories,
-                os.path.basename(os.path.splitext(imageidbox.currentText())[0]),
-                savedir,
-                multiplot_widget,
-                ax,
-                figure,
-
-            )
-        )
-
-        self.viewer.window.add_dock_widget(celltypeidbox, name="CellType", area='left')
-        self.viewer.window.add_dock_widget(imageidbox, name="Image", area='left')
-
+   
     def overlaptiles(self, sliceregion):
 
         if self.n_tiles == (1, 1):

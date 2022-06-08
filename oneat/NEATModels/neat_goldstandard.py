@@ -1,7 +1,7 @@
 from oneat.NEATUtils import plotters
 import numpy as np
 from oneat.NEATUtils import helpers
-from oneat.NEATUtils.helpers import MidSlices, MidSlicesSum, get_nearest,  load_json, yoloprediction, normalizeFloatZeroOne, GenerateMarkers, MakeTrees, DownsampleData,save_dynamic_csv, dynamic_nms, gold_nms
+from oneat.NEATUtils.helpers import MidSlices,  MidSlicesSum, get_nearest,  load_json, yoloprediction, normalizeFloatZeroOne, GenerateMarkers, MakeTrees, DownsampleData,save_dynamic_csv, dynamic_nms, gold_nms
 from keras import callbacks
 import os
 import keras
@@ -291,7 +291,7 @@ class NEATDynamic(object):
         self.imagename = imagename
         self.segdir = segdir
         Name = os.path.basename(os.path.splitext(self.imagename)[0])
-        
+      
         self.downsamplefactor = downsamplefactor
         print('Obtaining Markers')
         self.segimage = imread(self.segdir + '/' + Name + '.tif')
@@ -341,7 +341,6 @@ class NEATDynamic(object):
         self.downsamplefactor = downsamplefactor
         self.originalimage = self.image
         self.center_oneat = center_oneat
-       
 
         
         self.model = load_model(os.path.join(self.model_dir, self.model_name) + '.h5',
@@ -556,12 +555,14 @@ class NEATDynamic(object):
                                                            self.key_categories, self.key_cord, self.nboxes, 'detection',
                                                            'dynamic', center_oneat = self.center_oneat)
                                      if boxprediction is not None and len(boxprediction) > 0:
-                                            boxprediction[0]['real_time_event'] = inputtime
-                                            boxprediction[0]['xcenter'] = xcenter
-                                            boxprediction[0]['ycenter'] = ycenter
-                                            boxprediction[0]['xstart'] = xcenter - int(self.imagex/2) * self.downsamplefactor
-                                            boxprediction[0]['ystart'] = ycenter - int(self.imagey/2) * self.downsamplefactor  
-                                            eventboxes = eventboxes + boxprediction
+                                            
+                                           
+                                                boxprediction[0]['real_time_event'] = inputtime
+                                                boxprediction[0]['xcenter'] = xcenter 
+                                                boxprediction[0]['ycenter'] = ycenter
+                                                boxprediction[0]['xstart'] = xcenter  - int(self.imagex/2) * self.downsamplefactor
+                                                boxprediction[0]['ystart'] = ycenter  - int(self.imagey/2) * self.downsamplefactor  
+                                                eventboxes = eventboxes + boxprediction
                                            
                                            
                 for (event_name,event_label) in self.key_categories.items(): 
@@ -581,14 +582,10 @@ class NEATDynamic(object):
 
                 self.classedboxes = classedboxes    
                 self.eventboxes =  eventboxes
-                
-               
-                
-                if inputtime > 0 and inputtime%(self.imaget) == 0:                         
-                        self.nms()
-                        self.to_csv()
-                        eventboxes = []
-                        classedboxes = {}   
+                self.iou_classedboxes = classedboxes
+                self.to_csv()
+                eventboxes = []
+                classedboxes = {}   
 
 
     def fast_nms(self):

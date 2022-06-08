@@ -38,6 +38,7 @@ class OneatVisualization:
         self.cleaneventlist= []
         self.cleannormeventlist = []
         self.cleancelllist = []
+        self.labelsize = {}
         self.segimagedir  = None
         self.plot_event_name = None 
         self.event_count_plot = None
@@ -71,7 +72,7 @@ class OneatVisualization:
                             if distance <= nms_space:
                                 if (int(currenttime), int(nearest_location[0]), int(nearest_location[1])) in self.event_locations_size_dict:
                                     currentsize, currentscore = self.event_locations_size_dict[int(currenttime), int(nearest_location[0]), int(nearest_location[1])]
-                                    if currentscore > backscore:
+                                    if currentsize > backsize:
                                         self.event_locations_size_dict.pop(( int(backtime), int(location[0]), int(location[1])))
                                     else:
                                         self.event_locations_size_dict.pop(( int(currenttime), int(nearest_location[0]), int(nearest_location[1]) ))    
@@ -87,7 +88,7 @@ class OneatVisualization:
                                 if distance <= nms_space:
                                             if (int(currenttime), int(nearest_location[0]), int(nearest_location[1])) in self.event_locations_size_dict:
                                                 currentsize, currentscore = self.event_locations_size_dict[int(currenttime), int(nearest_location[0]), int(nearest_location[1])]
-                                                if  currentscore > forwardscore:
+                                                if  currentsize > forwardsize:
                                                     self.event_locations_size_dict.pop((int(forwardtime), int(location[0]), int(location[1])))
                                                     
                                                 else:
@@ -145,12 +146,15 @@ class OneatVisualization:
                             writer.writerows(event_data)
                             event_data = []     
                 name_remove = ('Clean Detections','Clean Location Map')
-                point_properties = {'size' : np.array(radiuses)}
+               
+                point_properties = {'score' : scores, 'confidence' : confidences,
+                'size' : radiuses}    
+              
                 for layer in list(self.viewer.layers):
                                     
                                     if  any(name in layer.name for name in name_remove):
                                             self.viewer.layers.remove(layer) 
-                self.viewer.add_points(self.event_locations_clean, size = radiuses, properties=point_properties,  name = 'Clean Detections', face_color = [0]*4, edge_color = "green") 
+                self.viewer.add_points(self.event_locations_clean, properties=point_properties,  name = 'Clean Detections', face_color = [0]*4, edge_color = "green") 
                 
                 
                 df = pd.DataFrame (self.event_locations_clean, columns = ['T', 'Y', 'X'])
@@ -288,6 +292,8 @@ class OneatVisualization:
                         self.seg_image = imread(segimagedir + imagename + '.tif')    
                     if len(self.seg_image.shape) == 4:
                         self.seg_image =  MidSlices(self.seg_image, start_project_mid, end_project_mid, use_dask, axis = 1)
+
+                    
                     self.viewer.add_labels(self.seg_image.astype('uint16'), name = 'SegImage'+ imagename)
             if len(self.image.shape) == 4:
                 self.originalimage = self.image
@@ -333,13 +339,23 @@ class OneatVisualization:
                 Score = self.dataset[self.dataset.keys()[4]][0:]
                 Size = self.dataset[self.dataset.keys()[5]][0:]
                 Confidence = self.dataset[self.dataset.keys()[6]][0:]
-
                 listtime = T.tolist()
                 listz = Z.tolist()
                 listy = Y.tolist()
                 listx = X.tolist()
+                if self.seg_image is not None:
+                    self.props = measure.regionprops(self.seg_image)
+                    for prop in self.props:
+                        self.labelsize[prop.label] = prop.area
+                    listsize = []
+                    for i in (range(len(listtime))):
+                            label = self.seg_image[int(listtime[i]),int(listy[i]),int(listx[i])]
+                            listsize.append(self.labelsize[label])
                 
-                listsize = Size.tolist()
+                else:
+                     listsize = Size.tolist()
+                
+                
                 listscore = Score.tolist()
                 listconfidence = Confidence.tolist()
                 
@@ -370,9 +386,11 @@ class OneatVisualization:
                                 self.size_locations.append(size)
                                 self.score_locations.append(score)
                                 self.confidence_locations.append(confidence)
-                point_properties = {'score' : np.array(self.score_locations), 'confidence' : np.array(self.confidence_locations)}    
+                point_properties = {'score' : np.array(self.score_locations), 'confidence' : np.array(self.confidence_locations),
+                'size' : np.array(self.size_locations)}    
                 text_properties = {
-                'text': event_name +': {score:.5f}' + '\n' + 'Confidence' +  ': {confidence:.5f}',
+                'text': event_name +': {score:.5f}' + '\n' + 'Confidence' +  ': {confidence:.5f}'
+                + '\n' + 'Size' +  ': {size:.5f}',
                 'anchor': 'upper_left',
                 'translation': [-5, 0],
                 'size': 12,
@@ -384,7 +402,7 @@ class OneatVisualization:
                                     if  any(name in layer.name for name in name_remove):
                                             self.viewer.layers.remove(layer) 
                 if len(self.score_locations) > 0:                             
-                        self.viewer.add_points(self.event_locations, size = self.size_locations , properties = point_properties, text = text_properties,  name = 'Detections' + event_name, face_color = [0]*4, edge_color = "red") 
+                        self.viewer.add_points(self.event_locations,  properties = point_properties, text = text_properties,  name = 'Detections' + event_name, face_color = [0]*4, edge_color = "red") 
                         
                 if segimagedir is not None:
                         for layer in list(self.viewer.layers):
