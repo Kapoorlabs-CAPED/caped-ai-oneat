@@ -300,6 +300,7 @@ class OneatVisualization:
                     self.props = measure.regionprops(self.seg_image)
                     for prop in self.props:
                         self.labelsize[prop.label] = prop.area
+                        
             if len(self.image.shape) == 4:
                 self.originalimage = self.image
                 self.image =  MidSlices(self.image, start_project_mid, end_project_mid, use_dask, axis = 1)
@@ -348,15 +349,7 @@ class OneatVisualization:
                 listz = Z.tolist()
                 listy = Y.tolist()
                 listx = X.tolist()
-                if self.seg_image is not None:
-                    
-                    listsize = []
-                    for i in tqdm(range(len(listtime))):
-                            label = self.seg_image[int(listtime[i]),int(listy[i]),int(listx[i])]
-                            listsize.append(self.labelsize[label])
-                
-                else:
-                     listsize = Size.tolist()
+                listsize = Size.tolist()
                 
                 
                 listscore = Score.tolist()
@@ -369,7 +362,11 @@ class OneatVisualization:
                         zcenter = listz[i]
                         ycenter = listy[i]
                         xcenter = listx[i]
-                        size = listsize[i]
+                        if self.seg_image is None:
+                          size = listsize[i]
+                        else:
+                          label = self.seg_image[tcenter,int(ycenter),int(xcenter)]  
+                          size =  self.labelsize[label]   
                         score = listscore[i]
                         confidence = listconfidence[i]   
                         if score > event_threshold:
