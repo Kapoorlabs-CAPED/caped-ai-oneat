@@ -30,11 +30,11 @@ class OneatFrameWidget(QWidget):
         self.startprobSpinBox = QDoubleSpinBox()
 
         self.nmstimeSpinBox = QSpinBox()
-        self.nmstimeSpinBox.setValue(4)
+        self.nmstimeSpinBox.setValue(3)
         self.nmstimeSpinBox.setMaximum(100000)
 
         self.nmsspaceSpinBox = QDoubleSpinBox()
-        self.nmsspaceSpinBox.setValue(20)
+        self.nmsspaceSpinBox.setValue(10)
         self.nmsspaceSpinBox.setMaximum(100000)
       
         self.startprobSpinBox.setValue(0.9)
