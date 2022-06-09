@@ -791,7 +791,8 @@ def SegFreeImageLabelDataSet(image_dir, csv_dir,save_dir, static_name, static_la
                                                SegFreeImageMaker(t, y[key], x[key], image, crop_size, gridx, gridy, offset, total_categories, trainlabel, name + event_name + str(count), save_dir)    
                                                count = count + 1                 
     
-def createNPZ(save_dir, axes, save_name = 'Yolov0oneat', save_name_val = 'Yolov0oneatVal', expand = True, static = False, flip_channel_axis = False):
+def createNPZ(save_dir, axes, save_name = 'Yolov0oneat', save_name_val = 'Yolov0oneatVal', expand = True, 
+static = False, flip_channel_axis = False, train_size = 0.95):
             
             data = []
             label = []   
@@ -838,7 +839,8 @@ def createNPZ(save_dir, axes, save_name = 'Yolov0oneat', save_name_val = 'Yolov0
                     
                     pass
             print(dataarr.shape, labelarr.shape)
-            traindata, validdata, trainlabel, validlabel = train_test_split(dataarr, labelarr, train_size=0.95,test_size=0.05, shuffle= True)
+            traindata, validdata, trainlabel, validlabel = train_test_split(dataarr, labelarr, train_size = train_size,
+            test_size = 1 - train_size, shuffle = True)
             save_full_training_data(save_dir, save_name, traindata, trainlabel, axes)
             save_full_training_data(save_dir, save_name_val, validdata, validlabel, axes)
 
