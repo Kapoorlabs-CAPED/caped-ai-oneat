@@ -359,7 +359,7 @@ def Midog_to_oneat(midog_folder, annotation_file,event_type_name_label, all_ids,
         y = (y0 + y1) //2
         # if cat == 1 then it is mitosis if cat == 2 it is hard negative
         if cat == 2:
-            trainlabel = 0  
+            trainlabel = event_type_name_label[tumortype] + total_categories//2  
         if cat == 1 :
             trainlabel = event_type_name_label[tumortype]
         ImagesizeX, ImagesizeY = crop_size
