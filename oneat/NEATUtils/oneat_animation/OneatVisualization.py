@@ -75,7 +75,7 @@ class OneatVisualization:
                                                 if  currentsize >= forwardsize:
                                                     self.event_locations_size_dict.pop((int(forwardtime), int(location[0]), int(location[1])))
                                                     
-                                                if forwardsize < currentsize:
+                                                if currentsize < forwardsize:
                                                     self.event_locations_size_dict.pop((int(currenttime), int(nearest_location[0]), int(nearest_location[1])))   
                                                        
      print('after',len(self.event_locations_size_dict))
