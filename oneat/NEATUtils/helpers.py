@@ -344,6 +344,14 @@ def load_full_training_data(directory, filename, axes=None, verbose=True):
     return (X, Y), axes
 
 
+def pad_timelapse(image, pad_width):
+
+    zero_pad = np.zeros([image.shape[0], image.shape[1] + pad_width[0] * 2, image.shape[2] + pad_width[1] * 2])
+    for i in range(0, image.shape[0]):
+
+      zero_pad[i,:,:] =  np.pad(image[i,:,:], pad_width, mode = 'edge')
+
+    return zero_pad    
 
 
 def time_pad(image, TimeFrames):
@@ -471,15 +479,16 @@ def MidSlicesSum(Image, start_project_mid, end_project_mid, axis = 1):
         
     return MaxProject
 
-def GenerateMarkers(segimage,  start_project_mid = 4, end_project_mid = 4 ):
+def GenerateMarkers(segimage,  start_project_mid = 4, end_project_mid = 4, pad_width = (0,0) ):
 
     ndim = len(segimage.shape)
-    Markers = np.zeros([segimage.shape[0], segimage.shape[-2], segimage.shape[-1]])
+    Markers = np.zeros([segimage.shape[0], segimage.shape[-2] + pad_width[0] * 2, segimage.shape[-1] + pad_width[1] * 2])
     
     for i in tqdm(range(0, segimage.shape[0])):
 
                         smallimage = segimage[i, :]
-                        properties = measure.regionprops(smallimage)
+                        newsmallimage = pad_timelapse(smallimage, pad_width)
+                        properties = measure.regionprops(newsmallimage.astype('uint16'))
                         Coordinates = [prop.centroid for prop in properties]
  
                         if ndim == 3:
@@ -489,7 +498,7 @@ def GenerateMarkers(segimage,  start_project_mid = 4, end_project_mid = 4 ):
                         Coordinates = np.asarray(Coordinates)
     
                         coordinates_int = np.round(Coordinates).astype(int)
-                        markers_raw = np.zeros_like(smallimage)
+                        markers_raw = np.zeros_like(newsmallimage)
                         markers_raw[tuple(coordinates_int.T)] = 1 + np.arange(len(Coordinates))
                         if ndim == 4:
                             markers = morphology.dilation(

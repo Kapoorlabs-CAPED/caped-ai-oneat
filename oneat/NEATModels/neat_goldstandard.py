@@ -1,7 +1,7 @@
 from oneat.NEATUtils import plotters
 import numpy as np
 from oneat.NEATUtils import helpers
-from oneat.NEATUtils.helpers import MidSlices,  MidSlicesSum, get_nearest,  load_json, yoloprediction, normalizeFloatZeroOne, GenerateMarkers, MakeTrees, DownsampleData,save_dynamic_csv, dynamic_nms, gold_nms
+from oneat.NEATUtils.helpers import MidSlices, pad_timelapse,  MidSlicesSum, get_nearest,  load_json, yoloprediction, normalizeFloatZeroOne, GenerateMarkers, MakeTrees, DownsampleData,save_dynamic_csv, dynamic_nms, gold_nms
 from keras import callbacks
 import os
 import keras
@@ -291,12 +291,12 @@ class NEATDynamic(object):
         self.imagename = imagename
         self.segdir = segdir
         Name = os.path.basename(os.path.splitext(self.imagename)[0])
-      
+        self.pad_width = (self.config['imagey'], self.config['imagex'])
         self.downsamplefactor = downsamplefactor
         print('Obtaining Markers')
         self.segimage = imread(self.segdir + '/' + Name + '.tif')
         self.markers = GenerateMarkers(self.segimage, 
-        start_project_mid = start_project_mid, end_project_mid = end_project_mid)
+        start_project_mid = start_project_mid, end_project_mid = end_project_mid, pad_width = self.pad_width)
         self.marker_tree = MakeTrees(self.markers)
         self.segimage = None         
 
@@ -341,7 +341,6 @@ class NEATDynamic(object):
         self.downsamplefactor = downsamplefactor
         self.originalimage = self.image
         self.center_oneat = center_oneat
-
         
         self.model = load_model(os.path.join(self.model_dir, self.model_name) + '.h5',
                                 custom_objects={'loss': self.yololoss, 'Concat': Concat})
@@ -354,10 +353,16 @@ class NEATDynamic(object):
         
         if self.remove_markers == True:
            self.generate_maps = False 
+
+           self.image = pad_timelapse(self.image, self.pad_width)
+           print(f'zero padded image shape ${self.image.shape}')
            self.first_pass_predict()
            self.second_pass_predict()
         if self.remove_markers == False:
-           self.generate_maps = False   
+           self.generate_maps = False 
+
+           self.image = pad_timelapse(self.image, self.pad_width)
+           print(f'zero padded image shape ${self.image.shape}')
            self.second_pass_predict()
         if self.remove_markers == None:
            self.generate_maps = True 
@@ -554,14 +559,14 @@ class NEATDynamic(object):
                                                            inputtime, self.config,
                                                            self.key_categories, self.key_cord, self.nboxes, 'detection',
                                                            'dynamic', center_oneat = self.center_oneat)
-                                     if boxprediction is not None and len(boxprediction) > 0:
+                                     if boxprediction is not None and len(boxprediction) > 0 and xcenter - self.pad_width[1] > 0 and ycenter - self.pad_width[0] > 0 and xcenter - self.pad_width[1] < self.originalimage.shape[2] and ycenter - self.pad_width[0] < self.originalimage.shape[1] :
                                             
-                                           
+                                                
                                                 boxprediction[0]['real_time_event'] = inputtime
-                                                boxprediction[0]['xcenter'] = xcenter 
-                                                boxprediction[0]['ycenter'] = ycenter
-                                                boxprediction[0]['xstart'] = xcenter  - int(self.imagex/2) * self.downsamplefactor
-                                                boxprediction[0]['ystart'] = ycenter  - int(self.imagey/2) * self.downsamplefactor  
+                                                boxprediction[0]['xcenter'] = xcenter - self.pad_width[1]
+                                                boxprediction[0]['ycenter'] = ycenter - self.pad_width[0]
+                                                boxprediction[0]['xstart'] = xcenter   - int(self.imagex/2) * self.downsamplefactor
+                                                boxprediction[0]['ystart'] = ycenter   - int(self.imagey/2) * self.downsamplefactor  
                                                 eventboxes = eventboxes + boxprediction
                                            
                                            
