@@ -175,7 +175,7 @@ class PlotStaticHistory(keras.callbacks.Callback):
         idx = random.randint(1,self.X.shape[0] - 1)
         PrintStaticpredict(idx,self.Trainingmodel, self.X, self.Y, self.key_categories, self.key_cord, self.gridx, self.gridy, plot = self.plot, nboxes = self.nboxes)
         
-def PrintStaticpredict(idx, model, data, Truelabel, key_categories, key_cord, gridx, gridy, plot = False, nboxes = 1):
+def PrintStaticpredict(idx, model, data, Truelabel, key_categories, key_cord, gridx, gridy, plot = False, nboxes = 1, class_only = False):
 
     Image = data[idx]
     Truelabel = Truelabel[idx]
@@ -202,7 +202,8 @@ def PrintStaticpredict(idx, model, data, Truelabel, key_categories, key_cord, gr
             for b in range(1,nboxes-1):
                     prediction[i,:,:,len(key_categories):len(key_categories) + len(key_cord)] += prediction[i,:,:,len(key_categories) + b*len(key_cord):len(key_categories) + (b + 1)*len(key_cord) ] 
             prediction[i,:,:,len(key_categories):len(key_categories) + len(key_cord)] = prediction[i,:,:,len(key_categories):len(key_categories) + len(key_cord)] / (nboxes - 1)        
-        for (k,v) in key_cord.items():
+        if class_only == False:
+          for (k,v) in key_cord.items():
             
             print(k, prediction[i,:,:,len(key_categories) + v])
             print('True positional value', k, Truelabel[0,0,len(key_categories) + v])

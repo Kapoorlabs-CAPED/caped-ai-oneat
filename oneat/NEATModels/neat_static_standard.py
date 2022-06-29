@@ -265,7 +265,7 @@ class NEATStatic(object):
         srate = callbacks.ModelCheckpoint(self.model_dir + self.model_name, monitor='loss', verbose=1,
                                           save_best_only=False, save_weights_only=False, mode='auto', period=1)
         prate = plotters.PlotStaticHistory(self.Trainingmodel, self.X_val, self.Y_val, self.key_categories,
-                                           self.key_cord, self.gridx, self.gridy, plot=self.show, nboxes=self.nboxes)
+                                           self.key_cord, self.gridx, self.gridy, plot=self.show, nboxes=self.nboxes, class_only = self.class_only)
 
         # Train the model and save as a h5 file
         self.Trainingmodel.fit(self.X, self.Y, batch_size=self.batch_size, epochs=self.epochs,
