@@ -174,9 +174,9 @@ class PlotStaticHistory(keras.callbacks.Callback):
          plt.show()
          #clear_output(True)
         idx = random.randint(1,self.X.shape[0] - 1)
-        PrintStaticpredict(idx,self.Trainingmodel, self.X, self.Y, self.key_categories, self.key_cord, self.gridx, self.gridy, plot = self.plot, nboxes = self.nboxes)
+        PrintStaticpredict(idx,self.Trainingmodel, self.X, self.Y, self.key_categories, self.key_cord, self.gridx, self.gridy, plot = self.plot, nboxes = self.nboxes, class_only = self.class_only)
         
-def PrintStaticpredict(idx, model, data, Truelabel, key_categories, key_cord, gridx, gridy, plot = False, nboxes = 1):
+def PrintStaticpredict(idx, model, data, Truelabel, key_categories, key_cord, gridx, gridy, plot = False, nboxes = 1, class_only = False):
 
     Image = data[idx]
     Truelabel = Truelabel[idx]
