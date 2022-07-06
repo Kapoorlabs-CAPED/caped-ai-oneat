@@ -75,7 +75,7 @@ class NEATStatic(object):
     
     """
 
-    def __init__(self, staticconfig, model_dir, model_name, catconfig=None, cordconfig=None, class_only = False):
+    def __init__(self, staticconfig, model_dir, model_name, catconfig=None, cordconfig=None, class_only = False, train_lstm = False):
 
         self.staticconfig = staticconfig
         self.catconfig = catconfig
@@ -83,6 +83,7 @@ class NEATStatic(object):
         self.model_dir = model_dir
         self.model_name = model_name
         self.class_only = class_only
+        self.train_lstm = train_lstm
         if self.staticconfig != None:
             self.npz_directory = staticconfig.npz_directory
             self.npz_name = staticconfig.npz_name
@@ -153,10 +154,16 @@ class NEATStatic(object):
         self.Xoriginal = None
         self.Xoriginal_val = None
         if self.class_only == False:
-                if self.residual:
-                    self.model_keras = nets.resnet_v2
-                else:
-                    self.model_keras = nets.seqnet_v2
+
+                if self.train_lstm == False:     
+                    if self.residual:
+                        self.model_keras = nets.resnet_v2
+                    else:
+                        self.model_keras = nets.seqnet_v2
+
+                if self.train_lstm:
+
+                        self.model_keras = nets.resnet_lstm_v2        
 
                 if self.multievent == True:
                     self.last_activation = 'sigmoid'
@@ -171,7 +178,11 @@ class NEATStatic(object):
 
         if self.class_only:
                 
-                self.model_keras = nets.resnet_v2_class
+
+                if self.train_lstm == False:
+                   self.model_keras = nets.resnet_v2_class
+                if self.train_lstm:
+                    self.model_keras = nets.resnet_lstm_v2_class   
 
                 if self.multievent == True:
                     self.last_activation = 'sigmoid'
