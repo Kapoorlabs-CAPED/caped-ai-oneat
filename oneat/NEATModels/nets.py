@@ -2,6 +2,7 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 import keras as K
+import tensorflow as tf
 from keras import regularizers
 from keras.layers import BatchNormalization, Activation
 from keras.layers import Conv2D, Conv3D 
