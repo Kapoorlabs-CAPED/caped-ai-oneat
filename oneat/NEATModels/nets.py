@@ -472,7 +472,7 @@ def resnet_lstm_v2(input_shape, categories, box_vector,nboxes = 1, stage_number 
     """
 
     last_conv_factor =  2 ** (stage_number - 1)
-    img_input = layers.Input(shape = (input_shape[0], input_shape[1], input_shape[2]))
+    img_input = layers.Input(shape = (None, None, input_shape[2]))
     if (depth - 2) % 9 != 0:
         raise ValueError('depth should be 9n+2 (eg 56 or 110 in [b])')
     # Start model definition.
@@ -591,7 +591,7 @@ def resnet_v2(input_shape, categories, box_vector,nboxes = 1, stage_number = 3, 
     """
 
     last_conv_factor =  2 ** (stage_number - 1)
-    img_input = layers.Input(shape = (input_shape[0], input_shape[1], input_shape[2]))
+    img_input = layers.Input(shape = (None, None, input_shape[2]))
     if (depth - 2) % 9 != 0:
         raise ValueError('depth should be 9n+2 (eg 56 or 110 in [b])')
     # Start model definition.
