@@ -1,5 +1,7 @@
 # Oneat
 
+ONEAT = Otherwise Not Even Accurate Tracks
+
 [![PyPI version](https://img.shields.io/pypi/v/oneat.svg)](https://pypi.org/project/oneat)
 
 
