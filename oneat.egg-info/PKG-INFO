@@ -1,12 +1,10 @@
 Metadata-Version: 2.1
 Name: oneat
-Version: 2.9.6
+Version: 3.1.0
 Summary: Static and Dynamic classification tool.
 Home-page: https://github.com/Kapoorlabs-CAPED/CAPED-AI-oneat/
 Author: Varun Kapoor
 Author-email: randomaccessiblekapoor@gmail.com
-License: UNKNOWN
-Platform: UNKNOWN
 Classifier: Development Status :: 3 - Alpha
 Classifier: Natural Language :: English
 Classifier: License :: OSI Approved :: MIT License
@@ -16,6 +14,8 @@ Classifier: Programming Language :: Python :: 3.9
 Description-Content-Type: text/markdown
 
 # Oneat
+
+ONEAT = Otherwise Not Even Accurate Tracks
 
 [![PyPI version](https://img.shields.io/pypi/v/oneat.svg)](https://pypi.org/project/oneat)
 
@@ -31,8 +31,6 @@ This package can be installed by
 
 
 `pip install --user oneat`
-
-additionally ensure that your installed tensorflow version is not over 2.3.4
 
 If you are building this from the source, clone the repository and install via
 
@@ -84,6 +82,4 @@ oneat comes with different options to combine segmentation with classification o
 
 - The [image.sc forum](https://forum.image.sc/tag/oneat) is the best place to start getting help and support. Make sure to use the tag `oneat`, since we are monitoring all questions with this tag.
 - If you have technical questions or found a bug, feel free to [open an issue](https://github.com/Kapoorlabs-CAPED/CAPED-AI-oneat/issues).
-
-
 

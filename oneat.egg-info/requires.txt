@@ -6,8 +6,8 @@ tifffile
 matplotlib
 imagecodecs
 napari[all]
+opencv-python
 diplib
-opencv-python-headless
 sklearn
 dask
 natsort

@@ -40,7 +40,11 @@ class NEATViz(object):
                         blur_radius = 5, 
                         start_project_mid = 0, 
                         end_project_mid = 0,
-                        headless = False ):
+                        headless = False,
+                        event_threshold = 0.999,
+                        nms_space = 10,
+                        nms_time = 3
+                         ):
             
             
                self.imagedir = imagedir
@@ -50,6 +54,9 @@ class NEATViz(object):
                self.heatname = heatname
                self.eventname = eventname
                self.headless = headless 
+               self.event_threshold = event_threshold
+               self.nms_space = nms_space
+               self.nms_time = nms_time
                self.categories_json = categories_json
                self.start_project_mid = start_project_mid
                self.end_project_mid = end_project_mid
@@ -84,9 +91,8 @@ class NEATViz(object):
                  Raw_path = os.path.join(self.imagedir, self.fileextension)
                  X = glob.glob(Raw_path)
                  napari.run()
-                 event_threshold = 0.9
-                 nms_space = 10
-                 nms_time = 3
+                 
+                 
                  for imagename in X:
                          
                         Name  = os.path.basename(os.path.splitext(imagename)[0]) 
@@ -94,7 +100,7 @@ class NEATViz(object):
                         seg_image = imread(self.segimagedir + Name + '.tif')
                         if len(seg_image.shape) == 4:
                           seg_image =  MidSlices(seg_image, self.start_project_mid, self.end_project_mid, False, axis = 1)
-                        headlesscall(image, imagename, self.key_categories, event_threshold, nms_space, nms_time, self.savedir)     
+                        headlesscall(image, imagename, self.key_categories, self.event_threshold, self.nms_space, self.nms_time, self.savedir)     
                                
                                 
                  
