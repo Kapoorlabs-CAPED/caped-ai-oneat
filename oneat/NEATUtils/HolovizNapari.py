@@ -5,27 +5,23 @@ Created on Wed Aug  4 14:50:47 2021
 
 @author: vkapoor
 """
-from tifffile import imread,  imwrite
+from tifffile import imread
 import csv
 import napari
 import glob
 import os
-import cv2
-import random
-import sys
+
 import numpy as np
 import json
 import pandas as pd
 from pathlib import Path
 from scipy import spatial
-from skimage.measure import label
-import matplotlib.pyplot  as plt
 
 from qtpy.QtCore import Qt
 
 from oneat.NEATUtils.oneat_animation.OneatVisualization import MidSlices
 from oneat.NEATUtils.oneat_animation._qt import OneatWidget
-from dask.array.image import imread as daskread
+
 
 default_reader = 'tifffile'
 
@@ -87,7 +83,7 @@ class NEATViz(object):
                  
                  Raw_path = os.path.join(self.imagedir, self.fileextension)
                  X = glob.glob(Raw_path)
-                 
+                 napari.run()
                  event_threshold = 0.9
                  nms_space = 10
                  nms_time = 3
