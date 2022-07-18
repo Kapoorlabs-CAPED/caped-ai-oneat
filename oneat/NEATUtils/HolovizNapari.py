@@ -90,7 +90,7 @@ class NEATViz(object):
                  
                  Raw_path = os.path.join(self.imagedir, self.fileextension)
                  X = glob.glob(Raw_path)
-                 napari.run()
+                 
                  
                  
                  for imagename in X:
