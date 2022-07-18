@@ -160,7 +160,7 @@ class OneatVisualization:
                 
                
 
-    def show_plot(self, imagename, plot_event_name, event_count_plot, event_norm_count_plot, cell_count_plot, 
+    def show_plot(self,  plot_event_name, event_count_plot, event_norm_count_plot, cell_count_plot, 
       segimagedir = None, event_threshold = 0 ):
 
         timelist = []
@@ -186,9 +186,7 @@ class OneatVisualization:
 
                 if self.image is not None:    
                         currentT   = np.round(self.dataset["T"]).astype('int')
-                        currentZ = np.round(self.dataset["Z"]).astype('int')
                         currentsize = self.dataset["Score"]
-                        currentConf = self.dataset["Confidence"]   
                             
                         for i in range(0, self.image.shape[0]):
                             

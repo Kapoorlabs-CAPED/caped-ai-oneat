@@ -1,6 +1,6 @@
 from .NEATModels import *
 from .NEATUtils import *
-from .version import __version__
+from ._version import __version__
 from csbdeep.utils.tf import keras_import
 from . import NEATDynamic, NEATSynamic
 
