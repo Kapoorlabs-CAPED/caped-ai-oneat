@@ -1,5 +1,7 @@
 # Oneat
 
+ONEAT = Otherwise Not Even Accurate Tracks
+
 [![PyPI version](https://img.shields.io/pypi/v/oneat.svg)](https://pypi.org/project/oneat)
 
 
@@ -14,8 +16,6 @@ This package can be installed by
 
 
 `pip install --user oneat`
-
-additionally ensure that your installed tensorflow version is not over 2.3.4
 
 If you are building this from the source, clone the repository and install via
 
