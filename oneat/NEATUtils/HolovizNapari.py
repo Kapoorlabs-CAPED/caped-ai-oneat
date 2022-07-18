@@ -89,6 +89,8 @@ class NEATViz(object):
                  X = glob.glob(Raw_path)
                  
                  event_threshold = 0.9
+                 nms_space = 10
+                 nms_time = 3
                  for imagename in X:
                          
                         Name  = os.path.basename(os.path.splitext(imagename)[0]) 
@@ -96,7 +98,7 @@ class NEATViz(object):
                         seg_image = imread(self.segimagedir + Name + '.tif')
                         if len(seg_image.shape) == 4:
                           seg_image =  MidSlices(seg_image, self.start_project_mid, self.end_project_mid, False, axis = 1)
-                        headlesscall(image, imagename, self.key_categories, event_threshold, self.savedir)     
+                        headlesscall(image, imagename, self.key_categories, event_threshold, nms_space, nms_time, self.savedir)     
                                
                                 
                  
@@ -126,8 +128,37 @@ class NEATViz(object):
                  self.viewer.window._qt_window.resizeDocks([dock_widget], [200], Qt.Horizontal)  
 
                  napari.run()
-                 
-def headlesscall(image, imagename, key_categories, event_threshold, savedir):
+
+def cluster_points(event_locations_dict,event_locations_size_dict, nms_space, nms_time):
+
+     for (k,v) in event_locations_dict.items():
+         currenttime = k
+         event_locations = v
+       
+        
+         tree = spatial.cKDTree(event_locations)
+         for i in range(1, nms_time):
+                    
+                    forwardtime = currenttime + i
+                    if int(forwardtime) in event_locations_dict.keys():
+                      forward_event_locations = event_locations_dict[int(forwardtime)]
+                      for location in forward_event_locations:
+                        if (int(forwardtime), int(location[0]), int(location[1])) in event_locations_size_dict:   
+                                forwardsize, forwardscore = event_locations_size_dict[int(forwardtime), int(location[0]), int(location[1])]
+                                distance, nearest_location = tree.query(location)
+                                nearest_location = int(event_locations[nearest_location][0]), int(event_locations[nearest_location][1])
+
+                                if distance <= nms_space:
+                                            if (int(currenttime), int(nearest_location[0]), int(nearest_location[1])) in event_locations_size_dict:
+                                                currentsize, currentscore = event_locations_size_dict[int(currenttime), int(nearest_location[0]), int(nearest_location[1])]
+                                                if  currentsize >= forwardsize:
+                                                    event_locations_size_dict.pop((int(forwardtime), int(location[0]), int(location[1])))
+                                                    
+                                                if currentsize < forwardsize:
+                                                    event_locations_size_dict.pop((int(currenttime), int(nearest_location[0]), int(nearest_location[1])))   
+     return event_locations_size_dict                                                     
+
+def headlesscall(image, imagename, key_categories, event_threshold, nms_space, nms_time, savedir):
             for (event_name,event_label) in key_categories.items():
                             if event_label > 0:
                                 event_locations = []
@@ -186,7 +217,7 @@ def headlesscall(image, imagename, key_categories, event_threshold, savedir):
                                                 score_locations.append(score)
                                                 confidence_locations.append(confidence)
 
-                             
+                                event_locations_size_dict = cluster_points(event_locations_dict,event_locations_size_dict, nms_space, nms_time)
                                 event_locations_clean = []             
                                 dict_locations = event_locations_size_dict.keys()
                                 tlocations = []
