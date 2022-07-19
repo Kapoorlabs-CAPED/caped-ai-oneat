@@ -22,7 +22,7 @@ split_save_dir = '/gpfsstore/rech/jsy/uzj81mi/Mari_Data_Oneat/raw/third_dataset_
 save_dir_oneat = '/gpfsstore/rech/jsy/uzj81mi/Mari_Data_Oneat/oneat_results/'
 
 unet_model_name = 'Unet3D/Unet_Nuclei_Xenopus/'
-star_model_name = 'StarDist3D/Nuclei_Xenopus/'
+star_model_name = 'StarDist3D/Nuclei_Xenopus_Mari/'
 roi_model_name = 'MASKUNET/Roi_Nuclei_Xenopus/'
 oneat_model_name  = 'Oneat/Cellsplitdetectoroptimizedxenopus'
 
@@ -61,7 +61,7 @@ seedpool = True
 slice_merge = False
 remove_markers = False
 n_tiles = (2,8,8)
-event_threshold = 0.9
+event_threshold = 0.99
 event_confidence = 0.9
 iou_threshold = 0.1
 downsamplefactor = 1
@@ -78,6 +78,8 @@ upper_perc=99.8
 axes = 'ZYX'
 prob_thresh = 0.672842
 nms_thresh = 0.3
+nms_space = 10
+nms_time = 3
 ExpandLabels = False
 filesRaw = natsorted(filesRaw)
 
