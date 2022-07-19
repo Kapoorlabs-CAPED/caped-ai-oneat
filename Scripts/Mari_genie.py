@@ -9,12 +9,11 @@ from pathlib import Path
 from natsort import natsorted
 from oneat.NEATUtils import NEATViz
 image_dir = '/gpfsstore/rech/jsy/uzj81mi/Mari_Data_Oneat/raw/'
+seg_dir = '/gpfsstore/rech/jsy/uzj81mi/Mari_Data_Oneat/seg/'
 model_dir = '/gpfsstore/rech/jsy/uzj81mi/Mari_Models/'
 
 split_image_dir = '/gpfsstore/rech/jsy/uzj81mi/Mari_Data_Oneat/raw_split/'
-
-
-save_dir = '/gpfsstore/rech/jsy/uzj81mi/Mari_Data_Oneat/seg/'
+split_save_dir = '/gpfsstore/rech/jsy/uzj81mi/Mari_Data_Oneat/raw_split/seg/'
 save_dir_oneat = '/gpfsstore/rech/jsy/uzj81mi/Mari_Data_Oneat/oneat_results/'
 
 unet_model_name = 'Unet3D/Unet_Nuclei_Xenopus/'
@@ -31,12 +30,14 @@ division_cord_json = model_dir + 'Cellsplitcordxenopus.json'
 cordconfig = load_json(division_cord_json)
 oneat_model = NEATDynamic(None, model_dir , model_name,catconfig, cordconfig)
 
-
-
+Path(seg_dir).mkdir(exist_ok=True)
+Path(split_image_dir).mkdir(exist_ok=True)
+Path(split_save_dir).mkdir(exist_ok=True)
+Path(save_dir_oneat).mkdir(exist_ok=True)
 
 Raw_path = os.path.join(image_dir, '*.tif')
 filesRaw = glob.glob(Raw_path)
-filesRaw.sort
+
 fileextension = '*tif'
 #Minimum size in pixels for the cells to be segmented
 min_size = 1
@@ -54,8 +55,8 @@ seedpool = True
 #Wether unet create labelling in 3D or slice by slice can be set by this parameter, if true it will merge neighbouring slices
 slice_merge = False
 remove_markers = False
-n_tiles = (1,2,2)
-event_threshold = 0.9
+n_tiles = (2,8,8)
+event_threshold = 0.999
 event_confidence = 0.9
 iou_threshold = 0.1
 downsamplefactor = 1
@@ -67,60 +68,65 @@ nms_function = 'iou'
 #Use probability map for stardist to perform watershedding or use distance map
 UseProbability = True
 donormalize=True
-lower_perc= 5
+lower_perc= 1
 upper_perc=99.8
 axes = 'ZYX'
 prob_thresh = 0.672842
 nms_thresh = 0.3
 ExpandLabels = False
-X = natsorted(X)
+filesRaw = natsorted(filesRaw)
 
-for imagename in X:
-                    print(imagename)
-                    image = imread(imagename)
-                    Name = os.path.basename(os.path.splitext(imagename)[0])
-                    for i in range(image.shape[0]):
-                        imwrite(savedir + '/' + Name + str(i) +  '.tif', image[i,:,:,:].astype('float32') )
+for imagename in filesRaw:
+             
+          image = imread(imagename)
+          Name = os.path.basename(os.path.splitext(imagename)[0])
+          for i in range(image.shape[0]):
+                 imwrite(split_image_dir + '/' + Name + str(i) +  '.tif', image[i,:,:,:].astype('float32') )
 
+          Raw_path = os.path.join(split_image_dir, '*.tif')
+          filesRaw = glob.glob(Raw_path)
+          filesRaw = natsorted(filesRaw)
 
+          for fname in filesRaw:
 
+                  image = imread(fname)
+                  Name = os.path.basename(os.path.splitext(fname)[0])
+                  VollSeg( image,
+                          unet_model = unet_model,
+                          star_model = star_model,
+                          roi_model = roi_model,
+                          seedpool = seedpool,
+                          axes = axes,
+                          min_size = min_size,
+                          min_size_mask = min_size_mask,
+                          max_size = max_size,
+                          donormalize = donormalize,
+                          lower_perc= lower_perc,
+                          upper_perc=upper_perc,
+                          n_tiles = n_tiles,
+                          prob_thresh = prob_thresh,
+                          nms_thresh = nms_thresh,
+                          ExpandLabels = ExpandLabels,
+                          slice_merge = slice_merge,
+                          UseProbability = UseProbability,
+                          save_dir = split_save_dir,
+                          Name = Name,
+                          dounet = dounet)
 
+          Seg_path = os.path.join(split_save_dir, '*.tif')
+          filesSeg = glob.glob(Seg_path)
+          filesSeg = natsorted(filesSeg)
+          allseg = []
+          for fname in filesSeg:
+                segimage = imread(fname).astype('uint16')
+                allseg.append(segimage)
 
+          allseg = np.asarray(allseg)
+          imwrite(seg_dir + '/' + Name +  '.tif', allseg.astype('uint16') )
 
-Raw_path = os.path.join(split_image_dir, '*.tif')
-filesRaw = glob.glob(Raw_path)
-filesRaw.sort
-segdir = savedir
-Path(save_dir_oneat).mkdir(exist_ok=True)
-for fname in filesRaw:
+          marker_tree =  oneat_model.get_markers(imagename,seg_dir,start_project_mid = start_project_mid,end_project_mid = end_project_mid)
 
-    image = imread(fname)
-    Name = os.path.basename(os.path.splitext(fname)[0])
-    VollSeg( image,
-            unet_model = unet_model,
-            star_model = star_model,
-            roi_model = roi_model,
-            seedpool = seedpool,
-            axes = axes,
-            min_size = min_size,
-            min_size_mask = min_size_mask,
-            max_size = max_size,
-            donormalize = donormalize,
-            lower_perc= lower_perc,
-            upper_perc=upper_perc,
-            n_tiles = n_tiles,
-            prob_thresh = prob_thresh,
-            nms_thresh = nms_thresh,
-            ExpandLabels = ExpandLabels,
-            slice_merge = slice_merge,
-            UseProbability = UseProbability,
-            save_dir = save_dir,
-            Name = Name,
-            dounet = dounet)
-
-    marker_tree =  oneat_model.get_markers(fname,segdir,start_project_mid = start_project_mid,end_project_mid = end_project_mid)
-
-    oneat_model.predict( fname,
+          oneat_model.predict( imagename,
                           save_dir_oneat,
                           n_tiles = n_tiles,
                           event_threshold = event_threshold,
@@ -133,13 +139,14 @@ for fname in filesRaw:
                           start_project_mid = start_project_mid,
                           end_project_mid = end_project_mid,
                           normalize = normalize)
-    Vizdetections = NEATViz(imagedir,
+          Vizdetections = NEATViz(imagedir,
                             csvdir,
                             categories_json,
-                            segimagedir = segimagedir,
+                            segimagedir = seg_dir,
                             fileextension = fileextension,
                             start_project_mid = start_project_mid,
                             end_project_mid = end_project_mid,
                             headless = True,
                             event_threshold = event_threshold,
-                            nms_space =nms_space)
+                            nms_space = nms_space,
+                            nms_time = nms_time)
