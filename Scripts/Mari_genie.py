@@ -76,6 +76,8 @@ donormalize=True
 lower_perc= 1
 upper_perc=99.8
 axes = 'ZYX'
+result_type = 'StarDist'
+
 prob_thresh = 0.672842
 nms_thresh = 0.3
 nms_space = 10
@@ -119,7 +121,7 @@ for imagename in filesRaw:
                           save_dir = split_save_dir,
                           Name = Name,
                           dounet = dounet)
-
+          split_save_dir = split_save_dir + result_type
           Seg_path = os.path.join(split_save_dir, '*.tif')
           filesSeg = glob.glob(Seg_path)
           filesSeg = natsorted(filesSeg)
