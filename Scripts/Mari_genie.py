@@ -1,4 +1,4 @@
-mport os
+import os
 import glob
 import sys
 import numpy as np
@@ -8,12 +8,17 @@ from vollseg import StarDist3D, UNET, VollSeg, MASKUNET, CARE
 from pathlib import Path
 from natsort import natsorted
 from oneat.NEATUtils import NEATViz
-image_dir = '/gpfsstore/rech/jsy/uzj81mi/Mari_Data_Oneat/raw/'
+from oneat.NEATModels import NEATDynamic
+from oneat.NEATModels.config import dynamic_config
+from oneat.NEATUtils import helpers
+from oneat.NEATUtils.helpers import load_json
+
+image_dir = '/gpfsstore/rech/jsy/uzj81mi/Mari_Data_Oneat/raw/third_dataset/'
 seg_dir = '/gpfsstore/rech/jsy/uzj81mi/Mari_Data_Oneat/seg/'
 model_dir = '/gpfsstore/rech/jsy/uzj81mi/Mari_Models/'
 
-split_image_dir = '/gpfsstore/rech/jsy/uzj81mi/Mari_Data_Oneat/raw_split/'
-split_save_dir = '/gpfsstore/rech/jsy/uzj81mi/Mari_Data_Oneat/raw_split/seg/'
+split_image_dir = '/gpfsstore/rech/jsy/uzj81mi/Mari_Data_Oneat/raw/third_dataset_split/'
+split_save_dir = '/gpfsstore/rech/jsy/uzj81mi/Mari_Data_Oneat/raw/third_dataset_split/seg/'
 save_dir_oneat = '/gpfsstore/rech/jsy/uzj81mi/Mari_Data_Oneat/oneat_results/'
 
 unet_model_name = 'Unet3D/Unet_Nuclei_Xenopus/'
@@ -24,11 +29,11 @@ oneat_model_name  = 'Oneat/Cellsplitdetectoroptimizedxenopus'
 unet_model = UNET(config = None, name = unet_model_name, basedir = model_dir)
 star_model = StarDist3D(config = None, name = star_model_name, basedir = model_dir)
 roi_model = MASKUNET(config = None, name = roi_model_name, basedir = model_dir)
-division_categories_json = model_dir + 'Cellsplitcategoriesxenopus.json'
+division_categories_json = model_dir + 'Oneat/Cellsplitcategoriesxenopus.json'
 catconfig = load_json(division_categories_json)
-division_cord_json = model_dir + 'Cellsplitcordxenopus.json'
+division_cord_json = model_dir + 'Oneat/Cellsplitcordxenopus.json'
 cordconfig = load_json(division_cord_json)
-oneat_model = NEATDynamic(None, model_dir , model_name,catconfig, cordconfig)
+oneat_model = NEATDynamic(None, model_dir , oneat_model_name,catconfig, cordconfig)
 
 Path(seg_dir).mkdir(exist_ok=True)
 Path(split_image_dir).mkdir(exist_ok=True)
@@ -56,7 +61,7 @@ seedpool = True
 slice_merge = False
 remove_markers = False
 n_tiles = (2,8,8)
-event_threshold = 0.999
+event_threshold = 0.9
 event_confidence = 0.9
 iou_threshold = 0.1
 downsamplefactor = 1
