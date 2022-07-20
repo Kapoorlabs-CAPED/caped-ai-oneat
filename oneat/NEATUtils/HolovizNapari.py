@@ -103,7 +103,7 @@ class NEATViz(object):
                         seg_image = imread(self.segimagedir + Name + '.tif')
                         if len(seg_image.shape) == 4:
                           seg_image =  MidSlices(seg_image, self.start_project_mid, self.end_project_mid, False, axis = 1)
-                        headlesscall(image, imagename, self.key_categories, self.event_threshold, self.nms_space, self.nms_time, self.savedir)     
+                        headlesscall(image, imagename, self.key_categories, self.event_threshold, self.nms_space, self.nms_time, self.csvdir, self.savedir)     
                                
                                 
                  
