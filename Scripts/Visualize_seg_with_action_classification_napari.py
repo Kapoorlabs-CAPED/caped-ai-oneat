@@ -15,7 +15,7 @@ categories_json = '/gpfsstore/rech/jsy/uzj81mi/Mari_Models/Oneat/Cellsplitcatego
 fileextension = '*tif'
 start_project_mid = 4
 end_project_mid = 1
-event_threshold = 0.99
+event_threshold = 0.999
 nms_space = 10
 nms_time = 3
 Vizdetections = NEATViz(imagedir,
@@ -25,7 +25,7 @@ Vizdetections = NEATViz(imagedir,
                         fileextension = fileextension,
                         start_project_mid = start_project_mid,
                         end_project_mid = end_project_mid, headless = True,
-event_threshold = event_threshold,
+                        event_threshold = event_threshold,
                         nms_space = nms_space,
                         nms_time = nms_time)
 

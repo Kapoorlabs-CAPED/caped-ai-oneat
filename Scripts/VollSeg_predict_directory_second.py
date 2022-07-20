@@ -10,10 +10,10 @@ from pathlib import Path
 
 image_dir = '/gpfsstore/rech/jsy/uzj81mi/Mari_Data/split_Dataset2/'
 model_dir = '/gpfsstore/rech/jsy/uzj81mi/Mari_Models/'
-save_dir = '/gpfsstore/rech/jsy/uzj81mi/Mari_Data_Oneat/seg/'
+save_dir = '/gpfsstore/rech/jsy/uzj81mi/Mari_Data/split_Dataset2/july_2022_segmentation_results/'
  
 unet_model_name = 'Unet3D/Unet_Nuclei_Xenopus/'
-star_model_name = 'StarDist3D/Nuclei_Xenopus/'
+star_model_name = 'StarDist3D/Nuclei_Xenopus_Mari/'
 roi_model_name = 'MASKUNET/Roi_Nuclei_Xenopus/'
 
 
@@ -45,11 +45,9 @@ slice_merge = False
 #Use probability map for stardist to perform watershedding or use distance map
 UseProbability = True
 donormalize=True
-lower_perc= 5
+lower_perc= 1
 upper_perc=99.8
 axes = 'ZYX'
-#prob_thresh = 0.672842
-#nms_thresh = 0.3
 ExpandLabels = False
 for fname in filesRaw:
      
@@ -68,8 +66,6 @@ for fname in filesRaw:
              lower_perc= lower_perc,
              upper_perc=upper_perc,
              n_tiles = n_tiles,
-            # prob_thresh = prob_thresh,
-            # nms_thresh = nms_thresh,
              ExpandLabels = ExpandLabels,
              slice_merge = slice_merge, 
              UseProbability = UseProbability, 

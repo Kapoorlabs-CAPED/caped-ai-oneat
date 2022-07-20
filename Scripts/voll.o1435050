@@ -1,0 +1,9 @@
++ export LD_LIBRARY_PATH=/gpfslocalsys/slurm/current/lib/slurm:/gpfslocalsys/slurm/current/lib:/linkhome/rech/gengoq01/uzj81mi/.conda/envs/genie/lib/
++ LD_LIBRARY_PATH=/gpfslocalsys/slurm/current/lib/slurm:/gpfslocalsys/slurm/current/lib:/linkhome/rech/gengoq01/uzj81mi/.conda/envs/genie/lib/
++ echo /gpfslocalsys/slurm/current/lib/slurm:/gpfslocalsys/slurm/current/lib:/linkhome/rech/gengoq01/uzj81mi/.conda/envs/genie/lib/
+/gpfslocalsys/slurm/current/lib/slurm:/gpfslocalsys/slurm/current/lib:/linkhome/rech/gengoq01/uzj81mi/.conda/envs/genie/lib/
++ srun python -u Xenopus_Oneat.py
+2022-07-20 14:56:48.540049: I tensorflow/core/util/util.cc:169] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+['/gpfsstore/rech/jsy/uzj81mi/Mari_Data_Oneat/raw/third_dataset/third_dataset_star.tif']
+/gpfsstore/rech/jsy/uzj81mi/Mari_Data_Oneat/raw/third_dataset/third_dataset_star.tif
+Obtaining Markers

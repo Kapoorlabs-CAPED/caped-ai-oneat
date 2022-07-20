@@ -1,0 +1,23 @@
++ export LD_LIBRARY_PATH=/gpfslocalsys/slurm/current/lib/slurm:/gpfslocalsys/slurm/current/lib:/linkhome/rech/gengoq01/uzj81mi/.conda/envs/genie/lib/
++ LD_LIBRARY_PATH=/gpfslocalsys/slurm/current/lib/slurm:/gpfslocalsys/slurm/current/lib:/linkhome/rech/gengoq01/uzj81mi/.conda/envs/genie/lib/
++ echo /gpfslocalsys/slurm/current/lib/slurm:/gpfslocalsys/slurm/current/lib:/linkhome/rech/gengoq01/uzj81mi/.conda/envs/genie/lib/
+/gpfslocalsys/slurm/current/lib/slurm:/gpfslocalsys/slurm/current/lib:/linkhome/rech/gengoq01/uzj81mi/.conda/envs/genie/lib/
++ srun python -u Xenopus_Oneat.py
+2022-07-20 14:37:39.853969: I tensorflow/core/util/util.cc:169] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+['/gpfsstore/rech/jsy/uzj81mi/Mari_Data_Oneat/raw/second_dataset/second_dataset_star.tif']
+/gpfsstore/rech/jsy/uzj81mi/Mari_Data_Oneat/raw/second_dataset/second_dataset_star.tif
+Obtaining Markers
+(22, 2, 2292, 2292) (22, 130, 2420)
+  0%|          | 0/266 [00:00<?, ?it/s]  0%|          | 0/266 [00:00<?, ?it/s]
+Traceback (most recent call last):
+  File "/gpfsdsstore/projects/rech/jsy/uzj81mi/Mari_Scripts_Server/Xenopus_Oneat.py", line 42, in <module>
+    marker_tree =  model.get_markers(imagename, 
+  File "/linkhome/rech/gengoq01/uzj81mi/.conda/envs/genie/lib/python3.10/site-packages/oneat/NEATModels/neat_goldstandard.py", line 298, in get_markers
+    self.markers = GenerateMarkers(self.segimage, 
+  File "/linkhome/rech/gengoq01/uzj81mi/.conda/envs/genie/lib/python3.10/site-packages/oneat/NEATUtils/helpers.py", line 491, in GenerateMarkers
+    newsmallimage = pad_timelapse(smallimage, pad_width)
+  File "/linkhome/rech/gengoq01/uzj81mi/.conda/envs/genie/lib/python3.10/site-packages/oneat/NEATUtils/helpers.py", line 353, in pad_timelapse
+    zero_pad[i,:,:] =  np.pad(image[i,:,:], pad_width, mode = 'edge')
+ValueError: could not broadcast input array from shape (130,2420,2420) into shape (130,2420)
+srun: error: r7i3n3: task 0: Exited with exit code 1
+srun: launch/slurm: _step_signal: Terminating StepId=1434301.0

@@ -8,7 +8,7 @@ from vollseg import StarDist3D, UNET, VollSeg, MASKUNET, CARE
 from pathlib import Path
 
 
-image_dir = '/gpfsstore/rech/jsy/uzj81mi/Mari_Data_Oneat/raw/gt/'
+image_dir = '/gpfsstore/rech/jsy/uzj81mi/Mari_Data_Oneat/raw/gt_varun/'
 model_dir = '/gpfsstore/rech/jsy/uzj81mi/Mari_Models/'
 save_dir = '/gpfsstore/rech/jsy/uzj81mi/Mari_Data_Oneat/seg/'
  
@@ -39,17 +39,15 @@ n_tiles = (1,1,1)
 #is the case else set tit o TRUE if you are using Unet to obtain the semantic segmentation map.
 dounet = True
 #If you want to do seedpooling from unet and stardist set this to true else it will only take stardist seeds
-seedpool = True
+seedpool = False
 #Wether unet create labelling in 3D or slice by slice can be set by this parameter, if true it will merge neighbouring slices
 slice_merge = False
 #Use probability map for stardist to perform watershedding or use distance map
 UseProbability = True
 donormalize=True
-lower_perc= 5
+lower_perc= 1
 upper_perc=99.8
 axes = 'ZYX'
-#prob_thresh = 0.672842
-#nms_thresh = 0.3
 ExpandLabels = False
 for fname in filesRaw:
      
@@ -68,11 +66,11 @@ for fname in filesRaw:
              lower_perc= lower_perc,
              upper_perc=upper_perc,
              n_tiles = n_tiles,
-            # prob_thresh = prob_thresh,
-            # nms_thresh = nms_thresh,
              ExpandLabels = ExpandLabels,
              slice_merge = slice_merge, 
              UseProbability = UseProbability, 
              save_dir = save_dir, 
              Name = Name, 
+             prob_thresh = 0.67,
+             nms_thresh = 0.3,
              dounet = dounet)    
