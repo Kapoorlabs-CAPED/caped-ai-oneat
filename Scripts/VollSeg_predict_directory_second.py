@@ -8,9 +8,9 @@ from vollseg import StarDist3D, UNET, VollSeg, MASKUNET, CARE
 from pathlib import Path
 
 
-image_dir = '/gpfsstore/rech/jsy/uzj81mi/Mari_Data_Oneat/test/raw/test_third_dataset_split/'
+image_dir = '/gpfsstore/rech/jsy/uzj81mi/Mari_Data_Oneat/test/raw/third_dataset_split/'
 model_dir = '/gpfsstore/rech/jsy/uzj81mi/Mari_Models/'
-save_dir = '/gpfsstore/rech/jsy/uzj81mi/Mari_Data_Oneat/test/raw/test_third_dataset_split/seg/'
+save_dir = '/gpfsstore/rech/jsy/uzj81mi/Mari_Data_Oneat/test/raw/third_dataset_split/seg/'
  
 unet_model_name = 'Unet3D/Unet_Nuclei_Xenopus/'
 star_model_name = 'StarDist3D/Nuclei_Xenopus_Mari/'
