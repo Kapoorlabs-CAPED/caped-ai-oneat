@@ -4,8 +4,8 @@ import numpy as np
 import os
 import glob
 from natsort import natsorted
-imagedir = '/gpfsstore/rech/jsy/uzj81mi/Mari_Data_Oneat/seg/sp/'
-savedir = '/gpfsstore/rech/jsy/uzj81mi/Mari_Data_Metrics_Tracking/ctc_format/01_TM_GT_Voll/SEG/'
+imagedir = '/gpfsstore/rech/jsy/uzj81mi/Mari_Data_Oneat/raw/second_dataset/'
+savedir = '/gpfsstore/rech/jsy/uzj81mi/Mari_Data_Oneat/raw/second_dataset_split/'
 Path(savedir).mkdir(exist_ok=True)
 Raw_path = os.path.join(imagedir, '*tif')
 filesRaw = glob.glob(Raw_path)

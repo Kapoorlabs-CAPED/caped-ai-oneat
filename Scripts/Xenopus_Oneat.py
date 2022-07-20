@@ -21,7 +21,7 @@ end_project_mid = 1
 normalize = True
 nms_function = 'iou'
 
-imagedir = '/gpfsstore/rech/jsy/uzj81mi/Mari_Data_Oneat/raw/third_dataset/'
+imagedir = '/gpfsstore/rech/jsy/uzj81mi/Mari_Data_Oneat/raw/second_dataset/'
 segdir = '/gpfsstore/rech/jsy/uzj81mi/Mari_Data_Oneat/seg/'
 model_dir = '/gpfsstore/rech/jsy/uzj81mi/Mari_Models/Oneat/'
 savedir= '/gpfsstore/rech/jsy/uzj81mi/Mari_Data_Oneat/oneat_results/'
@@ -36,7 +36,7 @@ model = NEATDynamic(None, model_dir , model_name,catconfig, cordconfig)
 Path(savedir).mkdir(exist_ok=True)
 Raw_path = os.path.join(imagedir, '*tif')
 X = glob.glob(Raw_path)
-print(X) 
+
 for imagename in X:
      print(imagename)   
      marker_tree =  model.get_markers(imagename, 
