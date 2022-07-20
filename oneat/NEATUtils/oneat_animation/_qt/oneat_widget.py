@@ -26,6 +26,7 @@ class OneatWidget(QWidget):
     def __init__(
         self,
         viewer: 'napari.viewer.Viewer',
+        csvdir: None,
         savedir: None,
         savename: None,
         key_categories : None,
@@ -57,7 +58,7 @@ class OneatWidget(QWidget):
         self.nms_space = self.frameWidget.nmsspaceSpinBox.value()
 
         self._layout.addWidget(animation)
-        self.oneatvisualization = OneatVisualization(viewer ,key_categories,  savedir, savename, self.frameWidget.ax, self.frameWidget.figure)
+        self.oneatvisualization = OneatVisualization(viewer ,key_categories, csvdir, savedir, savename, self.frameWidget.ax, self.frameWidget.figure)
        
         self.heatmapsteps = self.frameWidget.heatstepsSpinBox.value()
         self.event_threshold = float(self.frameWidget.label.text())

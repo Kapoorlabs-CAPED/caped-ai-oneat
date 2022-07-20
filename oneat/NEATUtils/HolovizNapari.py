@@ -29,6 +29,7 @@ default_reader = 'tifffile'
 class NEATViz(object):
 
         def __init__(self, imagedir,   
+                        csvdir,
                         savedir, 
                         categories_json, 
                         imagereader = default_reader , 
@@ -51,6 +52,7 @@ class NEATViz(object):
                self.heatmapimagedir = heatmapimagedir
                self.segimagedir = segimagedir
                self.savedir = savedir
+               self.csvdir = csvdir
                self.heatname = heatname
                self.eventname = eventname
                self.headless = headless 
@@ -68,6 +70,7 @@ class NEATViz(object):
                else:
                    self.use_dask = True    
                Path(self.savedir).mkdir(exist_ok=True)
+               Path(self.csvdir).mkdir(exist_ok=True)
                self.viewer = napari.Viewer()
                
                self.time = 0
@@ -106,7 +109,7 @@ class NEATViz(object):
                  
         def showNapari(self):
                  
-                 self.oneat_widget = OneatWidget(self.viewer, self.savedir, 'Name', 
+                 self.oneat_widget = OneatWidget(self.viewer, self.csvdir, self.savedir, 'Name', 
                  self.key_categories, use_dask = self.use_dask, segimagedir = self.segimagedir,
                  heatimagedir = self.heatmapimagedir, heatname = self.heatname, 
                  start_project_mid = self.start_project_mid,
@@ -160,7 +163,7 @@ def cluster_points(event_locations_dict,event_locations_size_dict, nms_space, nm
                                                     event_locations_size_dict.pop((int(currenttime), int(nearest_location[0]), int(nearest_location[1])))   
      return event_locations_size_dict                                                     
 
-def headlesscall(image, imagename, key_categories, event_threshold, nms_space, nms_time, savedir):
+def headlesscall(image, imagename, key_categories, event_threshold, nms_space, nms_time,csvdir, savedir):
             for (event_name,event_label) in key_categories.items():
                             if event_label > 0:
                                 event_locations = []
@@ -170,7 +173,7 @@ def headlesscall(image, imagename, key_categories, event_threshold, nms_space, n
                                 confidence_locations = []
                                 event_locations_dict = {}
                                 event_locations_size_dict = {}
-                                csvname = savedir + "/" + event_name + "Location" + (os.path.splitext(os.path.basename(imagename))[0] + '.csv')
+                                csvname = csvdir + "/" + event_name + "Location" + (os.path.splitext(os.path.basename(imagename))[0] + '.csv')
                                 dataset   = pd.read_csv(csvname, delimiter = ',')
                                 dataset_index =  dataset.index
                                 #Data is written as T, Y, X, Score, Size, Confidence
