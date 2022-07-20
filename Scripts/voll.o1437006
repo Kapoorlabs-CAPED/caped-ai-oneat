@@ -1,0 +1,16 @@
++ srun python -u split_timelapse.py
++ srun python -u VollSeg_predict_directory_second.py
+2022-07-20 15:36:12.384661: I tensorflow/core/util/util.cc:169] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+2022-07-20 15:37:07.704435: I tensorflow/core/platform/cpu_feature_guard.cc:193] This TensorFlow binary is optimized with oneAPI Deep Neural Network Library (oneDNN) to use the following CPU instructions in performance-critical operations:  AVX2 AVX512F AVX512_VNNI FMA
+To enable them in other operations, rebuild TensorFlow with the appropriate compiler flags.
+2022-07-20 15:37:09.142420: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1532] Created device /job:localhost/replica:0/task:0/device:GPU:0 with 30988 MB memory:  -> device: 0, name: Tesla V100-SXM2-32GB, pci bus id: 0000:1a:00.0, compute capability: 7.0
+Loading network weights from 'weights_best.h5'.
+Loading network weights from 'weights_best.h5'.
+Loading thresholds from 'thresholds.json'.
+Using default values: prob_thresh=0.672842, nms_thresh=0.3.
+Loading network weights from 'weights_best.h5'.
++ srun python -u merge_timelapse.py
+/linkhome/rech/gengoq01/uzj81mi/.conda/envs/genie/lib/python3.10/site-packages/tifffile/tifffile.py:1901: UserWarning: <tifffile.TiffWriter 'second_dataset.tif'> writing zero size array to nonconformant TIFF
+  warnings.warn(
++ srun python -u Xenopus_Oneat.py
+2022-07-20 15:37:14.972435: I tensorflow/core/util/util.cc:169] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.

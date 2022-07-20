@@ -1,0 +1,35 @@
++ python split_timelapse.py
+/gpfsstore/rech/jsy/uzj81mi/Mari_Data_Oneat/test/raw/third_dataset/test_third_dataset_star.tif
++ python VollSeg_predict_directory_second.py
+2022-07-20 16:08:26.303249: I tensorflow/core/util/util.cc:169] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+2022-07-20 16:08:31.634748: I tensorflow/core/platform/cpu_feature_guard.cc:193] This TensorFlow binary is optimized with oneAPI Deep Neural Network Library (oneDNN) to use the following CPU instructions in performance-critical operations:  AVX2 AVX512F AVX512_VNNI FMA
+To enable them in other operations, rebuild TensorFlow with the appropriate compiler flags.
+2022-07-20 16:08:32.290216: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1532] Created device /job:localhost/replica:0/task:0/device:GPU:0 with 30988 MB memory:  -> device: 0, name: Tesla V100-SXM2-32GB, pci bus id: 0000:1a:00.0, compute capability: 7.0
+Loading network weights from 'weights_best.h5'.
+Loading network weights from 'weights_best.h5'.
+Loading thresholds from 'thresholds.json'.
+Using default values: prob_thresh=0.672842, nms_thresh=0.3.
+Loading network weights from 'weights_best.h5'.
++ python merge_timelapse.py
+Traceback (most recent call last):
+  File "/gpfsdsstore/projects/rech/jsy/uzj81mi/Mari_Scripts_Server/merge_timelapse.py", line 26, in <module>
+    imwrite(savedir + '/' + Name +  '.tif', allseg.astype('uint16') )
+NameError: name 'Name' is not defined
++ python Xenopus_Oneat.py
+2022-07-20 16:08:34.909900: I tensorflow/core/util/util.cc:169] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+/gpfsstore/rech/jsy/uzj81mi/Mari_Data_Oneat/test/raw/third_dataset/test_third_dataset_star.tif
+Obtaining Markers
+Traceback (most recent call last):
+  File "/gpfsdsstore/projects/rech/jsy/uzj81mi/Mari_Scripts_Server/Xenopus_Oneat.py", line 42, in <module>
+    marker_tree =  model.get_markers(imagename, 
+  File "/linkhome/rech/gengoq01/uzj81mi/.conda/envs/genie/lib/python3.10/site-packages/oneat/NEATModels/neat_goldstandard.py", line 297, in get_markers
+    self.segimage = imread(self.segdir + '/' + Name + '.tif')
+  File "/linkhome/rech/gengoq01/uzj81mi/.conda/envs/genie/lib/python3.10/site-packages/tifffile/tifffile.py", line 973, in imread
+    with TiffFile(
+  File "/linkhome/rech/gengoq01/uzj81mi/.conda/envs/genie/lib/python3.10/site-packages/tifffile/tifffile.py", line 3598, in __init__
+    fh = FileHandle(file, mode=mode, name=name, offset=offset, size=size)
+  File "/linkhome/rech/gengoq01/uzj81mi/.conda/envs/genie/lib/python3.10/site-packages/tifffile/tifffile.py", line 11829, in __init__
+    self.open()
+  File "/linkhome/rech/gengoq01/uzj81mi/.conda/envs/genie/lib/python3.10/site-packages/tifffile/tifffile.py", line 11848, in open
+    self._fh = open(self._file, self._mode)  # type: ignore
+FileNotFoundError: [Errno 2] No such file or directory: '/gpfsdsstore/projects/rech/jsy/uzj81mi/Mari_Data_Oneat/test/seg/test_third_dataset_star.tif'

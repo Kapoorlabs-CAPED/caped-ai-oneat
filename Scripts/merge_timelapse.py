@@ -4,9 +4,9 @@ import numpy as np
 import os
 import glob
 from natsort import natsorted
-imagedir = '/gpfsstore/rech/jsy/uzj81mi/Mari_Data_Oneat/raw/second_dataset_split/seg/StarDist/'
-savedir = '/gpfsstore/rech/jsy/uzj81mi/Mari_Data_Oneat/seg/'
-Name = 'second_dataset'
+imagedir = '/gpfsstore/rech/jsy/uzj81mi/Mari_Data_Oneat/test/raw/third_dataset_split/seg/StarDist/'
+savedir = '/gpfsstore/rech/jsy/uzj81mi/Mari_Data_Oneat/test/seg/'
+Name = 'test_third_dataset_star'
 
 Path(savedir).mkdir(exist_ok=True)
 Raw_path = os.path.join(imagedir, '*tif')
@@ -16,6 +16,7 @@ filesRaw = natsorted(filesRaw)
 allseg = []               
 for fname in filesRaw:
                 segimage = imread(fname).astype('uint16')
+            
                 allseg.append(segimage)
 
 allseg = np.asarray(allseg)
