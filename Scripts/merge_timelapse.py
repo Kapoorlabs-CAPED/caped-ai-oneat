@@ -4,7 +4,7 @@ import numpy as np
 import os
 import glob
 from natsort import natsorted
-imagedir = '/gpfsstore/rech/jsy/uzj81mi/Mari_Data_Oneat/test/raw/test_third_dataset_split/seg/StarDist/'
+imagedir = '/gpfsstore/rech/jsy/uzj81mi/Mari_Data_Oneat/test/raw/third_dataset_split/seg/StarDist/'
 savedir = '/gpfsstore/rech/jsy/uzj81mi/Mari_Data_Oneat/test/seg/'
 Name = 'test_third_dataset_star'
 
