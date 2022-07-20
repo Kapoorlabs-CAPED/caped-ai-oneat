@@ -76,10 +76,15 @@ class OneatVisualization:
                                                 currentsize, currentscore = self.event_locations_size_dict[int(currenttime), int(nearest_location[0]), int(nearest_location[1])]
                                                 if  currentsize >= forwardsize:
                                                     self.event_locations_size_dict.pop((int(forwardtime), int(location[0]), int(location[1])))
-                                                    self.clean_event_locations_dict.pop(int(forwardtime))
+                                                    clean_event_locations = self.clean_event_locations_dict[int(forwardtime)]
+                                                    clean_event_locations.remove([int(location[0]), int(location[1])])
+                                                    self.clean_event_locations_dict[int(forwardtime)] = clean_event_locations
                                                 if currentsize < forwardsize:
                                                     self.event_locations_size_dict.pop((int(currenttime), int(nearest_location[0]), int(nearest_location[1])))   
-                                                    self.clean_event_locations_dict.pop(int(currenttime))   
+                                                    self.clean_event_locations_dict.pop(int(currenttime))  
+                                                    clean_event_locations = self.clean_event_locations_dict[int(currenttime)]
+                                                    clean_event_locations.remove([int(location[0]), int(location[1])])
+                                                    self.clean_event_locations_dict[int(forwardtime)] = clean_event_locations 
      print('after',len(self.event_locations_size_dict))
      self.show_clean_csv(use_dask, heatmapsteps)                        
 
