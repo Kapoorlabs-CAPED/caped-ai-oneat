@@ -53,7 +53,10 @@ class OneatVisualization:
     def cluster_points(self, nms_space, nms_time, use_dask = False, heatmapsteps = 0):
 
      print('before',len(self.event_locations_size_dict))
-     self.clean_event_locations_dict = self.event_locations_dict.copy()
+     self.clean_event_locations_dict = {}
+     for (k,v) in self.event_locations_dict.items():
+        self.clean_event_locations_dict[k] = v
+        
      for (k,v) in self.event_locations_dict.items():
          currenttime = k
          event_locations = v
