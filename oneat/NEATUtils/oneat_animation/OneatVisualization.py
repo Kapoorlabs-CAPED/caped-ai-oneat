@@ -14,10 +14,11 @@ import matplotlib.pyplot as plt
 import cv2
 class OneatVisualization:
 
-    def __init__(self, viewer: napari.Viewer,key_categories, 
+    def __init__(self, viewer: napari.Viewer,key_categories, csvdir,
      savedir, savename, ax, figure):
 
         self.viewer = viewer
+        self.csvdir = csvdir
         self.savedir = savedir
         self.savename = savename
         self.key_categories = key_categories
@@ -309,7 +310,7 @@ class OneatVisualization:
         for (event_name,event_label) in self.key_categories.items():
                     if event_label > 0 and csv_event_name == event_name:
                             self.event_label = event_label     
-                            csvname = self.savedir + "/" + event_name + "Location" + (os.path.splitext(os.path.basename(imagename))[0] + '.csv')
+                            csvname = self.csvdir + "/" + event_name + "Location" + (os.path.splitext(os.path.basename(imagename))[0] + '.csv')
         if csvname is not None:    
             
                 self.event_name = csv_event_name                         
