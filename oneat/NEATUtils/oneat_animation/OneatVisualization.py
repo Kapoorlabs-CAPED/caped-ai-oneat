@@ -50,7 +50,7 @@ class OneatVisualization:
         self.originalimage = None
         
     # To prevent early detectin of events
-    def cluster_points(self, nms_space, nms_time):
+    def cluster_points(self, nms_space, nms_time, use_dask = False, heatmapsteps = 0):
 
      print('before',len(self.event_locations_size_dict))
      for (k,v) in self.event_locations_dict.items():
@@ -75,14 +75,14 @@ class OneatVisualization:
                                                 currentsize, currentscore = self.event_locations_size_dict[int(currenttime), int(nearest_location[0]), int(nearest_location[1])]
                                                 if  currentsize >= forwardsize:
                                                     self.event_locations_size_dict.pop((int(forwardtime), int(location[0]), int(location[1])))
-                                                    
+                                                    self.event_locations_dict.pop(int(forwardtime))
                                                 if currentsize < forwardsize:
                                                     self.event_locations_size_dict.pop((int(currenttime), int(nearest_location[0]), int(nearest_location[1])))   
-                                                       
+                                                    self.event_locations_dict.pop(int(currenttime))   
      print('after',len(self.event_locations_size_dict))
-     self.show_clean_csv()                        
+     self.show_clean_csv(use_dask, heatmapsteps)                        
 
-    def show_clean_csv(self):
+    def show_clean_csv(self,use_dask = False, heatmapsteps = 0):
                 self.cleaneventlist = []
                 self.cleantimelist = [] 
                 self.event_locations_clean.clear()              
@@ -131,7 +131,7 @@ class OneatVisualization:
                             writer.writerows(event_data)
                             event_data = []     
                 name_remove = ('Clean Detections','Clean Location Map')
-               
+                
                 point_properties = {'score' : scores, 'confidence' : confidences,
                 'size' : radiuses}    
               
@@ -140,7 +140,9 @@ class OneatVisualization:
                                     if  any(name in layer.name for name in name_remove):
                                             self.viewer.layers.remove(layer) 
                 self.viewer.add_points(self.event_locations_clean, properties=point_properties,  name = 'Clean Detections', face_color = [0]*4, edge_color = "green") 
-                
+                location_image, self.cell_count = LocationMap(self.event_locations_dict, self.seg_image, use_dask, heatmapsteps)     
+                self.viewer.add_labels(location_image.astype('uint16'), name= 'Clean Location Map' + imagename )
+                                    
                 
                 df = pd.DataFrame (self.event_locations_clean, columns = ['T', 'Y', 'X'])
                 T_pred = df[df.keys()[0]][0:]
@@ -390,7 +392,7 @@ class OneatVisualization:
                                     
             
 
-                self.cluster_points(nms_space, nms_time)
+                self.cluster_points(nms_space, nms_time,use_dask, heatmapsteps)
 
                                        
 
