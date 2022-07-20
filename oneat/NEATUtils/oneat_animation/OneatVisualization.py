@@ -84,7 +84,7 @@ class OneatVisualization:
                                                     self.clean_event_locations_dict.pop(int(currenttime))  
                                                     clean_event_locations = self.clean_event_locations_dict[int(currenttime)]
                                                     clean_event_locations.remove([int(location[0]), int(location[1])])
-                                                    self.clean_event_locations_dict[int(forwardtime)] = clean_event_locations 
+                                                    self.clean_event_locations_dict[int(currenttime)] = clean_event_locations 
      print('after',len(self.event_locations_size_dict))
      self.show_clean_csv(use_dask, heatmapsteps)                        
 
