@@ -16,5 +16,12 @@ module load anaconda-py3/2020.11
 #conda init bash # deactivating environments inherited by default
 conda deactivate
 conda activate genie
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/linkhome/rech/gengoq01/uzj81mi/.conda/envs/genie/lib/
+
+
 set -x # activating echo of
-srun python -u Mari_genie.py
+python split_timelapse.py
+python VollSeg_predict_directory_second.py 
+python merge_timelapse.py 
+python Xenopus_Oneat.py
+
