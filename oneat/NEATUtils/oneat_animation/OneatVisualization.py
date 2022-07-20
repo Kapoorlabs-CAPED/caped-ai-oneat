@@ -53,6 +53,7 @@ class OneatVisualization:
     def cluster_points(self, nms_space, nms_time, use_dask = False, heatmapsteps = 0):
 
      print('before',len(self.event_locations_size_dict))
+     self.clean_event_locations_dict = event_locations_dict
      for (k,v) in self.event_locations_dict.items():
          currenttime = k
          event_locations = v
@@ -75,10 +76,10 @@ class OneatVisualization:
                                                 currentsize, currentscore = self.event_locations_size_dict[int(currenttime), int(nearest_location[0]), int(nearest_location[1])]
                                                 if  currentsize >= forwardsize:
                                                     self.event_locations_size_dict.pop((int(forwardtime), int(location[0]), int(location[1])))
-                                                    self.event_locations_dict.pop(int(forwardtime))
+                                                    self.clean_event_locations_dict.pop(int(forwardtime))
                                                 if currentsize < forwardsize:
                                                     self.event_locations_size_dict.pop((int(currenttime), int(nearest_location[0]), int(nearest_location[1])))   
-                                                    self.event_locations_dict.pop(int(currenttime))   
+                                                    self.clean_event_locations_dict.pop(int(currenttime))   
      print('after',len(self.event_locations_size_dict))
      self.show_clean_csv(use_dask, heatmapsteps)                        
 
@@ -140,7 +141,7 @@ class OneatVisualization:
                                     if  any(name in layer.name for name in name_remove):
                                             self.viewer.layers.remove(layer) 
                 self.viewer.add_points(self.event_locations_clean, properties=point_properties,  name = 'Clean Detections', face_color = [0]*4, edge_color = "green") 
-                location_image, self.cell_count = LocationMap(self.event_locations_dict, self.seg_image, use_dask, heatmapsteps)     
+                location_image, self.cell_count = LocationMap(self.clean_event_locations_dict, self.seg_image, use_dask, heatmapsteps)     
                 self.viewer.add_labels(location_image.astype('uint16'), name= 'Clean Location Map' + imagename )
                                     
                 
