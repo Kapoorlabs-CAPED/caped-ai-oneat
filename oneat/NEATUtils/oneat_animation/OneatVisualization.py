@@ -56,14 +56,14 @@ class OneatVisualization:
      self.clean_event_locations_dict = {}
      for (k,v) in self.event_locations_dict.items():
         self.clean_event_locations_dict[k] = v
-        
+
      for (k,v) in self.event_locations_dict.items():
          currenttime = k
          event_locations = v
        
-        
-         tree = spatial.cKDTree(event_locations)
-         for i in range(1, nms_time):
+         if len(event_locations) > 0:
+            tree = spatial.cKDTree(event_locations)
+            for i in range(1, nms_time):
                     
                     forwardtime = currenttime + i
                     if int(forwardtime) in self.event_locations_dict.keys():
@@ -82,11 +82,13 @@ class OneatVisualization:
                                                     clean_event_locations = self.clean_event_locations_dict[int(forwardtime)]
                                                     clean_event_locations.remove([int(location[0]), int(location[1])])
                                                     self.clean_event_locations_dict[int(forwardtime)] = clean_event_locations
+                                                    event_locations.append([int(location[0]), int(location[1])])
                                                 if currentsize < forwardsize:
                                                     self.event_locations_size_dict.pop((int(currenttime), int(nearest_location[0]), int(nearest_location[1])))   
                                                     clean_event_locations = self.clean_event_locations_dict[int(currenttime)]
                                                     clean_event_locations.remove([int(nearest_location[0]), int(nearest_location[1])])
                                                     self.clean_event_locations_dict[int(currenttime)] = clean_event_locations 
+                                                    event_locations.append([int(nearest_location[0]), int(nearest_location[1])])
      print('after',len(self.event_locations_size_dict))
      self.show_clean_csv(use_dask, heatmapsteps)                        
 
@@ -149,7 +151,7 @@ class OneatVisualization:
                                             self.viewer.layers.remove(layer) 
                 self.viewer.add_points(self.event_locations_clean, properties=point_properties,  name = 'Clean Detections', face_color = [0]*4, edge_color = "green") 
                 location_image, self.cell_count = LocationMap(self.clean_event_locations_dict, self.seg_image, use_dask, heatmapsteps)     
-                self.viewer.add_labels(location_image.astype('uint16'), name= 'Clean Location Map' + imagename )
+                self.viewer.add_labels(location_image.astype('uint16'), name= 'Clean Location Map' )
                                     
                 
                 df = pd.DataFrame (self.event_locations_clean, columns = ['T', 'Y', 'X'])
