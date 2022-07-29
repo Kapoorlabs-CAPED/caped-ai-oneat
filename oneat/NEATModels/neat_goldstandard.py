@@ -17,6 +17,7 @@ import tensorflow as tf
 from oneat.pretrained import get_registered_models, get_model_details, get_model_instance
 from pathlib import Path
 from keras.models import load_model
+from keras.utils import plot_model
 from tifffile import imread, imwrite
 import napari
 import glob
@@ -265,7 +266,9 @@ class NEATDynamic(object):
         sgd = tf.keras.optimizers.Adam(learning_rate=self.learning_rate)
         self.Trainingmodel.compile(optimizer=sgd, loss=self.yololoss, metrics=['accuracy'])
         self.Trainingmodel.summary()
-
+        plot_model(self.Trainingmodel, to_file = self.model_dir + self.model_name +'.png', 
+        show_shapes = True, show_layer_names=True)
+   
         # Keras callbacks
         lrate = callbacks.ReduceLROnPlateau(monitor='loss', factor=0.1, patience=4, verbose=1)
         hrate = callbacks.History()
