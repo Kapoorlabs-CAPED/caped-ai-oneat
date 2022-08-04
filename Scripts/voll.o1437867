@@ -1,1 +1,0 @@
-+ srun python -u split_timelapse.py VollSeg_predict_directory_second.py merge_timelapse.py Xenopus_Oneat.py

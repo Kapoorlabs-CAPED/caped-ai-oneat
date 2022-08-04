@@ -5,7 +5,7 @@ import keras as K
 from keras import regularizers
 from keras.layers import BatchNormalization, Activation
 from keras.layers import Conv2D, Conv3D 
-from tensorflow.keras.layers import ConvLSTM1D
+from tensorflow.keras.layers import ConvLSTM1D, ConvLSTM2D
 from keras import layers
 from keras import models
 from keras.layers.core import Lambda
