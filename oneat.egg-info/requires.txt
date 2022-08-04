@@ -12,3 +12,4 @@ sklearn
 dask
 natsort
 napari-animation
+pydot

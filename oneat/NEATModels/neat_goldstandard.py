@@ -534,44 +534,45 @@ class NEATDynamic(object):
                                       self.eventmarkers[inputtime,:] = label(markers_current.astype('uint16')) 
                                       imwrite((heatsavename + '.tif' ), self.heatmap) 
                                       imwrite((eventsavename + '.tif' ), self.eventmarkers.astype('uint16'))
-                tree, location = self.marker_tree[str(int(inputtime))]
-                for i in range(len(location)):
-                    
-                    crop_xminus = location[i][1]  - int(self.imagex/2) * self.downsamplefactor 
-                    crop_xplus = location[i][1]  + int(self.imagex/2) * self.downsamplefactor 
-                    crop_yminus = location[i][0]  - int(self.imagey/2) * self.downsamplefactor 
-                    crop_yplus = location[i][0]   + int(self.imagey/2) * self.downsamplefactor 
-                    region =(slice(inputtime - int(self.imaget)//2,inputtime + int(self.imaget)//2 + 1),slice(int(crop_yminus), int(crop_yplus)),
-                          slice(int(crop_xminus), int(crop_xplus)))
-                    
-                    crop_image = self.image[region] 
-                    
-                    if crop_image.shape[0] >= self.imaget and  crop_image.shape[1] >= self.imagey * self.downsamplefactor and crop_image.shape[2] >= self.imagex * self.downsamplefactor:                                                
-                                #Now apply the prediction for counting real events
-                               
-                                crop_image = DownsampleData(crop_image, self.downsamplefactor)
-                                ycenter = location[i][0]
-                                xcenter = location[i][1]
-                                  
-                                predictions, allx, ally = self.predict_main(crop_image)
-                                sum_time_prediction = predictions[0]
-                                if sum_time_prediction is not None:
-                                     #For each tile the prediction vector has shape N H W Categories + Training Vector labels
-                                     time_prediction =  sum_time_prediction[0]
-                                     boxprediction = yoloprediction(0, 0 , time_prediction, self.stride,
-                                                           inputtime, self.config,
-                                                           self.key_categories, self.key_cord, self.nboxes, 'detection',
-                                                           'dynamic', center_oneat = self.center_oneat)
-                                     if boxprediction is not None and len(boxprediction) > 0 and xcenter - self.pad_width[1] > 0 and ycenter - self.pad_width[0] > 0 and xcenter - self.pad_width[1] < self.originalimage.shape[2] and ycenter - self.pad_width[0] < self.originalimage.shape[1] :
-                                            
+                if  str(int(inputtime)) in self.marker_tree:                     
+                        tree, location = self.marker_tree[str(int(inputtime))]
+                        for i in range(len(location)):
+                            
+                            crop_xminus = location[i][1]  - int(self.imagex/2) * self.downsamplefactor 
+                            crop_xplus = location[i][1]  + int(self.imagex/2) * self.downsamplefactor 
+                            crop_yminus = location[i][0]  - int(self.imagey/2) * self.downsamplefactor 
+                            crop_yplus = location[i][0]   + int(self.imagey/2) * self.downsamplefactor 
+                            region =(slice(inputtime - int(self.imaget)//2,inputtime + int(self.imaget)//2 + 1),slice(int(crop_yminus), int(crop_yplus)),
+                                slice(int(crop_xminus), int(crop_xplus)))
+                            
+                            crop_image = self.image[region] 
+                            
+                            if crop_image.shape[0] >= self.imaget and  crop_image.shape[1] >= self.imagey * self.downsamplefactor and crop_image.shape[2] >= self.imagex * self.downsamplefactor:                                                
+                                        #Now apply the prediction for counting real events
+                                    
+                                        crop_image = DownsampleData(crop_image, self.downsamplefactor)
+                                        ycenter = location[i][0]
+                                        xcenter = location[i][1]
+                                        
+                                        predictions, allx, ally = self.predict_main(crop_image)
+                                        sum_time_prediction = predictions[0]
+                                        if sum_time_prediction is not None:
+                                            #For each tile the prediction vector has shape N H W Categories + Training Vector labels
+                                            time_prediction =  sum_time_prediction[0]
+                                            boxprediction = yoloprediction(0, 0 , time_prediction, self.stride,
+                                                                inputtime, self.config,
+                                                                self.key_categories, self.key_cord, self.nboxes, 'detection',
+                                                                'dynamic', center_oneat = self.center_oneat)
+                                            if boxprediction is not None and len(boxprediction) > 0 and xcenter - self.pad_width[1] > 0 and ycenter - self.pad_width[0] > 0 and xcenter - self.pad_width[1] < self.originalimage.shape[2] and ycenter - self.pad_width[0] < self.originalimage.shape[1] :
+                                                    
+                                                        
+                                                        boxprediction[0]['real_time_event'] = inputtime
+                                                        boxprediction[0]['xcenter'] = xcenter - self.pad_width[1]
+                                                        boxprediction[0]['ycenter'] = ycenter - self.pad_width[0]
+                                                        boxprediction[0]['xstart'] = xcenter   - int(self.imagex/2) * self.downsamplefactor
+                                                        boxprediction[0]['ystart'] = ycenter   - int(self.imagey/2) * self.downsamplefactor  
+                                                        eventboxes = eventboxes + boxprediction
                                                 
-                                                boxprediction[0]['real_time_event'] = inputtime
-                                                boxprediction[0]['xcenter'] = xcenter - self.pad_width[1]
-                                                boxprediction[0]['ycenter'] = ycenter - self.pad_width[0]
-                                                boxprediction[0]['xstart'] = xcenter   - int(self.imagex/2) * self.downsamplefactor
-                                                boxprediction[0]['ystart'] = ycenter   - int(self.imagey/2) * self.downsamplefactor  
-                                                eventboxes = eventboxes + boxprediction
-                                           
                                            
                 for (event_name,event_label) in self.key_categories.items(): 
                                            
