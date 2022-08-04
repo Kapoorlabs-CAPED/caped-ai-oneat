@@ -489,26 +489,27 @@ def GenerateMarkers(segimage,  start_project_mid = 4, end_project_mid = 4, pad_w
                         smallimage = segimage[i, :]
                         newsmallimage = pad_timelapse(smallimage, pad_width)
                         properties = measure.regionprops(newsmallimage.astype('uint16'))
+                        
                         Coordinates = [prop.centroid for prop in properties]
- 
-                        if ndim == 3:
-                            Coordinates = sorted(Coordinates, key=lambda k: [k[1], k[0]])
-                        if ndim == 4:
-                            Coordinates = sorted(Coordinates, key=lambda k: [k[2], k[1], k[0]])
-                        Coordinates = np.asarray(Coordinates)
-    
-                        coordinates_int = np.round(Coordinates).astype(int)
-                        markers_raw = np.zeros_like(newsmallimage)
-                        markers_raw[tuple(coordinates_int.T)] = 1 + np.arange(len(Coordinates))
-                        if ndim == 4:
-                            markers = morphology.dilation(
-                               markers_raw.astype('uint16'), morphology.ball(2))
-                        if ndim == 3:       
-                            markers = morphology.dilation(markers_raw.astype('uint16'), morphology.disk(2)) 
-                        if ndim == 4:
-                            markers =  MidSlices(markers, start_project_mid, end_project_mid, axis = 0)
+                        if len(Coordinates) > 0:
+                                if ndim == 3:
+                                    Coordinates = sorted(Coordinates, key=lambda k: [k[1], k[0]])
+                                if ndim == 4:
+                                    Coordinates = sorted(Coordinates, key=lambda k: [k[2], k[1], k[0]])
+                                Coordinates = np.asarray(Coordinates)
+            
+                                coordinates_int = np.round(Coordinates).astype(int)
+                                markers_raw = np.zeros_like(newsmallimage)
+                                markers_raw[tuple(coordinates_int.T)] = 1 + np.arange(len(Coordinates))
+                                if ndim == 4:
+                                    markers = morphology.dilation(
+                                    markers_raw.astype('uint16'), morphology.ball(2))
+                                if ndim == 3:       
+                                    markers = morphology.dilation(markers_raw.astype('uint16'), morphology.disk(2)) 
+                                if ndim == 4:
+                                    markers =  MidSlices(markers, start_project_mid, end_project_mid, axis = 0)
 
-                        Markers[i, :] = label(markers.astype('uint16'))
+                                Markers[i, :] = label(markers.astype('uint16'))
 
     return Markers
 
