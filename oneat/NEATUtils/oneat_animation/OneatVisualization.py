@@ -213,7 +213,7 @@ class OneatVisualization:
                             if self.segimagedir is not None and self.seg_image is not None:
                                 
                                 all_cells = self.cell_count[i]
-                                celllist.append(all_cells)
+                                celllist.append(all_cells + 1)
                                 normeventlist.append(countT/(all_cells+1))
                         self.cleannormeventlist = []    
                         if len(self.cleaneventlist) > 0:    
