@@ -214,7 +214,7 @@ class OneatVisualization:
                                 
                                 all_cells = self.cell_count[i]
                                 celllist.append(all_cells)
-                                normeventlist.append(countT/all_cells)
+                                normeventlist.append(countT/(all_cells+1))
                         self.cleannormeventlist = []    
                         if len(self.cleaneventlist) > 0:    
                                 for k in range(len(self.cleaneventlist)):
