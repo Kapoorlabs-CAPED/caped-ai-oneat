@@ -380,7 +380,7 @@ class NEATDynamic(object):
         print('Detecting event locations')
         self.image = DownsampleData(self.image, self.downsamplefactor)
         for inputtime in tqdm(range(0, self.image.shape[0])):
-                    if inputtime < self.image.shape[0] - self.imaget and inputtime > int(self.imaget)//2 + 1:
+                    if inputtime < self.image.shape[0] - self.imaget and inputtime > int(self.imaget)//2:
                                 count = count + 1
                                 if inputtime%(self.image.shape[0]//4)==0 and inputtime > 0 or inputtime >= self.image.shape[0] - self.imaget - 1:
                                       
@@ -448,7 +448,7 @@ class NEATDynamic(object):
         
         
         for inputtime in tqdm(range(0, self.image.shape[0])):
-            if inputtime < self.image.shape[0] - self.imaget and inputtime > int(self.imaget)//2 + 1:
+            if inputtime < self.image.shape[0] - self.imaget and inputtime > int(self.imaget)//2:
                 
                 remove_candidates_list = []
                 smallimage = CreateVolume(self.image, self.imaget, inputtime)
@@ -842,7 +842,7 @@ class NEATDynamic(object):
 
 def CreateVolume(patch, imaget, timepoint):
     starttime = timepoint - int(imaget)//2
-    endtime = timepoint + int(imaget)//2
+    endtime = timepoint + int(imaget)//2 + 1
     smallimg = patch[starttime:endtime, :]
 
     return smallimg
