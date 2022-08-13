@@ -323,7 +323,7 @@ class NEATDynamic(object):
         if self.ndim == 4:
            self.z = self.image.shape[1]//2
            print(f'Image {self.image.shape} is {self.ndim} dimensional, projecting around the center {self.image.shape[1]//2} - {self.start_project_mid} to {self.image.shape[1]//2} + {self.end_project_mid}') 
-           self.image =  MidSlices(self.image, self.start_project_mid, self.end_project_mid, axis = 1)
+           self.image =  MidSlicesSum(self.image, self.start_project_mid, self.end_project_mid, axis = 1)
            self.z = self.z - (self.start_project_mid + self.end_project_mid)//2
         if self.normalize: 
                     self.image = normalizeFloatZeroOne(self.image.astype('float32'), 1, 99.8)
