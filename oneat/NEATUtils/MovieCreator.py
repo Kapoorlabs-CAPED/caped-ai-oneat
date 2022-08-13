@@ -1082,7 +1082,7 @@ def  SegFreeImageMaker(time, y, x, image, crop_size, gridX, gridY, offset, total
        
 def getHW(defaultX, defaultY, currentsegimage, imagesizex, imagesizey):
     
-    properties = measure.regionprops(currentsegimage, currentsegimage)
+    properties = measure.regionprops(currentsegimage)
     TwoDLocation = (defaultY,defaultX)
     SegLabel = currentsegimage[int(TwoDLocation[0]), int(TwoDLocation[1])]
     for prop in properties:

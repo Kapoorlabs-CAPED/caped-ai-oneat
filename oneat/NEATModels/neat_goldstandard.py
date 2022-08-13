@@ -323,7 +323,7 @@ class NEATDynamic(object):
         if self.ndim == 4:
            self.z = self.image.shape[1]//2
            print(f'Image {self.image.shape} is {self.ndim} dimensional, projecting around the center {self.image.shape[1]//2} - {self.start_project_mid} to {self.image.shape[1]//2} + {self.end_project_mid}') 
-           self.image =  MidSlicesSum(self.image, self.start_project_mid, self.end_project_mid, axis = 1)
+           self.image =  MidSlices(self.image, self.start_project_mid, self.end_project_mid, axis = 1)
            self.z = self.z - (self.start_project_mid + self.end_project_mid)//2
         if self.normalize: 
                     self.image = normalizeFloatZeroOne(self.image.astype('float32'), 1, 99.8)
@@ -380,7 +380,7 @@ class NEATDynamic(object):
         print('Detecting event locations')
         self.image = DownsampleData(self.image, self.downsamplefactor)
         for inputtime in tqdm(range(0, self.image.shape[0])):
-                    if inputtime < self.image.shape[0] - self.imaget:
+                    if inputtime < self.image.shape[0] - self.imaget and inputtime > int(self.imaget)//2:
                                 count = count + 1
                                 if inputtime%(self.image.shape[0]//4)==0 and inputtime > 0 or inputtime >= self.image.shape[0] - self.imaget - 1:
                                       
@@ -448,7 +448,7 @@ class NEATDynamic(object):
         
         
         for inputtime in tqdm(range(0, self.image.shape[0])):
-            if inputtime < self.image.shape[0] - self.imaget:
+            if inputtime < self.image.shape[0] - self.imaget and inputtime > int(self.imaget)//2:
                 
                 remove_candidates_list = []
                 smallimage = CreateVolume(self.image, self.imaget, inputtime)
@@ -841,8 +841,8 @@ class NEATDynamic(object):
 
 
 def CreateVolume(patch, imaget, timepoint):
-    starttime = timepoint
-    endtime = timepoint + imaget
+    starttime = timepoint - int(imaget)//2
+    endtime = timepoint + int(imaget)//2
     smallimg = patch[starttime:endtime, :]
 
     return smallimg
