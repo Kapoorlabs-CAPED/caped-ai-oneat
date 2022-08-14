@@ -82,7 +82,7 @@ class OneatVisualization:
                                                     
                                                 if currentscore < forwardscore:
                                                     self.event_locations_size_dict.pop((int(currenttime), int(nearest_location[0]), int(nearest_location[1])))   
-                                elif:
+                                else:
                                      try: 
                                         self.event_locations_size_dict.pop((int(currenttime), int(nearest_location[0]), int(nearest_location[1]))) 
                                      except:
