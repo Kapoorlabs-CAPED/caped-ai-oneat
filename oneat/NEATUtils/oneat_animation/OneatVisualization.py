@@ -306,9 +306,7 @@ class OneatVisualization:
         self.score_locations = []
         self.event_locations = []
         self.confidence_locations = []
-        for layer in list(self.viewer.layers):
-                    if 'Detections'  in layer.name or layer.name in 'Detections' :
-                            self.viewer.layers.remove(layer)   
+           
         for (event_name,event_label) in self.key_categories.items():
                     if event_label > 0 and csv_event_name == event_name:
                             self.event_label = event_label     
