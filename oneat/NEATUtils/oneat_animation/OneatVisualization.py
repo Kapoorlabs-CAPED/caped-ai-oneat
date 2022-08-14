@@ -133,15 +133,12 @@ class OneatVisualization:
                                 event_data.append(line)
                             writer.writerows(event_data)
                             event_data = []     
-                name_remove = ('Clean Detections')
+              
                 
                 point_properties = {'score' : scores, 'confidence' : confidences,
                 'size' : radiuses}    
               
-                for layer in list(self.viewer.layers):
-                                    
-                                    if  any(name in layer.name for name in name_remove):
-                                            self.viewer.layers.remove(layer) 
+               
                 self.viewer.add_points(self.event_locations_clean, properties=point_properties,  name = 'Clean Detections', face_color = [0]*4, edge_color = "green") 
                 
                 df = pd.DataFrame (self.event_locations_clean, columns = ['T', 'Y', 'X'])
@@ -251,10 +248,7 @@ class OneatVisualization:
                 end_project_mid = 0, 
                 use_dask = False):
         self.imagename = imagename
-        name_remove = ('Image', 'SegImage')
-        for layer in list(self.viewer.layers):
-                                         if  any(name in layer.name for name in name_remove):
-                                                    self.viewer.layers.remove(layer)
+       
         try:                                            
             if use_dask:                                      
                 self.image = daskread(image_toread)[0]
@@ -372,11 +366,7 @@ class OneatVisualization:
                 'size': 12,
                 'color': 'pink',
             }
-                name_remove = ('Detections','Location Map')
-                for layer in list(self.viewer.layers):
-                                    
-                                    if  any(name in layer.name for name in name_remove):
-                                            self.viewer.layers.remove(layer) 
+               
                 if len(self.score_locations) > 0:                             
                         self.viewer.add_points(self.event_locations,  properties = point_properties, text = text_properties,  name = 'Detections' + event_name, face_color = [0]*4, edge_color = "red") 
                         
