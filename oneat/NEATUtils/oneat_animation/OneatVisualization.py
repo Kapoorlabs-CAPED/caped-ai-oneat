@@ -53,9 +53,7 @@ class OneatVisualization:
     def cluster_points(self, nms_space, nms_time, use_dask = False, heatmapsteps = 0):
 
      print('before',len(self.event_locations_size_dict))
-     self.clean_event_locations_dict = {}
-     for (k,v) in self.event_locations_dict.items():
-        self.clean_event_locations_dict[k] = v
+     
 
      for (k,v) in self.event_locations_dict.items():
          currenttime = k
@@ -79,13 +77,11 @@ class OneatVisualization:
                                                 currentsize, currentscore = self.event_locations_size_dict[int(currenttime), int(nearest_location[0]), int(nearest_location[1])]
                                                 if  currentscore >= forwardscore:
                                                     self.event_locations_size_dict.pop((int(forwardtime), int(location[0]), int(location[1])))
-                                                    clean_event_locations = self.clean_event_locations_dict[int(forwardtime)]
-                                                    clean_event_locations.remove([int(location[0]), int(location[1])])
+                                                   
                                                     
                                                 if currentscore < forwardscore:
                                                     self.event_locations_size_dict.pop((int(currenttime), int(nearest_location[0]), int(nearest_location[1])))   
-                                                    clean_event_locations = self.clean_event_locations_dict[int(currenttime)]
-                                                    clean_event_locations.remove([int(nearest_location[0]), int(nearest_location[1])])
+                                                   
                                                     
      print('after',len(self.event_locations_size_dict))
      self.show_clean_csv(use_dask, heatmapsteps)                        
