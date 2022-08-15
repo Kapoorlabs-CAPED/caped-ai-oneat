@@ -50,7 +50,7 @@ class OneatVisualization:
         self.originalimage = None
         
     # To prevent early detectin of events
-    def cluster_points(self, nms_space, nms_time, use_dask = False, heatmapsteps = 0):
+    def cluster_points(self, nms_space,  use_dask = False, heatmapsteps = 0):
 
      print('before',len(self.event_locations_size_dict))
     
@@ -61,26 +61,24 @@ class OneatVisualization:
        
          if len(event_locations) > 0:
             tree = spatial.cKDTree(event_locations)
-            for i in range(1, nms_time):
-                    
-                    forwardtime = currenttime + i
-                    if int(forwardtime) in self.event_locations_dict.keys():
-                      forward_event_locations = self.event_locations_dict[int(forwardtime)]
-                      for location in forward_event_locations:
-                        if (int(forwardtime), int(location[0]), int(location[1])) in self.event_locations_size_dict:   
-                                forwardsize, forwardscore = self.event_locations_size_dict[int(forwardtime), int(location[0]), int(location[1])]
-                                distance, nearest_location = tree.query(location)
-                                nearest_location = int(event_locations[nearest_location][0]), int(event_locations[nearest_location][1])
+            forwardtime = currenttime + 1
+            if int(forwardtime) in self.event_locations_dict.keys():
+                forward_event_locations = self.event_locations_dict[int(forwardtime)]
+                for location in forward_event_locations:
+                if (int(forwardtime), int(location[0]), int(location[1])) in self.event_locations_size_dict:   
+                        forwardsize, forwardscore = self.event_locations_size_dict[int(forwardtime), int(location[0]), int(location[1])]
+                        distance, nearest_location = tree.query(location)
+                        nearest_location = int(event_locations[nearest_location][0]), int(event_locations[nearest_location][1])
 
-                                if distance <= nms_space:
-                                            if (int(currenttime), int(nearest_location[0]), int(nearest_location[1])) in self.event_locations_size_dict:
-                                                currentsize, currentscore = self.event_locations_size_dict[int(currenttime), int(nearest_location[0]), int(nearest_location[1])]
-                                                if  currentscore >= forwardscore:
-                                                    self.event_locations_size_dict.pop((int(forwardtime), int(location[0]), int(location[1])))
+                        if distance <= nms_space:
+                                    if (int(currenttime), int(nearest_location[0]), int(nearest_location[1])) in self.event_locations_size_dict:
+                                        currentsize, currentscore = self.event_locations_size_dict[int(currenttime), int(nearest_location[0]), int(nearest_location[1])]
+                                        if  currentscore >= forwardscore:
+                                            self.event_locations_size_dict.pop((int(forwardtime), int(location[0]), int(location[1])))
+                                            
+                                        if currentscore < forwardscore:
+                                            self.event_locations_size_dict.pop((int(currenttime), int(nearest_location[0]), int(nearest_location[1])))   
                                                     
-                                                if currentscore < forwardscore:
-                                                    self.event_locations_size_dict.pop((int(currenttime), int(nearest_location[0]), int(nearest_location[1])))   
-                                                            
      print('after',len(self.event_locations_size_dict))
      self.show_clean_csv(use_dask, heatmapsteps)                        
 
@@ -299,7 +297,7 @@ class OneatVisualization:
         except:
              pass            
 
-    def show_csv(self, imagename, csv_event_name, segimagedir = None, event_threshold = 0, use_dask = False, heatmapsteps = 0, nms_space = 0, nms_time = 0):
+    def show_csv(self, imagename, csv_event_name, segimagedir = None, event_threshold = 0, use_dask = False, heatmapsteps = 0, nms_space = 0):
         
         csvname = None
         self.event_locations_size_dict.clear()
@@ -393,7 +391,7 @@ class OneatVisualization:
                                     
             
 
-                self.cluster_points(nms_space, nms_time,use_dask, heatmapsteps)
+                self.cluster_points(nms_space,use_dask, heatmapsteps)
 
                                        
 

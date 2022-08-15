@@ -54,7 +54,6 @@ class OneatWidget(QWidget):
 
         animation = AnimationWidget(viewer)
         self.start_prob = self.frameWidget.startprobSpinBox.value()
-        self.nms_time = self.frameWidget.nmstimeSpinBox.value()
         self.nms_space = self.frameWidget.nmsspaceSpinBox.value()
 
         self._layout.addWidget(animation)
@@ -70,7 +69,6 @@ class OneatWidget(QWidget):
         self.frameWidget.plotidbox.addItem(event_norm_count_plot)
         self.frameWidget.heatstepsSpinBox.valueChanged.connect(self.update_heat_steps)
         self.frameWidget.startprobSpinBox.valueChanged.connect(self.update_start_prob)
-        self.frameWidget.nmstimeSpinBox.valueChanged.connect(self.update_nms_time)
         self.frameWidget.nmsspaceSpinBox.valueChanged.connect(self.update_nms_space)
 
         self.frameWidget.scoreSlider.valueChanged.connect(self.updateLabel)
@@ -101,9 +99,7 @@ class OneatWidget(QWidget):
         """update state of 'heatmapsteps' at current key-frame to reflect GUI state"""
         self.start_prob = self.frameWidget.startprobSpinBox.value()
 
-    def update_nms_time(self, event):
-        """update state of 'heatmapsteps' at current key-frame to reflect GUI state"""
-        self.nms_time = self.frameWidget.nmstimeSpinBox.value()
+    
 
     def update_nms_space(self, event):
         """update state of 'heatmapsteps' at current key-frame to reflect GUI state"""
@@ -125,7 +121,7 @@ class OneatWidget(QWidget):
          csv_event_name = self.frameWidget.eventidbox.currentText()
          imagename = os.path.basename(os.path.splitext(get_image_text)[0])
          self.oneatvisualization.show_csv(imagename, csv_event_name, segimagedir = segimagedir, event_threshold = self.event_threshold, 
-         use_dask = use_dask, heatmapsteps = self.heatmapsteps, nms_space = self.nms_space, nms_time = self.nms_time)
+         use_dask = use_dask, heatmapsteps = self.heatmapsteps, nms_space = self.nms_space)
                  
 
     def _capture_image_callback(self, segimagedir, heatmapimagedir, heatname, start_project_mid, end_project_mid, use_dask):
