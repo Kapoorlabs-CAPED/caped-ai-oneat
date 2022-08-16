@@ -128,7 +128,7 @@ def normalizeFloat(x, pmin=3, pmax=99.8, axis=None, eps=1e-20, dtype=np.float32)
     return normalize_mi_ma(x, mi, ma, eps=eps, dtype=dtype)
 
 
-def normalizeFloatZeroOne(x, pmin=3, pmax=99.8, axis=None, eps=1e-20, dtype=np.float32):
+def normalizeFloatZeroOne(x, pmin=1, pmax=99.8, axis=None, eps=1e-20, dtype=np.float32):
     """Percentile based Normalization
     
     Normalize patches of image before feeding into the network
@@ -1507,7 +1507,7 @@ def add_distribution_noise(shape, mu):
                 poissonnoise = make_noise_image(shape, distribution='poisson', mean=mu)
                  
 
-                return gaussiannoise + poissonnoise
+                return normalizeFloatZeroOne(gaussiannoise + poissonnoise, 1, 99.8)
 
 
 def save_labelimages(save_dir, image, axes, fname, Name):
