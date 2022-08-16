@@ -1507,7 +1507,7 @@ def add_noise(data, mu):
                 poissonnoise = make_noise_image(shape, distribution='poisson', mean=mu)
                 for i in range(time):
 
-                    data_channels[:,:,i] = gaussiannoise + poissonnoise
+                    data_channels[i,:,:] = gaussiannoise + poissonnoise
 
                 return data_channels
 
