@@ -636,6 +636,7 @@ name, save_dir, yolo_v0, yolo_v1, yolo_v2, tshift, add_noise = False, mu = 4):
 
                         newname = name + 'shift' + str(shift)
                         Event_data = []
+                        Noise_Event_data = []
                         newcenter = (center[0] - shift[1],center[1] - shift[0] )
                         x = center[1]
                         y = center[0]
@@ -692,10 +693,11 @@ name, save_dir, yolo_v0, yolo_v1, yolo_v2, tshift, add_noise = False, mu = 4):
                                                          crop_image = add_noise(crop_image, mu)
                                                          noisename = newname + '_noise'
                                                          imwrite((save_dir + '/' + noisename + '.tif'  ) , crop_image.astype('float32'))
+                                                         Noise_Event_data.append([Label[i] for i in range(0,len(Label))])
                                                          if(os.path.exists(save_dir + '/' + (noisename) + ".csv")):
                                                                 os.remove(save_dir + '/' + (noisename) + ".csv")
                                                          writer = csv.writer(open(save_dir + '/' + (noisename) + ".csv", "a"))
-                                                         writer.writerows(Event_data)
+                                                         writer.writerows(Noise_Event_data)
 
        
 def MovieMaker4D(normalizeimage, time, z, y, x, angle, image, segimage, crop_size, gridx, gridy, offset, total_categories, trainlabel, name, save_dir, yolo_v0, yolo_v1, yolo_v2, tshift):
