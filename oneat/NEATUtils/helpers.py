@@ -1498,7 +1498,7 @@ def draw_labelimages(image, location):
 
     return image
 
-def add_noise(data, mu):
+def add_distribution_noise(data, mu):
                 time = data.shape[0]
                 shape = (data.shape[1], data.shape[2])
                 print(time, shape)
