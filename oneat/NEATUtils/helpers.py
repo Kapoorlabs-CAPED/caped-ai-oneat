@@ -11,7 +11,7 @@ from pathlib import Path
 import math
 import os
 import csv
-from csbdeep.utils import normalize
+from vollseg.utils import poisson_noise 
 from tifffile import imwrite
 from tqdm import tqdm
 from skimage.util import invert as invertimage
@@ -1497,9 +1497,14 @@ def draw_labelimages(image, location):
 
     return image
 
+def add_noise(data, mu):
+                time = data.shape[0]
+                data_channels = data
+                for i in range(time):
 
+                    data_channels[:,:,i] = poisson_noise(data[:,:,i], mu)
 
-
+                return data_channels
 
 
 def save_labelimages(save_dir, image, axes, fname, Name):

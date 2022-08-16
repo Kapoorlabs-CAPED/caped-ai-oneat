@@ -10,8 +10,10 @@ import json
 from skimage import measure
 from pathlib import Path
 from sklearn.model_selection import train_test_split
-from .helpers import  normalizeFloatZeroOne
-from PIL import Image    
+from .helpers import  normalizeFloatZeroOne, add_noise
+from PIL import Image
+
+
 """
 @author: Varun Kapoor
 In this program we create training movies and training images for ONEAT. The training data comprises of images and text labels attached to them.
@@ -473,7 +475,7 @@ def Midog_to_oneat_simple(midog_folder, annotation_file,event_type_name_label, a
 
 
 def MovieLabelDataSet(image_dir, seg_image_dir, csv_dir, save_dir, static_name, static_label, csv_name_diff, crop_size, gridx = 1, gridy = 1, offset = 0, yolo_v0 = False, 
-yolo_v1 = True, yolo_v2 = False,  tshift  = 1, normalizeimage = True):
+yolo_v1 = True, yolo_v2 = False,  tshift  = 1, normalizeimage = True, add_noise = False, mu = 4):
     
     
             raw_path = os.path.join(image_dir, '*tif')
@@ -527,7 +529,9 @@ yolo_v1 = True, yolo_v2 = False,  tshift  = 1, normalizeimage = True):
                                                     #Categories + XYHW + Confidence 
                                                     for (key, t) in time.items():
                                                        try: 
-                                                          MovieMaker(t, y[key], x[key], angle[key], image, segimage, crop_size, gridx, gridy, offset, total_categories, trainlabel, name + event_name + str(count), save_dir,yolo_v0, yolo_v1, yolo_v2, tshift)
+                                                          MovieMaker(t, y[key], x[key], angle[key], image, segimage, 
+                                                          crop_size, gridx, gridy, offset, total_categories, trainlabel, 
+                                                          name + event_name + str(count), save_dir,yolo_v0, yolo_v1, yolo_v2, tshift, add_noise = add_noise, mu = mu)
                                                           count = count + 1
                                                         
                                                        except:
@@ -599,7 +603,8 @@ yolo_v1 = True, yolo_v2 = False,  tshift  = 1, normalizeimage = True):
                
 
             
-def MovieMaker(time, y, x, angle, image, segimage, crop_size, gridx, gridy, offset, total_categories, trainlabel, name, save_dir, yolo_v0, yolo_v1, yolo_v2, tshift):
+def MovieMaker(time, y, x, angle, image, segimage, crop_size, gridx, gridy, offset, total_categories, trainlabel,
+name, save_dir, yolo_v0, yolo_v1, yolo_v2, tshift, add_noise = False, mu = 4):
     
        sizex, sizey, size_tminus, size_tplus = crop_size
        
@@ -682,6 +687,16 @@ def MovieMaker(time, y, x, angle, image, segimage, crop_size, gridx, gridy, offs
                                                                 os.remove(save_dir + '/' + (newname) + ".csv")
                                                    writer = csv.writer(open(save_dir + '/' + (newname) + ".csv", "a"))
                                                    writer.writerows(Event_data)
+                                                   if add_noise:
+
+                                                         crop_image = add_noise(crop_image, mu)
+                                                         newname = newname + '_noise'
+                                                         imwrite((save_dir + '/' + newname + '.tif'  ) , crop_image.astype('float32'))
+                                                         if(os.path.exists(save_dir + '/' + (newname) + ".csv")):
+                                                                os.remove(save_dir + '/' + (newname) + ".csv")
+                                                         writer = csv.writer(open(save_dir + '/' + (newname) + ".csv", "a"))
+                                                         writer.writerows(Event_data)
+
        
 def MovieMaker4D(normalizeimage, time, z, y, x, angle, image, segimage, crop_size, gridx, gridy, offset, total_categories, trainlabel, name, save_dir, yolo_v0, yolo_v1, yolo_v2, tshift):
     
