@@ -21,6 +21,7 @@ from scipy.ndimage.measurements import find_objects
 from skimage.morphology import  dilation, square, binary_dilation, disk
 from skimage import morphology
 from scipy.ndimage.morphology import binary_fill_holes
+from photutils.datasets import make_noise_image
 from skimage.segmentation import watershed
 """
  @author: Varun Kapoor
@@ -1499,10 +1500,14 @@ def draw_labelimages(image, location):
 
 def add_noise(data, mu):
                 time = data.shape[0]
+                shape = (data.shape[1], data.shape[2])
                 data_channels = data
+                gaussiannoise = make_noise_image(shape, distribution='gaussian', mean=0.,
+                          stddev=mu)
+                poissonnoise = make_noise_image(shape, distribution='poisson', mean=mu)
                 for i in range(time):
 
-                    data_channels[:,:,i] = poisson_noise(data[:,:,i], mu)
+                    data_channels[:,:,i] = gaussiannoise + poissonnoise
 
                 return data_channels
 
