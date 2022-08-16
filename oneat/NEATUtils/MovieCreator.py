@@ -690,11 +690,11 @@ name, save_dir, yolo_v0, yolo_v1, yolo_v2, tshift, add_noise = False, mu = 4):
                                                    if add_noise:
 
                                                          crop_image = add_noise(crop_image, mu)
-                                                         newname = newname + '_noise'
-                                                         imwrite((save_dir + '/' + newname + '.tif'  ) , crop_image.astype('float32'))
-                                                         if(os.path.exists(save_dir + '/' + (newname) + ".csv")):
-                                                                os.remove(save_dir + '/' + (newname) + ".csv")
-                                                         writer = csv.writer(open(save_dir + '/' + (newname) + ".csv", "a"))
+                                                         noisename = newname + '_noise'
+                                                         imwrite((save_dir + '/' + noisename + '.tif'  ) , crop_image.astype('float32'))
+                                                         if(os.path.exists(save_dir + '/' + (noisename) + ".csv")):
+                                                                os.remove(save_dir + '/' + (noisename) + ".csv")
+                                                         writer = csv.writer(open(save_dir + '/' + (noisename) + ".csv", "a"))
                                                          writer.writerows(Event_data)
 
        
