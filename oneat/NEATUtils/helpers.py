@@ -1501,7 +1501,6 @@ def draw_labelimages(image, location):
 def add_distribution_noise(data, mu):
                 time = data.shape[0]
                 shape = (data.shape[1], data.shape[2])
-                print(time, shape)
                 data_channels = data
                 gaussiannoise = make_noise_image(shape, distribution='gaussian', mean=0.,
                           stddev=mu)
