@@ -1498,18 +1498,16 @@ def draw_labelimages(image, location):
 
     return image
 
-def add_distribution_noise(data, mu):
-                time = data.shape[0]
-                shape = (data.shape[1], data.shape[2])
-                data_channels = data
+def add_distribution_noise(shape, mu):
+               
+                
+              
                 gaussiannoise = make_noise_image(shape, distribution='gaussian', mean=0.,
                           stddev=mu)
                 poissonnoise = make_noise_image(shape, distribution='poisson', mean=mu)
-                for i in range(time):
+                 
 
-                    data_channels[i,:,:] = data[i,:,:] +  gaussiannoise + poissonnoise
-
-                return data_channels
+                return gaussiannoise + poissonnoise
 
 
 def save_labelimages(save_dir, image, axes, fname, Name):

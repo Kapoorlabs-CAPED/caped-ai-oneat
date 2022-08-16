@@ -690,7 +690,10 @@ name, save_dir, yolo_v0, yolo_v1, yolo_v2, tshift, add_noise = False, mu = 4):
                                                    writer.writerows(Event_data)
 
                                                    if add_noise:
-                                                         crop_image = add_distribution_noise(crop_image, mu)
+                                                         shape = (crop_image.shape[1], crop_image.shape[2])
+                                                         noise_image = add_distribution_noise(shape, mu)
+                                                         for i in range(crop_image.shape[0]):
+                                                              crop_image[i,:,:] = crop_image[i,:,:] + noise_image
                                                          noisename = newname + '_noise'
                                                          imwrite((save_dir + '/' + noisename + '.tif'  ) , crop_image.astype('float32'))
                                                          Noise_Event_data.append([Label[i] for i in range(0,len(Label))])
