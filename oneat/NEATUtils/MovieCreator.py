@@ -689,9 +689,10 @@ name, save_dir, yolo_v0, yolo_v1, yolo_v2, tshift, add_noise = False, mu = 4):
                                                    writer = csv.writer(open(save_dir + '/' + (newname) + ".csv", "a"))
                                                    writer.writerows(Event_data)
                                                    if add_noise:
-
+               
                                                          crop_image = add_noise(crop_image, mu)
                                                          noisename = newname + '_noise'
+                                                         print(noisename, crop_image.shape)
                                                          imwrite((save_dir + '/' + noisename + '.tif'  ) , crop_image.astype('float32'))
                                                          Noise_Event_data.append([Label[i] for i in range(0,len(Label))])
                                                          if(os.path.exists(save_dir + '/' + (noisename) + ".csv")):
