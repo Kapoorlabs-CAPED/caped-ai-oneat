@@ -6,15 +6,15 @@ Created on Wed August 17 12:57:26 2022
 @author: kapoorlab
 """
 
+from importlib.metadata import distribution
 import numpy as np
 import math
 import random
 from scipy.ndimage import rotate
-from photutils.imagesets import make_noise_image
 from albumentations import transforms    
 from scipy import ndimage
 import pandas as pd
-
+from photutils.datasets import make_noise_image
 class TemporalAug(object):
 
 
@@ -46,7 +46,7 @@ class TemporalAug(object):
                 Mean of the distribution used for adding noise to the image
         sigma  : float
                 Standard Deviation of the distribution used for adding noise to the image       
-        distribution : "Gaussian", "Poisson"
+        distribution : "Gaussian", "Poisson", "Both"
                 The tuple or a single string name for the distribution to add noise          
         brightness_limit ((float, float) or float): factor range for changing brightness.
             If limit is a single float, the range will be (-limit, limit). Default: (-0.2, 0.2).
@@ -113,29 +113,98 @@ class TemporalAug(object):
             else:
                 raise ValueError('Rotate angle should be int or random')
 
+        # add noise
+        if (self.distribution is not None):
+
+            callback_noise = self._noise_image  
+            if distribution == 'Gaussian':
+                parse_dict['Gaussian'] = 'Gaussian'
+            if distribution == 'Poisson':
+                parse_dict['Poisson'] = 'Poisson'
+            if distribution == 'Both':
+                parse_dict['Both'] = 'Both' 
+
+            if type(self.mean) == float:
+                parse_dict['mean'] = self.mean
+            else:
+                raise ValueError('Mean of the distribution should be float')    
+
+            if type(self.sigma) == float:
+                parse_dict['sigma'] = self.sigma
+            else:
+                raise ValueError('Mean of the distribution should be float')                
+
+
         # build and return generator with specified callback function
         if callback:
-            return self._return_generator(callback, parse_dict)
-       
+            return self._return_augmentor(callback, parse_dict)
+
+        if callback_noise:
+            return self._return_augmentor_noise(callback, parse_dict)
         else:
             raise ValueError('No generator returned. Arguments are not set properly.')
 
-    def _return_generator(self, callback, parse_dict):
-        """return generator according to callback"""
+    def _return_augmentor(self, callback, parse_dict):
+        """return augmented image, label and csv"""
 
         target_image = self.image
         target_labelimage = self.labelimage
         target_labelcsv = self.labelcsv
         
         # image and label augmentation by callback function
-        ret_image, ret_labelcsv = callback(target_image,  parse_dict, csv = target_labelcsv) 
+        ret_image = callback(target_image,  parse_dict) 
         ret_labelimage =  callback(target_labelimage, parse_dict) 
+
+        return ret_image, ret_labelimage, target_labelcsv
+
+    def _return_augmentor_noise(self, callback, parse_dict):
+        """return augmented image with same label and csv"""
+
+        target_image = self.image
+        target_labelimage = self.labelimage
+        
+        # image and label augmentation by callback function
+        ret_image, ret_labelcsv = callback(target_image,  parse_dict) 
+        ret_labelimage =  target_labelimage
 
         return ret_image, ret_labelimage, ret_labelcsv
 
+    def _noise_image(self, image, parse_dict):
+          """ Add noise of the chosen distribution or a combination of distributions to all the timepoint of the input image"""
+          mean = parse_dict['mean']
+          sigma = parse_dict['sigma']
+          distribution = parse_dict['distribution']   
+          shape = (image.shape[1], image.shape[2])
 
+          if distribution == 'Gaussian':
+                
+                addednoise = make_noise_image(shape, distribution='gaussian', mean=mean,
+                          stddev=sigma)
+              
+          if distribution == 'Poisson':
+  
+                addednoise = make_noise_image(shape, distribution='poisson', mean=sigma)
 
-        
+          if distribution == 'Poisson':
+
+                gaussiannoise = make_noise_image(shape, distribution='gaussian', mean=mean,
+                          stddev=sigma)
+                poissonnoise = make_noise_image(shape, distribution='poisson', mean=sigma)
+            
+                addednoise = gaussiannoise + poissonnoise
+
+          else:
+
+            raise ValueError('The distribution is not supported, has to be Gausssian, Poisson or Both (case sensitive names)')      
+          
+          
+          aug_image = image
+          time_points = image.shape[0]
+          for i in range(time_points):
+               aug_image[i,:,:] =  image[i,:,:] + addednoise     
+
+          return aug_image
+
     def _rotate_image(self, image, parse_dict, csv = None):
         """rotate array usiong affine transformation and also if the csv file of coordinates is supplied"""
         rotate_angle = parse_dict['rotate_angle']
