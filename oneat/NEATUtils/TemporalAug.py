@@ -102,7 +102,8 @@ class TemporalAug(object):
        
 
         parse_dict = {}
-
+        callback_geometric = None
+        callback_intensity = None
         # rotate
         if  (self.rotate_angle is not None):
             callback_geometric = self._rotate_image
