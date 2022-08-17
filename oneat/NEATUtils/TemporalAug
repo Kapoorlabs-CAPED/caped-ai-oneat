@@ -152,22 +152,23 @@ class TemporalAug(object):
         target_labelcsv = self.labelcsv
         
         # image and label augmentation by callback function
-        ret_image = callback(target_image,  parse_dict) 
+        ret_image, ret_labelcsv = callback(target_image,  parse_dict, csv = target_labelcsv) 
         ret_labelimage =  callback(target_labelimage, parse_dict) 
 
-        return ret_image, ret_labelimage, target_labelcsv
+        return ret_image, ret_labelimage, ret_labelcsv
 
     def _return_augmentor_noise(self, callback, parse_dict):
         """return augmented image with same label and csv"""
 
         target_image = self.image
         target_labelimage = self.labelimage
-        
+        target_labelcsv = self.labelcsv
+
         # image and label augmentation by callback function
-        ret_image, ret_labelcsv = callback(target_image,  parse_dict) 
+        ret_image = callback(target_image,  parse_dict) 
         ret_labelimage =  target_labelimage
 
-        return ret_image, ret_labelimage, ret_labelcsv
+        return ret_image, ret_labelimage, target_labelcsv
 
     def _noise_image(self, image, parse_dict):
           """ Add noise of the chosen distribution or a combination of distributions to all the timepoint of the input image"""
