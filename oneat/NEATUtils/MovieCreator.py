@@ -475,7 +475,7 @@ def Midog_to_oneat_simple(midog_folder, annotation_file,event_type_name_label, a
 
 
 def MovieLabelDataSet(image_dir, seg_image_dir, csv_dir, save_dir, static_name, static_label, csv_name_diff, crop_size, gridx = 1, gridy = 1, offset = 0, yolo_v0 = False, 
-yolo_v1 = True, yolo_v2 = False,  tshift  = 1, normalizeimage = True, add_noise = False, mu = 4):
+yolo_v1 = True, yolo_v2 = False,  tshift  = 1, normalizeimage = True):
     
     
             raw_path = os.path.join(image_dir, '*tif')
@@ -531,7 +531,7 @@ yolo_v1 = True, yolo_v2 = False,  tshift  = 1, normalizeimage = True, add_noise 
                                                        try: 
                                                           MovieMaker(t, y[key], x[key], angle[key], image, segimage, 
                                                           crop_size, gridx, gridy, offset, total_categories, trainlabel, 
-                                                          name + event_name + str(count), save_dir,yolo_v0, yolo_v1, yolo_v2, tshift, add_noise = add_noise, mu = mu)
+                                                          name + event_name + str(count), save_dir,yolo_v0, yolo_v1, yolo_v2, tshift)
                                                           count = count + 1
                                                         
                                                        except:
@@ -604,7 +604,7 @@ yolo_v1 = True, yolo_v2 = False,  tshift  = 1, normalizeimage = True):
 
             
 def MovieMaker(time, y, x, angle, image, segimage, crop_size, gridx, gridy, offset, total_categories, trainlabel,
-name, save_dir, yolo_v0, yolo_v1, yolo_v2, tshift, add_noise = False, mu = 4):
+name, save_dir, yolo_v0, yolo_v1, yolo_v2, tshift):
     
        sizex, sizey, size_tminus, size_tplus = crop_size
        
@@ -689,19 +689,7 @@ name, save_dir, yolo_v0, yolo_v1, yolo_v2, tshift, add_noise = False, mu = 4):
                                                    writer = csv.writer(open(save_dir + '/' + (newname) + ".csv", "a"))
                                                    writer.writerows(Event_data)
 
-                                                   if add_noise:
-                                                         shape = (crop_image.shape[1], crop_image.shape[2])
-                                                         noise_image = add_distribution_noise(shape, mu)
-                                                         for i in range(crop_image.shape[0]):
-                                                              crop_image[i,:,:] = crop_image[i,:,:] + noise_image
-                                                         noisename = newname + '_noise'
-                                                         imwrite((save_dir + '/' + noisename + '.tif'  ) , crop_image.astype('float32'))
-                                                         Noise_Event_data.append([Label[i] for i in range(0,len(Label))])
-                                                         if(os.path.exists(save_dir + '/' + (noisename) + ".csv")):
-                                                                os.remove(save_dir + '/' + (noisename) + ".csv")
-                                                         writer = csv.writer(open(save_dir + '/' + (noisename) + ".csv", "a"))
-                                                         writer.writerows(Noise_Event_data)
-
+                                                  
        
 def MovieMaker4D(normalizeimage, time, z, y, x, angle, image, segimage, crop_size, gridx, gridy, offset, total_categories, trainlabel, name, save_dir, yolo_v0, yolo_v1, yolo_v2, tshift):
     

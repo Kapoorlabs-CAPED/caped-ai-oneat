@@ -29,8 +29,8 @@ class TemporalAug(object):
                  mean = None,
                  sigma = None,
                  distribution = None,
-                 brightness_limit=0.2,
-                 contrast_limit=0.2,
+                 brightness_limit=None,
+                 contrast_limit=None,
                  brightness_by_max=True,
                  always_apply=False,
                  prob_bright_contrast=0.5,
@@ -134,7 +134,7 @@ class TemporalAug(object):
             if type(self.sigma) == float:
                 parse_dict['sigma'] = self.sigma
             else:
-                raise ValueError('Mean of the distribution should be float')                
+                raise ValueError('Sigma of the distribution should be float')                
 
         # add multiplicative noise
         if (self.multiplier is not None):

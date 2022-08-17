@@ -1499,7 +1499,7 @@ def draw_labelimages(image, location):
     return image
 
 
-def augment_rotate(image, height, width):
+
 
         
 

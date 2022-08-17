@@ -13,3 +13,4 @@ dask
 natsort
 napari-animation
 pydot
+albumentations
