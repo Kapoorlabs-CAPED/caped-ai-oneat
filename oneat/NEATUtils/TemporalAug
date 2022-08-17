@@ -186,7 +186,7 @@ class TemporalAug(object):
   
                 addednoise = make_noise_image(shape, distribution='poisson', mean=sigma)
 
-          if distribution == 'Poisson':
+          if distribution == 'Both':
 
                 gaussiannoise = make_noise_image(shape, distribution='gaussian', mean=mean,
                           stddev=sigma)
