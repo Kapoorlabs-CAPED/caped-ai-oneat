@@ -20,9 +20,9 @@ class TemporalAug(object):
 
 
     """
-    Augmentation generator for a TYX shape input image and labelimages
+    Augmentation creator for a TYX shape input image and labelimages
     Note:
-        Only one type of augmentation can be applied for one generator.
+        Only one type of augmentation can be applied for one creator.
     """
     def __init__(self,
                  
@@ -74,7 +74,7 @@ class TemporalAug(object):
               ):
         """
         Arguments:
-        build generator to augment input image according to initialization
+        build augmentor to augment input image according to initialization
         image : array
             Input image to be augmented.
             The shape of input image should have 3 dimension( t, y, x).
@@ -84,7 +84,7 @@ class TemporalAug(object):
             The oneat training datamaker writes T,Y,X of the selected event locations    
   
         Return:
-            generator
+            augmentor
         """
         if image.ndim != 3:
             raise ValueError('Input image should have 3 dimensions.')
@@ -135,14 +135,14 @@ class TemporalAug(object):
                 raise ValueError('Mean of the distribution should be float')                
 
 
-        # build and return generator with specified callback function
+        # build and return augmentor with specified callback function
         if callback:
             return self._return_augmentor(callback, parse_dict)
 
         if callback_noise:
             return self._return_augmentor_noise(callback, parse_dict)
         else:
-            raise ValueError('No generator returned. Arguments are not set properly.')
+            raise ValueError('No augmentor returned. Arguments are not set properly.')
 
     def _return_augmentor(self, callback, parse_dict):
         """return augmented image, label and csv"""
