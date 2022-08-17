@@ -25,7 +25,6 @@ class TemporalAug(object):
         Only one type of augmentation can be applied for one creator.
     """
     def __init__(self,
-                 
                  rotate_angle=None, 
                  mean = None,
                  sigma = None,
@@ -116,7 +115,7 @@ class TemporalAug(object):
         # add noise
         if (self.distribution is not None):
 
-            callback_noise = self._noise_image  
+            callback_intensity = self._noise_image  
             if distribution == 'Gaussian':
                 parse_dict['Gaussian'] = 'Gaussian'
             if distribution == 'Poisson':
@@ -134,13 +133,26 @@ class TemporalAug(object):
             else:
                 raise ValueError('Mean of the distribution should be float')                
 
+        # random brightness and contrast
+        if (self.brightness_limit is not None) or (self.contrast_limit is not None):
+
+            callback_intensity = self._random_bright_contrast
+
+            parse_dict['brightness_limit'] = self.brightness_limit
+            parse_dict['contrast_limit'] = self.contrast_limit
+            parse_dict['brightness_by_max'] = self.brightness_by_max
+            parse_dict['always_apply'] = self.always_apply
+            parse_dict['prob_bright_contrast'] = self.prob_bright_contrast
+
+            
+
 
         # build and return augmentor with specified callback function
         if callback:
             return self._return_augmentor(callback, parse_dict)
 
-        if callback_noise:
-            return self._return_augmentor_noise(callback, parse_dict)
+        if callback_intensity:
+            return self._return_augmentor_intensity(callback, parse_dict)
         else:
             raise ValueError('No augmentor returned. Arguments are not set properly.')
 
@@ -157,7 +169,7 @@ class TemporalAug(object):
 
         return ret_image, ret_labelimage, ret_labelcsv
 
-    def _return_augmentor_noise(self, callback, parse_dict):
+    def _return_augmentor_intensity(self, callback, parse_dict):
         """return augmented image with same label and csv"""
 
         target_image = self.image
@@ -169,6 +181,27 @@ class TemporalAug(object):
         ret_labelimage =  target_labelimage
 
         return ret_image, ret_labelimage, target_labelcsv
+
+    def _random_bright_contrast(self, image, parse_dict):
+
+        """ Add random brightness and contrast using the albumentations library function"""
+         
+        brightness_limit = parse_dict['brightness_limit']
+        contrast_limit = parse_dict['contrast_limit']
+        brightness_by_max = parse_dict['brightness_by_max']
+        always_apply = parse_dict['always_apply']
+        prob_bright_contrast = parse_dict['prob_bright_contrast']
+        intensity_transform = transforms.RandomBrightnessContrast(brightness_limit= brightness_limit, 
+            contrast_limit= contrast_limit, brightness_by_max= brightness_by_max, always_apply=always_apply, p= prob_bright_contrast) 
+        aug_image = image
+        time_points = image.shape[0]
+        for i in range(time_points):
+
+           aug_image[i,:,:] =  intensity_transform.apply(image[i,:,:])    
+
+           
+        return aug_image   
+      
 
     def _noise_image(self, image, parse_dict):
           """ Add noise of the chosen distribution or a combination of distributions to all the timepoint of the input image"""
