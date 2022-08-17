@@ -34,6 +34,7 @@ class TemporalAug(object):
                  brightness_by_max=True,
                  always_apply=False,
                  prob_bright_contrast=0.5,
+                 multiplier=(0.9, 1.1),
                  ):
         """
         Arguments:
@@ -53,7 +54,8 @@ class TemporalAug(object):
             If limit is a single float, the range will be (-limit, limit). Default: (-0.2, 0.2).
         brightness_by_max (Boolean): If True adjust contrast by image dtype maximum,
             else adjust contrast by image mean.
-        prob_bright_contrast (float): probability of applying the transform. Default: 0.5.       
+        prob_bright_contrast (float): probability of applying the transform. Default: 0.5.   
+        multiplier (float): multiplier tuple for applying multiplicative image noise    
         """
        
         self.rotate_angle = rotate_angle
@@ -65,6 +67,7 @@ class TemporalAug(object):
         self.brightness_by_max = brightness_by_max 
         self.always_apply = always_apply
         self.prob_bright_contrast = prob_bright_contrast
+        self.multiplier = multiplier
     
     def build(self,
               image=None,
@@ -103,7 +106,7 @@ class TemporalAug(object):
 
         # rotate
         if  (self.rotate_angle is not None):
-            callback = self._rotate_image
+            callback_geometric = self._rotate_image
 
             if self.rotate_angle == 'random':
                 parse_dict['rotate_angle'] = int(np.random.uniform(-180, 180))
@@ -112,7 +115,7 @@ class TemporalAug(object):
             else:
                 raise ValueError('Rotate angle should be int or random')
 
-        # add noise
+        # add additive noise
         if (self.distribution is not None):
 
             callback_intensity = self._noise_image  
@@ -133,6 +136,11 @@ class TemporalAug(object):
             else:
                 raise ValueError('Mean of the distribution should be float')                
 
+        # add multiplicative noise
+        if (self.multiplier is not None):
+                callback_intensity = self._multiplicative_noise
+                parse_dict['multiplier'] = self.multiplier
+                 
         # random brightness and contrast
         if (self.brightness_limit is not None) or (self.contrast_limit is not None):
 
@@ -144,15 +152,15 @@ class TemporalAug(object):
             parse_dict['always_apply'] = self.always_apply
             parse_dict['prob_bright_contrast'] = self.prob_bright_contrast
 
-            
 
 
-        # build and return augmentor with specified callback function
-        if callback:
-            return self._return_augmentor(callback, parse_dict)
+        # build and return augmentor with specified callback function,  the calbacks are eitehr geometic affectging the co ordinates of the 
+        # clicked locations or they are purely intensity based not affecting the csv clicked locations
+        if callback_geometric:
+            return self._return_augmentor(callback_geometric, parse_dict)
 
         if callback_intensity:
-            return self._return_augmentor_intensity(callback, parse_dict)
+            return self._return_augmentor_intensity(callback_intensity, parse_dict)
         else:
             raise ValueError('No augmentor returned. Arguments are not set properly.')
 
@@ -182,6 +190,23 @@ class TemporalAug(object):
 
         return ret_image, ret_labelimage, target_labelcsv
 
+
+    def _multiplicative_noise(self, image, parse_dict):
+
+        """ Add multiplicative noise using the albumentations library function"""
+        multiplier = parse_dict['multiplier']
+        intensity_transform = transforms.MultiplicativeNoise(multiplier=multiplier)
+        aug_image = image
+        time_points = image.shape[0]
+
+        for i in range(time_points):
+
+           aug_image[i,:,:] =  intensity_transform.apply(image[i,:,:])    
+
+
+        return aug_image    
+    
+
     def _random_bright_contrast(self, image, parse_dict):
 
         """ Add random brightness and contrast using the albumentations library function"""
@@ -199,7 +224,7 @@ class TemporalAug(object):
 
            aug_image[i,:,:] =  intensity_transform.apply(image[i,:,:])    
 
-           
+
         return aug_image   
       
 
