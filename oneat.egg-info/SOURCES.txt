@@ -27,6 +27,7 @@ oneat/NEATModels/nets.py
 oneat/NEATUtils/HolovizNapari.py
 oneat/NEATUtils/MovieCreator.py
 oneat/NEATUtils/NMS.py
+oneat/NEATUtils/TemporalAug.py
 oneat/NEATUtils/Zmapgen.py
 oneat/NEATUtils/__init__.py
 oneat/NEATUtils/helpers.py

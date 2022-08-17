@@ -155,10 +155,10 @@ class TemporalAug(object):
 
         # build and return augmentor with specified callback function,  the calbacks are eitehr geometic affectging the co ordinates of the 
         # clicked locations or they are purely intensity based not affecting the csv clicked locations
-        if callback_geometric:
+        if callback_geometric is not None:
             return self._return_augmentor(callback_geometric, parse_dict)
 
-        if callback_intensity:
+        if callback_intensity is not None:
             return self._return_augmentor_intensity(callback_intensity, parse_dict)
         else:
             raise ValueError('No augmentor returned. Arguments are not set properly.')
