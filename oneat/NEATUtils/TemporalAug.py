@@ -182,7 +182,7 @@ class TemporalAug(object):
 
         target_image = self.image
         target_labelimage = self.labelimage
-        target_labelcsv = self.labelcsv
+        target_labelcsv = pd.read_csv(self.labelcsv)
 
         # image and label augmentation by callback function
         ret_image = callback(target_image,  parse_dict) 
