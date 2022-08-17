@@ -1,0 +1,164 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Sat August 17 12:57:26 2022
+
+@author: kapoorlab
+"""
+
+import numpy as np
+import math
+import random
+from scipy.ndimage import rotate
+from photutils.imagesets import make_noise_image
+from albumentations import transforms    
+from scipy import ndimage
+import pandas as pd
+
+class TemporalAug(object):
+
+
+
+    """
+    Augmentation generator for a TYX shape input image and labelimages
+    Note:
+        Only one type of augmentation can be applied for one generator.
+    """
+    def __init__(self,
+                 
+                 rotate_angle=None, 
+                 mean = None,
+                 sigma = None,
+                 distribution = None,
+                 brightness_limit=0.2,
+                 contrast_limit=0.2,
+                 brightness_by_max=True,
+                 always_apply=False,
+                 prob_bright_contrast=0.5,
+                 ):
+        """
+        Arguments:
+         
+       
+        rotate_angle: int or 'random'
+                Angle by which image is rotated using the affine transformation matrix.
+        mean: float
+                Mean of the distribution used for adding noise to the image
+        sigma  : float
+                Standard Deviation of the distribution used for adding noise to the image       
+        distribution : "Gaussian", "Poisson"
+                The tuple or a single string name for the distribution to add noise          
+        brightness_limit ((float, float) or float): factor range for changing brightness.
+            If limit is a single float, the range will be (-limit, limit). Default: (-0.2, 0.2).
+        contrast_limit ((float, float) or float): factor range for changing contrast.
+            If limit is a single float, the range will be (-limit, limit). Default: (-0.2, 0.2).
+        brightness_by_max (Boolean): If True adjust contrast by image dtype maximum,
+            else adjust contrast by image mean.
+        prob_bright_contrast (float): probability of applying the transform. Default: 0.5.       
+        """
+       
+        self.rotate_angle = rotate_angle
+        self.mean = mean 
+        self.sigma = sigma
+        self.distribution = distribution
+        self.brightness_limit = brightness_limit
+        self.contrast_limit = contrast_limit
+        self.brightness_by_max = brightness_by_max 
+        self.always_apply = always_apply
+        self.prob_bright_contrast = prob_bright_contrast
+    
+    def build(self,
+              image=None,
+              labelimage=None,
+              labelcsv = None
+              ):
+        """
+        Arguments:
+        build generator to augment input image according to initialization
+        image : array
+            Input image to be augmented.
+            The shape of input image should have 3 dimension( t, y, x).
+        labelimage : Integer labelimage images
+            The shape of this labelimages should match the shape of image (t, y, x).
+        labelcsv : oneat compatiable csv file of class and event lcoations.
+            The oneat training datamaker writes T,Y,X of the selected event locations    
+  
+        Return:
+            generator
+        """
+        if image.ndim != 3:
+            raise ValueError('Input image should have 3 dimensions.')
+       
+        if image.ndim != labelimage.ndim:
+                raise ValueError('Input image and labelimage size do not much.')
+
+        self.image = image
+        self.labelimage = labelimage
+        self.labelcsv = labelcsv
+      
+        self.image_dim = image.ndim
+        self.image_shape = image.shape
+       
+
+        parse_dict = {}
+
+        # rotate
+        if  (self.rotate_angle is not None):
+            callback = self._rotate_image
+
+            if self.rotate_angle == 'random':
+                parse_dict['rotate_angle'] = int(np.random.uniform(-180, 180))
+            elif type(self.rotate_angle) == int:
+                parse_dict['rotate_angle'] = self.rotate_angle
+            else:
+                raise ValueError('Rotate angle should be int or random')
+
+        # build and return generator with specified callback function
+        if callback:
+            return self._return_generator(callback, parse_dict)
+       
+        else:
+            raise ValueError('No generator returned. Arguments are not set properly.')
+
+    def _return_generator(self, callback, parse_dict):
+        """return generator according to callback"""
+
+        target_image = self.image
+        target_labelimage = self.labelimage
+        target_labelcsv = self.labelcsv
+        
+        # image and label augmentation by callback function
+        ret_image, ret_labelcsv = callback(target_image,  parse_dict, csv = target_labelcsv) 
+        ret_labelimage =  callback(target_labelimage, parse_dict) 
+
+        return ret_image, ret_labelimage, ret_labelcsv
+
+
+
+        
+    def _rotate_image(self, image, parse_dict, csv = None):
+        """rotate array usiong affine transformation and also if the csv file of coordinates is supplied"""
+        rotate_angle = parse_dict['rotate_angle']
+        rotate_matrix =  np.array([[np.cos(rotate_angle), -np.sin(rotate_angle)], [np.sin(rotate_angle), np.cos(rotate_angle)]])
+        time_points = image.shape[0]
+        aug_image = image
+        rotate_csv_data = None
+        for i in range(time_points):
+             aug_image[i,:,:] =  ndimage.affine_transform(image[i,:,:],rotate_matrix)
+        if csv is not None:
+            dataset = pd.read_csv(csv)
+            time = dataset[dataset.keys()[0]][1:]
+            y = dataset[dataset.keys()[1]][1:]
+            x = dataset[dataset.keys()[2]][1:]
+            for (key, t) in time.items():
+                     coord_x = x[key]
+                     coord_y = y[key]
+                     coord_t = t
+                 
+        if csv is not None:
+           return aug_image, rotate_csv_data
+        if csv is None:
+            return aug_image   
+
+
+    

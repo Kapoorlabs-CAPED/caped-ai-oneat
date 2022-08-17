@@ -1498,6 +1498,12 @@ def draw_labelimages(image, location):
 
     return image
 
+
+def augment_rotate(image, height, width):
+
+        
+
+
 def add_distribution_noise(shape, mu):
                
                 

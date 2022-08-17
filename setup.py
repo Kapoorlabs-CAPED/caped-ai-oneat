@@ -37,7 +37,8 @@ setup(
         "dask",
         "natsort",
         "napari-animation",
-        "pydot"
+        "pydot",
+        "albumentations", 
        
     ],
     packages=setuptools.find_packages(),
