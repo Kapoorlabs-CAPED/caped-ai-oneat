@@ -142,7 +142,6 @@ class TemporalAug(object):
         rotate_matrix =  np.array([[np.cos(rotate_angle), -np.sin(rotate_angle)], [np.sin(rotate_angle), np.cos(rotate_angle)]])
         time_points = image.shape[0]
         aug_image = image
-        rotate_csv_data = None
         for i in range(time_points):
              aug_image[i,:,:] =  ndimage.affine_transform(image[i,:,:],rotate_matrix)
         if csv is not None:
@@ -150,13 +149,17 @@ class TemporalAug(object):
             time = dataset[dataset.keys()[0]][1:]
             y = dataset[dataset.keys()[1]][1:]
             x = dataset[dataset.keys()[2]][1:]
+            data = []
             for (key, t) in time.items():
                      coord_x = x[key]
                      coord_y = y[key]
                      coord_t = t
-                 
-        if csv is not None:
-           return aug_image, rotate_csv_data
+                     rotated_coord_x =  coord_x * np.cos(rotate_angle) - coord_y * np.sin(rotate_angle)
+                     rotated_coord_y =  coord_x * np.sin(rotate_angle) + coord_y * np.cos(rotate_angle)
+                     data.append([coord_t,rotated_coord_y, rotated_coord_x ])
+            augmented_csv = pd.DataFrame(data, columns=['T', 'Y', 'X'])         
+            return aug_image, augmented_csv
+            
         if csv is None:
             return aug_image   
 
