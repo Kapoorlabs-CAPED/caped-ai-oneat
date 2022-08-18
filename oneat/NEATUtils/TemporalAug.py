@@ -6,10 +6,8 @@ Created on Wed August 17 12:57:26 2022
 @author: kapoorlab
 """
 
-from importlib.metadata import distribution
 import numpy as np
 
-from scipy.ndimage import rotate
 from albumentations import transforms    
 from scipy import ndimage
 import pandas as pd
@@ -119,22 +117,16 @@ class TemporalAug(object):
         if (self.distribution is not None):
 
             callback_intensity = self._noise_image  
-            if distribution == 'Gaussian':
+            if self.distribution == 'Gaussian':
                 parse_dict['Gaussian'] = 'Gaussian'
-            if distribution == 'Poisson':
+            if self.distribution == 'Poisson':
                 parse_dict['Poisson'] = 'Poisson'
-            if distribution == 'Both':
+            if self.distribution == 'Both':
                 parse_dict['Both'] = 'Both' 
 
-            if type(self.mean) == float:
-                parse_dict['mean'] = self.mean
-            else:
-                raise ValueError('Mean of the distribution should be float')    
-
-            if type(self.sigma) == float:
-                parse_dict['sigma'] = self.sigma
-            else:
-                raise ValueError('Sigma of the distribution should be float')                
+            parse_dict['mean'] = self.mean
+            parse_dict['sigma'] = self.sigma
+                         
 
         # add multiplicative noise
         if (self.multiplier is not None):
