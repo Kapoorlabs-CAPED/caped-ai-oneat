@@ -33,7 +33,7 @@ class TemporalAug(object):
                  brightness_by_max=True,
                  always_apply=False,
                  prob_bright_contrast=0.5,
-                 multiplier=(0.9, 1.1),
+                 multiplier=None,
                  ):
         """
         Arguments:
