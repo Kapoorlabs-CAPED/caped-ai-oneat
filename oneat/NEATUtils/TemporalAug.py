@@ -118,11 +118,11 @@ class TemporalAug(object):
 
             callback_intensity = self._noise_image  
             if self.distribution == 'Gaussian':
-                parse_dict['Gaussian'] = 'Gaussian'
+                parse_dict['distribution'] = 'Gaussian'
             if self.distribution == 'Poisson':
-                parse_dict['Poisson'] = 'Poisson'
+                parse_dict['distribution'] = 'Poisson'
             if self.distribution == 'Both':
-                parse_dict['Both'] = 'Both' 
+                parse_dict['distribution'] = 'Both' 
 
             parse_dict['mean'] = self.mean
             parse_dict['sigma'] = self.sigma
