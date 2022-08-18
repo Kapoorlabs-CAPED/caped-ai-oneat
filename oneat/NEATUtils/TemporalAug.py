@@ -111,7 +111,7 @@ class TemporalAug(object):
             if self.rotate_angle == 'random':
                 parse_dict['rotate_angle'] = int(np.random.uniform(-180, 180))
             elif type(self.rotate_angle) == int:
-                parse_dict['rotate_angle'] = self.rotate_angle
+                parse_dict['rotate_angle'] = np.radians(self.rotate_angle)
             else:
                 raise ValueError('Rotate angle should be int or random')
 
