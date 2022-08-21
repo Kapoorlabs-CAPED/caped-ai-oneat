@@ -272,7 +272,7 @@ class NEATCynamic(object):
         hrate = callbacks.History()
         srate = callbacks.ModelCheckpoint(self.model_dir + self.model_name, monitor='loss', verbose=1,
                                           save_best_only=False, save_weights_only=False, mode='auto', period=1)
-        prate = plotters.PlotHistory(self.Trainingmodel, self.X_val, self.Y_val, self.key_categories, self.key_cord,
+        prate = plotters.PlotStaticHistory(self.Trainingmodel, self.X_val, self.Y_val, self.key_categories, self.key_cord,
                                      self.gridx, self.gridy, plot=self.show, nboxes=self.nboxes)
 
         # Train the model and save as a h5 file
