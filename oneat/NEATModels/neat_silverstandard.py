@@ -89,7 +89,6 @@ class NEATCynamic(object):
             self.depth = config.depth
             self.start_kernel = config.start_kernel
             self.mid_kernel = config.mid_kernel
-            self.lstm_kernel = config.lstm_kernel
             self.learning_rate = config.learning_rate
             self.epochs = config.epochs
             self.residual = config.residual
@@ -110,7 +109,6 @@ class NEATCynamic(object):
             self.yolo_v1 = config.yolo_v1
             self.yolo_v2 = config.yolo_v2
             self.stride = config.stride
-            self.lstm_hidden_unit = config.lstm_hidden_unit
         if self.config == None:
 
             self.config = load_json(os.path.join(self.model_dir, self.model_name) + '_Parameter.json')
@@ -127,8 +125,6 @@ class NEATCynamic(object):
             self.depth = self.config['depth']
             self.start_kernel = self.config['start_kernel']
             self.mid_kernel = self.config['mid_kernel']
-            self.lstm_kernel = self.config['lstm_kernel']
-            self.lstm_hidden_unit = self.config['lstm_hidden_unit']
             self.learning_rate = self.config['learning_rate']
             self.epochs = self.config['epochs']
             self.residual = self.config['residual']
@@ -257,11 +253,11 @@ class NEATCynamic(object):
         self.Y_val = dummyY_val
 
 
-        self.Trainingmodel = self.model_keras(input_shape, self.categories, unit=self.lstm_hidden_unit,
+        self.Trainingmodel = self.model_keras(input_shape, self.categories,
                                               box_vector=Y_rest.shape[-1], nboxes=self.nboxes,
                                               stage_number=self.stage_number,
                                               depth=self.depth, start_kernel=self.start_kernel,
-                                              mid_kernel=self.mid_kernel, lstm_kernel=self.lstm_kernel,
+                                              mid_kernel=self.mid_kernel,
                                               startfilter=self.startfilter, input_weights=self.model_weights,
                                               last_activation=self.last_activation)
 

@@ -21,6 +21,7 @@ oneat/NEATModels/neat_focus.py
 oneat/NEATModels/neat_focus_microscope.py
 oneat/NEATModels/neat_goldstandard.py
 oneat/NEATModels/neat_microscope.py
+oneat/NEATModels/neat_silverstandard.py
 oneat/NEATModels/neat_standard.py
 oneat/NEATModels/neat_static_standard.py
 oneat/NEATModels/nets.py
