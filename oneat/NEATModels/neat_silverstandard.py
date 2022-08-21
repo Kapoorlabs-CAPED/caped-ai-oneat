@@ -206,7 +206,7 @@ class NEATCynamic(object):
 
     def TrainModel(self):
 
-        input_shape = (self.X.shape[2], self.X.shape[3], self.X.shape[1])
+        input_shape = (self.X.shape[1], self.X.shape[2], self.X.shape[3])
 
         Path(self.model_dir).mkdir(exist_ok=True)
 
