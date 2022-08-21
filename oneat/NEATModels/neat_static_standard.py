@@ -315,6 +315,7 @@ class NEATStatic(object):
         self.event_threshold = event_threshold
         self.originalimage = self.image
         self.image = DownsampleData(self.image, self.downsamplefactor)
+        
         self.normalize = normalize
         f = h5py.File(self.model_dir + self.model_name + '.h5', 'r+')
         data_p = f.attrs['training_config']
@@ -327,6 +328,8 @@ class NEATStatic(object):
         eventboxes = []
         classedboxes = {}
         count = 0
+        if self.normalize:
+                    self.image = normalizeFloatZeroOne(self.image, 1, 99.8)
         savenameDynamic = self.savedir + "/" + (
         os.path.splitext(os.path.basename(self.imagename))[0]) + '_ColoredDynamic'
         savenameStatic = self.savedir + "/" + (
@@ -340,8 +343,7 @@ class NEATStatic(object):
 
                     count = count + 1
                 smallimage = self.image[inputtime, :]
-                if self.normalize:
-                    smallimage = normalizeFloatZeroOne(smallimage, 1, 99.8)
+                
                 # Break image into tiles if neccessary
                 predictions, allx, ally = self.predict_main(smallimage)
                 
