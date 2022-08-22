@@ -5,6 +5,7 @@ from __future__ import absolute_import, print_function
 
 from .neat_goldstandard import NEATDynamic
 from .neat_silverstandard import NEATCynamic
+from .neat_diamondstandard import NEATEynamic
 from .neat_focus import NEATFocus
 from .neat_faststandard import NEATSynamic
 
