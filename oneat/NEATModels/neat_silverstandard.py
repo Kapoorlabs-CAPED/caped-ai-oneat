@@ -816,24 +816,13 @@ class NEATCynamic(object):
 
     def make_patches(self, sliceregion):
 
-        predict_im = np.expand_dims(sliceregion, 0)
-
-        prediction_vector = self.model.predict(np.expand_dims(predict_im, -1), verbose=0)
-
-        return prediction_vector
-
-    def second_make_patches(self, sliceregion):
-
-        predict_im = np.expand_dims(sliceregion, 0)
-
-        prediction_vector = self.model.predict(np.expand_dims(predict_im, -1), verbose=0)
+        smallimg = np.expand_dims(sliceregion, 0)
+        smallimg = tf.reshape(smallimg, (smallimg.shape[0], smallimg.shape[2], smallimg.shape[3], smallimg.shape[1]))
+        prediction_vector = self.model.predict(smallimg, verbose=0)
 
         return prediction_vector
 
-    def make_batch_patches(self, sliceregion):
-
-        prediction_vector = self.model.predict(np.expand_dims(sliceregion, -1), verbose=0)
-        return prediction_vector
+   
 
 
 def CreateVolume(patch, imaget, timepoint):
