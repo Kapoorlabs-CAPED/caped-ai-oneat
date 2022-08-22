@@ -400,7 +400,7 @@ def DIANET(input_shape, categories,unit, box_vector,nboxes = 1, stage_number = 3
     depth of 29 == max pooling of 28 for image patch of 55
     depth of 56 == max pooling of 14 for image patch of 55
     """
-    img_input = layers.Input(shape = (input_shape[0], None, None, input_shape[3]))
+    img_input = layers.Input(shape = (None, None, None, input_shape[3]))
     if (depth - 2) % 9 != 0:
         raise ValueError('depth should be 9n+2 (eg 56 or 110 in [b])')
     # Start model definition.
@@ -465,25 +465,19 @@ def DIANET(input_shape, categories,unit, box_vector,nboxes = 1, stage_number = 3
     num_res_blocks = int((depth - 2) / 9)
     
     
-    x = ConvLSTM2D(filters = unit, kernel_size = (lstm_kernel, lstm_kernel),  activation='relu', data_format = 'channels_last', return_sequences = False, padding = "same", name = "newlstmdeep")(x)
-
-
-    x = (Conv2D(categories + nboxes * box_vector, kernel_size= mid_kernel,kernel_regularizer=regularizers.l2(reg_weight), padding = 'same'))(x)
+  
+    x = (Conv3D(categories + nboxes * box_vector, kernel_size= mid_kernel,kernel_regularizer=regularizers.l2(reg_weight), padding = 'same'))(x)
     x = BatchNormalization()(x)
     x = Activation('relu')(x)
     input_cat = Lambda(lambda x:x[:,:,:,0:categories])(x)
     input_box = Lambda(lambda x:x[:,:,:,categories:])(x)
 
         
-    output_cat = (Conv2D(categories, (round(input_shape[1]/last_conv_factor),round(input_shape[2]/last_conv_factor)),activation= last_activation,kernel_regularizer=regularizers.l2(reg_weight), padding = 'valid', name = 'yolo'))(input_cat)
-    output_box = (Conv2D(nboxes*(box_vector), (round(input_shape[1]/last_conv_factor),round(input_shape[2]/last_conv_factor)),activation= 'sigmoid' ,kernel_regularizer=regularizers.l2(reg_weight), padding = 'valid', name = 'secyolo'))(input_box)
-
-
-
+    output_cat = (Conv3D(categories, (round(input_shape[0]/last_conv_factor),round(input_shape[1]/last_conv_factor),round(input_shape[2]/last_conv_factor)),activation= last_activation,kernel_regularizer=regularizers.l2(reg_weight), padding = 'valid', name = 'yolo'))(input_cat)
+    output_box = (Conv3D(nboxes*(box_vector), (round(input_shape[0]/last_conv_factor),round(input_shape[1]/last_conv_factor),round(input_shape[2]/last_conv_factor)),activation= 'sigmoid' ,kernel_regularizer=regularizers.l2(reg_weight), padding = 'valid', name = 'secyolo'))(input_box)
 
     block = Concat(-1)
     outputs = block([output_cat,output_box]) 
-    
   
     inputs = img_input
    

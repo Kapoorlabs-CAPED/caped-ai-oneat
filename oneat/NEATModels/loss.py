@@ -41,10 +41,11 @@ def extract_ground_event_truth(y_true, categories, grid_h, grid_w, grid_t, nboxe
     
     else:
             if yolo_v1 or yolo_v2:    
-               true_box_conf = true_nboxes[...,5]
+               true_box_conf = true_nboxes[...,-1]
                true_box_angle = 2
             if yolo_v2:
-                true_box_angle = true_nboxes[...,6]
+                true_box_conf = true_nboxes[...,-2]
+                true_box_angle = true_nboxes[...,-1]
                 
     return true_box_class, true_box_xyt, true_box_wh, true_box_conf, true_box_angle 
                
@@ -66,9 +67,10 @@ def extract_ground_event_pred(y_pred, categories, grid_h, grid_w, grid_t, event_
     
     else:
             if yolo_v1 or yolo_v2:    
-               pred_box_conf = pred_nboxes[...,-2]
+               pred_box_conf = pred_nboxes[...,-1]
                pred_box_angle = 2
             if yolo_v2:
+                pred_box_conf = pred_nboxes[...,-2]
                 pred_box_angle = pred_nboxes[...,-1]
                 
     return pred_box_class, pred_box_xyt, pred_box_wh, pred_box_conf, pred_box_angle 

@@ -185,6 +185,7 @@ class NEATEynamic(object):
 
     def loadData(self):
 
+        #NTZYX shape is the input
         (X, Y), axes = helpers.load_full_training_data(self.npz_directory, self.npz_name, verbose=True)
 
         (X_val, Y_val), axes = helpers.load_full_training_data(self.npz_directory, self.npz_val_name, verbose=True)
@@ -199,8 +200,8 @@ class NEATEynamic(object):
         self.Y_val = Y_val[:, :, 0]
 
         self.axes = axes
-        self.Y = self.Y.reshape((self.Y.shape[0], 1, 1, self.Y.shape[1]))
-        self.Y_val = self.Y_val.reshape((self.Y_val.shape[0], 1, 1, self.Y_val.shape[1]))
+        self.Y = self.Y.reshape((self.Y.shape[0],1, 1, 1, self.Y.shape[1]))
+        self.Y_val = self.Y_val.reshape((self.Y_val.shape[0],1, 1, 1, self.Y_val.shape[1]))
 
     def TrainModel(self):
 
