@@ -16,6 +16,7 @@ oneat/NEATModels/__init__.py
 oneat/NEATModels/config.py
 oneat/NEATModels/gen_anchors.py
 oneat/NEATModels/loss.py
+oneat/NEATModels/neat_diamondstandard.py
 oneat/NEATModels/neat_faststandard.py
 oneat/NEATModels/neat_focus.py
 oneat/NEATModels/neat_focus_microscope.py
