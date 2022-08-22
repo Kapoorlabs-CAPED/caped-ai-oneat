@@ -395,7 +395,107 @@ def ORNET(input_shape, categories,unit, box_vector,nboxes = 1, stage_number = 3,
     
     return model
 
+def DIANET(input_shape, categories,unit, box_vector,nboxes = 1, stage_number = 3,  depth = 38, start_kernel = 3, mid_kernel = 3, lstm_kernel = 3, startfilter = 32,  input_weights = None, last_activation = 'softmax'):
+    """ResNet Version 2 Model builder [b]
+    depth of 29 == max pooling of 28 for image patch of 55
+    depth of 56 == max pooling of 14 for image patch of 55
+    """
+    img_input = layers.Input(shape = (input_shape[0], None, None, input_shape[3]))
+    if (depth - 2) % 9 != 0:
+        raise ValueError('depth should be 9n+2 (eg 56 or 110 in [b])')
+    # Start model definition.
+    num_filters_in = startfilter
+    num_res_blocks = int((depth - 2) / 9)
+    last_conv_factor =  2 ** (stage_number - 1)
+    # v2 performs Conv2D with BN-ReLU on input before splitting into 2 paths
+    x = Diamondresnet_layer(inputs=img_input,
+                     num_filters=num_filters_in,
+                     kernel_size = start_kernel,
+                     conv_first=True)
 
+    # Instantiate the stack of residual units
+    for stage in range(stage_number):
+        for res_block in range(num_res_blocks):
+            activation = 'relu'
+            batch_normalization = True
+            strides = 1
+            if stage == 0:
+                num_filters_out = num_filters_in * 4
+                if res_block == 0:  # first layer and first stage
+                    activation = None
+                    batch_normalization = False
+            else:
+                num_filters_out = num_filters_in * 2
+                if res_block == 0:  # not first layer and not first stage
+                    strides = 2   # downsample
+
+            # bottleneck residual unit
+            y = Diamondresnet_layer(inputs=x,
+                             num_filters=num_filters_in,
+                             kernel_size=1,
+                             strides=strides,
+                             activation=activation,
+                             batch_normalization=batch_normalization,
+                             conv_first=False)
+            y = Diamondresnet_layer(inputs=y,
+                             num_filters=num_filters_in,
+                               kernel_size= mid_kernel,
+                             conv_first=False)
+            y = Diamondresnet_layer(inputs=y,
+                             num_filters=num_filters_out,
+                             kernel_size=1,
+                             conv_first=False)
+            if res_block == 0:
+                # linear projection residual shortcut connection to match
+                # changed dims
+                x = Diamondresnet_layer(inputs=x,
+                                 num_filters=num_filters_out,
+                                 kernel_size=1,
+                                 strides=strides,
+                                 activation=None,
+                                 batch_normalization=False)
+              
+            x = K.layers.add([x, y])
+        num_filters_in = num_filters_out
+
+    # Add classifier on top.
+    # v2 has BN-ReLU before Pooling
+    x = BatchNormalization()(x)
+    x = Activation('relu')(x)
+    num_res_blocks = int((depth - 2) / 9)
+    
+    
+    x = ConvLSTM2D(filters = unit, kernel_size = (lstm_kernel, lstm_kernel),  activation='relu', data_format = 'channels_last', return_sequences = False, padding = "same", name = "newlstmdeep")(x)
+
+
+    x = (Conv2D(categories + nboxes * box_vector, kernel_size= mid_kernel,kernel_regularizer=regularizers.l2(reg_weight), padding = 'same'))(x)
+    x = BatchNormalization()(x)
+    x = Activation('relu')(x)
+    input_cat = Lambda(lambda x:x[:,:,:,0:categories])(x)
+    input_box = Lambda(lambda x:x[:,:,:,categories:])(x)
+
+        
+    output_cat = (Conv2D(categories, (round(input_shape[1]/last_conv_factor),round(input_shape[2]/last_conv_factor)),activation= last_activation,kernel_regularizer=regularizers.l2(reg_weight), padding = 'valid', name = 'yolo'))(input_cat)
+    output_box = (Conv2D(nboxes*(box_vector), (round(input_shape[1]/last_conv_factor),round(input_shape[2]/last_conv_factor)),activation= 'sigmoid' ,kernel_regularizer=regularizers.l2(reg_weight), padding = 'valid', name = 'secyolo'))(input_box)
+
+
+
+
+    block = Concat(-1)
+    outputs = block([output_cat,output_box]) 
+    
+  
+    inputs = img_input
+   
+    # Create model.
+    model = models.Model(inputs, outputs)
+
+
+    if input_weights is not None:
+
+       model.load_weights(input_weights, by_name =True)
+    
+    return model
 
 
 
@@ -446,7 +546,47 @@ def ThreeDresnet_layer(inputs,
         x = conv(x)
     return x
     
+def Diamondresnet_layer(inputs,
+                 num_filters=64,
+                 kernel_size= 3,
+                 strides=1,
+                 activation='relu',
+                 batch_normalization=True,
+                 conv_first=True):
+    """2D Convolution-Batch Normalization-Activation stack builder
+    # Arguments
+        inputs (tensor): input tensor from input image or previous layer
+        num_filters (int): Conv2D number of filters
+        kernel_size (int): Conv2D square kernel dimensions
+        strides (int): Conv2D square stride dimensions
+        activation (string): activation name
+        batch_normalization (bool): whether to include batch normalization
+        conv_first (bool): conv-bn-activation (True) or
+            bn-activation-conv (False)
+    # Returns
+        x (tensor): tensor as input to the next layer
+    """
+    conv = Conv3D(num_filters,
+                  kernel_size=kernel_size,
+                  strides=(strides,strides,strides),
+                  padding='same',
+                  kernel_initializer='he_normal',
+                  kernel_regularizer=regularizers.l2(1e-4))
 
+    x = inputs
+    if conv_first:
+        x = conv(x)
+        if batch_normalization:
+            x = (BatchNormalization())(x)
+        if activation is not None:
+            x = (Activation(activation))(x)
+    else:
+        if batch_normalization:
+            x = (BatchNormalization())(x)
+        if activation is not None:
+            x = (Activation(activation))(x)
+        x = conv(x)
+    return x
 
 def resnet_lstm_v2(input_shape, categories, box_vector,nboxes = 1, stage_number = 3,  depth = 38,  start_kernel = 3, mid_kernel = 3, startfilter = 48,  input_weights = None, last_activation = 'softmax'):
     """ResNet Version 2 Model builder [b]

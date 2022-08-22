@@ -92,7 +92,6 @@ class NEATEynamic(object):
             self.lstm_kernel = config.lstm_kernel
             self.learning_rate = config.learning_rate
             self.epochs = config.epochs
-            self.residual = config.residual
             self.startfilter = config.startfilter
             self.batch_size = config.batch_size
             self.multievent = config.multievent
@@ -131,7 +130,6 @@ class NEATEynamic(object):
             self.lstm_hidden_unit = self.config['lstm_hidden_unit']
             self.learning_rate = self.config['learning_rate']
             self.epochs = self.config['epochs']
-            self.residual = self.config['residual']
             self.startfilter = self.config['startfilter']
             self.batch_size = self.config['batch_size']
             self.multievent = self.config['multievent']
@@ -161,10 +159,7 @@ class NEATEynamic(object):
         self.Xoriginal = None
         self.Xoriginal_val = None
 
-        if self.residual:
-            self.model_keras = nets.ORNET
-        else:
-            self.model_keras = nets.OSNET
+        self.model_keras = nets.DIANET
 
         if self.multievent == True:
             self.last_activation = 'sigmoid'
