@@ -97,6 +97,7 @@ class NEATEynamic(object):
             self.multievent = config.multievent
             self.imagex = config.imagex
             self.imagey = config.imagey
+            self.imagez = config.imagez
             self.imaget = config.size_tminus + config.size_tplus + 1
             self.size_tminus = config.size_tminus
             self.size_tplus = config.size_tplus
@@ -135,6 +136,7 @@ class NEATEynamic(object):
             self.multievent = self.config['multievent']
             self.imagex = self.config['imagex']
             self.imagey = self.config['imagey']
+            self.imagez = self.config['imagez']
             self.imaget = self.config['size_tminus'] + self.config['size_tplus'] + 1
             self.size_tminus = self.config['size_tminus']
             self.size_tplus = self.config['size_tplus']
@@ -317,12 +319,7 @@ class NEATEynamic(object):
         self.end_project_mid = end_project_mid
         self.ndim = len(self.image.shape)
         self.normalize = normalize
-        self.z = 0
-        if self.ndim == 4:
-           self.z = self.image.shape[1]//2
-           print(f'Image {self.image.shape} is {self.ndim} dimensional, projecting around the center {self.image.shape[1]//2} - {self.start_project_mid} to {self.image.shape[1]//2} + {self.end_project_mid}') 
-           self.image =  MidSlicesSum(self.image, self.start_project_mid, self.end_project_mid, axis = 1)
-           self.z = self.z - (self.start_project_mid + self.end_project_mid)//2
+        
         if self.normalize: 
                     self.image = normalizeFloatZeroOne(self.image.astype('float32'), 1, 99.8)
         self.erosion_iterations = erosion_iterations
@@ -539,12 +536,14 @@ class NEATEynamic(object):
                             crop_xplus = location[i][1]  + int(self.imagex/2) * self.downsamplefactor 
                             crop_yminus = location[i][0]  - int(self.imagey/2) * self.downsamplefactor 
                             crop_yplus = location[i][0]   + int(self.imagey/2) * self.downsamplefactor 
-                            region =(slice(inputtime - int(self.imaget)//2,inputtime + int(self.imaget)//2 + 1),slice(int(crop_yminus), int(crop_yplus)),
+                            crop_zminus = location[i][2]  - int(self.imagez/2) * self.downsamplefactor 
+                            crop_zplus = location[i][2]   + int(self.imagez/2) * self.downsamplefactor
+                            region =(slice(inputtime - int(self.imaget)//2,inputtime + int(self.imaget)//2 + 1),slice(int(crop_zminus), int(crop_zplus)),slice(int(crop_yminus), int(crop_yplus)),
                                 slice(int(crop_xminus), int(crop_xplus)))
                             
                             crop_image = self.image[region] 
                             
-                            if crop_image.shape[0] >= self.imaget and  crop_image.shape[1] >= self.imagey * self.downsamplefactor and crop_image.shape[2] >= self.imagex * self.downsamplefactor:                                                
+                            if crop_image.shape[0] >= self.imaget and  crop_image.shape[1] >= self.imagez * self.downsamplefactor and crop_image.shape[2] >= self.imagey * self.downsamplefactor and crop_image.shape[3] >= self.imagex * self.downsamplefactor:                                                
                                         #Now apply the prediction for counting real events
                                     
                                         crop_image = DownsampleData(crop_image, self.downsamplefactor)
@@ -817,31 +816,20 @@ class NEATEynamic(object):
 
     def make_patches(self, sliceregion):
 
-        predict_im = np.expand_dims(sliceregion, 0)
-
-        prediction_vector = self.model.predict(np.expand_dims(predict_im, -1), verbose=0)
-
-        return prediction_vector
-
-    def second_make_patches(self, sliceregion):
-
-        predict_im = np.expand_dims(sliceregion, 0)
-
-        prediction_vector = self.model.predict(np.expand_dims(predict_im, -1), verbose=0)
+        smallimg = np.expand_dims(sliceregion, 0)
+        smallimg = tf.reshape(smallimg, (smallimg.shape[0], smallimg.shape[2], smallimg.shape[3],smallimg.shape[4], smallimg.shape[1]))
+        prediction_vector = self.model.predict(smallimg, verbose=0)
 
         return prediction_vector
 
-    def make_batch_patches(self, sliceregion):
-
-        prediction_vector = self.model.predict(np.expand_dims(sliceregion, -1), verbose=0)
-        return prediction_vector
+   
 
 
 def CreateVolume(patch, imaget, timepoint):
     starttime = timepoint - int(imaget)//2
     endtime = timepoint + int(imaget)//2 + 1
     smallimg = patch[starttime:endtime, :]
-
+    smallimg = tf.reshape(smallimg, (smallimg.shape[1], smallimg.shape[2], smallimg.shape[3], smallimg.shape[0]))
     return smallimg
 
 
