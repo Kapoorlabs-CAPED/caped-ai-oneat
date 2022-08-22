@@ -89,7 +89,7 @@ def extract_ground_cell_pred(y_pred, categories, grid_h, grid_w, cell_grid, nbox
     
         pred_box_xy = pred_nboxes[...,0:2] + (cell_grid)
     
-        pred_box_wh = pred_nboxes[...,2:4]
+        pred_box_wh = pred_nboxes[...,-4:-2]
         
         if yolo_v0:
             
@@ -109,7 +109,7 @@ def extract_ground_cell_truth(y_truth, categories, grid_h, grid_w, nboxes, box_v
     
         true_box_xy = true_nboxes[...,0:2]
     
-        true_box_wh = true_nboxes[...,2:4]
+        true_box_wh = true_nboxes[...,-4:-2]
         
         if yolo_v0:
              
