@@ -69,10 +69,10 @@ class EventViewer(object):
 
 
                         # add the first points layer for ClassBackground T point
-                        self.viewer.add_points(name= ClassBackground, face_color='red', ndim = 3)
+                        self.viewer.add_points(name= ClassBackground, face_color='red', ndim = 4)
 
                         # add the second points layer for ClassDivision T point
-                        self.viewer.add_points(name= ClassDivision, face_color='blue', ndim = 3)
+                        self.viewer.add_points(name= ClassDivision, face_color='blue', ndim = 4)
 
                       
                         # programatically enter add mode for both Points layers to enable editing
@@ -85,7 +85,7 @@ class EventViewer(object):
 
 def main():
 
-   sourcedir = '/gpfsstore/rech/jsy/uzj81mi/Mari_Data_Training/oneat_training/oneat_train_raw/'
+   sourcedir = '/gpfsstore/rech/jsy/uzj81mi/Mari_Data_Training/oneat_training/oneat_train_diamond_raw/'
    csv_dir = '/gpfsstore/rech/jsy/uzj81mi/Mari_Data_Training/oneat_training/oneat_train_diamond_csv/'
    Imageids = []
    Boxname = 'ImageIDBox'
