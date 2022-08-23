@@ -386,7 +386,7 @@ class NEATCynamic(object):
                                       
                                       imwrite((heatsavename + '.tif' ), self.heatmap)
                                       
-                                smallimage = CreateVolume(self.image, self.imaget, inputtime)
+                                smallimage = CreateVolume(self.image, self.size_tminus, self.size_tplus, inputtime)
                                 
                                 # Cut off the region for training movie creation
                                 #Break image into tiles if neccessary
@@ -449,7 +449,7 @@ class NEATCynamic(object):
             if inputtime < self.image.shape[0] - self.imaget and inputtime > int(self.imaget)//2:
                 
                 remove_candidates_list = []
-                smallimage = CreateVolume(self.image, self.imaget, inputtime)
+                smallimage = CreateVolume(self.image, self.size_tminus, self.size_tplus, inputtime)
                
                 # Cut off the region for training movie creation
                 # Break image into tiles if neccessary
@@ -825,9 +825,9 @@ class NEATCynamic(object):
    
 
 
-def CreateVolume(patch, imaget, timepoint):
-    starttime = timepoint - int(imaget)//2
-    endtime = timepoint + int(imaget)//2 + 1
+def CreateVolume(patch, size_tminus, size_tplus, timepoint):
+    starttime = timepoint - int(size_tminus)
+    endtime = timepoint + int(size_tplus)
     smallimg = patch[starttime:endtime, :]
     smallimg = tf.reshape(smallimg, (smallimg.shape[1], smallimg.shape[2], smallimg.shape[0]))
     return smallimg

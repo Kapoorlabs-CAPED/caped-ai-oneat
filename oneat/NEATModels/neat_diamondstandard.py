@@ -1,7 +1,7 @@
 from oneat.NEATUtils import plotters
 import numpy as np
 from oneat.NEATUtils import helpers
-from oneat.NEATUtils.helpers import  pad_volumetimelapse, get_nearest,  load_json, diamondyoloprediction, normalizeFloatZeroOne, GenerateVolumeMarkers, MakeForest,save_dynamic_csv, dynamic_nms, gold_nms
+from oneat.NEATUtils.helpers import  pad_volumetimelapse, get_nearest_volume,  load_json, diamondyoloprediction, normalizeFloatZeroOne, GenerateVolumeMarkers, MakeForest,save_dynamic_csv, dynamic_nms, gold_nms
 from keras import callbacks
 import os
 import sys
@@ -352,7 +352,7 @@ class NEATEynamic(object):
                     if inputtime < self.image.shape[0] - self.imaget and inputtime > int(self.imaget)//2:
                                 count = count + 1
                                       
-                                smallimage = CreateVolume(self.image, self.imaget, inputtime)
+                                smallimage = CreateVolume(self.image, self.size_tminus, self.size_tplus, inputtime)
                                 
                                 # Cut off the region for training movie creation
                                 #Break image into tiles if neccessary
@@ -417,7 +417,7 @@ class NEATEynamic(object):
             if inputtime < self.image.shape[0] - self.imaget and inputtime > int(self.imaget)//2:
                 
                 remove_candidates_list = []
-                smallimage = CreateVolume(self.image, self.imaget, inputtime)
+                smallimage = CreateVolume(self.image, self.size_tminus, self.size_tplus, inputtime)
                
                 # Cut off the region for training movie creation
                 # Break image into tiles if neccessary
@@ -465,16 +465,16 @@ class NEATEynamic(object):
                             iou_current_event_boxes = self.iou_classedboxes[event_name][0]
                             iou_current_event_boxes = sorted(iou_current_event_boxes, key=lambda x: x[event_name], reverse=True)
                             for box in iou_current_event_boxes:
-                                     closest_location = get_nearest(self.marker_tree, box['ycenter'], box['xcenter'], box['real_time_event'])
+                                     closest_location = get_nearest_volume(self.marker_tree, box['zcenter'], box['ycenter'], box['xcenter'], box['real_time_event'])
                                      if closest_location is not None:
-                                        ycentermean, xcentermean = closest_location
+                                        zcentermean, ycentermean, xcentermean = closest_location
                                         try:
                                             remove_candidates_list = remove_candidates[str(int(box['real_time_event']))]
-                                            if (ycentermean * self.downsamplefactor, xcentermean * self.downsamplefactor) not in remove_candidates_list:
-                                                    remove_candidates_list.append((ycentermean * self.downsamplefactor, xcentermean * self.downsamplefactor))
+                                            if (zcentermean, ycentermean, xcentermean ) not in remove_candidates_list:
+                                                    remove_candidates_list.append((zcentermean, ycentermean, xcentermean))
                                                     remove_candidates[str(int(box['real_time_event']))] = remove_candidates_list
                                         except:
-                                            remove_candidates_list.append((ycentermean * self.downsamplefactor, xcentermean * self.downsamplefactor))
+                                            remove_candidates_list.append((zcentermean, ycentermean, xcentermean))
                                             remove_candidates[str(int(box['real_time_event']))]  = remove_candidates_list
 
                 eventboxes = []
@@ -498,18 +498,20 @@ class NEATEynamic(object):
                         tree, location = self.marker_tree[str(int(inputtime))]
                         for i in range(len(location)):
                             
-                            crop_xminus = location[i][1]  - int(self.imagex/2) * self.downsamplefactor 
-                            crop_xplus = location[i][1]  + int(self.imagex/2) * self.downsamplefactor 
-                            crop_yminus = location[i][0]  - int(self.imagey/2) * self.downsamplefactor 
-                            crop_yplus = location[i][0]   + int(self.imagey/2) * self.downsamplefactor 
-                            crop_zminus = location[i][2]  - int(self.imagez/2) * self.downsamplefactor 
-                            crop_zplus = location[i][2]   + int(self.imagez/2) * self.downsamplefactor
+                            crop_xminus = location[i][2]  - int(self.imagex/2) 
+                            crop_xplus = location[i][2]  + int(self.imagex/2)  
+                            
+                            crop_yminus = location[i][1]  - int(self.imagey/2)  
+                            crop_yplus = location[i][1]   + int(self.imagey/2)  
+
+                            crop_zminus = location[i][0]  - int(self.imagez/2)  
+                            crop_zplus = location[i][0]   + int(self.imagez/2) 
                             region =(slice(inputtime - int(self.imaget)//2,inputtime + int(self.imaget)//2 + 1),slice(int(crop_zminus), int(crop_zplus)),slice(int(crop_yminus), int(crop_yplus)),
                                 slice(int(crop_xminus), int(crop_xplus)))
                             
                             crop_image = self.image[region] 
                             
-                            if crop_image.shape[0] >= self.imaget and  crop_image.shape[1] >= self.imagez * self.downsamplefactor and crop_image.shape[2] >= self.imagey * self.downsamplefactor and crop_image.shape[3] >= self.imagex * self.downsamplefactor:                                                
+                            if crop_image.shape[0] >= self.imaget and  crop_image.shape[1] >= self.imagez and crop_image.shape[2] >= self.imagey and crop_image.shape[3] >= self.imagex:                                                
                                         #Now apply the prediction for counting real events
                                     
                                         zcenter = location[i][0]
@@ -535,11 +537,14 @@ class NEATEynamic(object):
                                                     
                                                         
                                                         boxprediction[0]['real_time_event'] = inputtime
-                                                        boxprediction[0]['xcenter'] = xcenter - self.pad_width[1]
-                                                        boxprediction[0]['ycenter'] = ycenter - self.pad_width[0]
+                                                        boxprediction[0]['xcenter'] = xcenter - self.pad_width[2]
+                                                        boxprediction[0]['ycenter'] = ycenter - self.pad_width[1]
+                                                        boxprediction[0]['zcenter'] = zcenter - self.pad_width[0] 
 
                                                         boxprediction[0]['xstart'] = xcenter   - int(self.imagex/2) 
                                                         boxprediction[0]['ystart'] = ycenter   - int(self.imagey/2)   
+                                                        boxprediction[0]['zstart'] = zcenter   - int(self.imagez/2)
+
                                                         eventboxes = eventboxes + boxprediction
                                                 
                                            
@@ -757,9 +762,9 @@ class NEATEynamic(object):
    
 
 
-def CreateVolume(patch, imaget, timepoint):
-    starttime = timepoint - int(imaget)//2
-    endtime = timepoint + int(imaget)//2 + 1
+def CreateVolume(patch, size_tminus, size_tplus, timepoint):
+    starttime = timepoint - int(size_tminus)
+    endtime = timepoint + int(size_tplus)
     #TZYX needs to be reshaed to ZYXT
     smallimg = patch[starttime:endtime, :]
     smallimg = tf.reshape(smallimg, (smallimg.shape[1], smallimg.shape[2], smallimg.shape[3], smallimg.shape[0]))
