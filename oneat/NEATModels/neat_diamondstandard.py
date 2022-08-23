@@ -1,7 +1,7 @@
 from oneat.NEATUtils import plotters
 import numpy as np
 from oneat.NEATUtils import helpers
-from oneat.NEATUtils.helpers import  pad_volumetimelapse, get_nearest_volume,  load_json, diamondyoloprediction, normalizeFloatZeroOne, GenerateVolumeMarkers, MakeForest,save_dynamic_csv, dynamic_nms, gold_nms
+from oneat.NEATUtils.helpers import  pad_volumetimelapse, get_nearest_volume,  load_json, diamondyoloprediction, normalizeFloatZeroOne, GenerateVolumeMarkers, MakeForest,save_dynamic_csv, diamond_dynamic_nms
 from keras import callbacks
 import os
 import sys
@@ -16,11 +16,8 @@ from oneat.pretrained import get_registered_models, get_model_details, get_model
 from pathlib import Path
 from keras.models import load_model
 from keras.utils import plot_model
-from tifffile import imread, imwrite
+from tifffile import imread
 
-from skimage.morphology import dilation, disk
-
-from skimage.measure import label
 
 class NEATEynamic(object):
     """
@@ -579,7 +576,7 @@ class NEATEynamic(object):
         for (event_name,event_label) in self.key_categories.items():
             if event_label == 0:
                #best_sorted_event_box = self.classedboxes[event_name][0]
-               best_sorted_event_box = dynamic_nms(self.heatmap, self.classedboxes, event_name,  self.downsamplefactor, self.iou_threshold, self.event_threshold, self.imagex, self.imagey, self.fidelity, generate_map = self.generate_maps, nms_function = self.nms_function )
+               best_sorted_event_box = diamond_dynamic_nms(self.classedboxes, event_name, self.iou_threshold, self.event_threshold, self.imagex, self.imagey, self.imagez, nms_function = self.nms_function )
 
                best_iou_classedboxes[event_name] = [best_sorted_event_box]
 

@@ -644,15 +644,52 @@ def get_max_score_index(scores, threshold=0, top_k=0, descending=True):
 
               
 
-def distance(x1, x2, y1, y2):
+def distance(x, y):
 
-    dist = abs((x1 - x2) * (x1 -x2) + (y1 - y2) * (y1 -y2))
+    assert len(x) == len(y)
+    assert isinstance(x, list) and isinstance(y, list)
+    dist = 0
+    for i in range(len(x)):
+       dist = dist +  (x[i] - y[i]) * (x[i] - y[i])
+    dist = abs(dist)
 
     return dist
 
 
 
-def compare_function(box1, box2, gridx, gridy):
+
+def compare_function_diamond(box1, box2, imagex, imagey, imagez):
+            w1, h1, d1 = box1['width'], box1['height'], box1['depth']
+            w2, h2, d2 = box2['width'], box2['height'], box2['depth']
+            x1 = box1['xstart']
+            x2 = box2['xstart']
+            
+            y1 = box1['ystart']
+            y2 = box2['ystart']
+ 
+            z1 = box1['zstart']
+            z2 = box2['zstart']
+
+            xA = max(x1 , x2 )
+            xB = min(x1 + w1, x2 + w2)
+            yA = max(y1, y2)
+            yB = min(y1 + h1, y2 + h2)
+            zA = max(z1, z2)
+            zB = min(z1 + d1, z2 + d2)
+
+            
+           
+            if abs(xA - xB) < imagex - 1 or abs(yA - yB) < imagey - 1 or abs(zA - zB) < imagez - 1:
+                    intersect = max(0, xB - xA ) * max(0, yB - yA ) * max(0, zB - zA)
+
+                    area = h2 * w2 * d2 + h1 * w1 * d1 - intersect
+
+                    return float(np.true_divide(intersect, area))
+            else:
+                    return -2
+
+
+def compare_function(box1, box2, imagex, imagey):
             w1, h1 = box1['width'], box1['height']
             w2, h2 = box2['width'], box2['height']
             x1 = box1['xstart']
@@ -667,7 +704,7 @@ def compare_function(box1, box2, gridx, gridy):
             yB = min(y1 + h1, y2+ h2)
 
            
-            if abs(xA - xB) < gridx - 1 or abs(yA - yB) < gridy - 1:
+            if abs(xA - xB) < imagex - 1 or abs(yA - yB) < imagey - 1:
                     intersect = max(0, xB - xA ) * max(0, yB - yA )
 
                     area = h2 * w2 + h1 * w1 - intersect
@@ -677,34 +714,34 @@ def compare_function(box1, box2, gridx, gridy):
                     return -2 
 
 def compare_function_sec(box1, box2):
-            w1, h1 = box1['width'], box1['height']
-            w2, h2 = box2['width'], box2['height']
-            x1 = box1['xstart']
-            x2 = box2['xstart']
-            
-            y1 = box1['ystart']
-            y2 = box2['ystart']
 
             x1center = box1['xcenter']
             x2center = box2['xcenter']
 
             y1center = box1['ycenter']
             y2center = box2['ycenter']
-           
-            xA = max(x1 , x2 )
-            xB = min(x1 + w1, x2 + w2)
-            yA = max(y1, y2)
-            yB = min(y1 + h1, y2+ h2)
 
-            return distance(x1center, x2center, y1center, y2center)
+            return distance([x1center, y1center], [x2center, y2center])
 
 
+def compare_function_sec_diamond(box1, box2):
+
+            x1center = box1['xcenter']
+            x2center = box2['xcenter']
+            
+
+            y1center = box1['ycenter']
+            y2center = box2['ycenter']
+
+            z1center = box1['zcenter']
+            z2center = box2['zcenter']
+
+            return distance([x1center, y1center, z1center], [x2center, y2center, z2center])
 
 
 
 
-
-def goodboxes(boxes, scores, nms_threshold, score_threshold, gridx, gridy,
+def goodboxes(boxes, scores, nms_threshold, score_threshold, imagex, imagey,
                fidelity=1, nms_function = 'iou' ):
 
 
@@ -751,7 +788,7 @@ def goodboxes(boxes, scores, nms_threshold, score_threshold, gridx, gridy,
                 
                 if nms_function == 'dist':
                     overlap = compare_function_sec(boxes[i], boxes[j])
-                    overlap_veto = nms_threshold * (gridx*gridx + gridy*gridy)
+                    overlap_veto = nms_threshold * (imagex * imagex + imagey * imagey)
                     # if there is sufficient overlap, suppress the current bounding box
                     if overlap <= overlap_veto:
                             count = count + 1
@@ -761,7 +798,7 @@ def goodboxes(boxes, scores, nms_threshold, score_threshold, gridx, gridy,
                                   Averageboxes.append(boxes[i])
                             suppress.append(pos)
                 else:
-                    overlap = compare_function(boxes[i], boxes[j], gridx, gridy)
+                    overlap = compare_function(boxes[i], boxes[j], imagex, imagey)
                     overlap_veto = nms_threshold    
                     if overlap >= overlap_veto:
                         count = count + 1
@@ -775,6 +812,75 @@ def goodboxes(boxes, scores, nms_threshold, score_threshold, gridx, gridy,
         idxs = np.delete(idxs, suppress)
     # return only the indicies of the bounding boxes that were picked
     return Averageboxes
+
+
+def diamondboxes(boxes, scores, nms_threshold, score_threshold, imagex, imagey, imagez,
+               nms_function = 'iou' ):
+
+
+
+    if len(boxes) == 0:
+        return []
+
+    assert len(scores) == len(boxes)
+    assert scores is not None
+    if scores is not None:
+        assert len(scores) == len(boxes)
+
+    boxes = np.array(boxes)
+
+    # if the bounding boxes integers, convert them to floats --
+    # this is important since we'll be doing a bunch of divisions
+    if boxes.dtype.kind == "i":
+        boxes = boxes.astype("float")
+
+
+
+
+    # initialize the list of picked indexes
+    pick = []
+    Averageboxes = []
+    # sort the bounding boxes by the associated scores
+    scores = get_max_score_index(scores, score_threshold, 0, False)
+    idxs = np.array(scores, np.int32)[:, 1]
+
+    while len(idxs) > 0:
+        # grab the last index in the indexes list, add the index
+        # value to the list of picked indexes, then initialize
+        # the suppression list (i.e. indexes that will be deleted)
+        # using the last index
+        last = len(idxs) - 1
+        i = idxs[last]
+        pick.append(i)
+        suppress = [last]
+        count = 0
+        # loop over all indexes in the indexes list
+        for pos in (range(0, last)):
+            # grab the current index
+                j = idxs[pos]
+                
+                if nms_function == 'dist':
+                    overlap = compare_function_sec_diamond(boxes[i], boxes[j])
+                    overlap_veto = nms_threshold * (imagex * imagex + imagey * imagey + imagez * imagez)
+                    # if there is sufficient overlap, suppress the current bounding box
+                    if overlap <= overlap_veto:
+                            count = count + 1
+                            if boxes[i] not in Averageboxes:
+                                  Averageboxes.append(boxes[i])
+                            suppress.append(pos)
+                else:
+                    overlap = compare_function_diamond(boxes[i], boxes[j], imagex, imagey, imagez)
+                    overlap_veto = nms_threshold    
+                    if overlap >= overlap_veto:
+                        if boxes[i] not in Averageboxes:
+                              Averageboxes.append(boxes[i])
+                        suppress.append(pos)
+                
+            # delete all indexes from the index list that are in the suppression list
+        idxs = np.delete(idxs, suppress)
+    # return only the indicies of the bounding boxes that were picked
+    return Averageboxes
+
 
 def goldboxes(boxes, scores, nms_threshold, score_threshold, gridx, gridy, nms_function = 'iou'):
 
@@ -1107,7 +1213,13 @@ def gold_nms(heatmap,eventmarkers, classedboxes, event_name, downsamplefactor, i
 
 
 
-
+def diamond_dynamic_nms(classedboxes, event_name, iou_threshold, event_threshold, gridx, gridy, gridz, nms_function = 'iou'):
+                
+               sorted_event_box = classedboxes[event_name][0]
+               scores = [ sorted_event_box[i][event_name]  for i in range(len(sorted_event_box))]
+               best_sorted_event_box = diamondboxes(sorted_event_box, scores, iou_threshold, event_threshold,  gridx, gridy, gridz, nms_function = nms_function)
+               
+               return best_sorted_event_box
 
 def dynamic_nms(heatmap, classedboxes, event_name, downsamplefactor, iou_threshold, event_threshold, gridx, gridy, fidelity, generate_map = True, nms_function = 'iou'):
                 
@@ -1115,13 +1227,6 @@ def dynamic_nms(heatmap, classedboxes, event_name, downsamplefactor, iou_thresho
                scores = [ sorted_event_box[i][event_name]  for i in range(len(sorted_event_box))]
                best_sorted_event_box = goodboxes(sorted_event_box, scores, iou_threshold, event_threshold,  gridx, gridy, fidelity = fidelity, nms_function = nms_function)
                
-               filtered_good_sorted_event_box = []
-               for iou_current_event_box in best_sorted_event_box:
-                                                          xcenter = iou_current_event_box['xcenter']* downsamplefactor
-                                                          ycenter = iou_current_event_box['ycenter']* downsamplefactor
-                                                          tcenter = iou_current_event_box['real_time_event']
-                                                          score = iou_current_event_box[event_name]
-                                                          filtered_good_sorted_event_box.append(iou_current_event_box)
                if generate_map:                                              
                                for iou_current_event_box in sorted_event_box:
                                                           xcenter = iou_current_event_box['xcenter']* downsamplefactor
@@ -1139,7 +1244,7 @@ def dynamic_nms(heatmap, classedboxes, event_name, downsamplefactor, iou_thresho
 
                                                                       
                
-               return filtered_good_sorted_event_box
+               return best_sorted_event_box
            
 
 def microscope_dynamic_nms( classedboxes, event_name, iou_threshold, event_threshold, gridx, gridy, fidelity, nms_function):
@@ -1375,7 +1480,6 @@ def diamondpredictionloop(i, j, k, sz, sy, sx, nboxes, stride, time_prediction, 
     angle = 0
   
     zcenter = 0
-    boxzcenter = 0
     confidencemean = 0
     trainshapex = config['imagex']
     trainshapey = config['imagey']
@@ -1465,7 +1569,8 @@ def diamondpredictionloop(i, j, k, sz, sy, sx, nboxes, stride, time_prediction, 
                ycentermean, xcentermean = nearest_location
         #Correct for zero padding
         
-        box = {'xcenterraw': xcenterrawmean, 'ycenterraw': ycenterrawmean, 'zcenterraw': zcenterrawmean,  
+        box = {'xstart': xstart, 'ystart': ystart, 'zstart': zstart, 
+               'xcenterraw': xcenterrawmean, 'ycenterraw': ycenterrawmean, 'zcenterraw': zcenterrawmean,  
                'xcenter': xcentermean, 'ycenter': ycentermean, 'zcenter': zcentermean, 
                'real_time_event': real_time_event, 'height': heightmean, 'width': widthmean, 'depth': depthmean, 
                'confidence': confidencemean, 'realangle': realangle, 'rawangle': rawangle}
@@ -1480,7 +1585,8 @@ def diamondpredictionloop(i, j, k, sz, sy, sx, nboxes, stride, time_prediction, 
                 if nearest_location is not None:
                     ycentermean, xcentermean = nearest_location
            
-            box = {'xcenterraw': xcenterrawmean, 'ycenterraw': ycenterrawmean, 'zcenterraw': zcenterrawmean,  
+            box = { 'xstart': xstart, 'ystart': ystart, 'zstart': zstart, 
+                'xcenterraw': xcenterrawmean, 'ycenterraw': ycenterrawmean, 'zcenterraw': zcenterrawmean,  
                'xcenter': xcentermean, 'ycenter': ycentermean, 'zcenter': zcentermean, 
                'real_time_event': real_time_event, 'height': heightmean, 'width': widthmean, 'depth': depthmean, 
                'confidence': confidencemean, 'realangle': realangle, 'rawangle': rawangle}
