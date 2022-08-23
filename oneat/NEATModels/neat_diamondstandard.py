@@ -1,7 +1,7 @@
 from oneat.NEATUtils import plotters
 import numpy as np
 from oneat.NEATUtils import helpers
-from oneat.NEATUtils.helpers import  pad_timelapse, get_nearest,  load_json, yoloprediction, normalizeFloatZeroOne, GenerateMarkers, MakeTrees, DownsampleData,save_dynamic_csv, dynamic_nms, gold_nms
+from oneat.NEATUtils.helpers import  pad_timelapse, get_nearest,  load_json, yoloprediction, normalizeFloatZeroOne, GenerateVolumeMarkers, MakeTrees, DownsampleData,save_dynamic_csv, dynamic_nms, gold_nms
 from keras import callbacks
 import os
 import sys
@@ -261,8 +261,8 @@ class NEATEynamic(object):
         hrate = callbacks.History()
         srate = callbacks.ModelCheckpoint(self.model_dir + self.model_name, monitor='loss', verbose=1,
                                           save_best_only=False, save_weights_only=False, mode='auto', period=1)
-        prate = plotters.PlotHistory(self.Trainingmodel, self.X_val, self.Y_val, self.key_categories, self.key_cord,
-                                     self.gridx, self.gridy, plot=self.show, nboxes=self.nboxes)
+        prate = plotters.PlotDiamondHistory(self.Trainingmodel, self.X_val, self.Y_val, self.key_categories, self.key_cord,
+                                     self.gridx, self.gridy, self.gridz, plot=self.show, nboxes=self.nboxes)
 
         # Train the model and save as a h5 file
         self.Trainingmodel.fit(self.X, self.Y, batch_size=self.batch_size,
@@ -275,18 +275,16 @@ class NEATEynamic(object):
 
         self.Trainingmodel.save(os.path.join(self.model_dir, self.model_name) )
 
-    def get_markers(self, imagename, segdir, start_project_mid = 4, end_project_mid = 4,
-     downsamplefactor = 1):
+    def get_markers(self, imagename, segdir, downsamplefactor = 1):
 
         self.imagename = imagename
         self.segdir = segdir
         Name = os.path.basename(os.path.splitext(self.imagename)[0])
-        self.pad_width = (self.config['imagey'], self.config['imagex'])
+        self.pad_width = (self.config['imagez'], self.config['imagey'], self.config['imagex'])
         self.downsamplefactor = downsamplefactor
         print('Obtaining Markers')
         self.segimage = imread(self.segdir + '/' + Name + '.tif')
-        self.markers = GenerateMarkers(self.segimage, 
-        start_project_mid = start_project_mid, end_project_mid = end_project_mid, pad_width = self.pad_width)
+        self.markers = GenerateVolumeMarkers(self.segimage, pad_width = self.pad_width)
         self.marker_tree = MakeTrees(self.markers)
         self.segimage = None         
 

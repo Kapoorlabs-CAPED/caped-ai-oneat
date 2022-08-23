@@ -239,13 +239,14 @@ def Printsilverpredict(idx, model, data, Truelabel, key_categories,key_cord, gri
 class PlotDiamondHistory(keras.callbacks.Callback):
     
     
-    def __init__(self, Trainingmodel, X, Y, key_categories, key_cord, gridx, gridy, plot = False, nboxes = 1):
+    def __init__(self, Trainingmodel, X, Y, key_categories, key_cord, gridx, gridy, gridz, plot = False, nboxes = 1):
        self.Trainingmodel = Trainingmodel 
        self.X = X
        self.Y = Y
        self.plot = plot
        self.gridx = gridx
        self.gridy = gridy
+       self.gridz = gridz
        self.nboxes = nboxes
        self.key_cord = key_cord
        self.key_categories = key_categories

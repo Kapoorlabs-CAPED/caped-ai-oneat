@@ -352,8 +352,16 @@ def pad_timelapse(image, pad_width):
 
       zero_pad[i,:,:] =  np.pad(image[i,:,:], pad_width, mode = 'edge')
 
-    return zero_pad    
+    return zero_pad   
 
+def pad_volumetimelapse(image, pad_width):
+
+    zero_pad = np.zeros([image.shape[0], image.shape[1] + pad_width[0] * 2, image.shape[2] + pad_width[1] * 2, image.shape[3] + pad_width[2] * 2])
+    for i in range(0, image.shape[0]):
+
+      zero_pad[i,:,:,:] =  np.pad(image[i,:,:,:], pad_width, mode = 'edge')
+
+    return zero_pad 
 
 def time_pad(image, TimeFrames):
     time = image.shape[0]
@@ -479,6 +487,37 @@ def MidSlicesSum(Image, start_project_mid, end_project_mid, axis = 1):
     MaxProject = np.sum(SmallImage, axis = axis)
         
     return MaxProject
+
+
+
+def GenerateVolumeMarkers(segimage, pad_width = (0,0,0) ):
+
+    ndim = len(segimage.shape)
+    #TZYX
+    Markers = np.zeros([segimage.shape[0], segimage.shape[1] + pad_width[0] * 2, segimage.shape[2] + pad_width[1] * 2, segimage.shape[3] + pad_width[2] * 2])
+    
+    for i in tqdm(range(0, segimage.shape[0])):
+
+                        smallimage = segimage[i, :]
+                        newsmallimage = pad_volumetimelapse(smallimage, pad_width)
+                        properties = measure.regionprops(newsmallimage.astype('uint16'))
+                        
+                        Coordinates = [prop.centroid for prop in properties]
+                        if len(Coordinates) > 0:
+                                Coordinates = sorted(Coordinates, key=lambda k: [k[2], k[1], k[0]])
+                                Coordinates = np.asarray(Coordinates)
+            
+                                coordinates_int = np.round(Coordinates).astype(int)
+                                markers_raw = np.zeros_like(newsmallimage)
+                                markers_raw[tuple(coordinates_int.T)] = 1 + np.arange(len(Coordinates))
+                                if ndim == 4:
+                                    markers = morphology.dilation(
+                                    markers_raw.astype('uint16'), morphology.ball(2))
+                                
+
+                                Markers[i, :] = label(markers.astype('uint16'))
+
+    return Markers
 
 def GenerateMarkers(segimage,  start_project_mid = 4, end_project_mid = 4, pad_width = (0,0) ):
 
