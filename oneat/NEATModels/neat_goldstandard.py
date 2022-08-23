@@ -614,7 +614,7 @@ class NEATDynamic(object):
             if event_label > 0:
                #best_sorted_event_box = self.classedboxes[event_name][0]
                if self.remove_markers is not None:
-                   best_sorted_event_box = gold_nms(self.heatmap,self.eventmarkers, self.classedboxes, event_name, 1, self.iou_threshold, self.event_threshold, self.imagex, self.imagey,generate_map = self.generate_maps, nms_function = self.nms_function )
+                   best_sorted_event_box = dynamic_nms(self.heatmap,self.classedboxes, event_name,  1, self.iou_threshold, self.event_threshold, self.imagex, self.imagey, self.fidelity,generate_map = self.generate_maps, nms_function = self.nms_function )
 
                if self.remove_markers is None:
                    best_sorted_event_box = dynamic_nms(self.heatmap,self.classedboxes, event_name,  self.downsamplefactor, self.iou_threshold, self.event_threshold, self.imagex, self.imagey, self.fidelity,generate_map = self.generate_maps, nms_function = self.nms_function )

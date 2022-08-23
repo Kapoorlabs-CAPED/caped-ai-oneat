@@ -817,8 +817,6 @@ def goodboxes(boxes, scores, nms_threshold, score_threshold, imagex, imagey,
 def diamondboxes(boxes, scores, nms_threshold, score_threshold, imagex, imagey, imagez,
                nms_function = 'iou' ):
 
-
-
     if len(boxes) == 0:
         return []
 
@@ -833,9 +831,6 @@ def diamondboxes(boxes, scores, nms_threshold, score_threshold, imagex, imagey, 
     # this is important since we'll be doing a bunch of divisions
     if boxes.dtype.kind == "i":
         boxes = boxes.astype("float")
-
-
-
 
     # initialize the list of picked indexes
     pick = []
@@ -1189,7 +1184,7 @@ def saveimage(ColorimageStatic,ColorimageDynamic , xlocations, ylocations, tloca
                     if event_label == 5:
                         ColorimageStatic[Z, :, :, 2] = img[:, :, 0]
 
-def gold_nms(heatmap,eventmarkers, classedboxes, event_name, downsamplefactor, iou_threshold, event_threshold, gridx, gridy, generate_map, nms_function):
+def gold_nms(heatmap, classedboxes, event_name, downsamplefactor, iou_threshold, event_threshold, gridx, gridy, generate_map, nms_function):
 
                sorted_event_box = classedboxes[event_name][0]
                scores = [ sorted_event_box[i][event_name]  for i in range(len(sorted_event_box))]
@@ -1200,7 +1195,7 @@ def gold_nms(heatmap,eventmarkers, classedboxes, event_name, downsamplefactor, i
                                                               ycenter = iou_current_event_box['ycenter']* downsamplefactor
                                                               tcenter = iou_current_event_box['real_time_event']
                                                               score = iou_current_event_box[event_name]
-                                                              eventmarkers[int(tcenter), int(ycenter), int(xcenter)] = 1
+                                                              
                                                               if generate_map:
                                                                     for x in range(int(xcenter - 8), int(xcenter + 8)):
                                                                         for y in range(int(ycenter - 8), int(ycenter + 8)):
