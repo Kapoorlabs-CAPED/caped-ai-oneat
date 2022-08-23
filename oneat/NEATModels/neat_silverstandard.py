@@ -711,7 +711,7 @@ class NEATCynamic(object):
             patchx = sliceregion.shape[2] // self.n_tiles[0]
             patchy = sliceregion.shape[1] // self.n_tiles[1]
             patchshape = (patchy, patchx)
-            smallpatch, smallrowout, smallcolumn = chunk_list(sliceregion, patchshape, self.stride, [0, 0])
+            smallpatch, smallrowout, smallcolumn = chunk_list(sliceregion, patchshape, [0, 0])
             patch.append(smallpatch)
             rowout.append(smallrowout)
             column.append(smallcolumn)
@@ -759,7 +759,7 @@ class NEATCynamic(object):
                     rowout = []
                     column = []
                     for pair in pairs:
-                        smallpatch, smallrowout, smallcolumn = chunk_list(sliceregion, patchshape, self.stride, pair)
+                        smallpatch, smallrowout, smallcolumn = chunk_list(sliceregion, patchshape, pair)
                         if smallpatch.shape[1] >= self.imagey and smallpatch.shape[2] >= self.imagex:
                             patch.append(smallpatch)
                             rowout.append(smallrowout)
@@ -773,7 +773,7 @@ class NEATCynamic(object):
                 patchx = sliceregion.shape[2] // self.n_tiles[0]
                 patchy = sliceregion.shape[1] // self.n_tiles[1]
                 patchshape = (patchy, patchx)
-                smallpatch, smallrowout, smallcolumn = chunk_list(sliceregion, patchshape, self.stride, [0, 0])
+                smallpatch, smallrowout, smallcolumn = chunk_list(sliceregion, patchshape, [0, 0])
                 patch.append(smallpatch)
                 rowout.append(smallrowout)
                 column.append(smallcolumn)
@@ -833,7 +833,7 @@ def CreateVolume(patch, imaget, timepoint):
     return smallimg
 
 
-def chunk_list(image, patchshape, stride, pair):
+def chunk_list(image, patchshape, pair):
     rowstart = pair[0]
     colstart = pair[1]
 
@@ -855,92 +855,4 @@ def chunk_list(image, patchshape, stride, pair):
 
     return patch, rowstart, colstart
 
-
-class EventViewer(object):
-
-    def __init__(self, viewer, image, event_name, key_categories, imagename, savedir, canvas, ax, figure, yolo_v2):
-
-        self.viewer = viewer
-        self.image = image
-        self.event_name = event_name
-        self.imagename = imagename
-        self.canvas = canvas
-        self.key_categories = key_categories
-        self.savedir = savedir
-        self.ax = ax
-        self.yolo_v2 = yolo_v2
-        self.figure = figure
-        self.plot()
-
-    def plot(self):
-
-        self.ax.cla()
-
-        for (event_name, event_label) in self.key_categories.items():
-            if event_label > 0 and self.event_name == event_name:
-                csvname = self.savedir + "/" + event_name + "Location" + (
-                        os.path.splitext(os.path.basename(self.imagename))[0] + '.csv')
-                event_locations, size_locations, angle_locations, line_locations, timelist, eventlist = self.event_counter(
-                    csvname)
-
-                for layer in list(self.viewer.layers):
-                    if event_name in layer.name or layer.name in event_name or event_name + 'angle' in layer.name or layer.name in event_name + 'angle':
-                        self.viewer.layers.remove(layer)
-                    if 'Image' in layer.name or layer.name in 'Image':
-                        self.viewer.layers.remove(layer)
-                self.viewer.add_image(self.image, name='Image')
-                self.viewer.add_points(np.asarray(event_locations), size=size_locations, name=event_name,
-                                       face_color=[0] * 4, edge_color="red", edge_width=1)
-                if self.yolo_v2:
-                    self.viewer.add_shapes(np.asarray(line_locations), name=event_name + 'angle', shape_type='line',
-                                           face_color=[0] * 4, edge_color="red", edge_width=1)
-                self.viewer.theme = 'light'
-                self.ax.plot(timelist, eventlist, '-r')
-                self.ax.set_title(event_name + "Events")
-                self.ax.set_xlabel("Time")
-                self.ax.set_ylabel("Counts")
-                self.figure.canvas.draw()
-                self.figure.canvas.flush_events()
-                plt.savefig(self.savedir + event_name + '.png')
-
-    def event_counter(self, csv_file):
-
-        time, y, x, score, size, confidence, angle = np.loadtxt(csv_file, delimiter=',', skiprows=1, unpack=True)
-
-        radius = 10
-        eventcounter = 0
-        eventlist = []
-        timelist = []
-        listtime = time.tolist()
-        listy = y.tolist()
-        listx = x.tolist()
-        listsize = size.tolist()
-        listangle = angle.tolist()
-
-        event_locations = []
-        size_locations = []
-        angle_locations = []
-        line_locations = []
-        for i in range(len(listtime)):
-            tcenter = int(listtime[i])
-            ycenter = listy[i]
-            xcenter = listx[i]
-            size = listsize[i]
-            angle = listangle[i]
-            eventcounter = listtime.count(tcenter)
-            timelist.append(tcenter)
-            eventlist.append(eventcounter)
-
-            event_locations.append([tcenter, ycenter, xcenter])
-            size_locations.append(size)
-
-            xstart = xcenter + radius * math.cos(angle)
-            xend = xcenter - radius * math.cos(angle)
-
-            ystart = ycenter + radius * math.sin(angle)
-            yend = ycenter - radius * math.sin(angle)
-            line_locations.append([[tcenter, ystart, xstart], [tcenter, yend, xend]])
-            angle_locations.append(angle)
-
-        return event_locations, size_locations, angle_locations, line_locations, timelist, eventlist
 

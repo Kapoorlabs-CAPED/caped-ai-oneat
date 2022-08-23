@@ -1,7 +1,7 @@
 from oneat.NEATUtils import plotters
 import numpy as np
 from oneat.NEATUtils import helpers
-from oneat.NEATUtils.helpers import  pad_timelapse, get_nearest,  load_json, yoloprediction, normalizeFloatZeroOne, GenerateVolumeMarkers, MakeTrees, DownsampleData,save_dynamic_csv, dynamic_nms, gold_nms
+from oneat.NEATUtils.helpers import  pad_volumetimelapse, get_nearest,  load_json, yoloprediction, normalizeFloatZeroOne, GenerateVolumeMarkers, MakeForest, DownsampleData,save_dynamic_csv, dynamic_nms, gold_nms
 from keras import callbacks
 import os
 import sys
@@ -275,23 +275,22 @@ class NEATEynamic(object):
 
         self.Trainingmodel.save(os.path.join(self.model_dir, self.model_name) )
 
-    def get_markers(self, imagename, segdir, downsamplefactor = 1):
+    def get_markers(self, imagename, segdir):
 
         self.imagename = imagename
         self.segdir = segdir
         Name = os.path.basename(os.path.splitext(self.imagename)[0])
         self.pad_width = (self.config['imagez'], self.config['imagey'], self.config['imagex'])
-        self.downsamplefactor = downsamplefactor
         print('Obtaining Markers')
         self.segimage = imread(self.segdir + '/' + Name + '.tif')
         self.markers = GenerateVolumeMarkers(self.segimage, pad_width = self.pad_width)
-        self.marker_tree = MakeTrees(self.markers)
+        self.marker_tree = MakeForest(self.markers)
         self.segimage = None         
 
         return self.marker_tree
     
-    def predict(self, imagename,  savedir, n_tiles=(1, 1), overlap_percent=0.8,
-                event_threshold=0.5, event_confidence = 0.5, iou_threshold=0.1,  fidelity=1, downsamplefactor = 1, start_project_mid = 4, end_project_mid = 4,
+    def predict(self, imagename,  savedir, n_tiles=(1, 1, 1), overlap_percent=0.8,
+                event_threshold=0.5, event_confidence = 0.5, iou_threshold=0.1,  fidelity=1, downsamplefactor = 1, 
                 erosion_iterations = 1,  marker_tree = None, remove_markers = False, normalize = True, center_oneat = True, nms_function = 'iou'):
 
 
@@ -300,8 +299,6 @@ class NEATEynamic(object):
         self.Name = os.path.basename(os.path.splitext(self.imagename)[0])
         self.nms_function = nms_function 
         self.image = imread(imagename)
-        self.start_project_mid = start_project_mid
-        self.end_project_mid = end_project_mid
         self.ndim = len(self.image.shape)
         self.normalize = normalize
         
@@ -309,12 +306,12 @@ class NEATEynamic(object):
                     self.image = normalizeFloatZeroOne(self.image.astype('float32'), 1, 99.8)
         self.erosion_iterations = erosion_iterations
         
-        self.heatmap = np.zeros(self.image.shape, dtype = 'float32')  
-        self.eventmarkers = np.zeros(self.image.shape, dtype = 'uint16')
         self.savedir = savedir
         Path(self.savedir).mkdir(exist_ok=True)
-        if len(n_tiles) > 2:
-            n_tiles = (n_tiles[-2], n_tiles[-1])
+        if len(n_tiles) == 3:   
+           n_tiles = (n_tiles[-3], n_tiles[-2], n_tiles[-1])
+        else:
+            n_tiles = (1,1,1)   
         self.n_tiles = n_tiles
         self.fidelity = fidelity
         self.overlap_percent = overlap_percent
@@ -330,21 +327,19 @@ class NEATEynamic(object):
 
         self.marker_tree = marker_tree
         self.remove_markers = remove_markers
-        if self.remove_markers:
-             self.image = DownsampleData(self.image, self.downsamplefactor)
-
+       
         
         if self.remove_markers == True:
            self.generate_maps = False 
 
-           self.image = pad_timelapse(self.image, self.pad_width)
+           self.image = pad_volumetimelapse(self.image, self.pad_width)
            print(f'zero padded image shape ${self.image.shape}')
            self.first_pass_predict()
            self.second_pass_predict()
         if self.remove_markers == False:
            self.generate_maps = False 
 
-           self.image = pad_timelapse(self.image, self.pad_width)
+           self.image = pad_volumetimelapse(self.image, self.pad_width)
            print(f'zero padded image shape ${self.image.shape}')
            self.second_pass_predict()
         if self.remove_markers == None:
@@ -355,18 +350,12 @@ class NEATEynamic(object):
         eventboxes = []
         classedboxes = {}    
         count = 0
-        heatsavename = self.savedir+ "/"  + (os.path.splitext(os.path.basename(self.imagename))[0])+ '_Heat' 
 
         print('Detecting event locations')
         self.image = DownsampleData(self.image, self.downsamplefactor)
         for inputtime in tqdm(range(0, self.image.shape[0])):
                     if inputtime < self.image.shape[0] - self.imaget and inputtime > int(self.imaget)//2:
                                 count = count + 1
-                                if inputtime%(self.image.shape[0]//4)==0 and inputtime > 0 or inputtime >= self.image.shape[0] - self.imaget - 1:
-                                      
-                                                                              
-                                      
-                                      imwrite((heatsavename + '.tif' ), self.heatmap)
                                       
                                 smallimage = CreateVolume(self.image, self.imaget, inputtime)
                                 
@@ -750,24 +739,30 @@ class NEATEynamic(object):
 def CreateVolume(patch, imaget, timepoint):
     starttime = timepoint - int(imaget)//2
     endtime = timepoint + int(imaget)//2 + 1
+    #TZYX needs to be reshaed to ZYXT
     smallimg = patch[starttime:endtime, :]
     smallimg = tf.reshape(smallimg, (smallimg.shape[1], smallimg.shape[2], smallimg.shape[3], smallimg.shape[0]))
     return smallimg
 
 
-def chunk_list(image, patchshape, stride, pair):
-    rowstart = pair[0]
-    colstart = pair[1]
+def chunk_list(image, patchshape, pair):
 
-    endrow = rowstart + patchshape[0]
-    endcol = colstart + patchshape[1]
+    zstart = pair[0] 
+    rowstart = pair[1]
+    colstart = pair[2]
 
-    if endrow > image.shape[1]:
-        endrow = image.shape[1]
-    if endcol > image.shape[2]:
-        endcol = image.shape[2]
+    endz = zstart + patchshape[0]
+    endrow = rowstart + patchshape[1]
+    endcol = colstart + patchshape[2]
 
-    region = (slice(0, image.shape[0]), slice(rowstart, endrow),
+    if endrow > image.shape[2]:
+        endrow = image.shape[2]
+    if endcol > image.shape[3]:
+        endcol = image.shape[3]
+    if endz > image.shape[1]:
+         endz = image.shape[1]    
+
+    region = (slice(0, image.shape[0]), slice(zstart, endz), slice(rowstart, endrow),
               slice(colstart, endcol))
 
     # The actual pixels in that region.
@@ -775,94 +770,6 @@ def chunk_list(image, patchshape, stride, pair):
 
     # Always normalize patch that goes into the netowrk for getting a prediction score
 
-    return patch, rowstart, colstart
+    return patch, zstart, rowstart, colstart
 
-
-class EventViewer(object):
-
-    def __init__(self, viewer, image, event_name, key_categories, imagename, savedir, canvas, ax, figure, yolo_v2):
-
-        self.viewer = viewer
-        self.image = image
-        self.event_name = event_name
-        self.imagename = imagename
-        self.canvas = canvas
-        self.key_categories = key_categories
-        self.savedir = savedir
-        self.ax = ax
-        self.yolo_v2 = yolo_v2
-        self.figure = figure
-        self.plot()
-
-    def plot(self):
-
-        self.ax.cla()
-
-        for (event_name, event_label) in self.key_categories.items():
-            if event_label > 0 and self.event_name == event_name:
-                csvname = self.savedir + "/" + event_name + "Location" + (
-                        os.path.splitext(os.path.basename(self.imagename))[0] + '.csv')
-                event_locations, size_locations, angle_locations, line_locations, timelist, eventlist = self.event_counter(
-                    csvname)
-
-                for layer in list(self.viewer.layers):
-                    if event_name in layer.name or layer.name in event_name or event_name + 'angle' in layer.name or layer.name in event_name + 'angle':
-                        self.viewer.layers.remove(layer)
-                    if 'Image' in layer.name or layer.name in 'Image':
-                        self.viewer.layers.remove(layer)
-                self.viewer.add_image(self.image, name='Image')
-                self.viewer.add_points(np.asarray(event_locations), size=size_locations, name=event_name,
-                                       face_color=[0] * 4, edge_color="red", edge_width=1)
-                if self.yolo_v2:
-                    self.viewer.add_shapes(np.asarray(line_locations), name=event_name + 'angle', shape_type='line',
-                                           face_color=[0] * 4, edge_color="red", edge_width=1)
-                self.viewer.theme = 'light'
-                self.ax.plot(timelist, eventlist, '-r')
-                self.ax.set_title(event_name + "Events")
-                self.ax.set_xlabel("Time")
-                self.ax.set_ylabel("Counts")
-                self.figure.canvas.draw()
-                self.figure.canvas.flush_events()
-                plt.savefig(self.savedir + event_name + '.png')
-
-    def event_counter(self, csv_file):
-
-        time, y, x, score, size, confidence, angle = np.loadtxt(csv_file, delimiter=',', skiprows=1, unpack=True)
-
-        radius = 10
-        eventcounter = 0
-        eventlist = []
-        timelist = []
-        listtime = time.tolist()
-        listy = y.tolist()
-        listx = x.tolist()
-        listsize = size.tolist()
-        listangle = angle.tolist()
-
-        event_locations = []
-        size_locations = []
-        angle_locations = []
-        line_locations = []
-        for i in range(len(listtime)):
-            tcenter = int(listtime[i])
-            ycenter = listy[i]
-            xcenter = listx[i]
-            size = listsize[i]
-            angle = listangle[i]
-            eventcounter = listtime.count(tcenter)
-            timelist.append(tcenter)
-            eventlist.append(eventcounter)
-
-            event_locations.append([tcenter, ycenter, xcenter])
-            size_locations.append(size)
-
-            xstart = xcenter + radius * math.cos(angle)
-            xend = xcenter - radius * math.cos(angle)
-
-            ystart = ycenter + radius * math.sin(angle)
-            yend = ycenter - radius * math.sin(angle)
-            line_locations.append([[tcenter, ystart, xstart], [tcenter, yend, xend]])
-            angle_locations.append(angle)
-
-        return event_locations, size_locations, angle_locations, line_locations, timelist, eventlist
 

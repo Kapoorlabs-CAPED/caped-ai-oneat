@@ -16,28 +16,15 @@ import os
 from tqdm import tqdm
 from oneat.NEATModels import nets
 from oneat.NEATModels.nets import Concat
-from oneat.NEATModels.loss import static_yolo_loss, static_yolo_loss_segfree, class_yolo_loss
+from oneat.NEATModels.loss import static_yolo_loss, class_yolo_loss
 from keras import backend as K
 import tensorflow as tf
 # from IPython.display import clear_output
-from keras import optimizers
 from pathlib import Path
 from keras.models import load_model
 from keras.utils import plot_model
 from tifffile import imread, imwrite
-import csv
-import napari
-#from napari.qt.threading import thread_worker
-import matplotlib.pyplot as plt
-#from matplotlib.backends.backend_qt5agg import \
-    #FigureCanvasQTAgg as FigureCanvas
-from matplotlib.figure import Figure
-#from qtpy.QtCore import Qt
-#from qtpy.QtWidgets import QComboBox, QPushButton, QSlider
-import glob
 import h5py
-#import cv2
-import imageio
 
 Boxname = 'ImageIDBox'
 CellTypeBoxname = 'CellIDBox'
@@ -599,66 +586,3 @@ def chunk_list(image, patchshape, pair):
     return patch, rowstart, colstart
 
 
-class CellTypeViewer(object):
-
-    def __init__(self, viewer, image, celltype_name, key_categories, imagename, savedir, canvas, ax, figure):
-
-        self.viewer = viewer
-        self.image = image
-        self.celltype_name = celltype_name
-        self.imagename = imagename
-        self.canvas = canvas
-        self.key_categories = key_categories
-        self.savedir = savedir
-
-        self.plot()
-
-    def plot(self):
-
-        for (celltype_name, event_label) in self.key_categories.items():
-            if event_label > 0 and self.celltype_name == celltype_name:
-                csvname = self.savedir + "/" + celltype_name + "Location" + (
-                            os.path.splitext(os.path.basename(self.imagename))[0] + '.csv')
-                event_locations, size_locations, timelist, eventlist = self.event_counter(csvname)
-
-                for layer in list(self.viewer.layers):
-                    if celltype_name in layer.name or layer.name in celltype_name:
-                        self.viewer.layers.remove(layer)
-                    if 'Image' in layer.name or layer.name in 'Image':
-                        self.viewer.layers.remove(layer)
-                self.viewer.add_image(self.image, name='Image')
-                self.viewer.add_points(np.asarray(event_locations), size=size_locations, name=celltype_name,
-                                       face_color=[0] * 4, edge_color="red", edge_width=1)
-                self.viewer.theme = 'light'
-
-    def event_counter(self, csv_file):
-
-        time, y, x, score, size, confidence = np.loadtxt(csv_file, delimiter=',', skiprows=1, unpack=True)
-
-        eventcounter = 0
-        eventlist = []
-        timelist = []
-        listtime = time.tolist()
-        listy = y.tolist()
-        listx = x.tolist()
-        listsize = size.tolist()
-
-        event_locations = []
-        size_locations = []
-
-        for i in range(len(listtime)):
-            tcenter = listtime[i]
-            ycenter = listy[i]
-            xcenter = listx[i]
-            size = listsize[i]
-            eventcounter = listtime.count(tcenter)
-            timelist.append(tcenter)
-            eventlist.append(eventcounter)
-
-            event_locations.append([tcenter, ycenter, xcenter])
-            if size > 1:
-                size_locations.append(size)
-            else:
-                size_locations.append(2)
-
-        return event_locations, size_locations, timelist, eventlist

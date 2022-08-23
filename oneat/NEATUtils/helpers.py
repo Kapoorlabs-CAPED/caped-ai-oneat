@@ -584,7 +584,29 @@ def MakeTrees(segimage):
 
     return AllTrees
 
+def MakeForest(segimage):
+    AllForest = {}
+    #TZYX is the shape
+    print("Creating Dictionary of marker location for fast search")
+    for i in tqdm(range(0, segimage.shape[0])):
 
+        indices = []
+        
+        currentimage = segimage[i, :].astype('uint16')
+       
+        currentimage = currentimage > 0
+        currentimage = label(currentimage)
+        props = measure.regionprops(currentimage)
+        for prop in props:
+              indices.append((int(prop.centroid[0]), int(prop.centroid[1]), int(prop.centroid[2]) ))
+        # Comparison between image_max and im to find the coordinates of local maxima
+      
+        if len(indices) > 0:
+            tree = spatial.cKDTree(indices)
+
+            AllForest[str(i)] = [tree, indices]
+
+    return AllForest
        
 
 
