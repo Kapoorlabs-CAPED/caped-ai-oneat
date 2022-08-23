@@ -1,17 +1,15 @@
 from oneat.NEATUtils import plotters
 import numpy as np
 from oneat.NEATUtils import helpers
-from oneat.NEATUtils.helpers import MidSlices, pad_timelapse,  MidSlicesSum, get_nearest,  load_json, yoloprediction, normalizeFloatZeroOne, GenerateMarkers, MakeTrees, DownsampleData,save_dynamic_csv, dynamic_nms, gold_nms
+from oneat.NEATUtils.helpers import  pad_timelapse, get_nearest,  load_json, yoloprediction, normalizeFloatZeroOne, GenerateMarkers, MakeTrees, DownsampleData,save_dynamic_csv, dynamic_nms, gold_nms
 from keras import callbacks
 import os
-import keras
 import sys
-from scipy.ndimage.morphology import binary_dilation, binary_erosion
 import math
 from tqdm import tqdm
 from oneat.NEATModels import nets
 from oneat.NEATModels.nets import Concat
-from oneat.NEATModels.loss import dynamic_yolo_loss
+from oneat.NEATModels.loss import diamond_yolo_loss
 from keras import backend as K
 import tensorflow as tf
 from oneat.pretrained import get_registered_models, get_model_details, get_model_instance
@@ -19,21 +17,10 @@ from pathlib import Path
 from keras.models import load_model
 from keras.utils import plot_model
 from tifffile import imread, imwrite
-import napari
-import glob
-from skimage.morphology import erosion, dilation, disk
-import matplotlib.pyplot as plt
-from matplotlib.backends.backend_qt5agg import \
-    FigureCanvasQTAgg as FigureCanvas
-from qtpy.QtCore import Qt
-from qtpy.QtWidgets import QComboBox, QPushButton
-import cv2
-from scipy import ndimage
-from skimage.measure import label
-from skimage import measure
-Boxname = 'ImageIDBox'
-EventBoxname = 'EventIDBox'
 
+from skimage.morphology import dilation, disk
+
+from skimage.measure import label
 
 class NEATEynamic(object):
     """
@@ -105,7 +92,7 @@ class NEATEynamic(object):
             self.nboxes = config.nboxes
             self.gridx = 1
             self.gridy = 1
-            self.gridt = 1
+            self.gridz = 1
             self.yolo_v0 = config.yolo_v0
             self.yolo_v1 = config.yolo_v1
             self.yolo_v2 = config.yolo_v2
@@ -145,7 +132,7 @@ class NEATEynamic(object):
             self.last_conv_factor = 2 ** (self.stage_number - 1)
             self.gridx = 1
             self.gridy = 1
-            self.gridt = 1
+            self.gridz = 1
             self.yolo_v0 = self.config['yolo_v0']
             self.yolo_v1 = self.config['yolo_v1']
             self.yolo_v2 = self.config['yolo_v2']
@@ -170,7 +157,7 @@ class NEATEynamic(object):
         if self.multievent == False:
             self.last_activation = 'softmax'
             self.entropy = 'notbinary'
-        self.yololoss = dynamic_yolo_loss(self.categories, self.gridx, self.gridy, self.gridt, self.nboxes,
+        self.yololoss = diamond_yolo_loss(self.categories, self.gridx, self.gridy, self.gridz, self.nboxes,
                                           self.box_vector, self.entropy, self.yolo_v0, self.yolo_v1, self.yolo_v2)
 
     @classmethod   
@@ -637,70 +624,7 @@ class NEATEynamic(object):
 
     
 
-    def showNapari(self, imagedir, savedir, yolo_v2=False):
-
-        Raw_path = os.path.join(imagedir, '*tif')
-        X = glob.glob(Raw_path)
-        self.savedir = savedir
-        Imageids = []
-        self.viewer = napari.Viewer()
-        napari.run()
-        for imagename in X:
-            Imageids.append(imagename)
-
-        eventidbox = QComboBox()
-        eventidbox.addItem(EventBoxname)
-        for (event_name, event_label) in self.key_categories.items():
-            eventidbox.addItem(event_name)
-
-        imageidbox = QComboBox()
-        imageidbox.addItem(Boxname)
-        detectionsavebutton = QPushButton(' Save detection Movie')
-
-        for i in range(0, len(Imageids)):
-            imageidbox.addItem(str(Imageids[i]))
-
-        figure = plt.figure(figsize=(4, 4))
-        multiplot_widget = FigureCanvas(figure)
-        ax = multiplot_widget.figure.subplots(1, 1)
-        width = 400
-        dock_widget = self.viewer.window.add_dock_widget(
-            multiplot_widget, name="EventStats", area='right')
-        multiplot_widget.figure.tight_layout()
-        self.viewer.window._qt_window.resizeDocks([dock_widget], [width], Qt.Horizontal)
-        eventidbox.currentIndexChanged.connect(lambda eventid=eventidbox: EventViewer(
-            self.viewer,
-            imread(imageidbox.currentText()),
-            eventidbox.currentText(),
-            self.key_categories,
-            os.path.basename(os.path.splitext(imageidbox.currentText())[0]),
-            savedir,
-            multiplot_widget,
-            ax,
-            figure,
-            yolo_v2,
-
-        )
-                                               )
-
-        imageidbox.currentIndexChanged.connect(
-            lambda trackid=imageidbox: EventViewer(
-                self.viewer,
-                imread(imageidbox.currentText()),
-                eventidbox.currentText(),
-                self.key_categories,
-                os.path.basename(os.path.splitext(imageidbox.currentText())[0]),
-                savedir,
-                multiplot_widget,
-                ax,
-                figure,
-                yolo_v2,
-
-            )
-        )
-
-        self.viewer.window.add_dock_widget(eventidbox, name="Event", area='left')
-        self.viewer.window.add_dock_widget(imageidbox, name="Image", area='left')
+    
 
     def overlaptiles(self, sliceregion):
 
