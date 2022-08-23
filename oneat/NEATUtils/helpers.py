@@ -1310,7 +1310,7 @@ def yoloprediction(sy, sx, time_prediction, stride, inputtime, config, key_categ
             k = k + 1
 
         if k > time_prediction.shape[0]:
-            break;
+            break
         Classybox = predictionloop(j, k, sx, sy, nboxes, stride, time_prediction, config, key_categories, key_cord,
                                    inputtime, mode, event_type, marker_tree = marker_tree, center_oneat = center_oneat)
         # Append the box and the maximum likelehood detected class
@@ -1320,6 +1320,181 @@ def yoloprediction(sy, sx, time_prediction, stride, inputtime, config, key_categ
     return LocationBoxes
 
 
+def diamondyoloprediction(sz, sy, sx, time_prediction, stride, inputtime, config, key_categories, key_cord, nboxes, mode,
+                   event_type, marker_tree=None):
+    LocationBoxes = []
+    j = 0
+    
+    k = 1
+    for i in range(time_prediction.shape[0]):
+        while True:
+            j = j + 1
+            
+            if j > time_prediction.shape[1]:
+                j = 1
+                
+                k = k + 1
+
+            if k > time_prediction.shape[2]:
+                break
+            Classybox = diamondpredictionloop(i, j, k, sz, sy, sx, nboxes, stride, time_prediction, config, key_categories, key_cord,
+                                    inputtime, mode, event_type, marker_tree = marker_tree)
+            # Append the box and the maximum likelehood detected class
+            if Classybox is not None:
+                    LocationBoxes.append(Classybox)
+
+    return LocationBoxes    
+
+def diamondpredictionloop(i, j, k, sz, sy, sx, nboxes, stride, time_prediction, config, key_categories, key_cord, inputtime, mode,
+                   event_type, marker_tree = None):
+    total_classes = len(key_categories)
+    total_coords = len(key_cord)
+    y = (k - 1) * stride
+    x = (j - 1) * stride
+    z = (i - 1) * stride
+    prediction_vector = time_prediction[i - 1, k - 1, j - 1, :]
+
+    xstart = x + sx
+    ystart = y + sy
+    zstart = z + sz
+    Class = {}
+    # Compute the probability of each class
+    for (event_name, event_label) in key_categories.items():
+        Class[event_name] = prediction_vector[event_label]
+
+    xcentermean = 0
+    ycentermean = 0
+    
+    zcentermean = 0
+    xcenterrawmean = 0
+    ycenterrawmean = 0
+    zcenterrawmean = 0
+    
+    widthmean = 0
+    heightmean = 0
+    depthmean = 0
+    anglemean = 0
+    angle = 0
+  
+    zcenter = 0
+    boxzcenter = 0
+    confidencemean = 0
+    trainshapex = config['imagex']
+    trainshapey = config['imagey']
+    trainshapez = config['imagez']
+    zcenterraw = 0
+    for b in range(0, nboxes):
+        xcenter = xstart + prediction_vector[total_classes + config['x'] + b * total_coords] * trainshapex
+        ycenter = ystart + prediction_vector[total_classes + config['y'] + b * total_coords] * trainshapey
+        zcenter = zstart + prediction_vector[total_classes + config['z'] + b * total_coords] * trainshapez
+        xcenterraw = prediction_vector[total_classes + config['x'] + b * total_coords]
+        ycenterraw = prediction_vector[total_classes + config['y'] + b * total_coords]
+        zcenterraw = prediction_vector[total_classes + config['z'] + b * total_coords]
+        try:
+            height = prediction_vector[total_classes + config['h'] + b * total_coords] * trainshapex
+            width = prediction_vector[total_classes + config['w'] + b * total_coords] * trainshapey
+            depth = prediction_vector[total_classes + config['d'] + b * total_coords] * trainshapez
+        except:
+            height = trainshapey
+            width = trainshapex
+            depth = trainshapez
+            pass
+        if event_type == 'dynamic' and mode == 'detection':
+            if config['yolo_v2']:
+                angle = prediction_vector[total_classes + config['angle'] + b * total_coords]
+                confidence = prediction_vector[total_classes + config['c'] + b * total_coords]
+            if config['yolo_v1']:
+                angle = 2
+                confidence = prediction_vector[total_classes + config['c'] + b * total_coords]
+           
+        if mode == 'prediction':
+            angle = 2
+            confidence = 1
+
+        if event_type == 'static':
+
+            confidence = prediction_vector[total_classes + config['c'] + b * total_coords]
+           
+
+        xcentermean = xcentermean + xcenter
+        ycentermean = ycentermean + ycenter
+        zcentermean = zcentermean + zcenter
+
+        heightmean = heightmean + height
+        widthmean = widthmean + width
+        depthmean = depthmean + depth
+        
+        confidencemean = confidencemean + confidence
+        anglemean = anglemean + angle
+
+        xcenterrawmean = xcenterrawmean + xcenterraw
+        ycenterrawmean = ycenterrawmean + ycenterraw
+        zcenterrawmean = zcenterrawmean + zcenterraw
+
+    xcentermean = xcentermean / nboxes
+    ycentermean = ycentermean / nboxes
+    zcentermean = zcentermean / nboxes
+
+    heightmean = heightmean / nboxes
+    widthmean = widthmean / nboxes
+    depthmean = depthmean / nboxes
+
+    confidencemean = confidencemean / nboxes
+    anglemean = anglemean / nboxes
+    xcenterrawmean = xcenterrawmean / nboxes
+    ycenterrawmean = ycenterrawmean / nboxes
+    zcenterrawmean = zcenterrawmean / nboxes
+
+    classybox = {}
+        
+    box = None   
+    if event_type == 'dynamic':
+        if mode == 'detection':
+            real_time_event = inputtime
+        if mode == 'prediction':
+            real_time_event = int(inputtime)
+            box_time_event = int(inputtime)
+        if config['yolo_v2']:
+            realangle = 2 * math.pi * anglemean 
+            rawangle = anglemean
+        else:
+            realangle = -1 
+            rawangle = -1
+        # Compute the box vectors
+        if marker_tree is not None:
+            nearest_location = get_nearest_volume(marker_tree, ycentermean, xcentermean, real_time_event)
+            if nearest_location is not None:
+               ycentermean, xcentermean = nearest_location
+        #Correct for zero padding
+        
+        box = {'xcenterraw': xcenterrawmean, 'ycenterraw': ycenterrawmean, 'zcenterraw': zcenterrawmean,  
+               'xcenter': xcentermean, 'ycenter': ycentermean, 'zcenter': zcentermean, 
+               'real_time_event': real_time_event, 'height': heightmean, 'width': widthmean, 'depth': depthmean, 
+               'confidence': confidencemean, 'realangle': realangle, 'rawangle': rawangle}
+           
+                                         
+    if event_type == 'static':
+            real_time_event = int(inputtime)
+            realangle = -1
+            rawangle = -1
+            if marker_tree is not None:
+                nearest_location = get_nearest_volume(marker_tree, ycentermean, xcentermean, real_time_event)
+                if nearest_location is not None:
+                    ycentermean, xcentermean = nearest_location
+           
+            box = {'xcenterraw': xcenterrawmean, 'ycenterraw': ycenterrawmean, 'zcenterraw': zcenterrawmean,  
+               'xcenter': xcentermean, 'ycenter': ycentermean, 'zcenter': zcentermean, 
+               'real_time_event': real_time_event, 'height': heightmean, 'width': widthmean, 'depth': depthmean, 
+               'confidence': confidencemean, 'realangle': realangle, 'rawangle': rawangle}
+                
+
+    
+    if box is not None:
+                # Make a single dict object containing the class and the box vectors return also the max prob label
+                for d in [Class, box]:
+                    classybox.update(d)
+                
+                return classybox    
 def focyoloprediction(sy, sx, z_prediction, stride, inputz, config, key_categories):
     LocationBoxes = []
     j = 0
@@ -1552,6 +1727,15 @@ def get_nearest(marker_tree, ycenter, xcenter, tcenter):
     if distance <= 30:
         nearest_location = int(indices[nearest_location][0]), int(indices[nearest_location][1])
         return nearest_location[0], nearest_location[1]
+
+def get_nearest_volume(marker_tree, zcenter, ycenter, xcenter, tcenter):
+    location = (zcenter, ycenter, xcenter)
+    tree, indices = marker_tree[str(int(round(tcenter)))]
+    distance, nearest_location = tree.query(location)
+
+    if distance <= 30:
+        nearest_location = int(indices[nearest_location][0]), int(indices[nearest_location][1]), int(indices[nearest_location][2])
+        return nearest_location[0], nearest_location[1], nearest_location[2]        
 
 
 def draw_labelimages(image, location):

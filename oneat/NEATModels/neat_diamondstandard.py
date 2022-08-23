@@ -1,7 +1,7 @@
 from oneat.NEATUtils import plotters
 import numpy as np
 from oneat.NEATUtils import helpers
-from oneat.NEATUtils.helpers import  pad_volumetimelapse, get_nearest,  load_json, yoloprediction, normalizeFloatZeroOne, GenerateVolumeMarkers, MakeForest, DownsampleData,save_dynamic_csv, dynamic_nms, gold_nms
+from oneat.NEATUtils.helpers import  pad_volumetimelapse, get_nearest,  load_json, diamondyoloprediction, normalizeFloatZeroOne, GenerateVolumeMarkers, MakeForest,save_dynamic_csv, dynamic_nms, gold_nms
 from keras import callbacks
 import os
 import sys
@@ -290,8 +290,8 @@ class NEATEynamic(object):
         return self.marker_tree
     
     def predict(self, imagename,  savedir, n_tiles=(1, 1, 1), overlap_percent=0.8,
-                event_threshold=0.5, event_confidence = 0.5, iou_threshold=0.1,  fidelity=1, downsamplefactor = 1, 
-                erosion_iterations = 1,  marker_tree = None, remove_markers = False, normalize = True, center_oneat = True, nms_function = 'iou'):
+                event_threshold=0.5, event_confidence = 0.5, iou_threshold=0.1,  
+                marker_tree = None, remove_markers = False, normalize = True,  nms_function = 'iou'):
 
 
         
@@ -304,7 +304,6 @@ class NEATEynamic(object):
         
         if self.normalize: 
                     self.image = normalizeFloatZeroOne(self.image.astype('float32'), 1, 99.8)
-        self.erosion_iterations = erosion_iterations
         
         self.savedir = savedir
         Path(self.savedir).mkdir(exist_ok=True)
@@ -313,14 +312,11 @@ class NEATEynamic(object):
         else:
             n_tiles = (1,1,1)   
         self.n_tiles = n_tiles
-        self.fidelity = fidelity
         self.overlap_percent = overlap_percent
         self.iou_threshold = iou_threshold
         self.event_threshold = event_threshold
         self.event_confidence = event_confidence
-        self.downsamplefactor = downsamplefactor
         self.originalimage = self.image
-        self.center_oneat = center_oneat
         
         self.model = load_model(os.path.join(self.model_dir, self.model_name) + '.h5',
                                 custom_objects={'loss': self.yololoss, 'Concat': Concat})
@@ -352,7 +348,6 @@ class NEATEynamic(object):
         count = 0
 
         print('Detecting event locations')
-        self.image = DownsampleData(self.image, self.downsamplefactor)
         for inputtime in tqdm(range(0, self.image.shape[0])):
                     if inputtime < self.image.shape[0] - self.imaget and inputtime > int(self.imaget)//2:
                                 count = count + 1
@@ -361,7 +356,7 @@ class NEATEynamic(object):
                                 
                                 # Cut off the region for training movie creation
                                 #Break image into tiles if neccessary
-                                predictions, allx, ally = self.predict_main(smallimage)
+                                predictions, allx, ally, allz = self.predict_main(smallimage)
                                 #Iterate over tiles
                                 for p in range(0,len(predictions)):   
                         
@@ -370,14 +365,16 @@ class NEATEynamic(object):
                                      #For each tile the prediction vector has shape N H W Categories + Training Vector labels
                                      for i in range(0, sum_time_prediction.shape[0]):
                                           time_prediction =  sum_time_prediction[i]
-                                          boxprediction = yoloprediction(ally[p], 
+                                          boxprediction = diamondyoloprediction(
+                                          allz[p],  
+                                          ally[p], 
                                           allx[p], 
                                           time_prediction, 
                                           self.stride, inputtime , 
                                           self.config, 
                                           self.key_categories, 
                                           self.key_cord, 
-                                          self.nboxes, 'detection', 'dynamic',marker_tree=self.marker_tree, center_oneat = self.center_oneat)
+                                          self.nboxes, 'detection', 'dynamic',marker_tree=self.marker_tree)
                                           
                                           if boxprediction is not None:
                                                   eventboxes = eventboxes + boxprediction
@@ -424,7 +421,7 @@ class NEATEynamic(object):
                
                 # Cut off the region for training movie creation
                 # Break image into tiles if neccessary
-                predictions, allx, ally = self.predict_main(smallimage)
+                predictions, allx, ally, allz = self.predict_main(smallimage)
                 # Iterate over tiles
                 for p in range(0, len(predictions)):
 
@@ -434,10 +431,16 @@ class NEATEynamic(object):
                         # For each tile the prediction vector has shape N H W Categories + Training Vector labels
                         for i in range(0, sum_time_prediction.shape[0]):
                             time_prediction = sum_time_prediction[i]
-                            boxprediction = yoloprediction(ally[p], allx[p], time_prediction, self.stride,
-                                                           inputtime, self.config,
-                                                           self.key_categories, self.key_cord, self.nboxes, 'detection',
-                                                           'dynamic', marker_tree = self.marker_tree, center_oneat = False)
+                            boxprediction = diamondyoloprediction(
+                                          allz[p],  
+                                          ally[p], 
+                                          allx[p], 
+                                          time_prediction, 
+                                          self.stride, inputtime , 
+                                          self.config, 
+                                          self.key_categories, 
+                                          self.key_cord, 
+                                          self.nboxes, 'detection', 'dynamic',marker_tree=self.marker_tree)
                                           
                             if boxprediction is not None:
                                 eventboxes = eventboxes + boxprediction
@@ -476,8 +479,6 @@ class NEATEynamic(object):
 
                 eventboxes = []
                 classedboxes = {}                    
-            #Image back to the same co ordinate system
-        self.image = DownsampleData(self.image, int(1.0//self.downsamplefactor))
        
         
 
@@ -490,18 +491,9 @@ class NEATEynamic(object):
         classedboxes = {}
         self.n_tiles = (1,1)
         
-        heatsavename = self.savedir+ "/"  + (os.path.splitext(os.path.basename(self.imagename))[0])+ '_Heat'
-        eventsavename = self.savedir + "/" + (os.path.splitext(os.path.basename(self.imagename))[0])+ '_Event'
-        
-  
         for inputtime in tqdm(range(int(self.imaget)//2, self.image.shape[0])):
              if inputtime < self.image.shape[0] - self.imaget:   
 
-                if inputtime%(self.image.shape[0]//4)==0 and inputtime > 0 or inputtime >= self.image.shape[0] - self.imaget - 1:
-                                      markers_current = dilation(self.eventmarkers[inputtime,:], disk(2))
-                                      self.eventmarkers[inputtime,:] = label(markers_current.astype('uint16')) 
-                                      imwrite((heatsavename + '.tif' ), self.heatmap) 
-                                      imwrite((eventsavename + '.tif' ), self.eventmarkers.astype('uint16'))
                 if  str(int(inputtime)) in self.marker_tree:                     
                         tree, location = self.marker_tree[str(int(inputtime))]
                         for i in range(len(location)):
@@ -520,27 +512,34 @@ class NEATEynamic(object):
                             if crop_image.shape[0] >= self.imaget and  crop_image.shape[1] >= self.imagez * self.downsamplefactor and crop_image.shape[2] >= self.imagey * self.downsamplefactor and crop_image.shape[3] >= self.imagex * self.downsamplefactor:                                                
                                         #Now apply the prediction for counting real events
                                     
-                                        crop_image = DownsampleData(crop_image, self.downsamplefactor)
-                                        ycenter = location[i][0]
-                                        xcenter = location[i][1]
-                                        
-                                        predictions, allx, ally = self.predict_main(crop_image)
+                                        zcenter = location[i][0]
+                                        ycenter = location[i][1]
+                                        xcenter = location[i][2]
+                                        predictions, allx, ally, allz = self.predict_main(crop_image)
                                         sum_time_prediction = predictions[0]
                                         if sum_time_prediction is not None:
                                             #For each tile the prediction vector has shape N H W Categories + Training Vector labels
                                             time_prediction =  sum_time_prediction[0]
-                                            boxprediction = yoloprediction(0, 0 , time_prediction, self.stride,
-                                                                inputtime, self.config,
-                                                                self.key_categories, self.key_cord, self.nboxes, 'detection',
-                                                                'dynamic', center_oneat = self.center_oneat)
+                                            
+                                            boxprediction = diamondyoloprediction(
+                                                            0,  
+                                                            0, 
+                                                            0, 
+                                                            time_prediction, 
+                                                            self.stride, inputtime , 
+                                                            self.config, 
+                                                            self.key_categories, 
+                                                            self.key_cord, 
+                                                            self.nboxes, 'detection', 'dynamic',marker_tree=self.marker_tree)
                                             if boxprediction is not None and len(boxprediction) > 0 and xcenter - self.pad_width[1] > 0 and ycenter - self.pad_width[0] > 0 and xcenter - self.pad_width[1] < self.originalimage.shape[2] and ycenter - self.pad_width[0] < self.originalimage.shape[1] :
                                                     
                                                         
                                                         boxprediction[0]['real_time_event'] = inputtime
                                                         boxprediction[0]['xcenter'] = xcenter - self.pad_width[1]
                                                         boxprediction[0]['ycenter'] = ycenter - self.pad_width[0]
-                                                        boxprediction[0]['xstart'] = xcenter   - int(self.imagex/2) * self.downsamplefactor
-                                                        boxprediction[0]['ystart'] = ycenter   - int(self.imagey/2) * self.downsamplefactor  
+
+                                                        boxprediction[0]['xstart'] = xcenter   - int(self.imagex/2) 
+                                                        boxprediction[0]['ystart'] = ycenter   - int(self.imagey/2)   
                                                         eventboxes = eventboxes + boxprediction
                                                 
                                            
