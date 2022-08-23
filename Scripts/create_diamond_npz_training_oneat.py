@@ -42,18 +42,10 @@ Path(save_dir).mkdir(exist_ok = True)
 event_type_name = ["Normal", "Division"]
 #Label corresponding to event
 event_type_label = [0, 1]
-
 #The name appended before the CSV files
 csv_name_diff = 'ONEAT'
-#with xythw and class terms only
-yolo_v0 = False
-#with confidence term
-yolo_v1 = True
-#with angle term
-yolo_v2 = False
 size_tminus = 1
 size_tplus = 1
-tshift = 0
 trainshapex = 64
 trainshapey = 64
 trainshapez = 16
@@ -63,8 +55,8 @@ npz_val_name = 'Xenopus_oneat_training_m1p1_noiseval'
 crop_size = [trainshapex,trainshapey,trainshapez,size_tminus,size_tplus]
 
 
-event_position_name = ["x", "y", "z", "t", "h", "w", "c"]
-event_position_label = [0, 1, 2, 3, 4, 5, 6]
+event_position_name = ["x", "y", "z", "t", "h", "w", "d", "c"]
+event_position_label = [0, 1, 2, 3, 4, 5, 6, 7]
 
 dynamic_config = TrainConfig(event_type_name, event_type_label, event_position_name, event_position_label)
 
@@ -85,11 +77,7 @@ MovieCreator.VolumeLabelDataSet(image_dir,
                                event_type_label, 
                                csv_name_diff,
                                crop_size,
-                               normalizeimage = normalizeimage,
-                               tshift = tshift, 
-                               yolo_v0 = yolo_v0, 
-                               yolo_v1 = yolo_v1, 
-                               yolo_v2 = yolo_v2 )
+                               normalizeimage = normalizeimage)
 
 
 

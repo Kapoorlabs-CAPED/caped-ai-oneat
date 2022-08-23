@@ -45,15 +45,8 @@ event_type_label = [0, 1]
 
 #The name appended before the CSV files
 csv_name_diff = 'ONEAT'
-#with xythw and class terms only
-yolo_v0 = False
-#with confidence term
-yolo_v1 = True
-#with angle term
-yolo_v2 = False
 size_tminus = 1
 size_tplus = 1
-tshift = 0
 trainshapex = 64
 trainshapey = 64
 normalizeimage = True
@@ -84,11 +77,7 @@ MovieCreator.MovieLabelDataSet(image_dir,
                                event_type_label, 
                                csv_name_diff,
                                crop_size,
-                               normalizeimage = normalizeimage,
-                               tshift = tshift, 
-                               yolo_v0 = yolo_v0, 
-                               yolo_v1 = yolo_v1, 
-                               yolo_v2 = yolo_v2 )
+                               normalizeimage = normalizeimage)
 
 
 
