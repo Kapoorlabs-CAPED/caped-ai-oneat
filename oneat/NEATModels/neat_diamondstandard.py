@@ -617,62 +617,76 @@ class NEATEynamic(object):
 
         if self.n_tiles == (1, 1):
             patch = []
+            zout = []
             rowout = []
             column = []
-            patchx = sliceregion.shape[2] // self.n_tiles[0]
-            patchy = sliceregion.shape[1] // self.n_tiles[1]
-            patchshape = (patchy, patchx)
-            smallpatch, smallrowout, smallcolumn = chunk_list(sliceregion, patchshape, self.stride, [0, 0])
+          
+            patchx = sliceregion.shape[3] // self.n_tiles[2]
+            patchy = sliceregion.shape[2] // self.n_tiles[1]
+            patchz = sliceregion.shape[1] // self.n_tiles[0]
+
+            patchshape = (patchz, patchy, patchx)
+            smallpatch, smallzout,  smallrowout, smallcolumn = chunk_list(sliceregion, patchshape, [0, 0, 0])
             patch.append(smallpatch)
+            zout.append(smallzout)
             rowout.append(smallrowout)
             column.append(smallcolumn)
 
         else:
-            patchx = sliceregion.shape[2] // self.n_tiles[0]
-            patchy = sliceregion.shape[1] // self.n_tiles[1]
+            patchx = sliceregion.shape[3] // self.n_tiles[2]
+            patchy = sliceregion.shape[2] // self.n_tiles[1]
+            patchz = sliceregion.shape[1] // self.n_tiles[0]
 
-            if patchx > self.imagex and patchy > self.imagey:
+            if patchx > self.imagex and patchy > self.imagey and patchz > self.imagez:
                 if self.overlap_percent > 1 or self.overlap_percent < 0:
                     self.overlap_percent = 0.8
 
                 jumpx = int(self.overlap_percent * patchx)
                 jumpy = int(self.overlap_percent * patchy)
-
-                patchshape = (patchy, patchx)
-                rowstart = 0;
+                jumpz = int(self.overlap_percent * patchz)
+                patchshape = (patchz, patchy, patchx)
+                rowstart = 0
                 colstart = 0
+                zstart = 0
                 pairs = []
                 # row is y, col is x
-
-                while rowstart < sliceregion.shape[1]:
-                    colstart = 0
-                    while colstart < sliceregion.shape[2]:
-                        # Start iterating over the tile with jumps = stride of the fully convolutional network.
-                        pairs.append([rowstart, colstart])
-                        colstart += jumpx
-                    rowstart += jumpy
-
+                while zstart < sliceregion.shape[1]:
+                    rowstart = 0
+                    while rowstart < sliceregion.shape[2]:
+                        colstart = 0
+                        while colstart < sliceregion.shape[3]:
+                            # Start iterating over the tile with jumps = stride of the fully convolutional network.
+                            pairs.append([zstart, rowstart, colstart])
+                            colstart += jumpx
+                        rowstart += jumpy
+                    zstart +=jumpz
                     # Include the last patch
-                rowstart = sliceregion.shape[1] - patchy
-                colstart = 0
-                while colstart < sliceregion.shape[2] - patchx:
-                    pairs.append([rowstart, colstart])
-                    colstart += jumpx
-                rowstart = 0
-                colstart = sliceregion.shape[2] - patchx
-                while rowstart < sliceregion.shape[1] - patchy:
-                    pairs.append([rowstart, colstart])
-                    rowstart += jumpy
+                while zstart < sliceregion.shape[1]:    
+                    rowstart = sliceregion.shape[2] - patchy
+                    colstart = 0
+                    while colstart < sliceregion.shape[3] - patchx:
+                        pairs.append([zstart, rowstart, colstart])
+                        colstart += jumpx
+                    zstart +=jumpz 
+                while zstart < sliceregion.shape[1]:
+                    rowstart = 0
+                    colstart = sliceregion.shape[2] - patchx
+                    while rowstart < sliceregion.shape[1] - patchy:
+                        pairs.append([zstart, rowstart, colstart])
+                        rowstart += jumpy
+                    zstart +=jumpz    
 
-                if sliceregion.shape[1] >= self.imagey and sliceregion.shape[2] >= self.imagex:
+                if sliceregion.shape[1] >= self.imagez and sliceregion.shape[2] >= self.imagey and sliceregion.shape[3] >= self.imagex:
 
                     patch = []
+                    zout = []
                     rowout = []
                     column = []
                     for pair in pairs:
-                        smallpatch, smallrowout, smallcolumn = chunk_list(sliceregion, patchshape, self.stride, pair)
-                        if smallpatch.shape[1] >= self.imagey and smallpatch.shape[2] >= self.imagex:
+                        smallpatch, smallzout, smallrowout, smallcolumn = chunk_list(sliceregion, patchshape, pair)
+                        if smallpatch.shape[1] >= self.imagez and smallpatch.shape[2] >= self.imagey and smallpatch.shape[3] >= self.imagex:
                             patch.append(smallpatch)
+                            zout.append(smallzout)
                             rowout.append(smallrowout)
                             column.append(smallcolumn)
 
@@ -680,15 +694,19 @@ class NEATEynamic(object):
 
                 patch = []
                 rowout = []
+                zout = []
                 column = []
-                patchx = sliceregion.shape[2] // self.n_tiles[0]
-                patchy = sliceregion.shape[1] // self.n_tiles[1]
-                patchshape = (patchy, patchx)
-                smallpatch, smallrowout, smallcolumn = chunk_list(sliceregion, patchshape, self.stride, [0, 0])
+                patchx = sliceregion.shape[3] // self.n_tiles[2]
+                patchy = sliceregion.shape[2] // self.n_tiles[1]
+                patchz = sliceregion.shape[1] // self.n_tiles[0]
+                patchshape = (patchz, patchy, patchx)
+                smallpatch, smallzout,  smallrowout, smallcolumn = chunk_list(sliceregion, patchshape, [0, 0, 0])
                 patch.append(smallpatch)
+                zout.append(smallzout)
                 rowout.append(smallrowout)
                 column.append(smallcolumn)
         self.patch = patch
+        self.sz = zout
         self.sy = rowout
         self.sx = column
 
@@ -698,12 +716,14 @@ class NEATEynamic(object):
             predictions = []
             allx = []
             ally = []
+            allz = []
             if len(self.patch) > 0:
                 for i in range(0, len(self.patch)):
                     sum_time_prediction = self.make_patches(self.patch[i])
                     predictions.append(sum_time_prediction)
                     allx.append(self.sx[i])
                     ally.append(self.sy[i])
+                    allz.append(self.sz[i])
 
 
             else:
@@ -712,6 +732,7 @@ class NEATEynamic(object):
                 predictions.append(sum_time_prediction)
                 allx.append(self.sx)
                 ally.append(self.sy)
+                allz.append(self.sz)
 
         except tf.errors.ResourceExhaustedError:
 
@@ -719,11 +740,12 @@ class NEATEynamic(object):
             self.list_n_tiles = list(self.n_tiles)
             self.list_n_tiles[0] = self.n_tiles[0] + 1
             self.list_n_tiles[1] = self.n_tiles[1] + 1
+            self.list_n_tiles[2] = self.n_tiles[2] + 1
             self.n_tiles = tuple(self.list_n_tiles)
 
             self.predict_main(sliceregion)
 
-        return predictions, allx, ally
+        return predictions, allx, ally, allz
 
     def make_patches(self, sliceregion):
 
