@@ -562,7 +562,7 @@ def Diamondresnet_layer(inputs,
     """
     conv = Conv3D(num_filters,
                   kernel_size=kernel_size,
-                  strides=(strides,strides,strides),
+                  strides=(1,strides,strides),
                   padding='same',
                   kernel_initializer='he_normal',
                   kernel_regularizer=regularizers.l2(1e-4))
