@@ -1,41 +1,29 @@
-#!/usr/bin/env python
-# coding: utf-8
 
-# In[1]:
 
 
 import numpy as np
-from tifffile import imread 
-import sys
-import os
-import cv2
-import glob
-from tqdm import tqdm
-import pandas as pd
 from oneat.NEATUtils import MovieCreator
-from oneat.NEATUtils.helpers import save_json, load_json
+from oneat.NEATUtils.helpers import save_json
 from oneat.NEATModels.TrainConfig import TrainConfig
 from pathlib import Path
 
 
-# In[7]:
 
 
 #Specify the directory containing images
-image_dir = '/gpfsstore/rech/jsy/uzj81mi/Mari_Data_Training/oneat_training/oneat_train_raw/'
+image_dir = '/gpfsstore/rech/jsy/uzj81mi/Mari_Data_Training/oneat_training/oneat_train_diamond_raw/'
 #Specify the directory contaiing csv files
 csv_dir = '/gpfsstore/rech/jsy/uzj81mi/Mari_Data_Training/oneat_training/oneat_train_diamond_csv/'
 #Specify the directory containing the segmentations
-seg_image_dir = '/gpfsstore/rech/jsy/uzj81mi/Mari_Data_Training/oneat_training/oneat_train_seg/'
+seg_image_dir = '/gpfsstore/rech/jsy/uzj81mi/Mari_Data_Training/oneat_training/oneat_train_diamond_seg/'
 #Specify the model directory where we store the json of categories, training model and parameters
 model_dir = '/gpfsstore/rech/jsy/uzj81mi/Mari_Models/Oneat/'
 #Directory for storing center ONEAT training data 
-save_dir = '/gpfsstore/rech/jsy/uzj81mi/Mari_Data_Training/oneat_training/oneat_train_patches_m1p1/'
+save_dir = '/gpfsstore/rech/jsy/uzj81mi/Mari_Data_Training/oneat_training/oneat_train_diamond_patches_m1p1/'
 Path(model_dir).mkdir(exist_ok = True)
 Path(save_dir).mkdir(exist_ok = True)
 
 
-# In[8]:
 
 
 #Name of the  events
@@ -50,8 +38,8 @@ trainshapex = 64
 trainshapey = 64
 trainshapez = 16
 normalizeimage = True
-npz_name = 'Xenopus_oneat_training_m1p1_noise'
-npz_val_name = 'Xenopus_oneat_training_m1p1_noiseval'
+npz_name = 'Xenopus_oneat_training_m1p1_diamond'
+npz_val_name = 'Xenopus_oneat_training_m1p1_diamondval'
 crop_size = [trainshapex,trainshapey,trainshapez,size_tminus,size_tplus]
 
 
@@ -82,15 +70,13 @@ MovieCreator.VolumeLabelDataSet(image_dir,
 
 
 
-MovieCreator.createNPZ(save_dir, axes = 'STZXY', save_name = npz_name, save_name_val = npz_val_name)
+MovieCreator.createNPZ(save_dir, axes = 'STZYX', save_name = npz_name, save_name_val = npz_val_name)
 
 
 
 
 
 
-
-# In[ ]:
 
 
 
