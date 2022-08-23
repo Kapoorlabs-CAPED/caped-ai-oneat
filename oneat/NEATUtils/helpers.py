@@ -1250,7 +1250,7 @@ def microscope_dynamic_nms( classedboxes, event_name, iou_threshold, event_thres
                
                return best_sorted_event_box
 
-def save_dynamic_csv(imagename, key_categories, iou_classedboxes, savedir, downsamplefactor, ndim, z = 0, maskimage = None):
+def save_dynamic_csv(imagename, key_categories, iou_classedboxes, savedir, downsamplefactor,  z = 0, maskimage = None):
     
         for (event_name, event_label) in key_categories.items():
 
@@ -1315,7 +1315,74 @@ def save_dynamic_csv(imagename, key_categories, iou_classedboxes, savedir, downs
                             writer.writerows(event_data)
                             event_data = []
     
+
+def save_diamond_csv(imagename, key_categories, iou_classedboxes, savedir, maskimage = None):
     
+        for (event_name, event_label) in key_categories.items():
+
+            if event_label > 0:
+                xlocations = []
+                ylocations = []
+                zlocations = []
+                scores = []
+                confidences = []
+                tlocations = []
+                radiuses = []
+                angles = []
+
+                iou_current_event_boxes = iou_classedboxes[event_name][0]
+                iou_current_event_boxes = sorted(iou_current_event_boxes, key=lambda x: x[event_name], reverse=True)
+                for iou_current_event_box in iou_current_event_boxes:
+                    xcenter = iou_current_event_box['xcenter'] 
+                    ycenter = iou_current_event_box['ycenter'] 
+                    zcenter = iou_current_event_box['zcenter']
+                    tcenter = iou_current_event_box['real_time_event']
+                    confidence = iou_current_event_box['confidence']
+                    angle = iou_current_event_box['realangle']
+                    score = iou_current_event_box[event_name]
+                    radius = np.sqrt(
+                        iou_current_event_box['height'] * iou_current_event_box['height'] + iou_current_event_box[
+                            'width'] * iou_current_event_box['width'] +  iou_current_event_box['depth'] * iou_current_event_box['depth'] ) // 3
+                    radius = radius 
+                    
+                    if maskimage is not None:
+                        if maskimage[int(tcenter), int(ycenter), int(xcenter)] > 0:
+                                xlocations.append(xcenter)
+                                ylocations.append(ycenter)
+                                zlocations.append(zcenter)
+                                scores.append(score)
+                                confidences.append(confidence)
+                                tlocations.append(tcenter)
+                                radiuses.append(radius)
+                                angles.append(angle)
+                                
+                    else:
+                                xlocations.append(xcenter)
+                                ylocations.append(ycenter)
+                                zlocations.append(zcenter)
+                                scores.append(score)
+                                confidences.append(confidence)
+                                tlocations.append(tcenter)
+                                radiuses.append(radius)
+                                angles.append(angle)
+                                        
+                event_count = np.column_stack(
+                            [tlocations, zlocations, ylocations, xlocations, scores, radiuses, confidences, angles])
+                event_count = sorted(event_count, key=lambda x: x[0], reverse=False) 
+                event_data = []
+                csvname = savedir + "/" + event_name + "Location" + (
+                os.path.splitext(os.path.basename(imagename))[0])
+                
+                writer = csv.writer(open(csvname + ".csv", "a", newline=''))
+                filesize = os.stat(csvname + ".csv").st_size
+
+                if filesize < 1:
+                            writer.writerow(['T', 'Z', 'Y', 'X', 'Score', 'Size', 'Confidence', 'Angle'])
+                for line in event_count:
+                            if line not in event_data:
+                                event_data.append(line)
+                            writer.writerows(event_data)
+                            event_data = []    
 
 def area_function(boxes):
     """Calculate the area of each polygon in polys

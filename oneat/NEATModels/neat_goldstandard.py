@@ -627,9 +627,9 @@ class NEATDynamic(object):
 
     def to_csv(self):
          if self.remove_markers is not None:
-            save_dynamic_csv(self.imagename, self.key_categories, self.iou_classedboxes, self.savedir, 1, self.ndim, z = self.z)        
+            save_dynamic_csv(self.imagename, self.key_categories, self.iou_classedboxes, self.savedir, 1,  z = self.z)        
          if self.remove_markers is None:
-            save_dynamic_csv(self.imagename, self.key_categories, self.iou_classedboxes, self.savedir, self.downsamplefactor, self.ndim, z = self.z)          
+            save_dynamic_csv(self.imagename, self.key_categories, self.iou_classedboxes, self.savedir, self.downsamplefactor,  z = self.z)          
   
 
     

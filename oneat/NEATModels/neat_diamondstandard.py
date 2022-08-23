@@ -1,7 +1,7 @@
 from oneat.NEATUtils import plotters
 import numpy as np
 from oneat.NEATUtils import helpers
-from oneat.NEATUtils.helpers import  pad_volumetimelapse, get_nearest_volume,  load_json, diamondyoloprediction, normalizeFloatZeroOne, GenerateVolumeMarkers, MakeForest,save_dynamic_csv, diamond_dynamic_nms
+from oneat.NEATUtils.helpers import  pad_volumetimelapse, get_nearest_volume,  load_json, diamondyoloprediction, normalizeFloatZeroOne, GenerateVolumeMarkers, MakeForest,save_diamond_csv, diamond_dynamic_nms
 from keras import callbacks
 import os
 import sys
@@ -600,14 +600,7 @@ class NEATEynamic(object):
 
 
     def to_csv(self):
-         if self.remove_markers is not None:
-            save_dynamic_csv(self.imagename, self.key_categories, self.iou_classedboxes, self.savedir, 1, self.ndim, z = self.z)        
-         if self.remove_markers is None:
-            save_dynamic_csv(self.imagename, self.key_categories, self.iou_classedboxes, self.savedir, self.downsamplefactor, self.ndim, z = self.z)          
-  
-
-    
-
+         save_diamond_csv(self.imagename, self.key_categories, self.iou_classedboxes, self.savedir)          
     
 
     def overlaptiles(self, sliceregion):
