@@ -641,8 +641,7 @@ def VolumeMaker(time, z, y, x, angle, image, segimage, crop_size, gridx, gridy,g
                         Label[trainlabel] = 1
                         #T co ordinate
                         Label[total_categories + 3] = (size_tminus) / (size_tminus + size_tplus)
-                        if x > sizex/2 and z > sizez/2 and  y  > sizey/2 and z  + int(imagesizez/2) < image.shape[1] and y  + int(imagesizey/2) < image.shape[2] 
-                        and x + int(imagesizex/2) < image.shape[3] and time > size_tminus and time + size_tplus + 1 < image.shape[0]:
+                        if x > sizex/2 and z > sizez/2 and  y  > sizey/2 and z  + int(imagesizez/2) < image.shape[1] and y  + int(imagesizey/2) < image.shape[2] and x + int(imagesizex/2) < image.shape[3] and time > size_tminus and time + size_tplus + 1 < image.shape[0]:
                                         crop_xminus = x  - int(imagesizex/2)
                                         crop_xplus = x  + int(imagesizex/2)
                                         crop_yminus = y  - int(imagesizey/2)
