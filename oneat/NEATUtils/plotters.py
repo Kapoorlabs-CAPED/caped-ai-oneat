@@ -335,7 +335,7 @@ def Printdiamondpredict(idx, model, data, Truelabel, key_categories,key_cord, gr
         if nboxes > 1:
             for b in range(1,nboxes-1):
                     try:
-                        prediction[i,:,:,:,,len(key_categories):len(key_categories) + len(key_cord)] += prediction[i,:,:,:,len(key_categories) + b*len(key_cord):len(key_categories) + (b + 1)*len(key_cord) ] 
+                        prediction[i,:,:,:,len(key_categories):len(key_categories) + len(key_cord)] += prediction[i,:,:,:,len(key_categories) + b*len(key_cord):len(key_categories) + (b + 1)*len(key_cord) ] 
                         prediction[i,:,:,:,len(key_categories):len(key_categories) + len(key_cord)] = prediction[i,:,:,:,len(key_categories):len(key_categories) + len(key_cord)] / (nboxes - 1)
                     except:
                         prediction[i,:,:,:,len(key_categories):len(key_categories) + len(key_cord)] += prediction[i,:,:,:,len(key_categories) + b*len(key_cord):len(key_categories) + (b + 1)*len(key_cord) ] 
