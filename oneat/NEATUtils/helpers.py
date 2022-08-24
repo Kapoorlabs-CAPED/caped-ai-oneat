@@ -1074,7 +1074,7 @@ def simpleaveragenms(boxes, scores, nms_threshold, score_threshold, event_name, 
 
 
 
-def save_static_csv(ColorimageStatic,ColorimageDynamic,imagename, key_categories, iou_classedboxes, savedir, downsamplefactor, maskimage = None):
+def save_static_csv(imagename, key_categories, iou_classedboxes, savedir, downsamplefactor, maskimage = None):
     
     
     for (event_name, event_label) in key_categories.items():
@@ -1134,55 +1134,7 @@ def save_static_csv(ColorimageStatic,ColorimageDynamic,imagename, key_categories
                     writer.writerows(event_data)
                     event_data = []
                     
-                saveimage(ColorimageStatic,ColorimageDynamic , xlocations, ylocations, tlocations, scores, radius, event_label)    
-                    
-def saveimage(ColorimageStatic,ColorimageDynamic , xlocations, ylocations, tlocations, scores, radius, event_label):
-
-        colors = [(0, 255, 0), (0, 0, 255), (255, 0, 0)]
-        # fontScale
-        fontScale = 1
-
-        # Blue color in BGR
-        textcolor = (255, 0, 0)
-
-        # Line thickness of 2 px
-        thickness = 2
-        for j in range(len(xlocations)):
-            startlocation = (int(xlocations[j] - radius[j]), int(ylocations[j] - radius[j]))
-            endlocation = (int(xlocations[j] + radius[j]), int(ylocations[j] + radius[j]))
-            Z = int(tlocations[j])
-            if Z < ColorimageDynamic.shape[0] - 1:
-                    if event_label == 1:
-                        image = ColorimageDynamic[Z, :, :, 1]
-                        color = (0, 255, 0)
-                    if event_label == 2:
-                        color = (0, 0, 255)
-                        image = ColorimageDynamic[Z, :, :, 2]
-                    if event_label == 3:
-                        color = (0, 255, 0)
-                        image = ColorimageStatic[Z, :, :, 0]
-                    if event_label == 4:
-                        color = (0, 0, 255)
-                        image = ColorimageStatic[Z, :, :, 1]
-                    if event_label == 5:
-                        color = (255, 0, 0)
-                        image = ColorimageStatic[Z, :, :, 2]
-
-                    img = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-                    cv2.rectangle(img, startlocation, endlocation, textcolor, thickness)
-        
-                    cv2.putText(img, str('%.5f' % (scores[j])), startlocation, cv2.FONT_HERSHEY_SIMPLEX, 1, textcolor,
-                                thickness, cv2.LINE_AA)
-                    if event_label == 1:
-                        ColorimageDynamic[Z, :, :, 1] = img[:, :, 0]
-                    if event_label == 2:
-                        ColorimageDynamic[Z, :, :, 2] = img[:, :, 0]
-                    if event_label == 3:
-                        ColorimageStatic[Z, :, :, 0] = img[:, :, 0]
-                    if event_label == 4:
-                        ColorimageStatic[Z, :, :, 1] = img[:, :, 0]
-                    if event_label == 5:
-                        ColorimageStatic[Z, :, :, 2] = img[:, :, 0]
+               
 
 def gold_nms(heatmap, classedboxes, event_name, downsamplefactor, iou_threshold, event_threshold, gridx, gridy, generate_map, nms_function):
 

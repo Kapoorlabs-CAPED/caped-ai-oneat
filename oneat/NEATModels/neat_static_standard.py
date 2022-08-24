@@ -98,7 +98,7 @@ class NEATStatic(object):
             self.gridx = staticconfig.gridx
             self.gridy = staticconfig.gridy
             self.yolo_v0 = staticconfig.yolo_v0
-           
+            self.stride = staticconfig.stride
 
         if self.staticconfig == None:
 
@@ -129,6 +129,7 @@ class NEATStatic(object):
             self.gridx = self.staticconfig['gridx']
             self.gridy = self.staticconfig['gridy']
             self.yolo_v0 = self.staticconfig['yolo_v0']
+            self.stride = self.staticconfig['stride']
         
             self.stage_number = self.staticconfig['stage_number']
             self.last_conv_factor = 2 ** (self.stage_number - 1)
@@ -314,21 +315,12 @@ class NEATStatic(object):
 
         eventboxes = []
         classedboxes = {}
-        count = 0
         if self.normalize:
                     self.image = normalizeFloatZeroOne(self.image, 1, 99.8)
-        savenameDynamic = self.savedir + "/" + (
-        os.path.splitext(os.path.basename(self.imagename))[0]) + '_ColoredDynamic'
-        savenameStatic = self.savedir + "/" + (
-            os.path.splitext(os.path.basename(self.imagename))[0]) + '_ColoredStatic'
+       
         if RGB == False:
             for inputtime in tqdm(range(0, self.image.shape[0])):
-                if inputtime < self.image.shape[0]:
-                    if inputtime >= self.image.shape[0] - 1:
-                        imwrite((savenameDynamic + '.tif'), self.ColorimageDynamic)
-                        imwrite((savenameStatic + '.tif'), self.ColorimageStatic)
-
-                    count = count + 1
+                
                 smallimage = self.image[inputtime, :]
                 
                 # Break image into tiles if neccessary
@@ -368,7 +360,6 @@ class NEATStatic(object):
                 self.to_csv()
                 eventboxes = []
                 classedboxes = {}
-                count = 0
 
         if RGB:
 
@@ -415,7 +406,6 @@ class NEATStatic(object):
             self.to_csv()
             eventboxes = []
             classedboxes = {}
-            count = 0
 
     def nms(self):
 
@@ -437,7 +427,7 @@ class NEATStatic(object):
     def to_csv(self):
 
         
-        save_static_csv(self.ColorimageStatic, self.ColorimageDynamic, self.imagename, self.key_categories, self.iou_classedboxes, self.savedir, self.downsamplefactor)
+        save_static_csv(self.imagename, self.key_categories, self.iou_classedboxes, self.savedir, self.downsamplefactor)
    
 
 
@@ -469,7 +459,7 @@ class NEATStatic(object):
                 jumpy = int(self.overlap_percent * patchy)
 
                 patchshape = (patchy, patchx)
-                rowstart = 0;
+                rowstart = 0
                 colstart = 0
                 pairs = []
                 # row is y, col is x

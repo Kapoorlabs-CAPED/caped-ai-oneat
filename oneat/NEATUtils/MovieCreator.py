@@ -641,8 +641,7 @@ def VolumeMaker(time, z, y, x, angle, image, segimage, crop_size, gridx, gridy,g
                         Label[trainlabel] = 1
                         #T co ordinate
                         Label[total_categories + 3] = (size_tminus) / (size_tminus + size_tplus)
-                        if x > sizex/2 and z > sizez/2 and  and y  > sizey/2 and z  + int(imagesizez/2) < image.shape[1] and y  + int(imagesizey/2) < image.shape[2] and x + int(imagesizex/2) < image.shape[3] 
-                            and time > size_tminus and time + size_tplus + 1 < image.shape[0]:
+                        if x > sizex/2 and z > sizez/2 and  and y  > sizey/2 and z  + int(imagesizez/2) < image.shape[1] and y  + int(imagesizey/2) < image.shape[2] and x + int(imagesizex/2) < image.shape[3] and time > size_tminus and time + size_tplus + 1 < image.shape[0]:
                                         crop_xminus = x  - int(imagesizex/2)
                                         crop_xplus = x  + int(imagesizex/2)
                                         crop_yminus = y  - int(imagesizey/2)
@@ -667,21 +666,21 @@ def VolumeMaker(time, z, y, x, angle, image, segimage, crop_size, gridx, gridy,g
                                         if depth >= imagesizez:
                                                         depth = 0.5 * imagesizez                
                                         #Height
-                                        Label[total_categories + 3] = height/imagesizey
+                                        Label[total_categories + 4] = height/imagesizey
                                         #Width
-                                        Label[total_categories + 4] = width/imagesizex
+                                        Label[total_categories + 5] = width/imagesizex
                                         #Depth
-                                        Label[total_categories + 5] = depth/imagesizez
+                                        Label[total_categories + 6] = depth/imagesizez
 
 
 
                                         if yolo_v1:
-                                                  Label[total_categories + 6] = 1 
+                                                  Label[total_categories + 7] = 1 
                                                  
                                         if yolo_v2:
 
-                                             Label[total_categories + 6] = 1 
-                                             Label[total_categories + 7] = angle        
+                                             Label[total_categories + 7] = 1 
+                                             Label[total_categories + 8] = angle        
                                         #Write the image as 32 bit tif file 
                                         if(crop_image.shape[0] == size_tplus + size_tminus + 1 and crop_image.shape[1]== imagesizez and crop_image.shape[2]== imagesizey and crop_image.shape[3]== imagesizex ):
 
