@@ -514,15 +514,15 @@ yolo_v1 = True, yolo_v2 = False,  tshift  = 0, normalizeimage = True):
                                      if classfound:
                                                     print(Csvname)
                                                     dataset = pd.read_csv(csvfname)
-                                                    if len(dataset.keys()) >= 3:
-
-                                                        time = dataset[dataset.keys()[0]][1:]
-                                                        y = dataset[dataset.keys()[1]][1:]
-                                                        x = dataset[dataset.keys()[2]][1:]
-                                                        angle = np.full(time.shape, 2)                        
-                                                    if len(dataset.keys()) > 3:
-
-                                                        angle = dataset[dataset.keys()[3]][1:]                          
+                                                    time = dataset[dataset.keys()[0]][1:]
+                                                    y = dataset[dataset.keys()[1]][1:]
+                                                    x = dataset[dataset.keys()[2]][1:]
+                                                                            
+                                                    try:
+                                                       angle = dataset[dataset.keys()[4]][1:]
+                                                    except:   
+                                                       angle = np.full(time.shape, 2)    
+                                                                             
                                                     #Categories + XYHW + Confidence 
                                                     for (key, t) in time.items():
                                                        try: 
@@ -577,16 +577,16 @@ yolo_v1 = True, yolo_v2 = False,  tshift  = 0, normalizeimage = True):
                                      if classfound:
                                                     print(Csvname)
                                                     dataset = pd.read_csv(csvfname)
-                                                    if len(dataset.keys()) >= 4:
+                                                    time = dataset[dataset.keys()[0]][1:]
+                                                    z = dataset[dataset.keys()[1]][1:]
+                                                    y = dataset[dataset.keys()[2]][1:]
+                                                    x = dataset[dataset.keys()[3]][1:]
+                                                    try:
+                                                       angle = dataset[dataset.keys()[4]][1:]
+                                                    except:   
+                                                       angle = np.full(time.shape, 2)                        
 
-                                                        time = dataset[dataset.keys()[0]][1:]
-                                                        z = dataset[dataset.keys()[1]][1:]
-                                                        y = dataset[dataset.keys()[2]][1:]
-                                                        x = dataset[dataset.keys()[3]][1:]
-                                                        angle = np.full(time.shape, 2)                        
-                                                    if len(dataset.keys()) > 4:
-
-                                                        angle = dataset[dataset.keys()[4]][1:]                          
+                                                                                  
                                                     #Categories + XYZHW + Confidence 
                                                     for (key, t) in time.items():
                                                       
