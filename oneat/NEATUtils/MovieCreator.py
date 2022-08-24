@@ -10,9 +10,9 @@ import json
 from skimage import measure
 from pathlib import Path
 from sklearn.model_selection import train_test_split
-from .helpers import  normalizeFloatZeroOne, add_distribution_noise
+from .helpers import  normalizeFloatZeroOne
 from PIL import Image
-
+from dask.array.image import imread as daskread
 
 """
 @author: Varun Kapoor
@@ -563,10 +563,10 @@ yolo_v1 = True, yolo_v2 = False,  tshift  = 0, normalizeimage = True):
                       if name == Segname:
                           
                           
-                         image = imread(fname)
+                         image = daskread(fname)[0]
                          if normalizeimage:
                             image = normalizeFloatZeroOne( image.astype('float32'),1,99.8)
-                         segimage = imread(Segfname)
+                         segimage = daskread(Segfname)[0]
                         
                          for csvfname in filesCsv:
                                  count = 0  
