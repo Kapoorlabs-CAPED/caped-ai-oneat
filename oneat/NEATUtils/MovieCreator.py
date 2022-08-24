@@ -564,10 +564,11 @@ yolo_v1 = True, yolo_v2 = False,  tshift  = 0, normalizeimage = True):
                           
                           
                          image = daskread(fname)[0]
+                         print('raw', image.shape)
                          if normalizeimage:
                             image = normalizeFloatZeroOne( image.compute().astype('float32'),1,99.8)
                          segimage = daskread(Segfname)[0]
-                        
+                         print('seg',segimage.shape)
                          for csvfname in filesCsv:
                                  count = 0  
                                  Csvname =  os.path.basename(os.path.splitext(csvfname)[0])
@@ -622,7 +623,7 @@ def VolumeMaker(time, z, y, x, angle, image, segimage, crop_size, gridx, gridy,g
                 
 
                currentsegimage = segimage[int(time),:,:].astype('uint16')
-               
+               print(currentsegimage.shape, 'in')
 
                height, width, depth, center, seg_label = getHWD(x, y, z, currentsegimage, imagesizex, imagesizey,imagesizez)
                for shift in AllShifts:
@@ -650,8 +651,10 @@ def VolumeMaker(time, z, y, x, angle, image, segimage, crop_size, gridx, gridy,g
                                         crop_zplus = z   + int(imagesizez/2)
                                         region =(slice(int(time - size_tminus),int(time + size_tplus  + 1)),slice(int(crop_zminus), int(crop_zplus)), slice(int(crop_yminus), int(crop_yplus)),
                                               slice(int(crop_xminus) , int(crop_xplus) ))
+                                        print('made region')      
                                         #Define the movie region volume that was cut
-                                        crop_image = image[region]   
+                                        crop_image = image[region]
+                                        print('cropped', crop_image.shape)   
                                         seglocationx = (newcenter[2] - crop_xminus)
                                         seglocationy = (newcenter[1] - crop_yminus)
                                         seglocationz = (newcenter[0] - crop_zminus)
