@@ -287,7 +287,7 @@ class NEATEynamic(object):
         return self.marker_tree
     
     def predict(self, imagename,  savedir, n_tiles=(1, 1, 1), overlap_percent=0.8,
-                event_threshold=0.5, event_confidence = 0.5, iou_threshold=0.1,  
+                event_threshold=0.5, event_confidence = 0.5, iou_threshold=0.1,  dtype = 'int8',
                 marker_tree = None, remove_markers = False, normalize = True,  nms_function = 'iou'):
 
 
@@ -298,9 +298,9 @@ class NEATEynamic(object):
         self.image = imread(imagename)
         self.ndim = len(self.image.shape)
         self.normalize = normalize
-        
+        self.dtype = dtype
         if self.normalize: 
-                    self.image = normalizeFloatZeroOne(self.image.astype('float32'), 1, 99.8)
+                    self.image = normalizeFloatZeroOne(self.image, 1, 99.8, dtype = self.dtype)
         
         self.savedir = savedir
         Path(self.savedir).mkdir(exist_ok=True)

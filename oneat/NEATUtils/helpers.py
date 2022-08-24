@@ -192,19 +192,10 @@ def normalizer(x, mi, ma, eps=1e-20, dtype=np.float32):
 
     x = (x - mi) / (ma - mi + eps)
 
-    x = normalizeZeroOne(x)
-    return x
-
-
-def normalizeZeroOne(x, dtype=np.float32):
-    x = x.astype(dtype)
-
-    minVal = np.min(x)
-    maxVal = np.max(x)
-
-    x = ((x - minVal) / (maxVal - minVal + 1.0e-20))
 
     return x
+
+
 
 
 def load_training_data(directory, filename, axes=None, verbose=True):
