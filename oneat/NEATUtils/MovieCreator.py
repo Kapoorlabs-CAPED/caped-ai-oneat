@@ -563,11 +563,12 @@ yolo_v1 = True, yolo_v2 = False,  tshift  = 0, normalizeimage = True):
                       if name == Segname:
                           
                           
-                         image = daskread(fname)[0]
+                         image = imread(fname).astype('float16')
                          print('raw', image.shape)
                          if normalizeimage:
-                            image = normalizeFloatZeroOne( image.compute().astype('float16'),1,99.8)
-                         segimage = daskread(Segfname)[0]
+                            image = normalizeFloatZeroOne( image.astype('float16'),1,99.8)
+                         print('image normalized')   
+                         segimage = imread(Segfname).astype('float16')
                          print('seg',segimage.shape)
                          for csvfname in filesCsv:
                                  count = 0  
