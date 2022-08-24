@@ -81,13 +81,11 @@ def SegFreeMovieLabelDataSet(image_dir, csv_dir, save_dir, static_name, static_l
                                                                              
                                                     #Categories + XYHW + Confidence 
                                                     for (key, t) in time.items():
-                                                       try: 
+                                                    
                                                           SimpleMovieMaker(t, y[key], x[key], image, crop_size,gridx, gridy, total_categories, trainlabel, name+ event_name + str(count), save_dir, normPatch,yolo_v1, yolo_v2, tshift) 
                                                           count = count + 1
                                                         
-                                                       except:
-                                                        
-                                                           pass
+                                                      
                                                         
 def SegFreeMovieLabelDataSet4D(image_dir, csv_dir, save_dir, static_name, static_label, csv_name_diff, crop_size, gridx = 1, gridy = 1, normPatch = False,  yolo_v1 = True, yolo_v2 = False, tshift = 0, normalizeimage = True):
     
@@ -525,15 +523,13 @@ yolo_v1 = True, yolo_v2 = False,  tshift  = 0, normalizeimage = True):
 
                                                     #Categories + XYHW + Confidence 
                                                     for (key, t) in time.items():
-                                                       try: 
+                                                      
                                                           MovieMaker(t, y[key], x[key], angle[key], image, segimage, 
                                                           crop_size, gridx, gridy, total_categories, trainlabel, 
                                                           name + event_name + str(count), save_dir, yolo_v1, yolo_v2, tshift, normalizeimage)
                                                           count = count + 1
                                                         
-                                                       except:
-                                                        
-                                                           pass
+                                                       
                                                         
 def VolumeLabelDataSet(image_dir, seg_image_dir, csv_dir, save_dir, static_name, static_label, csv_name_diff, crop_size, gridx = 1, gridy = 1, gridz = 1,  
 yolo_v1 = True, yolo_v2 = False,  tshift  = 0, normalizeimage = True):
@@ -562,10 +558,8 @@ yolo_v1 = True, yolo_v2 = False,  tshift  = 0, normalizeimage = True):
                           
                           
                          image = daskread(fname)[0].astype('float16')
-                         print('raw', image.shape)
                             
                          segimage = daskread(Segfname)[0].astype('float16')
-                         print('seg',segimage.shape)
                          
                          for csvfname in filesCsv:
                                  count = 0  
@@ -618,7 +612,6 @@ def VolumeMaker(time, z, y, x, angle, image, segimage, crop_size, gridx, gridy,g
                 
 
                currentsegimage = segimage[int(time),:,:].astype('uint16')
-               print(currentsegimage.shape, 'in')
 
                height, width, depth, center, seg_label = getHWD(x, y, z, currentsegimage, imagesizex, imagesizey,imagesizez)
                for shift in AllShifts:
@@ -649,10 +642,8 @@ def VolumeMaker(time, z, y, x, angle, image, segimage, crop_size, gridx, gridy,g
                                         crop_zplus = z   + int(imagesizez/2)
                                         region =(slice(0,smallimage.shape[0]),slice(int(crop_zminus), int(crop_zplus)), slice(int(crop_yminus), int(crop_yplus)),
                                               slice(int(crop_xminus) , int(crop_xplus) ))
-                                        print('made region')      
                                         #Define the movie region volume that was cut
                                         crop_image = smallimage[region]
-                                        print('cropped', crop_image.shape)   
                                         seglocationx = (newcenter[2] - crop_xminus)
                                         seglocationy = (newcenter[1] - crop_yminus)
                                         seglocationz = (newcenter[0] - crop_zminus)
