@@ -323,8 +323,7 @@ class NEATCynamic(object):
            print(f'Image {self.image.shape} is {self.ndim} dimensional, projecting around the center {self.image.shape[1]//2} - {self.start_project_mid} to {self.image.shape[1]//2} + {self.end_project_mid}') 
            self.image =  MidSlicesSum(self.image, self.start_project_mid, self.end_project_mid, axis = 1)
            self.z = self.z - (self.start_project_mid + self.end_project_mid)//2
-        if self.normalize: 
-                    self.image = normalizeFloatZeroOne(self.image.astype('float32'), 1, 99.8)
+        
         self.erosion_iterations = erosion_iterations
         
         self.heatmap = np.zeros(self.image.shape, dtype = 'float32')  
@@ -387,7 +386,8 @@ class NEATCynamic(object):
                                       imwrite((heatsavename + '.tif' ), self.heatmap)
                                       
                                 smallimage = CreateVolume(self.image, self.size_tminus, self.size_tplus, inputtime)
-                                
+                                if self.normalize: 
+                                            smallimage = normalizeFloatZeroOne(smallimage, 1, 99.8, dtype = self.dtype)
                                 # Cut off the region for training movie creation
                                 #Break image into tiles if neccessary
                                 predictions, allx, ally = self.predict_main(smallimage)
@@ -419,7 +419,7 @@ class NEATCynamic(object):
                                                        
                                                         event_prob = box[event_name]
                                                         event_confidence = box['confidence']
-                                                        if event_prob >= self.event_threshold:
+                                                        if event_prob >= self.event_threshold and event_confidence >= self.event_confidence:
                                                             
                                                             current_event_box.append(box)
                                                      classedboxes[event_name] = [current_event_box]
@@ -450,7 +450,8 @@ class NEATCynamic(object):
                 
                 remove_candidates_list = []
                 smallimage = CreateVolume(self.image, self.size_tminus, self.size_tplus, inputtime)
-               
+                if self.normalize: 
+                       smallimage = normalizeFloatZeroOne(smallimage, 1, 99.8, dtype = self.dtype)
                 # Cut off the region for training movie creation
                 # Break image into tiles if neccessary
                 predictions, allx, ally = self.predict_main(smallimage)
@@ -520,17 +521,19 @@ class NEATCynamic(object):
         self.n_tiles = (1,1)
         
         heatsavename = self.savedir+ "/"  + (os.path.splitext(os.path.basename(self.imagename))[0])+ '_Heat'
-        eventsavename = self.savedir + "/" + (os.path.splitext(os.path.basename(self.imagename))[0])+ '_Event'
         
   
         for inputtime in tqdm(range(int(self.imaget)//2, self.image.shape[0])):
              if inputtime < self.image.shape[0] - self.imaget:   
+                 
+                smallimage = CreateVolume(self.image, self.size_tminus, self.size_tplus, inputtime)
+                if self.normalize: 
+                       smallimage = normalizeFloatZeroOne(smallimage, 1, 99.8, dtype = self.dtype)
 
                 if inputtime%(self.image.shape[0]//4)==0 and inputtime > 0 or inputtime >= self.image.shape[0] - self.imaget - 1:
                                       markers_current = dilation(self.eventmarkers[inputtime,:], disk(2))
                                       self.eventmarkers[inputtime,:] = label(markers_current.astype('uint16')) 
                                       imwrite((heatsavename + '.tif' ), self.heatmap) 
-                                      imwrite((eventsavename + '.tif' ), self.eventmarkers.astype('uint16'))
                 if  str(int(inputtime)) in self.marker_tree:                     
                         tree, location = self.marker_tree[str(int(inputtime))]
                         for i in range(len(location)):
@@ -539,10 +542,10 @@ class NEATCynamic(object):
                             crop_xplus = location[i][1]  + int(self.imagex/2) * self.downsamplefactor 
                             crop_yminus = location[i][0]  - int(self.imagey/2) * self.downsamplefactor 
                             crop_yplus = location[i][0]   + int(self.imagey/2) * self.downsamplefactor 
-                            region =(slice(inputtime - int(self.imaget)//2,inputtime + int(self.imaget)//2 + 1),slice(int(crop_yminus), int(crop_yplus)),
+                            region =(slice(0,smallimage.shape[0]),slice(int(crop_yminus), int(crop_yplus)),
                                 slice(int(crop_xminus), int(crop_xplus)))
                             
-                            crop_image = self.image[region] 
+                            crop_image = smallimage[region] 
                             
                             if crop_image.shape[0] >= self.imaget and  crop_image.shape[1] >= self.imagey * self.downsamplefactor and crop_image.shape[2] >= self.imagex * self.downsamplefactor:                                                
                                         #Now apply the prediction for counting real events

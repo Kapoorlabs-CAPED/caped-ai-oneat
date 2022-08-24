@@ -323,8 +323,7 @@ class NEATDynamic(object):
            print(f'Image {self.image.shape} is {self.ndim} dimensional, projecting around the center {self.image.shape[1]//2} - {self.start_project_mid} to {self.image.shape[1]//2} + {self.end_project_mid}') 
            self.image =  MidSlicesSum(self.image, self.start_project_mid, self.end_project_mid, axis = 1)
            self.z = self.z - (self.start_project_mid + self.end_project_mid)//2
-        if self.normalize: 
-                    self.image = normalizeFloatZeroOne(self.image.astype('float32'), 1, 99.8)
+      
         
         self.heatmap = np.zeros(self.image.shape, dtype = 'float32')  
         self.savedir = savedir
@@ -380,12 +379,12 @@ class NEATDynamic(object):
                                 count = count + 1
                                 if inputtime%(self.image.shape[0]//4)==0 and inputtime > 0 or inputtime >= self.image.shape[0] - self.imaget - 1:
                                       
-                                                                              
-                                      
                                       imwrite((heatsavename + '.tif' ), self.heatmap)
                                       
                                 smallimage = CreateVolume(self.image, self.size_tminus, self.size_tplus, inputtime)
-                                
+                                      
+                                if self.normalize: 
+                                    smallimage = normalizeFloatZeroOne(smallimage, 1, 99.8, dtype = self.dtype)
                                 # Cut off the region for training movie creation
                                 #Break image into tiles if neccessary
                                 predictions, allx, ally = self.predict_main(smallimage)
@@ -449,7 +448,8 @@ class NEATDynamic(object):
                 
                 remove_candidates_list = []
                 smallimage = CreateVolume(self.image, self.size_tminus, self.size_tplus, inputtime)
-               
+                if self.normalize: 
+                          smallimage = normalizeFloatZeroOne(smallimage, 1, 99.8, dtype = self.dtype)
                 # Cut off the region for training movie creation
                 # Break image into tiles if neccessary
                 predictions, allx, ally = self.predict_main(smallimage)
@@ -523,7 +523,9 @@ class NEATDynamic(object):
   
         for inputtime in tqdm(range(int(self.imaget)//2, self.image.shape[0])):
              if inputtime < self.image.shape[0] - self.imaget:   
-
+                smallimage = CreateVolume(self.image, self.size_tminus, self.size_tplus, inputtime)
+                if self.normalize: 
+                          smallimage = normalizeFloatZeroOne(smallimage, 1, 99.8, dtype = self.dtype)
                 if inputtime%(self.image.shape[0]//4)==0 and inputtime > 0 or inputtime >= self.image.shape[0] - self.imaget - 1:
                                       imwrite((heatsavename + '.tif' ), self.heatmap) 
                 if  str(int(inputtime)) in self.marker_tree:                     
@@ -535,10 +537,10 @@ class NEATDynamic(object):
 
                             crop_yminus = location[i][0]  - int(self.imagey/2) * self.downsamplefactor 
                             crop_yplus = location[i][0]   + int(self.imagey/2) * self.downsamplefactor 
-                            region =(slice(inputtime - int(self.imaget)//2,inputtime + int(self.imaget)//2 + 1),slice(int(crop_yminus), int(crop_yplus)),
+                            region =(slice(0,smallimage.shape[0]),slice(int(crop_yminus), int(crop_yplus)),
                                 slice(int(crop_xminus), int(crop_xplus)))
                             
-                            crop_image = self.image[region] 
+                            crop_image = smallimage[region] 
                             
                             if crop_image.shape[0] >= self.imaget and  crop_image.shape[1] >= self.imagey * self.downsamplefactor and crop_image.shape[2] >= self.imagex * self.downsamplefactor:                                                
                                         #Now apply the prediction for counting real events

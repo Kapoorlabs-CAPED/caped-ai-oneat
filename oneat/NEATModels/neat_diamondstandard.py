@@ -299,8 +299,7 @@ class NEATEynamic(object):
         self.ndim = len(self.image.shape)
         self.normalize = normalize
         self.dtype = dtype
-        if self.normalize: 
-                    self.image = normalizeFloatZeroOne(self.image, 1, 99.8, dtype = self.dtype)
+        
         
         self.savedir = savedir
         Path(self.savedir).mkdir(exist_ok=True)
@@ -350,7 +349,8 @@ class NEATEynamic(object):
                                 count = count + 1
                                       
                                 smallimage = CreateVolume(self.image, self.size_tminus, self.size_tplus, inputtime)
-                                
+                                if self.normalize: 
+                                      smallimage = normalizeFloatZeroOne(smallimage, 1, 99.8, dtype = self.dtype)
                                 # Cut off the region for training movie creation
                                 #Break image into tiles if neccessary
                                 predictions, allx, ally, allz = self.predict_main(smallimage)
@@ -415,7 +415,8 @@ class NEATEynamic(object):
                 
                 remove_candidates_list = []
                 smallimage = CreateVolume(self.image, self.size_tminus, self.size_tplus, inputtime)
-               
+                if self.normalize: 
+                             smallimage = normalizeFloatZeroOne(smallimage, 1, 99.8, dtype = self.dtype)
                 # Cut off the region for training movie creation
                 # Break image into tiles if neccessary
                 predictions, allx, ally, allz = self.predict_main(smallimage)
@@ -490,7 +491,9 @@ class NEATEynamic(object):
         
         for inputtime in tqdm(range(int(self.imaget)//2, self.image.shape[0])):
              if inputtime < self.image.shape[0] - self.imaget:   
-
+                smallimage = CreateVolume(self.image, self.size_tminus, self.size_tplus, inputtime)
+                if self.normalize: 
+                            smallimage = normalizeFloatZeroOne(smallimage, 1, 99.8, dtype = self.dtype)
                 if  str(int(inputtime)) in self.marker_tree:                     
                         tree, location = self.marker_tree[str(int(inputtime))]
                         for i in range(len(location)):
@@ -503,10 +506,10 @@ class NEATEynamic(object):
 
                             crop_zminus = location[i][0]  - int(self.imagez/2)  
                             crop_zplus = location[i][0]   + int(self.imagez/2) 
-                            region =(slice(inputtime - int(self.imaget)//2,inputtime + int(self.imaget)//2 + 1),slice(int(crop_zminus), int(crop_zplus)),slice(int(crop_yminus), int(crop_yplus)),
+                            region =(slice(0,smallimage.shape[0]),slice(int(crop_zminus), int(crop_zplus)),slice(int(crop_yminus), int(crop_yplus)),
                                 slice(int(crop_xminus), int(crop_xplus)))
                             
-                            crop_image = self.image[region] 
+                            crop_image = smallimage[region] 
                             
                             if crop_image.shape[0] >= self.imaget and  crop_image.shape[1] >= self.imagez and crop_image.shape[2] >= self.imagey and crop_image.shape[3] >= self.imagex:                                                
                                         #Now apply the prediction for counting real events

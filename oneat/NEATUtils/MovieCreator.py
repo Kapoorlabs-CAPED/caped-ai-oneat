@@ -528,7 +528,7 @@ yolo_v1 = True, yolo_v2 = False,  tshift  = 0, normalizeimage = True):
                                                        try: 
                                                           MovieMaker(t, y[key], x[key], angle[key], image, segimage, 
                                                           crop_size, gridx, gridy, offset, total_categories, trainlabel, 
-                                                          name + event_name + str(count), save_dir, yolo_v1, yolo_v2, tshift)
+                                                          name + event_name + str(count), save_dir, yolo_v1, yolo_v2, tshift, normalizeimage)
                                                           count = count + 1
                                                         
                                                        except:
@@ -550,8 +550,6 @@ yolo_v1 = True, yolo_v2 = False,  tshift  = 0, normalizeimage = True):
             filesCsv.sort
             Path(save_dir).mkdir(exist_ok=True)
             total_categories = len(static_name)
-                
-            
             
             for fname in files_raw:
                   
@@ -568,9 +566,7 @@ yolo_v1 = True, yolo_v2 = False,  tshift  = 0, normalizeimage = True):
                             
                          segimage = daskread(Segfname)[0].astype('float16')
                          print('seg',segimage.shape)
-                         if normalizeimage:
-                            image = normalizeFloatZeroOne( image.compute(),1,99.8)
-                         print('image normalized')
+                         
                          for csvfname in filesCsv:
                                  count = 0  
                                  Csvname =  os.path.basename(os.path.splitext(csvfname)[0])
@@ -596,7 +592,7 @@ yolo_v1 = True, yolo_v2 = False,  tshift  = 0, normalizeimage = True):
                                                        try: 
                                                           VolumeMaker(t, z[key], y[key], x[key], angle[key], image, segimage, 
                                                           crop_size, gridx, gridy,gridz, offset, total_categories, trainlabel, 
-                                                          name + event_name + str(count), save_dir, yolo_v1, yolo_v2, tshift)
+                                                          name + event_name + str(count), save_dir, yolo_v1, yolo_v2, tshift, normalizeimage)
                                                           count = count + 1
                                                         
                                                        except:
@@ -605,7 +601,7 @@ yolo_v1 = True, yolo_v2 = False,  tshift  = 0, normalizeimage = True):
                                  
 
                
-def VolumeMaker(time, z, y, x, angle, image, segimage, crop_size, gridx, gridy,gridz,  total_categories, trainlabel, name, save_dir,  yolo_v1, yolo_v2, tshift):
+def VolumeMaker(time, z, y, x, angle, image, segimage, crop_size, gridx, gridy,gridz,  total_categories, trainlabel, name, save_dir,  yolo_v1, yolo_v2, tshift,normalizeimage ):
     
        sizex, sizey, sizez, size_tminus, size_tplus = crop_size
        
@@ -642,6 +638,9 @@ def VolumeMaker(time, z, y, x, angle, image, segimage, crop_size, gridx, gridy,g
                         if yolo_v2:
                             Label = np.zeros([total_categories + 9])
                         Label[trainlabel] = 1
+                        smallimage = CreateVolume(image, size_tminus, size_tplus, int(time))
+                        if normalizeimage:
+                            smallimage = normalizeFloatZeroOne(smallimage, 1, 99.8, dtype = self.dtype)
                         #T co ordinate
                         Label[total_categories + 3] = (size_tminus) / (size_tminus + size_tplus)
                         if x > sizex/2 and z > sizez/2 and  y  > sizey/2 and z  + int(imagesizez/2) < image.shape[1] and y  + int(imagesizey/2) < image.shape[2] and x + int(imagesizex/2) < image.shape[3] and time > size_tminus and time + size_tplus + 1 < image.shape[0]:
@@ -651,11 +650,11 @@ def VolumeMaker(time, z, y, x, angle, image, segimage, crop_size, gridx, gridy,g
                                         crop_yplus = y   + int(imagesizey/2)
                                         crop_zminus = z  - int(imagesizez/2)
                                         crop_zplus = z   + int(imagesizez/2)
-                                        region =(slice(int(time - size_tminus),int(time + size_tplus  + 1)),slice(int(crop_zminus), int(crop_zplus)), slice(int(crop_yminus), int(crop_yplus)),
+                                        region =(slice(0,smallimage.shape[0]),slice(int(crop_zminus), int(crop_zplus)), slice(int(crop_yminus), int(crop_yplus)),
                                               slice(int(crop_xminus) , int(crop_xplus) ))
                                         print('made region')      
                                         #Define the movie region volume that was cut
-                                        crop_image = image[region]
+                                        crop_image = smallimage[region]
                                         print('cropped', crop_image.shape)   
                                         seglocationx = (newcenter[2] - crop_xminus)
                                         seglocationy = (newcenter[1] - crop_yminus)
@@ -697,7 +696,7 @@ def VolumeMaker(time, z, y, x, angle, image, segimage, crop_size, gridx, gridy,g
                                                    writer.writerows(Event_data)
             
 def MovieMaker(time, y, x, angle, image, segimage, crop_size, gridx, gridy, offset, total_categories, trainlabel,
-name, save_dir, yolo_v1, yolo_v2, tshift):
+name, save_dir, yolo_v1, yolo_v2, tshift, normalizeimage):
     
        sizex, sizey, size_tminus, size_tplus = crop_size
        
@@ -740,15 +739,18 @@ name, save_dir, yolo_v1, yolo_v2, tshift):
                         Label[trainlabel] = 1
                         #T co ordinate
                         Label[total_categories + 2] = (size_tminus) / (size_tminus + size_tplus)
+                        smallimage = CreateVolume(image, size_tminus, size_tplus, int(time))
+                        if normalizeimage:
+                            smallimage = normalizeFloatZeroOne(smallimage, 1, 99.8, dtype = self.dtype)
                         if x + shift[0]> sizex/2 and y + shift[1] > sizey/2 and x + shift[0] + int(imagesizex/2) < image.shape[2] and y + shift[1]+ int(imagesizey/2) < image.shape[1] and time > size_tminus and time + size_tplus + 1 < image.shape[0]:
                                         crop_xminus = x  - int(imagesizex/2)
                                         crop_xplus = x  + int(imagesizex/2)
                                         crop_yminus = y  - int(imagesizey/2)
                                         crop_yplus = y   + int(imagesizey/2)
-                                        region =(slice(int(time - size_tminus),int(time + size_tplus  + 1)),slice(int(crop_yminus)+ shift[1], int(crop_yplus)+ shift[1]),
+                                        region =(slice(0,smallimage.shape[0]),slice(int(crop_yminus)+ shift[1], int(crop_yplus)+ shift[1]),
                                               slice(int(crop_xminus) + shift[0], int(crop_xplus) + shift[0]))
                                         #Define the movie region volume that was cut
-                                        crop_image = image[region]   
+                                        crop_image = smallimage[region]   
 
                                         seglocationx = (newcenter[1] - crop_xminus)
                                         seglocationy = (newcenter[0] - crop_yminus)
@@ -876,7 +878,18 @@ def SegFreeImageLabelDataSet(image_dir, csv_dir,save_dir, static_name, static_la
                                             for (key, t) in time.items():
                                                SegFreeImageMaker(t, y[key], x[key], image, crop_size, gridx, gridy, offset, total_categories, trainlabel, name + event_name + str(count), save_dir)    
                                                count = count + 1                 
-    
+
+
+
+
+def CreateVolume(patch, size_tminus, size_tplus, timepoint):
+    starttime = timepoint - int(size_tminus)
+    endtime = timepoint + int(size_tplus)
+    smallimg = patch[starttime:endtime, :]
+
+    return smallimg
+
+
 def createNPZ(save_dir, axes, save_name = 'Yolov0oneat', save_name_val = 'Yolov0oneatVal', expand = True, 
 static = False, flip_channel_axis = False, train_size = 0.95):
             
