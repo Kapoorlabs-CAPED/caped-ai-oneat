@@ -577,7 +577,7 @@ yolo_v1 = True, yolo_v2 = False,  tshift  = 0, normalizeimage = True):
                                      if classfound:
                                                     print(Csvname)
                                                     dataset = pd.read_csv(csvfname)
-                                                    if len(dataset.keys()) >= 3:
+                                                    if len(dataset.keys()) >= 4:
 
                                                         time = dataset[dataset.keys()[0]][1:]
                                                         z = dataset[dataset.keys()[1]][1:]
