@@ -563,10 +563,10 @@ yolo_v1 = True, yolo_v2 = False,  tshift  = 0, normalizeimage = True):
                       if name == Segname:
                           
                           
-                         image = imread(fname).astype('float16')
+                         image = daskread(fname)[0].astype('float16')
                          print('raw', image.shape)
                          if normalizeimage:
-                            image = normalizeFloatZeroOne( image.astype('float16'),1,99.8)
+                            image = normalizeFloatZeroOne( image.compute().astype('float16'),1,99.8)
                          print('image normalized')   
                          segimage = imread(Segfname).astype('float16')
                          print('seg',segimage.shape)
