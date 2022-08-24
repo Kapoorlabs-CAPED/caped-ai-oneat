@@ -196,8 +196,8 @@ def normalizer(x, mi, ma, eps=1e-20, dtype=np.float32):
     return x
 
 
-def normalizeZeroOne(x):
-    x = x.astype('float32')
+def normalizeZeroOne(x, dtype=np.float32):
+    x = x.astype(dtype)
 
     minVal = np.min(x)
     maxVal = np.max(x)
