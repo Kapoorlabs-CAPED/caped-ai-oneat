@@ -569,7 +569,7 @@ yolo_v1 = True, yolo_v2 = False,  tshift  = 0, normalizeimage = True):
                          segimage = daskread(Segfname)[0].astype('float16')
                          print('seg',segimage.shape)
                          if normalizeimage:
-                            image = normalizeFloatZeroOne( image.compute(),1,99.8, dtype=np.float16)
+                            image = normalizeFloatZeroOne( image.compute(),1,99.8, dtype=np.int8)
                          print('image normalized')
                          for csvfname in filesCsv:
                                  count = 0  
