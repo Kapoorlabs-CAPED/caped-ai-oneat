@@ -471,7 +471,7 @@ def Midog_to_oneat_simple(midog_folder, annotation_file,event_type_name_label, a
                     writer.writerows(Event_data)
 
 
-def MovieLabelDataSet(image_dir, seg_image_dir, csv_dir, save_dir, static_name, static_label, csv_name_diff, crop_size, gridx = 1, gridy = 1, offset = 0,  
+def MovieLabelDataSet(image_dir, seg_image_dir, csv_dir, save_dir, static_name, static_label, csv_name_diff, crop_size, gridx = 1, gridy = 1,  
 yolo_v1 = True, yolo_v2 = False,  tshift  = 0, normalizeimage = True):
     
     
@@ -522,12 +522,12 @@ yolo_v1 = True, yolo_v2 = False,  tshift  = 0, normalizeimage = True):
                                                        angle = dataset[dataset.keys()[4]][1:]
                                                     except:   
                                                        angle = np.full(time.shape, 2)    
-                                                                             
+
                                                     #Categories + XYHW + Confidence 
                                                     for (key, t) in time.items():
                                                        try: 
                                                           MovieMaker(t, y[key], x[key], angle[key], image, segimage, 
-                                                          crop_size, gridx, gridy, offset, total_categories, trainlabel, 
+                                                          crop_size, gridx, gridy, total_categories, trainlabel, 
                                                           name + event_name + str(count), save_dir, yolo_v1, yolo_v2, tshift, normalizeimage)
                                                           count = count + 1
                                                         
@@ -535,7 +535,7 @@ yolo_v1 = True, yolo_v2 = False,  tshift  = 0, normalizeimage = True):
                                                         
                                                            pass
                                                         
-def VolumeLabelDataSet(image_dir, seg_image_dir, csv_dir, save_dir, static_name, static_label, csv_name_diff, crop_size, gridx = 1, gridy = 1, gridz = 1, offset = 0,  
+def VolumeLabelDataSet(image_dir, seg_image_dir, csv_dir, save_dir, static_name, static_label, csv_name_diff, crop_size, gridx = 1, gridy = 1, gridz = 1,  
 yolo_v1 = True, yolo_v2 = False,  tshift  = 0, normalizeimage = True):
     
     
@@ -591,7 +591,7 @@ yolo_v1 = True, yolo_v2 = False,  tshift  = 0, normalizeimage = True):
                                                     for (key, t) in time.items():
                                                       
                                                           VolumeMaker(t, z[key], y[key], x[key], angle[key], image, segimage, 
-                                                          crop_size, gridx, gridy,gridz, offset, total_categories, trainlabel, 
+                                                          crop_size, gridx, gridy,gridz, total_categories, trainlabel, 
                                                           name + event_name + str(count), save_dir, yolo_v1, yolo_v2, tshift, normalizeimage)
                                                           count = count + 1
                                                     
@@ -692,7 +692,7 @@ def VolumeMaker(time, z, y, x, angle, image, segimage, crop_size, gridx, gridy,g
                                                    writer = csv.writer(open(save_dir + '/' + (newname) + ".csv", "a"))
                                                    writer.writerows(Event_data)
             
-def MovieMaker(time, y, x, angle, image, segimage, crop_size, gridx, gridy, offset, total_categories, trainlabel,
+def MovieMaker(time, y, x, angle, image, segimage, crop_size, gridx, gridy,  total_categories, trainlabel,
 name, save_dir, yolo_v1, yolo_v2, tshift, normalizeimage):
     
        sizex, sizey, size_tminus, size_tplus = crop_size
@@ -701,20 +701,7 @@ name, save_dir, yolo_v1, yolo_v2, tshift, normalizeimage):
        imagesizey = sizey * gridy
        
        shiftNone = [0,0]
-       if offset > 0 and trainlabel > 0:
-                 shift_lx = [int(offset), 0] 
-                 shift_rx = [-offset, 0]
-                 shift_lxy = [int(offset), int(offset)]
-                 shift_rxy = [-int(offset), int(offset)]
-                 shift_dlxy = [int(offset), -int(offset)]
-                 shift_drxy = [-int(offset), -int(offset)]
-                 shift_uy = [0, int(offset)]
-                 shift_dy = [0, -int(offset)]
-                 AllShifts = [shiftNone, shift_lx, shift_rx,shift_lxy,shift_rxy,shift_dlxy,shift_drxy,shift_uy,shift_dy]
-
-       else:
-           
-          AllShifts = [shiftNone]
+       AllShifts = [shiftNone]
 
 
        time = time - tshift
@@ -789,7 +776,7 @@ def Readname(fname):
     return os.path.basename(os.path.splitext(fname)[0])
 
 
-def ImageLabelDataSet(image_dir, seg_image_dir, csv_dir,save_dir, static_name, static_label, csv_name_diff,crop_size, gridx = 1, gridy = 1, offset = 0, tshift  = 0):
+def ImageLabelDataSet(image_dir, seg_image_dir, csv_dir,save_dir, static_name, static_label, csv_name_diff,crop_size, gridx = 1, gridy = 1, tshift  = 0):
     
     
             raw_path = os.path.join(image_dir, '*tif')
@@ -833,13 +820,13 @@ def ImageLabelDataSet(image_dir, seg_image_dir, csv_dir,save_dir, static_name, s
                                             
                                             #Categories + XYHW + Confidence 
                                             for (key, t) in time.items():
-                                               ImageMaker(t, y[key], x[key], image, segimage, crop_size, gridx, gridy, offset, total_categories, trainlabel, name + event_name + str(count), save_dir,tshift)    
+                                               ImageMaker(t, y[key], x[key], image, segimage, crop_size, gridx, gridy, total_categories, trainlabel, name + event_name + str(count), save_dir,tshift)    
                                                count = count + 1
     
 
 
     
-def SegFreeImageLabelDataSet(image_dir, csv_dir,save_dir, static_name, static_label, csv_name_diff,crop_size, gridx = 1, gridy = 1, offset = 0):
+def SegFreeImageLabelDataSet(image_dir, csv_dir,save_dir, static_name, static_label, csv_name_diff,crop_size, gridx = 1, gridy = 1):
     
     
             raw_path = os.path.join(image_dir, '*tif')
@@ -873,7 +860,7 @@ def SegFreeImageLabelDataSet(image_dir, csv_dir,save_dir, static_name, static_la
                                             
                                             #Categories + XYHW + Confidence 
                                             for (key, t) in time.items():
-                                               SegFreeImageMaker(t, y[key], x[key], image, crop_size, gridx, gridy, offset, total_categories, trainlabel, name + event_name + str(count), save_dir)    
+                                               SegFreeImageMaker(t, y[key], x[key], image, crop_size, gridx, gridy,  total_categories, trainlabel, name + event_name + str(count), save_dir)    
                                                count = count + 1                 
 
 
@@ -943,7 +930,7 @@ static = False, flip_channel_axis = False, train_size = 0.95):
 
 def _raise(e):
     raise e
-def  ImageMaker(time, y, x, image, segimage, crop_size, gridX, gridY, offset, total_categories, trainlabel, name, save_dir, tshift):
+def  ImageMaker(time, y, x, image, segimage, crop_size, gridX, gridY, total_categories, trainlabel, name, save_dir, tshift):
 
                sizeX, sizeY = crop_size
 
@@ -951,20 +938,7 @@ def  ImageMaker(time, y, x, image, segimage, crop_size, gridX, gridY, offset, to
                ImagesizeY = sizeY * gridY
 
                shiftNone = [0,0]
-               if offset > 0 and trainlabel > 0:
-                         shiftLX = [int(offset), 0] 
-                         shiftRX = [-offset, 0]
-                         shiftLXY = [int(offset), int(offset)]
-                         shiftRXY = [-int(offset), int(offset)]
-                         shiftDLXY = [int(offset), -int(offset)]
-                         shiftDRXY = [-int(offset), -int(offset)]
-                         shiftUY = [0, int(offset)]
-                         shiftDY = [0, -int(offset)]
-                         AllShifts = [shiftNone, shiftLX, shiftRX,shiftLXY,shiftRXY,shiftDLXY,shiftDRXY,shiftUY,shiftDY]
-
-               else:
-
-                  AllShifts = [shiftNone]
+               AllShifts = [shiftNone]
 
                time = time - tshift
                if time < segimage.shape[0] - 1 and time > 0:
@@ -1018,7 +992,7 @@ def  ImageMaker(time, y, x, image, segimage, crop_size, gridX, gridY, offset, to
                                                              writer = csv.writer(open(save_dir + '/' + (newname) + ".csv", "a"))
                                                              writer.writerows(Event_data)
 
-def  SegFreeImageMaker(time, y, x, image, crop_size, gridX, gridY, offset, total_categories, trainlabel, name, save_dir, tshift):
+def  SegFreeImageMaker(time, y, x, image, crop_size, gridX, gridY, total_categories, trainlabel, name, save_dir, tshift):
 
                sizex, sizey = crop_size
 
@@ -1026,20 +1000,7 @@ def  SegFreeImageMaker(time, y, x, image, crop_size, gridX, gridY, offset, total
                ImagesizeY = sizey * gridY
 
                shiftNone = [0,0]
-               if offset > 0 and trainlabel > 0:
-                         shiftLX = [int(offset), 0] 
-                         shiftRX = [-offset, 0]
-                         shiftLXY = [int(offset), int(offset)]
-                         shiftRXY = [-int(offset), int(offset)]
-                         shiftDLXY = [int(offset), -int(offset)]
-                         shiftDRXY = [-int(offset), -int(offset)]
-                         shiftUY = [0, int(offset)]
-                         shiftDY = [0, -int(offset)]
-                         AllShifts = [shiftNone, shiftLX, shiftRX,shiftLXY,shiftRXY,shiftDLXY,shiftDRXY,shiftUY,shiftDY]
-
-               else:
-
-                  AllShifts = [shiftNone]
+               AllShifts = [shiftNone]
 
                time = time - tshift
                if time < image.shape[0] - 1 and time > 0:
