@@ -565,7 +565,7 @@ yolo_v1 = True, yolo_v2 = False,  tshift  = 0, normalizeimage = True):
                           
                          image = daskread(fname)[0]
                          if normalizeimage:
-                            image = normalizeFloatZeroOne( image.astype('float32'),1,99.8)
+                            image = normalizeFloatZeroOne( image.compute().astype('float32'),1,99.8)
                          segimage = daskread(Segfname)[0]
                         
                          for csvfname in filesCsv:
