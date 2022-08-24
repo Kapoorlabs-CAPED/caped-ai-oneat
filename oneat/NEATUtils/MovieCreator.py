@@ -606,7 +606,7 @@ def VolumeMaker(time, z, y, x, angle, image, segimage, crop_size, gridx, gridy,g
 
        time = time - tshift
        
-       if time > 0:
+       if time > size_tminus:
 
                #slice the images
                 
@@ -696,7 +696,7 @@ name, save_dir, yolo_v1, yolo_v2, tshift, normalizeimage):
 
 
        time = time - tshift
-       if time > 0:
+       if time > size_tminus:
                currentsegimage = segimage[int(time),:].astype('uint16')
                height, width, center, seg_label = getHW(x, y, currentsegimage, imagesizex, imagesizey)
                for shift in AllShifts:
