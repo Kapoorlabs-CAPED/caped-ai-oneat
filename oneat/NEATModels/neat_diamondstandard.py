@@ -213,10 +213,10 @@ class NEATEynamic(object):
             self.model_weights = None
 
         dummyY = np.zeros(
-            [self.Y.shape[0], self.Y.shape[1], self.Y.shape[2],, self.Y.shape[3], self.categories + self.nboxes * self.box_vector])
+            [self.Y.shape[0], self.Y.shape[1], self.Y.shape[2], self.Y.shape[3], self.categories + self.nboxes * self.box_vector])
         dummyY[:,:, :, :, :self.Y.shape[-1]] = self.Y
 
-        dummyY_val = np.zeros([self.Y_val.shape[0], self.Y_val.shape[1], self.Y_val.shape[2],, self.Y_val.shape[3],
+        dummyY_val = np.zeros([self.Y_val.shape[0], self.Y_val.shape[1], self.Y_val.shape[2], self.Y_val.shape[3],
                                self.categories + self.nboxes * self.box_vector])
         dummyY_val[:,:, :, :, :self.Y_val.shape[-1]] = self.Y_val
 
