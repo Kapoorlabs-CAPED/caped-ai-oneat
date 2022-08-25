@@ -109,23 +109,7 @@ def save_json(data, fpath, **kwargs):
         ##CARE csbdeep modification of implemented function
 
 
-def normalizeFloat(x, pmin=3, pmax=99.8, axis=None, eps=1e-20, dtype=np.float32):
-    """Percentile based Normalization
-    
-    Normalize patches of image before feeding into the network
-    
-    Parameters
-    ----------
-    x : np array Image patch
-    pmin : minimum percentile value for normalization
-    pmax : maximum percentile value for normalization
-    axis : axis along which the normalization has to be carried out
-    eps : avoid dividing by zero
-    dtype: type of numpy array, float 32 default
-    """
-    mi = np.percentile(x, pmin, axis=axis, keepdims=True)
-    ma = np.percentile(x, pmax, axis=axis, keepdims=True)
-    return normalize_mi_ma(x, mi, ma, eps=eps, dtype=dtype)
+
 
 
 def normalizeFloatZeroOne(x, pmin=1, pmax=99.8, axis=None, eps=1e-20, dtype=np.float32):
@@ -144,7 +128,7 @@ def normalizeFloatZeroOne(x, pmin=1, pmax=99.8, axis=None, eps=1e-20, dtype=np.f
     """
     mi = np.percentile(x, pmin, axis=axis, keepdims=True)
     ma = np.percentile(x, pmax, axis=axis, keepdims=True)
-    return normalizer(x, mi, ma, eps=eps, dtype=dtype)
+    return normalize_mi_ma(x, mi, ma, eps=eps, dtype=dtype)
 
 
 def normalize_mi_ma(x, mi, ma, eps=1e-20, dtype=np.float32):
@@ -171,29 +155,6 @@ def normalize_mi_ma(x, mi, ma, eps=1e-20, dtype=np.float32):
     return x
 
 
-def normalizer(x, mi, ma, eps=1e-20, dtype=np.float32):
-    """
-    Number expression evaluation for normalization
-    
-    Parameters
-    ----------
-    x : np array of Image patch
-    mi : minimum input percentile value
-    ma : maximum input percentile value
-    eps: avoid dividing by zero
-    dtype: type of numpy array, float 32 defaut
-    """
-
-    if dtype is not None:
-        x = x.astype(dtype, copy=False)
-        mi = dtype(mi) if np.isscalar(mi) else mi.astype(dtype, copy=False)
-        ma = dtype(ma) if np.isscalar(ma) else ma.astype(dtype, copy=False)
-        eps = dtype(eps)
-
-    x = (x - mi) / (ma - mi + eps)
-
-
-    return x
 
 
 

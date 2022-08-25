@@ -594,6 +594,8 @@ yolo_v1 = True, yolo_v2 = False,  tshift  = 0, normalizeimage = True):
                
 def VolumeMaker(time, z, y, x, angle, image, segimage, crop_size, gridx, gridy,gridz,  total_categories, trainlabel, name, save_dir,  yolo_v1, yolo_v2, tshift,normalizeimage ):
     
+
+       print('VolumeMaker', time)
        sizex, sizey, sizez, size_tminus, size_tplus = crop_size
        
        imagesizex = sizex * gridx
@@ -614,6 +616,12 @@ def VolumeMaker(time, z, y, x, angle, image, segimage, crop_size, gridx, gridy,g
                currentsegimage = segimage[int(time),:,:].astype('uint16')
 
                height, width, depth, center, seg_label = getHWD(x, y, z, currentsegimage, imagesizex, imagesizey,imagesizez)
+
+               print(height, width, depth, center, seg_label)
+               smallimage = CreateVolume(image, size_tminus, size_tplus, int(time))
+               print('created volume', smallimage.shape)
+               if normalizeimage:
+                   smallimage = normalizeFloatZeroOne(smallimage.astype('float16'), 1, 99.8)
                for shift in AllShifts:
 
                         newname = name + 'shift' + str(shift)
@@ -628,9 +636,7 @@ def VolumeMaker(time, z, y, x, angle, image, segimage, crop_size, gridx, gridy,g
                         if yolo_v2:
                             Label = np.zeros([total_categories + 9])
                         Label[trainlabel] = 1
-                        smallimage = CreateVolume(image, size_tminus, size_tplus, int(time))
-                        if normalizeimage:
-                            smallimage = normalizeFloatZeroOne(smallimage.astype('float16'), 1, 99.8)
+                        
                         #T co ordinate
                         Label[total_categories + 3] = (size_tminus) / (size_tminus + size_tplus)
                         if x > sizex/2 and z > sizez/2 and  y  > sizey/2 and z  + int(imagesizez/2) < image.shape[1] and y  + int(imagesizey/2) < image.shape[2] and x + int(imagesizex/2) < image.shape[3] and time > size_tminus and time + size_tplus + 1 < image.shape[0]:
@@ -642,8 +648,10 @@ def VolumeMaker(time, z, y, x, angle, image, segimage, crop_size, gridx, gridy,g
                                         crop_zplus = z   + int(imagesizez/2)
                                         region =(slice(0,smallimage.shape[0]),slice(int(crop_zminus), int(crop_zplus)), slice(int(crop_yminus), int(crop_yplus)),
                                               slice(int(crop_xminus) , int(crop_xplus) ))
+                                             
                                         #Define the movie region volume that was cut
                                         crop_image = smallimage[region]
+                                        print('making crops', crop_image.shape) 
                                         seglocationx = (newcenter[2] - crop_xminus)
                                         seglocationy = (newcenter[1] - crop_yminus)
                                         seglocationz = (newcenter[0] - crop_zminus)
