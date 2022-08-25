@@ -347,8 +347,8 @@ def dynamic_yolo_loss(categories, grid_h, grid_w, grid_t, nboxes, box_vector, en
 def diamond_yolo_loss(categories, grid_h, grid_w, grid_d, nboxes, box_vector, entropy, yolo_v0, yolo_v1, yolo_v2):
     def loss(y_true, y_pred):    
         event_grid = get_event_grid(grid_h, grid_w, grid_d, nboxes)
-        true_box_class, true_box_xyz, true_box_whd, true_box_conf, true_box_angle = extract_ground_event_diamond_truth(y_true, categories, grid_h, grid_w,grid_t, nboxes, box_vector, yolo_v0, yolo_v1, yolo_v2)
-        pred_box_class, pred_box_xyz, pred_box_whd, pred_box_conf, pred_box_angle = extract_ground_event_diamond_pred(y_pred, categories, grid_h, grid_w,grid_t, event_grid, nboxes, box_vector, yolo_v0, yolo_v1, yolo_v2)
+        true_box_class, true_box_xyz, true_box_whd, true_box_conf, true_box_angle = extract_ground_event_diamond_truth(y_true, categories, grid_h, grid_w,grid_d, nboxes, box_vector, yolo_v0, yolo_v1, yolo_v2)
+        pred_box_class, pred_box_xyz, pred_box_whd, pred_box_conf, pred_box_angle = extract_ground_event_diamond_pred(y_pred, categories, grid_h, grid_w,grid_d, event_grid, nboxes, box_vector, yolo_v0, yolo_v1, yolo_v2)
 
         loss_xywht = calc_loss_xyzwhd(true_box_conf, true_box_xyz, pred_box_xyz, true_box_whd, pred_box_whd)
 
