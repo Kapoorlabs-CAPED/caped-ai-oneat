@@ -495,13 +495,10 @@ yolo_v1 = True, yolo_v2 = False,  tshift  = 0, normalizeimage = True):
                       Segname = os.path.basename(os.path.splitext(Segfname)[0])
                         
                       if name == Segname:
-                          
-                          
-                         image = imread(fname)
-                         if normalizeimage:
-                            image = normalizeFloatZeroOne( image.astype('uint16'),1,99.8)
-                         segimage = imread(Segfname)
                         
+                         image = imread(fname).astype('uint8')
+                            
+                         segimage = imread(Segfname).astype('uint16')
                          for csvfname in filesCsv:
                                  count = 0  
                                  Csvname =  os.path.basename(os.path.splitext(csvfname)[0])
@@ -557,7 +554,7 @@ yolo_v1 = True, yolo_v2 = False,  tshift  = 0, normalizeimage = True):
                       if name == Segname:
                           
                           
-                         image = imread(fname).astype('uint16')
+                         image = imread(fname).astype('uint8')
                             
                          segimage = imread(Segfname).astype('uint16')
                          
