@@ -571,6 +571,7 @@ yolo_v1 = True, yolo_v2 = False,  tshift  = 0, normalizeimage = True):
                                      if classfound:
                                                     print(Csvname)
                                                     dataset = pd.read_csv(csvfname)
+                                                    print(dataset)
                                                     time = dataset[dataset.keys()[0]][1:]
                                                     z = dataset[dataset.keys()[1]][1:]
                                                     y = dataset[dataset.keys()[2]][1:]
@@ -613,8 +614,8 @@ def VolumeMaker(time, z, y, x, angle, image, segimage, crop_size, gridx, gridy,g
                #slice the images
                 
 
-               currentsegimage = segimage[int(time),:,:].astype('uint16')
-
+               currentsegimage = segimage[int(time),:,:].compute().astype('uint16')
+               print(currentsegimage.shape)
                height, width, depth, center, seg_label = getHWD(x, y, z, currentsegimage, imagesizex, imagesizey,imagesizez)
 
                print(height, width, depth, center, seg_label)
