@@ -187,7 +187,8 @@ class NEATEynamic(object):
 
         #ZYXT
         input_shape = (self.X.shape[1], self.X.shape[2], self.X.shape[3], self.X.shape[4])
-
+        print(self.X.shape)
+        print(input_shape)
         Path(self.model_dir).mkdir(exist_ok=True)
 
         if self.yolo_v2:
@@ -201,7 +202,7 @@ class NEATEynamic(object):
                 if self.Y_val[i, :, :, 0] == 1:
                     self.Y_val[i, :, :, -1] = 1
         Y_rest = self.Y[:, :, :, self.categories:]
- 
+        print(Y_rest.shape)
 
         model_weights = os.path.join(self.model_dir, self.model_name) 
         if os.path.exists(model_weights):
