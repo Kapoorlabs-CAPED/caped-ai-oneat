@@ -578,7 +578,7 @@ yolo_v1 = True, yolo_v2 = False,  tshift  = 0, normalizeimage = True):
                                                     try:
                                                        angle = dataset[dataset.keys()[4]][1:]
                                                     except:   
-                                                       angle = np.full(time.shape, 2)                        
+                                                       angle = dataset[dataset.keys()[0]][1:] * 0 + 2                      
 
                                                                                   
                                                     #Categories + XYZHW + Confidence 
