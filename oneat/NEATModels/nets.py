@@ -473,8 +473,8 @@ def DIANET(input_shape, categories, box_vector,nboxes = 1, stage_number = 3,  de
     input_box = Lambda(lambda x:x[:,:,:,categories:])(x)
 
         
-    output_cat = (Conv3D(categories, (round(input_shape[0]/last_conv_factor),round(input_shape[1]/last_conv_factor),round(input_shape[2]/last_conv_factor)),activation= last_activation,kernel_regularizer=regularizers.l2(reg_weight), padding = 'valid', name = 'yolo'))(input_cat)
-    output_box = (Conv3D(nboxes*(box_vector), (round(input_shape[0]/last_conv_factor),round(input_shape[1]/last_conv_factor),round(input_shape[2]/last_conv_factor)),activation= 'sigmoid' ,kernel_regularizer=regularizers.l2(reg_weight), padding = 'valid', name = 'secyolo'))(input_box)
+    output_cat = (Conv3D(categories, (round(input_shape[0]),round(input_shape[1]/last_conv_factor),round(input_shape[2]/last_conv_factor)),activation= last_activation,kernel_regularizer=regularizers.l2(reg_weight), padding = 'valid', name = 'yolo'))(input_cat)
+    output_box = (Conv3D(nboxes*(box_vector), (round(input_shape[0]),round(input_shape[1]/last_conv_factor),round(input_shape[2]/last_conv_factor)),activation= 'sigmoid' ,kernel_regularizer=regularizers.l2(reg_weight), padding = 'valid', name = 'secyolo'))(input_box)
 
     block = Concat(-1)
     outputs = block([output_cat,output_box]) 
