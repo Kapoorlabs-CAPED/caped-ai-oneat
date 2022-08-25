@@ -771,7 +771,11 @@ name, save_dir, yolo_v1, yolo_v2, tshift, normalizeimage):
                                                                 os.remove(save_dir + '/' + (newname) + ".csv")
                                                    writer = csv.writer(open(save_dir + '/' + (newname) + ".csv", "a"))
                                                    writer.writerows(Event_data)
-
+       image = None
+       segimage = None 
+       crop_image = None
+       currentsegimage = None
+       smallimage = None
                                                   
        
 
