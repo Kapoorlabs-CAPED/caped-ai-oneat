@@ -213,20 +213,20 @@ class NEATEynamic(object):
             self.model_weights = None
 
         dummyY = np.zeros(
-            [self.Y.shape[0], self.Y.shape[1], self.Y.shape[2], self.categories + self.nboxes * self.box_vector])
-        dummyY[:, :, :, :self.Y.shape[3]] = self.Y
+            [self.Y.shape[0], self.Y.shape[1], self.Y.shape[2],, self.Y.shape[3], self.categories + self.nboxes * self.box_vector])
+        dummyY[:,:, :, :, :self.Y.shape[-1]] = self.Y
 
-        dummyY_val = np.zeros([self.Y_val.shape[0], self.Y_val.shape[1], self.Y_val.shape[2],
+        dummyY_val = np.zeros([self.Y_val.shape[0], self.Y_val.shape[1], self.Y_val.shape[2],, self.Y_val.shape[3],
                                self.categories + self.nboxes * self.box_vector])
-        dummyY_val[:, :, :, :self.Y_val.shape[3]] = self.Y_val
+        dummyY_val[:,:, :, :, :self.Y_val.shape[-1]] = self.Y_val
 
         for b in range(1, self.nboxes):
-            dummyY[:, :, :, self.categories + b * self.box_vector:self.categories + (b + 1) * self.box_vector] = self.Y[
-                                                                                                                 :, :,
+            dummyY[:,:, :, :, self.categories + b * self.box_vector:self.categories + (b + 1) * self.box_vector] = self.Y[
+                                                                                                                 :, :,:,
                                                                                                                  :,
                                                                                                                  self.categories: self.categories + self.box_vector]
-            dummyY_val[:, :, :,
-            self.categories + b * self.box_vector:self.categories + (b + 1) * self.box_vector] = self.Y_val[:, :, :,
+            dummyY_val[:, :, :,:,
+            self.categories + b * self.box_vector:self.categories + (b + 1) * self.box_vector] = self.Y_val[:, :, :,:,
                                                                                                  self.categories: self.categories + self.box_vector]
 
         self.Y = dummyY
