@@ -557,7 +557,7 @@ yolo_v1 = True, yolo_v2 = False,  tshift  = 0, normalizeimage = True):
                       if name == Segname:
                           
                           
-                         image = imread(fname).astype('int8')
+                         image = imread(fname).astype('float16')
                             
                          segimage = imread(Segfname).astype('float16')
                          
@@ -595,7 +595,6 @@ yolo_v1 = True, yolo_v2 = False,  tshift  = 0, normalizeimage = True):
 def VolumeMaker(time, z, y, x, angle, image, segimage, crop_size, gridx, gridy,gridz,  total_categories, trainlabel, name, save_dir,  yolo_v1, yolo_v2, tshift,normalizeimage ):
     
 
-       print('VolumeMaker', time)
        sizex, sizey, sizez, size_tminus, size_tplus = crop_size
        
        imagesizex = sizex * gridx
@@ -613,13 +612,10 @@ def VolumeMaker(time, z, y, x, angle, image, segimage, crop_size, gridx, gridy,g
                #slice the images
                 
 
-               currentsegimage = segimage[int(time),:].astype('uint16')
-               print(currentsegimage.shape)
+               currentsegimage = segimage[int(time),:].astype('float16')
                height, width, depth, center, seg_label = getHWD(x, y, z, currentsegimage, imagesizex, imagesizey,imagesizez)
 
-               print(height, width, depth, center, seg_label)
                smallimage = CreateVolume(image, size_tminus, size_tplus, int(time))
-               print('created volume', smallimage.shape)
                if normalizeimage:
                    smallimage = normalizeFloatZeroOne(smallimage.astype('float16'), 1, 99.8)
                for shift in AllShifts:
@@ -651,7 +647,6 @@ def VolumeMaker(time, z, y, x, angle, image, segimage, crop_size, gridx, gridy,g
                                              
                                         #Define the movie region volume that was cut
                                         crop_image = smallimage[region]
-                                        print('making crops', crop_image.shape) 
                                         seglocationx = (newcenter[2] - crop_xminus)
                                         seglocationy = (newcenter[1] - crop_yminus)
                                         seglocationz = (newcenter[0] - crop_zminus)
