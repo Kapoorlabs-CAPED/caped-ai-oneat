@@ -400,7 +400,7 @@ def DIANET(input_shape, categories, box_vector,nboxes = 1, stage_number = 3,  de
     depth of 29 == max pooling of 28 for image patch of 55
     depth of 56 == max pooling of 14 for image patch of 55
     """
-    img_input = layers.Input(shape = (input_shape[0], input_shape[1], input_shape[2], input_shape[3]))
+    img_input = layers.Input(shape = (None, None, None, input_shape[3]))
     print(img_input)
     if (depth - 2) % 9 != 0:
         raise ValueError('depth should be 9n+2 (eg 56 or 110 in [b])')
@@ -470,11 +470,9 @@ def DIANET(input_shape, categories, box_vector,nboxes = 1, stage_number = 3,  de
     x = (Conv3D(categories + nboxes * box_vector, kernel_size= mid_kernel,kernel_regularizer=regularizers.l2(reg_weight), padding = 'same'))(x)
     x = BatchNormalization()(x)
     x = Activation('relu')(x)
-    print(x.shape)
     input_cat = Lambda(lambda x:x[:,:,:,:,0:categories])(x)
     input_box = Lambda(lambda x:x[:,:,:,:,categories:])(x)
     
-    print(input_cat.shape, input_box.shape)
         
     output_cat = (Conv3D(categories, (round(input_shape[0]),round(input_shape[1]/last_conv_factor),round(input_shape[2]/last_conv_factor)),activation= last_activation,kernel_regularizer=regularizers.l2(reg_weight), padding = 'valid', name = 'yolo'))(input_cat)
     output_box = (Conv3D(nboxes*(box_vector), (round(input_shape[0]),round(input_shape[1]/last_conv_factor),round(input_shape[2]/last_conv_factor)),activation= 'sigmoid' ,kernel_regularizer=regularizers.l2(reg_weight), padding = 'valid', name = 'secyolo'))(input_box)
