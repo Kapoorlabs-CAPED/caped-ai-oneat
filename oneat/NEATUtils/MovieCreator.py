@@ -867,7 +867,7 @@ def SegFreeImageLabelDataSet(image_dir, csv_dir,save_dir, static_name, static_la
 
 def CreateVolume(patch, size_tminus, size_tplus, timepoint):
     starttime = timepoint - int(size_tminus)
-    endtime = timepoint + int(size_tplus)
+    endtime = timepoint + int(size_tplus) + 1
     smallimg = patch[starttime:endtime, :]
 
     return smallimg
