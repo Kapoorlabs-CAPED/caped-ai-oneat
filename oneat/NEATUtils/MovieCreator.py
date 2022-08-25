@@ -496,9 +496,7 @@ yolo_v1 = True, yolo_v2 = False,  tshift  = 0, normalizeimage = True):
                         
                       if name == Segname:
                         
-                         image = imread(fname).astype('uint8')
-                            
-                         segimage = imread(Segfname).astype('uint16')
+                         
                          for csvfname in filesCsv:
                                  count = 0  
                                  Csvname =  os.path.basename(os.path.splitext(csvfname)[0])
@@ -508,6 +506,8 @@ yolo_v1 = True, yolo_v2 = False,  tshift  = 0, normalizeimage = True):
                                      classfound = (Csvname == csv_name_diff +  event_name + name)   
                                      if classfound:
                                                     print(Csvname)
+                                                    image = imread(fname).astype('uint8')
+                                                    segimage = imread(Segfname).astype('uint16')
                                                     dataset = pd.read_csv(csvfname)
                                                     time = dataset[dataset.keys()[0]][1:]
                                                     y = dataset[dataset.keys()[1]][1:]
@@ -552,11 +552,7 @@ yolo_v1 = True, yolo_v2 = False,  tshift  = 0, normalizeimage = True):
                       Segname = os.path.basename(os.path.splitext(Segfname)[0])
                         
                       if name == Segname:
-                          
-                          
-                         image = imread(fname).astype('uint8')
-                            
-                         segimage = imread(Segfname).astype('uint16')
+                        
                          
                          for csvfname in filesCsv:
                                  count = 0  
@@ -567,6 +563,8 @@ yolo_v1 = True, yolo_v2 = False,  tshift  = 0, normalizeimage = True):
                                      classfound = (Csvname == csv_name_diff +  event_name + name)   
                                      if classfound:
                                                     print(Csvname)
+                                                    image = imread(fname).astype('uint8')
+                                                    segimage = imread(Segfname).astype('uint16')
                                                     dataset = pd.read_csv(csvfname)
                                                     time = dataset[dataset.keys()[0]][1:]
                                                     z = dataset[dataset.keys()[1]][1:]
@@ -808,13 +806,14 @@ def ImageLabelDataSet(image_dir, seg_image_dir, csv_dir,save_dir, static_name, s
                       if name == Segname:
                           
                           
-                         image = imread(fname)
-                         image = normalizeFloatZeroOne( image.astype('uint16'),1,99.8)   
-                         segimage = imread(Segfname)
+                         
                          for i in  range(0, len(static_name)):
                              event_name = static_name[i]
                              trainlabel = static_label[i]
                              if Csvname == csv_name_diff + name + event_name:
+                                            image = imread(fname)
+                                            image = normalizeFloatZeroOne( image.astype('uint16'),1,99.8)   
+                                            segimage = imread(Segfname)
                                             dataset = pd.read_csv(csvfname)
                                             time = dataset[dataset.keys()[0]][1:]
                                             y = dataset[dataset.keys()[1]][1:]
