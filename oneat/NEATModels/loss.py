@@ -240,7 +240,7 @@ def compute_conf_loss(pred_box_wh, true_box_wh, pred_box_xy,true_box_xy,true_box
 def compute_conf_loss_diamond(pred_box_whd, true_box_whd, pred_box_xyz,true_box_xyz,true_box_conf,pred_box_conf):
     
 # compute the intersection of all boxes at once (the IOU)
-        intersect_whd = K.maximum(K.zeros_like(pred_box_whd), (pred_box_whd + true_box_whd)/2 - K.square(pred_box_xyz[...,0:2]- true_box_xyz[...,0:2]) )
+        intersect_whd = K.maximum(K.zeros_like(pred_box_whd), (pred_box_whd + true_box_whd)/2 - K.square(pred_box_xyz[...,0:3]- true_box_xyz[...,0:3]) )
         intersect_area = intersect_whd[...,0] * intersect_whd[...,1] * intersect_whd[...,2] 
         true_area = true_box_whd[...,0] * true_box_whd[...,1] * true_box_whd[...,2]
         pred_area = pred_box_whd[...,0] * pred_box_whd[...,1] * pred_box_whd[...,2]
