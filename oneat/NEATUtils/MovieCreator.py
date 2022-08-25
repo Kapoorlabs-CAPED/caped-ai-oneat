@@ -552,7 +552,6 @@ yolo_v1 = True, yolo_v2 = False,  tshift  = 0, normalizeimage = True):
                       Segname = os.path.basename(os.path.splitext(Segfname)[0])
                         
                       if name == Segname:
-                        
                          
                          for csvfname in filesCsv:
                                  count = 0  
@@ -583,6 +582,8 @@ yolo_v1 = True, yolo_v2 = False,  tshift  = 0, normalizeimage = True):
                                                           crop_size, gridx, gridy,gridz, total_categories, trainlabel, 
                                                           name + event_name + str(count), save_dir, yolo_v1, yolo_v2, tshift, normalizeimage)
                                                           count = count + 1
+                                                    image = None
+                                                    segimage = None      
                                                     
                                  
 
@@ -605,7 +606,6 @@ def VolumeMaker(time, z, y, x, angle, image, segimage, crop_size, gridx, gridy,g
        if time > size_tminus:
 
                #slice the images
-                
 
                currentsegimage = segimage[int(time),:].astype('uint16')
                height, width, depth, center, seg_label = getHWD(x, y, z, currentsegimage, imagesizex, imagesizey,imagesizez)
@@ -680,8 +680,6 @@ def VolumeMaker(time, z, y, x, angle, image, segimage, crop_size, gridx, gridy,g
                                                                 os.remove(save_dir + '/' + (newname) + ".csv")
                                                    writer = csv.writer(open(save_dir + '/' + (newname) + ".csv", "a"))
                                                    writer.writerows(Event_data)
-       image = None
-       segimage = None 
        crop_image = None
        currentsegimage = None
        smallimage = None
