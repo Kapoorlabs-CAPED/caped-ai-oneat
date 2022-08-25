@@ -401,6 +401,7 @@ def DIANET(input_shape, categories, box_vector,nboxes = 1, stage_number = 3,  de
     depth of 56 == max pooling of 14 for image patch of 55
     """
     img_input = layers.Input(shape = (input_shape[0], input_shape[1], input_shape[2], input_shape[3]))
+    print(img_input)
     if (depth - 2) % 9 != 0:
         raise ValueError('depth should be 9n+2 (eg 56 or 110 in [b])')
     # Start model definition.
