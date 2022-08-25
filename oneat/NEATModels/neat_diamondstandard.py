@@ -191,17 +191,8 @@ class NEATEynamic(object):
         print(input_shape)
         Path(self.model_dir).mkdir(exist_ok=True)
 
-        if self.yolo_v2:
-
-            for i in range(self.Y.shape[0]):
-
-                if self.Y[i, :, :, 0] == 1:
-                    self.Y[i, :, :, -1] = 1
-            for i in range(self.Y_val.shape[0]):
-
-                if self.Y_val[i, :, :, 0] == 1:
-                    self.Y_val[i, :, :, -1] = 1
-        Y_rest = self.Y[:, :, :, self.categories:]
+  
+        Y_rest = self.Y[:, :, :, :, self.categories:]
         print(Y_rest.shape)
 
         model_weights = os.path.join(self.model_dir, self.model_name) 
@@ -232,7 +223,7 @@ class NEATEynamic(object):
 
         self.Y = dummyY
         self.Y_val = dummyY_val
-
+        print(self.Y.shape)
 
         self.Trainingmodel = self.model_keras(input_shape, self.categories, 
                                               box_vector=Y_rest.shape[-1], nboxes=self.nboxes,
