@@ -1058,22 +1058,23 @@ def getHW(defaultX, defaultY, currentsegimage, imagesizex, imagesizey):
     properties = measure.regionprops(currentsegimage)
     
     TwoDLocation = (defaultY,defaultX)
-    SegLabel = currentsegimage[int(TwoDLocation[0]), int(TwoDLocation[1])]
-    for prop in properties:
-                                               
-                  if SegLabel > 0 and prop.label == SegLabel:
-                                    minr, minc, maxr, maxc = prop.bbox
+    if int(TwoDLocation[0]) < currentsegimage.shape[0] and int(TwoDLocation[1]) < currentsegimage.shape[1]:
+            SegLabel = currentsegimage[int(TwoDLocation[0]), int(TwoDLocation[1])]
+            for prop in properties:
+                                                    
+                        if SegLabel > 0 and prop.label == SegLabel:
+                                            minr, minc, maxr, maxc = prop.bbox
+                                            center = (defaultY, defaultX)
+                                            height =  abs(maxc - minc)
+                                            width =  abs(maxr - minr)
+                                            return height, width, center, SegLabel
+                                        
+                        if SegLabel == 0 :
+                            
                                     center = (defaultY, defaultX)
-                                    height =  abs(maxc - minc)
-                                    width =  abs(maxr - minr)
+                                    height = 0.5 * imagesizex
+                                    width = 0.5 * imagesizey
                                     return height, width, center, SegLabel
-                                
-                  if SegLabel == 0 :
-                    
-                             center = (defaultY, defaultX)
-                             height = 0.5 * imagesizex
-                             width = 0.5 * imagesizey
-                             return height, width, center, SegLabel
                                
                     
                                 
@@ -1084,24 +1085,25 @@ def getHWD(defaultX, defaultY, defaultZ, currentsegimage, imagesizex, imagesizey
     
     properties = measure.regionprops(currentsegimage)
     DLocation = (defaultZ,defaultY,defaultX)
-    SegLabel = currentsegimage[int(DLocation[0]), int(DLocation[1]),int(DLocation[2]) ]
-    for prop in properties:
-                                               
-                  if SegLabel > 0 and prop.label == SegLabel:
-                                    minr, minc,mind, maxr, maxc, maxd = prop.bbox
+    if int(DLocation[0]) < currentsegimage.shape[0] and int(DLocation[1]) < currentsegimage.shape[1] and int(DLocation[2]) < currentsegimage.shape[2]:
+            SegLabel = currentsegimage[int(DLocation[0]), int(DLocation[1]),int(DLocation[2]) ]
+            for prop in properties:
+                                                    
+                        if SegLabel > 0 and prop.label == SegLabel:
+                                            minr, minc,mind, maxr, maxc, maxd = prop.bbox
+                                            center = (defaultZ, defaultY, defaultX)
+                                            height =  abs(maxc - minc)
+                                            width =  abs(maxr - minr)
+                                            depth = abs(maxd - mind)
+                                            return height, width, depth, center, SegLabel
+                                        
+                        if SegLabel == 0 :
+                            
                                     center = (defaultZ, defaultY, defaultX)
-                                    height =  abs(maxc - minc)
-                                    width =  abs(maxr - minr)
-                                    depth = abs(maxd - mind)
+                                    height = 0.5 * imagesizex
+                                    width = 0.5 * imagesizey
+                                    depth = 0.5 * imagesizez
                                     return height, width, depth, center, SegLabel
-                                
-                  if SegLabel == 0 :
-                    
-                             center = (defaultZ, defaultY, defaultX)
-                             height = 0.5 * imagesizex
-                             width = 0.5 * imagesizey
-                             depth = 0.5 * imagesizez
-                             return height, width, depth, center, SegLabel
                                
                     
                                 
