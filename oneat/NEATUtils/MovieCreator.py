@@ -610,78 +610,79 @@ def VolumeMaker(time, z, y, x, angle, image, segimage, crop_size, gridx, gridy,g
                #slice the images
 
                currentsegimage = segimage[int(time),:].astype('uint16')
-               height, width, depth, center, seg_label = getHWD(x, y, z, currentsegimage, imagesizex, imagesizey,imagesizez)
+               image_props = getHWD(x, y, z, currentsegimage, imagesizex, imagesizey,imagesizez)
+               if image_props is not None:
+                    height, width, depth, center, seg_label = image_props
+                    smallimage = CreateVolume(image, size_tminus, size_tplus, int(time))
+                    if normalizeimage:
+                        smallimage = normalizeFloatZeroOne(smallimage.astype('uint16'), 1, 99.8)
+                    for shift in AllShifts:
 
-               smallimage = CreateVolume(image, size_tminus, size_tplus, int(time))
-               if normalizeimage:
-                   smallimage = normalizeFloatZeroOne(smallimage.astype('uint16'), 1, 99.8)
-               for shift in AllShifts:
+                                newname = name + 'shift' + str(shift)
+                                Event_data = []
+                                newcenter = center
+                                x = center[2]
+                                y = center[1]
+                                z = center[0]
+                            
+                                if yolo_v1:    
+                                    Label = np.zeros([total_categories + 8])
+                                if yolo_v2:
+                                    Label = np.zeros([total_categories + 9])
+                                Label[trainlabel] = 1
+                                
+                                #T co ordinate
+                                Label[total_categories + 3] = (size_tminus) / (size_tminus + size_tplus)
+                                if x > sizex/2 and z > sizez/2 and  y  > sizey/2 and z  + int(imagesizez/2) < image.shape[1] and y  + int(imagesizey/2) < image.shape[2] and x + int(imagesizex/2) < image.shape[3] and time > size_tminus and time + size_tplus + 1 < image.shape[0]:
+                                                crop_xminus = x  - int(imagesizex/2)
+                                                crop_xplus = x  + int(imagesizex/2)
+                                                crop_yminus = y  - int(imagesizey/2)
+                                                crop_yplus = y   + int(imagesizey/2)
+                                                crop_zminus = z  - int(imagesizez/2)
+                                                crop_zplus = z   + int(imagesizez/2)
+                                                region =(slice(0,smallimage.shape[0]),slice(int(crop_zminus), int(crop_zplus)), slice(int(crop_yminus), int(crop_yplus)),
+                                                    slice(int(crop_xminus) , int(crop_xplus) ))
+                                                    
+                                                #Define the movie region volume that was cut
+                                                crop_image = smallimage[region]
+                                                seglocationx = (newcenter[2] - crop_xminus)
+                                                seglocationy = (newcenter[1] - crop_yminus)
+                                                seglocationz = (newcenter[0] - crop_zminus)
 
-                        newname = name + 'shift' + str(shift)
-                        Event_data = []
-                        newcenter = center
-                        x = center[2]
-                        y = center[1]
-                        z = center[0]
-                       
-                        if yolo_v1:    
-                            Label = np.zeros([total_categories + 8])
-                        if yolo_v2:
-                            Label = np.zeros([total_categories + 9])
-                        Label[trainlabel] = 1
-                        
-                        #T co ordinate
-                        Label[total_categories + 3] = (size_tminus) / (size_tminus + size_tplus)
-                        if x > sizex/2 and z > sizez/2 and  y  > sizey/2 and z  + int(imagesizez/2) < image.shape[1] and y  + int(imagesizey/2) < image.shape[2] and x + int(imagesizex/2) < image.shape[3] and time > size_tminus and time + size_tplus + 1 < image.shape[0]:
-                                        crop_xminus = x  - int(imagesizex/2)
-                                        crop_xplus = x  + int(imagesizex/2)
-                                        crop_yminus = y  - int(imagesizey/2)
-                                        crop_yplus = y   + int(imagesizey/2)
-                                        crop_zminus = z  - int(imagesizez/2)
-                                        crop_zplus = z   + int(imagesizez/2)
-                                        region =(slice(0,smallimage.shape[0]),slice(int(crop_zminus), int(crop_zplus)), slice(int(crop_yminus), int(crop_yplus)),
-                                              slice(int(crop_xminus) , int(crop_xplus) ))
-                                             
-                                        #Define the movie region volume that was cut
-                                        crop_image = smallimage[region]
-                                        seglocationx = (newcenter[2] - crop_xminus)
-                                        seglocationy = (newcenter[1] - crop_yminus)
-                                        seglocationz = (newcenter[0] - crop_zminus)
-
-                                        Label[total_categories] =  seglocationx/sizex
-                                        Label[total_categories + 1] = seglocationy/sizey
-                                        Label[total_categories + 2] = seglocationz/sizez
-                                        if height >= imagesizey:
-                                                        height = 0.5 * imagesizey
-                                        if width >= imagesizex:
-                                                        width = 0.5 * imagesizex
-                                        if depth >= imagesizez:
-                                                        depth = 0.5 * imagesizez                
-                                        #Height
-                                        Label[total_categories + 4] = height/imagesizey
-                                        #Width
-                                        Label[total_categories + 5] = width/imagesizex
-                                        #Depth
-                                        Label[total_categories + 6] = depth/imagesizez
+                                                Label[total_categories] =  seglocationx/sizex
+                                                Label[total_categories + 1] = seglocationy/sizey
+                                                Label[total_categories + 2] = seglocationz/sizez
+                                                if height >= imagesizey:
+                                                                height = 0.5 * imagesizey
+                                                if width >= imagesizex:
+                                                                width = 0.5 * imagesizex
+                                                if depth >= imagesizez:
+                                                                depth = 0.5 * imagesizez                
+                                                #Height
+                                                Label[total_categories + 4] = height/imagesizey
+                                                #Width
+                                                Label[total_categories + 5] = width/imagesizex
+                                                #Depth
+                                                Label[total_categories + 6] = depth/imagesizez
 
 
 
-                                        if yolo_v1:
-                                                  Label[total_categories + 7] = 1 
-                                                 
-                                        if yolo_v2:
+                                                if yolo_v1:
+                                                        Label[total_categories + 7] = 1 
+                                                        
+                                                if yolo_v2:
 
-                                             Label[total_categories + 7] = 1 
-                                             Label[total_categories + 8] = angle        
-                                        #Write the image as 32 bit tif file 
-                                        if(crop_image.shape[0] == size_tplus + size_tminus + 1 and crop_image.shape[1]== imagesizez and crop_image.shape[2]== imagesizey and crop_image.shape[3]== imagesizex ):
+                                                    Label[total_categories + 7] = 1 
+                                                    Label[total_categories + 8] = angle        
+                                                #Write the image as 32 bit tif file 
+                                                if(crop_image.shape[0] == size_tplus + size_tminus + 1 and crop_image.shape[1]== imagesizez and crop_image.shape[2]== imagesizey and crop_image.shape[3]== imagesizex ):
 
-                                                   imwrite((save_dir + '/' + newname + '.tif'  ) , crop_image.astype('float32'))    
-                                                   Event_data.append([Label[i] for i in range(0,len(Label))])
-                                                   if(os.path.exists(save_dir + '/' + (newname) + ".csv")):
-                                                                os.remove(save_dir + '/' + (newname) + ".csv")
-                                                   writer = csv.writer(open(save_dir + '/' + (newname) + ".csv", "a"))
-                                                   writer.writerows(Event_data)
+                                                        imwrite((save_dir + '/' + newname + '.tif'  ) , crop_image.astype('float32'))    
+                                                        Event_data.append([Label[i] for i in range(0,len(Label))])
+                                                        if(os.path.exists(save_dir + '/' + (newname) + ".csv")):
+                                                                        os.remove(save_dir + '/' + (newname) + ".csv")
+                                                        writer = csv.writer(open(save_dir + '/' + (newname) + ".csv", "a"))
+                                                        writer.writerows(Event_data)
        crop_image = None
        currentsegimage = None
        smallimage = None
@@ -703,64 +704,66 @@ name, save_dir, yolo_v1, yolo_v2, tshift, normalizeimage):
        time = time - tshift
        if time > size_tminus:
                currentsegimage = segimage[int(time),:].astype('uint16')
-               height, width, center, seg_label = getHW(x, y, currentsegimage, imagesizex, imagesizey)
-               for shift in AllShifts:
+               image_props = getHW(x, y, currentsegimage, imagesizex, imagesizey)
+               if image_props is not None:
+                    height, width, center, seg_label = image_props
+                    for shift in AllShifts:
 
-                        newname = name + 'shift' + str(shift)
-                        Event_data = []
-                        newcenter = (center[0] - shift[1],center[1] - shift[0] )
-                        x = center[1]
-                        y = center[0]
-                     
-                        if yolo_v1:    
-                            Label = np.zeros([total_categories + 6])
-                        if yolo_v2:
-                            Label = np.zeros([total_categories + 7])
-                        Label[trainlabel] = 1
-                        #T co ordinate
-                        Label[total_categories + 2] = (size_tminus) / (size_tminus + size_tplus)
-                        smallimage = CreateVolume(image, size_tminus, size_tplus, int(time))
-                        if normalizeimage:
-                            smallimage = normalizeFloatZeroOne(smallimage.astype('uint16'), 1, 99.8)
-                        if x + shift[0]> sizex/2 and y + shift[1] > sizey/2 and x + shift[0] + int(imagesizex/2) < image.shape[2] and y + shift[1]+ int(imagesizey/2) < image.shape[1] and time > size_tminus and time + size_tplus + 1 < image.shape[0]:
-                                        crop_xminus = x  - int(imagesizex/2)
-                                        crop_xplus = x  + int(imagesizex/2)
-                                        crop_yminus = y  - int(imagesizey/2)
-                                        crop_yplus = y   + int(imagesizey/2)
-                                        region =(slice(0,smallimage.shape[0]),slice(int(crop_yminus)+ shift[1], int(crop_yplus)+ shift[1]),
-                                              slice(int(crop_xminus) + shift[0], int(crop_xplus) + shift[0]))
-                                        #Define the movie region volume that was cut
-                                        crop_image = smallimage[region]   
+                                newname = name + 'shift' + str(shift)
+                                Event_data = []
+                                newcenter = (center[0] - shift[1],center[1] - shift[0] )
+                                x = center[1]
+                                y = center[0]
+                            
+                                if yolo_v1:    
+                                    Label = np.zeros([total_categories + 6])
+                                if yolo_v2:
+                                    Label = np.zeros([total_categories + 7])
+                                Label[trainlabel] = 1
+                                #T co ordinate
+                                Label[total_categories + 2] = (size_tminus) / (size_tminus + size_tplus)
+                                smallimage = CreateVolume(image, size_tminus, size_tplus, int(time))
+                                if normalizeimage:
+                                    smallimage = normalizeFloatZeroOne(smallimage.astype('uint16'), 1, 99.8)
+                                if x + shift[0]> sizex/2 and y + shift[1] > sizey/2 and x + shift[0] + int(imagesizex/2) < image.shape[2] and y + shift[1]+ int(imagesizey/2) < image.shape[1] and time > size_tminus and time + size_tplus + 1 < image.shape[0]:
+                                                crop_xminus = x  - int(imagesizex/2)
+                                                crop_xplus = x  + int(imagesizex/2)
+                                                crop_yminus = y  - int(imagesizey/2)
+                                                crop_yplus = y   + int(imagesizey/2)
+                                                region =(slice(0,smallimage.shape[0]),slice(int(crop_yminus)+ shift[1], int(crop_yplus)+ shift[1]),
+                                                    slice(int(crop_xminus) + shift[0], int(crop_xplus) + shift[0]))
+                                                #Define the movie region volume that was cut
+                                                crop_image = smallimage[region]   
 
-                                        seglocationx = (newcenter[1] - crop_xminus)
-                                        seglocationy = (newcenter[0] - crop_yminus)
+                                                seglocationx = (newcenter[1] - crop_xminus)
+                                                seglocationy = (newcenter[0] - crop_yminus)
 
-                                        Label[total_categories] =  seglocationx/sizex
-                                        Label[total_categories + 1] = seglocationy/sizey
-                                        if height >= imagesizey:
-                                                        height = 0.5 * imagesizey
-                                        if width >= imagesizex:
-                                                        width = 0.5 * imagesizex
-                                        #Height
-                                        Label[total_categories + 3] = height/imagesizey
-                                        #Width
-                                        Label[total_categories + 4] = width/imagesizex
+                                                Label[total_categories] =  seglocationx/sizex
+                                                Label[total_categories + 1] = seglocationy/sizey
+                                                if height >= imagesizey:
+                                                                height = 0.5 * imagesizey
+                                                if width >= imagesizex:
+                                                                width = 0.5 * imagesizex
+                                                #Height
+                                                Label[total_categories + 3] = height/imagesizey
+                                                #Width
+                                                Label[total_categories + 4] = width/imagesizex
 
-                                        if yolo_v1:
-                                                  Label[total_categories + 5] = 1 
-                                                 
-                                        if yolo_v2:
-                                             Label[total_categories + 5] = 1 
-                                             Label[total_categories + 6] = angle        
-                                        #Write the image as 32 bit tif file 
-                                        if(crop_image.shape[0] == size_tplus + size_tminus + 1 and crop_image.shape[1]== imagesizey and crop_image.shape[2]== imagesizex):
+                                                if yolo_v1:
+                                                        Label[total_categories + 5] = 1 
+                                                        
+                                                if yolo_v2:
+                                                    Label[total_categories + 5] = 1 
+                                                    Label[total_categories + 6] = angle        
+                                                #Write the image as 32 bit tif file 
+                                                if(crop_image.shape[0] == size_tplus + size_tminus + 1 and crop_image.shape[1]== imagesizey and crop_image.shape[2]== imagesizex):
 
-                                                   imwrite((save_dir + '/' + newname + '.tif'  ) , crop_image.astype('float32'))    
-                                                   Event_data.append([Label[i] for i in range(0,len(Label))])
-                                                   if(os.path.exists(save_dir + '/' + (newname) + ".csv")):
-                                                                os.remove(save_dir + '/' + (newname) + ".csv")
-                                                   writer = csv.writer(open(save_dir + '/' + (newname) + ".csv", "a"))
-                                                   writer.writerows(Event_data)
+                                                        imwrite((save_dir + '/' + newname + '.tif'  ) , crop_image.astype('float32'))    
+                                                        Event_data.append([Label[i] for i in range(0,len(Label))])
+                                                        if(os.path.exists(save_dir + '/' + (newname) + ".csv")):
+                                                                        os.remove(save_dir + '/' + (newname) + ".csv")
+                                                        writer = csv.writer(open(save_dir + '/' + (newname) + ".csv", "a"))
+                                                        writer.writerows(Event_data)
        image = None
        segimage = None 
        crop_image = None
@@ -945,53 +948,55 @@ def  ImageMaker(time, y, x, image, segimage, crop_size, gridX, gridY, total_cate
                if time < segimage.shape[0] - 1 and time > 0:
                  currentsegimage = segimage[int(time),:].astype('uint16')
                 
-                 height, width, center, seg_label  = getHW(x, y, currentsegimage, ImagesizeX, ImagesizeY)
-                 for shift in AllShifts:
-                   
-                        newname = name + 'shift' + str(shift)
-                        newcenter = (center[0] - shift[1],center[1] - shift[0] )
-                        Event_data = []
+                 image_props  = getHW(x, y, currentsegimage, ImagesizeX, ImagesizeY)
+                 if image_props is not None:
+                        height, width, center, seg_label = image_props
+                        for shift in AllShifts:
                         
-                        x = center[1]
-                        y = center[0]
-                        Label = np.zeros([total_categories + 5])  
-                        Label[trainlabel] = 1
-                        if x + shift[0]> sizeX/2 and y + shift[1] > sizeY/2 and x + shift[0] + int(ImagesizeX/2) < image.shape[2] and y + shift[1]+ int(ImagesizeY/2) < image.shape[1]:
-                                    crop_Xminus = x  - int(ImagesizeX/2)
-                                    crop_Xplus = x   + int(ImagesizeX/2)
-                                    crop_Yminus = y  - int(ImagesizeY/2)
-                                    crop_Yplus = y   + int(ImagesizeY/2)
-                                    
-                                    for tex in range(int(time) -2, int(time) + 2):
-                                                    newname = newname + str(tex)
-                                                    region =(slice(int(tex - 1),int(tex)),slice(int(crop_Yminus)+ shift[1], int(crop_Yplus)+ shift[1]),
-                                                           slice(int(crop_Xminus) + shift[0], int(crop_Xplus) + shift[0]))
+                                newname = name + 'shift' + str(shift)
+                                newcenter = (center[0] - shift[1],center[1] - shift[0] )
+                                Event_data = []
+                                
+                                x = center[1]
+                                y = center[0]
+                                Label = np.zeros([total_categories + 5])  
+                                Label[trainlabel] = 1
+                                if x + shift[0]> sizeX/2 and y + shift[1] > sizeY/2 and x + shift[0] + int(ImagesizeX/2) < image.shape[2] and y + shift[1]+ int(ImagesizeY/2) < image.shape[1]:
+                                            crop_Xminus = x  - int(ImagesizeX/2)
+                                            crop_Xplus = x   + int(ImagesizeX/2)
+                                            crop_Yminus = y  - int(ImagesizeY/2)
+                                            crop_Yplus = y   + int(ImagesizeY/2)
+                                            
+                                            for tex in range(int(time) -2, int(time) + 2):
+                                                            newname = newname + str(tex)
+                                                            region =(slice(int(tex - 1),int(tex)),slice(int(crop_Yminus)+ shift[1], int(crop_Yplus)+ shift[1]),
+                                                                slice(int(crop_Xminus) + shift[0], int(crop_Xplus) + shift[0]))
 
-                                                    crop_image = image[region]      
+                                                            crop_image = image[region]      
 
 
-                                                    seglocationx = (newcenter[1] - crop_Xminus)
-                                                    seglocationy = (newcenter[0] - crop_Yminus)
+                                                            seglocationx = (newcenter[1] - crop_Xminus)
+                                                            seglocationy = (newcenter[0] - crop_Yminus)
 
-                                                    Label[total_categories] =  seglocationx/sizeX
-                                                    Label[total_categories + 1] = seglocationy/sizeY
+                                                            Label[total_categories] =  seglocationx/sizeX
+                                                            Label[total_categories + 1] = seglocationy/sizeY
 
-                                                    if height >= ImagesizeY:
-                                                        height = 0.5 * ImagesizeY
-                                                    if width >= ImagesizeX:
-                                                        width = 0.5 * ImagesizeX
+                                                            if height >= ImagesizeY:
+                                                                height = 0.5 * ImagesizeY
+                                                            if width >= ImagesizeX:
+                                                                width = 0.5 * ImagesizeX
 
-                                                    Label[total_categories + 2] = height/ImagesizeY
-                                                    Label[total_categories + 3] = width/ImagesizeX
-                                                    Label[total_categories + 4] = 1 
+                                                            Label[total_categories + 2] = height/ImagesizeY
+                                                            Label[total_categories + 3] = width/ImagesizeX
+                                                            Label[total_categories + 4] = 1 
 
-                                                    if(crop_image.shape[1]== ImagesizeY and crop_image.shape[2]== ImagesizeX):
-                                                             imwrite((save_dir + '/' + newname + '.tif'  ) , crop_image.astype('float32'))  
-                                                             Event_data.append([Label[i] for i in range(0,len(Label))])
-                                                             if(os.path.exists(save_dir + '/' + (newname) + ".csv")):
-                                                                os.remove(save_dir + '/' + (newname) + ".csv")
-                                                             writer = csv.writer(open(save_dir + '/' + (newname) + ".csv", "a"))
-                                                             writer.writerows(Event_data)
+                                                            if(crop_image.shape[1]== ImagesizeY and crop_image.shape[2]== ImagesizeX):
+                                                                    imwrite((save_dir + '/' + newname + '.tif'  ) , crop_image.astype('float32'))  
+                                                                    Event_data.append([Label[i] for i in range(0,len(Label))])
+                                                                    if(os.path.exists(save_dir + '/' + (newname) + ".csv")):
+                                                                        os.remove(save_dir + '/' + (newname) + ".csv")
+                                                                    writer = csv.writer(open(save_dir + '/' + (newname) + ".csv", "a"))
+                                                                    writer.writerows(Event_data)
 
 def  SegFreeImageMaker(time, y, x, image, crop_size, gridX, gridY, total_categories, trainlabel, name, save_dir, tshift):
 
@@ -1051,7 +1056,7 @@ def  SegFreeImageMaker(time, y, x, image, crop_size, gridX, gridY, total_categor
 def getHW(defaultX, defaultY, currentsegimage, imagesizex, imagesizey):
     
     properties = measure.regionprops(currentsegimage)
-    print(currentsegimage.shape)
+    
     TwoDLocation = (defaultY,defaultX)
     SegLabel = currentsegimage[int(TwoDLocation[0]), int(TwoDLocation[1])]
     for prop in properties:
@@ -1061,16 +1066,18 @@ def getHW(defaultX, defaultY, currentsegimage, imagesizex, imagesizey):
                                     center = (defaultY, defaultX)
                                     height =  abs(maxc - minc)
                                     width =  abs(maxr - minr)
+                                    return height, width, center, SegLabel
                                 
                   if SegLabel == 0 :
                     
                              center = (defaultY, defaultX)
                              height = 0.5 * imagesizex
                              width = 0.5 * imagesizey
+                             return height, width, center, SegLabel
                                
                     
                                 
-    return height, width, center, SegLabel     
+         
 
 
 def getHWD(defaultX, defaultY, defaultZ, currentsegimage, imagesizex, imagesizey, imagesizez):
@@ -1086,6 +1093,7 @@ def getHWD(defaultX, defaultY, defaultZ, currentsegimage, imagesizex, imagesizey
                                     height =  abs(maxc - minc)
                                     width =  abs(maxr - minr)
                                     depth = abs(maxd - mind)
+                                    return height, width, depth, center, SegLabel
                                 
                   if SegLabel == 0 :
                     
@@ -1093,10 +1101,11 @@ def getHWD(defaultX, defaultY, defaultZ, currentsegimage, imagesizex, imagesizey
                              height = 0.5 * imagesizex
                              width = 0.5 * imagesizey
                              depth = 0.5 * imagesizez
+                             return height, width, depth, center, SegLabel
                                
                     
                                 
-    return height, width, depth, center, SegLabel        
+            
 
 def save_full_training_data(directory, filename, data, label, axes):
     """Save training data in ``.npz`` format."""
