@@ -471,8 +471,8 @@ def DIANET(input_shape, categories, box_vector,nboxes = 1, stage_number = 3,  de
     x = BatchNormalization()(x)
     x = Activation('relu')(x)
     print(x.shape)
-    input_cat = Lambda(lambda x:x[:,:,:,0:categories])(x)
-    input_box = Lambda(lambda x:x[:,:,:,categories:])(x)
+    input_cat = Lambda(lambda x:x[:,:,:,:,0:categories])(x)
+    input_box = Lambda(lambda x:x[:,:,:,:,categories:])(x)
     
     print(input_cat.shape, input_box.shape)
         
