@@ -519,7 +519,7 @@ yolo_v1 = True, yolo_v2 = False,  tshift  = 0, normalizeimage = True):
                                                     try:
                                                        angle = dataset[dataset.keys()[4]][1:]
                                                     except:   
-                                                       angle = np.full(time.shape, 2)    
+                                                       angle = dataset[dataset.keys()[0]][1:] * 0 + 2    
 
                                                     #Categories + XYHW + Confidence 
                                                     for (key, t) in time.items():
@@ -583,8 +583,7 @@ yolo_v1 = True, yolo_v2 = False,  tshift  = 0, normalizeimage = True):
                                                                                   
                                                     #Categories + XYZHW + Confidence 
                                                     for (key, t) in time.items():
-                                                          print(key, t, z[key])
-                                                          print(y[key], x[key], angle[key])
+                                                          
                                                           VolumeMaker(t, z[key], y[key], x[key], angle[key], image, segimage, 
                                                           crop_size, gridx, gridy,gridz, total_categories, trainlabel, 
                                                           name + event_name + str(count), save_dir, yolo_v1, yolo_v2, tshift, normalizeimage)
@@ -691,6 +690,13 @@ def VolumeMaker(time, z, y, x, angle, image, segimage, crop_size, gridx, gridy,g
                                                                 os.remove(save_dir + '/' + (newname) + ".csv")
                                                    writer = csv.writer(open(save_dir + '/' + (newname) + ".csv", "a"))
                                                    writer.writerows(Event_data)
+       image = None
+       segimage = None 
+       crop_image = None
+       currentsegimage = None
+       smallimage = None
+
+
             
 def MovieMaker(time, y, x, angle, image, segimage, crop_size, gridx, gridy,  total_categories, trainlabel,
 name, save_dir, yolo_v1, yolo_v2, tshift, normalizeimage):
