@@ -557,9 +557,9 @@ yolo_v1 = True, yolo_v2 = False,  tshift  = 0, normalizeimage = True):
                       if name == Segname:
                           
                           
-                         image = daskread(fname)[0].astype('float16')
+                         image = imread(fname).astype('int8')
                             
-                         segimage = daskread(Segfname)[0].astype('float16')
+                         segimage = imread(Segfname).astype('float16')
                          
                          for csvfname in filesCsv:
                                  count = 0  
@@ -613,7 +613,7 @@ def VolumeMaker(time, z, y, x, angle, image, segimage, crop_size, gridx, gridy,g
                #slice the images
                 
 
-               currentsegimage = segimage[int(time),:].compute().astype('uint16')
+               currentsegimage = segimage[int(time),:].astype('uint16')
                print(currentsegimage.shape)
                height, width, depth, center, seg_label = getHWD(x, y, z, currentsegimage, imagesizex, imagesizey,imagesizez)
 
