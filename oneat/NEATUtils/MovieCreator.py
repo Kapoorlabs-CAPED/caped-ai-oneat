@@ -583,7 +583,8 @@ yolo_v1 = True, yolo_v2 = False,  tshift  = 0, normalizeimage = True):
                                                                                   
                                                     #Categories + XYZHW + Confidence 
                                                     for (key, t) in time.items():
-                                                          print(key, t)
+                                                          print(key, t, z[key])
+                                                          print(y[key], x[key], angle[key])
                                                           VolumeMaker(t, z[key], y[key], x[key], angle[key], image, segimage, 
                                                           crop_size, gridx, gridy,gridz, total_categories, trainlabel, 
                                                           name + event_name + str(count), save_dir, yolo_v1, yolo_v2, tshift, normalizeimage)
