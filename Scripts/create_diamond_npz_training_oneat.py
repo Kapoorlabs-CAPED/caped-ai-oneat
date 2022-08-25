@@ -57,10 +57,20 @@ save_json(dynamic_cord_json, model_dir + "Cellsplitdiamondcordxenopus" + '.json'
 
 
 
+MovieCreator.VolumeLabelDataSet(image_dir, 
+                               seg_image_dir, 
+                               csv_dir, 
+                               save_dir, 
+                               event_type_name, 
+                               event_type_label, 
+                               csv_name_diff,
+                               crop_size,
+                               normalizeimage = normalizeimage)
 
 
 
-MovieCreator.createNPZ(save_dir, axes = 'STZYX', save_name = npz_name, save_name_val = npz_val_name, expand = False)
+
+MovieCreator.createNPZ(save_dir, axes = 'STZYXC', save_name = npz_name, save_name_val = npz_val_name)
 
 
 
