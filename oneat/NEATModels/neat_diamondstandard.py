@@ -36,13 +36,12 @@ class NEATEynamic(object):
     
     model_dir : Directory location where trained model weights are to be read or written from
     
-    model_name : The h5 file of CNN + LSTM + Dense Neural Network to be used for training
+    model_name : The h5 file of CNN +  Neural Network to be used for training
     
     model_keras : The model as it appears as a Keras function
     
     model_weights : If re-training model_weights = model_dir + model_name else None as default
     
-    lstm_hidden_units : Number of hidden uniots for LSTm layer, 64 by default
     
     epochs :  Number of training epochs, 55 by default
     
@@ -73,7 +72,6 @@ class NEATEynamic(object):
             self.depth = config.depth
             self.start_kernel = config.start_kernel
             self.mid_kernel = config.mid_kernel
-            self.lstm_kernel = config.lstm_kernel
             self.learning_rate = config.learning_rate
             self.epochs = config.epochs
             self.startfilter = config.startfilter
@@ -94,7 +92,6 @@ class NEATEynamic(object):
             self.yolo_v1 = config.yolo_v1
             self.yolo_v2 = config.yolo_v2
             self.stride = config.stride
-            self.lstm_hidden_unit = config.lstm_hidden_unit
         if self.config == None:
 
             self.config = load_json(os.path.join(self.model_dir, self.model_name) + '_Parameter.json')
@@ -111,8 +108,6 @@ class NEATEynamic(object):
             self.depth = self.config['depth']
             self.start_kernel = self.config['start_kernel']
             self.mid_kernel = self.config['mid_kernel']
-            self.lstm_kernel = self.config['lstm_kernel']
-            self.lstm_hidden_unit = self.config['lstm_hidden_unit']
             self.learning_rate = self.config['learning_rate']
             self.epochs = self.config['epochs']
             self.startfilter = self.config['startfilter']
@@ -134,7 +129,6 @@ class NEATEynamic(object):
             self.yolo_v1 = self.config['yolo_v1']
             self.yolo_v2 = self.config['yolo_v2']
             self.stride = self.config['stride']
-            self.lstm_hidden_unit = self.config['lstm_hidden_unit']
 
         self.X = None
         self.Y = None
@@ -239,11 +233,11 @@ class NEATEynamic(object):
         self.Y_val = dummyY_val
 
 
-        self.Trainingmodel = self.model_keras(input_shape, self.categories, unit=self.lstm_hidden_unit,
+        self.Trainingmodel = self.model_keras(input_shape, self.categories, 
                                               box_vector=Y_rest.shape[-1], nboxes=self.nboxes,
                                               stage_number=self.stage_number,
                                               depth=self.depth, start_kernel=self.start_kernel,
-                                              mid_kernel=self.mid_kernel, lstm_kernel=self.lstm_kernel,
+                                              mid_kernel=self.mid_kernel, 
                                               startfilter=self.startfilter, input_weights=self.model_weights,
                                               last_activation=self.last_activation)
 

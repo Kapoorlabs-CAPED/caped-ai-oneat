@@ -52,13 +52,11 @@ class NEATCynamic(object):
     
     model_dir : Directory location where trained model weights are to be read or written from
     
-    model_name : The h5 file of CNN + LSTM + Dense Neural Network to be used for training
+    model_name : The h5 file of CNN  Neural Network to be used for training
     
     model_keras : The model as it appears as a Keras function
     
     model_weights : If re-training model_weights = model_dir + model_name else None as default
-    
-    lstm_hidden_units : Number of hidden uniots for LSTm layer, 64 by default
     
     epochs :  Number of training epochs, 55 by default
     
@@ -146,7 +144,6 @@ class NEATCynamic(object):
             self.yolo_v1 = self.config['yolo_v1']
             self.yolo_v2 = self.config['yolo_v2']
             self.stride = self.config['stride']
-            self.lstm_hidden_unit = self.config['lstm_hidden_unit']
 
         self.X = None
         self.Y = None

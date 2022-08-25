@@ -148,7 +148,6 @@ class NEATDynamic(object):
             self.yolo_v1 = self.config['yolo_v1']
             self.yolo_v2 = self.config['yolo_v2']
             self.stride = self.config['stride']
-            self.lstm_hidden_unit = self.config['lstm_hidden_unit']
 
         self.X = None
         self.Y = None
