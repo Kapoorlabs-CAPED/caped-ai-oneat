@@ -525,6 +525,8 @@ yolo_v1 = True, yolo_v2 = False,  tshift  = 0, normalizeimage = True):
                                                           crop_size, gridx, gridy, total_categories, trainlabel, 
                                                           name + event_name + str(count), save_dir, yolo_v1, yolo_v2, tshift, normalizeimage)
                                                           count = count + 1
+                                                    image = None
+                                                    segimage = None      
                                                         
                                                        
                                                         
@@ -583,7 +585,7 @@ yolo_v1 = True, yolo_v2 = False,  tshift  = 0, normalizeimage = True):
                                                           name + event_name + str(count), save_dir, yolo_v1, yolo_v2, tshift, normalizeimage)
                                                           count = count + 1
                                                     image = None
-                                                    segimage = None      
+                                                    segimage = None   
                                                     
                                  
 
