@@ -263,7 +263,7 @@ class TemporalZAug(object):
         time_points = image.shape[0]
         aug_image = image
         for i in range(time_points):
-             aug_image[i,:,:] =  ndimage.affine_transform(image[i,:,:],rotate_matrix)
+             aug_image[i,:,:,:] =  ndimage.affine_transform(image[i,:,:,:],rotate_matrix)
         if csv is not None:
             dataset = pd.read_csv(csv)
             time = dataset[dataset.keys()[0]][1:]
