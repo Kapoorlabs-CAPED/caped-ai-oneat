@@ -76,17 +76,17 @@ class TemporalZAug(object):
         build augmentor to augment input image according to initialization
         image : array
             Input image to be augmented.
-            The shape of input image should have 3 dimension( t, y, x).
+            The shape of input image should have 3 dimension( t, z, y, x).
         labelimage : Integer labelimage images
-            The shape of this labelimages should match the shape of image (t, y, x).
+            The shape of this labelimages should match the shape of image (t, z, y, x).
         labelcsv : oneat compatiable csv file of class and event lcoations.
-            The oneat training datamaker writes T,Y,X of the selected event locations    
+            The oneat training datamaker writes T,Z,Y,X of the selected event locations    
   
         Return:
             augmentor
         """
-        if image.ndim != 3:
-            raise ValueError('Input image should have 3 dimensions.')
+        if image.ndim != 4:
+            raise ValueError('Input image should have 4 dimensions.')
        
         if image.ndim != labelimage.ndim:
                 raise ValueError('Input image and labelimage size do not much.')
