@@ -190,10 +190,10 @@ class TemporalZAug(object):
         intensity_transform = transforms.MultiplicativeNoise(multiplier=multiplier)
         aug_image = image
         time_points = image.shape[0]
-
+        z_points = image.shape[1]
         for i in range(time_points):
-
-           aug_image[i,:,:,:] =  intensity_transform.apply(image[i,:,:,:])    
+           for j in range(z_points):
+              aug_image[i,j,:,:] =  intensity_transform.apply(image[i,j,:,:])    
 
 
         return aug_image    
@@ -212,9 +212,10 @@ class TemporalZAug(object):
             contrast_limit= contrast_limit, brightness_by_max= brightness_by_max, always_apply=always_apply, p= prob_bright_contrast) 
         aug_image = image
         time_points = image.shape[0]
+        z_points = image.shape[1]
         for i in range(time_points):
-
-           aug_image[i,:,:,:] =  intensity_transform.apply(image[i,:,:,:])    
+           for j in range(z_points):
+              aug_image[i,j,:,:] =  intensity_transform.apply(image[i,j,:,:])    
 
 
         return aug_image   
@@ -251,8 +252,10 @@ class TemporalZAug(object):
           
           aug_image = image
           time_points = image.shape[0]
+          z_points = image.shape[1]
           for i in range(time_points):
-               aug_image[i,:,:,:] =  image[i,:,:,:] + addednoise     
+            for j in range(z_points):
+               aug_image[i,j,:,:] =  image[i,j,:,:] + addednoise     
 
           return aug_image
 
@@ -261,9 +264,11 @@ class TemporalZAug(object):
         rotate_angle = parse_dict['rotate_angle']
         rotate_matrix =  np.array([[np.cos(rotate_angle), -np.sin(rotate_angle)], [np.sin(rotate_angle), np.cos(rotate_angle)]])
         time_points = image.shape[0]
+        z_points = image.shape[1]
         aug_image = image
         for i in range(time_points):
-             aug_image[i,:,:,:] =  ndimage.affine_transform(image[i,:,:,:],rotate_matrix)
+            for j in range(z_points):
+             aug_image[i,j,:,:] =  ndimage.affine_transform(image[i,j,:,:],rotate_matrix)
         if csv is not None:
             dataset = pd.read_csv(csv)
             time = dataset[dataset.keys()[0]][1:]
