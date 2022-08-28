@@ -279,12 +279,13 @@ class NEATEynamic(object):
 
         
         self.imagename = imagename
+        self.dtype = dtype
         self.Name = os.path.basename(os.path.splitext(self.imagename)[0])
         self.nms_function = nms_function 
         self.originalimage = imread(imagename).astype(self.dtype)
         self.ndim = len(self.originalimage.shape)
         self.normalize = normalize
-        self.dtype = dtype
+        
         
         
         self.savedir = savedir
