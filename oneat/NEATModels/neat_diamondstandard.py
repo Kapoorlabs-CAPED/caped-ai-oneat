@@ -498,10 +498,10 @@ class NEATEynamic(object):
                                 slice(int(crop_xminus), int(crop_xplus)))
                             
                             crop_image = smallimage[region] 
-                            print(crop_image.shape)
+                            
                             if crop_image.shape[0] >= self.imaget and  crop_image.shape[1] >= self.imagez and crop_image.shape[2] >= self.imagey and crop_image.shape[3] >= self.imagex:                                                
                                         #Now apply the prediction for counting real events
-                                    
+                                        
                                         zcenter = location[i][0]
                                         ycenter = location[i][1]
                                         xcenter = location[i][2]
@@ -510,7 +510,6 @@ class NEATEynamic(object):
                                         if sum_time_prediction is not None:
                                             #For each tile the prediction vector has shape N H W Categories + Training Vector labels
                                             time_prediction =  sum_time_prediction[0]
-                                            
                                             boxprediction = diamondyoloprediction(
                                                             0,  
                                                             0, 
@@ -521,7 +520,7 @@ class NEATEynamic(object):
                                                             self.key_categories, 
                                                             self.key_cord, 
                                                             self.nboxes, 'detection', 'dynamic',marker_tree=self.marker_tree)
-                                            if boxprediction is not None and len(boxprediction) > 0 and xcenter - self.pad_width[2] > 0 and ycenter - self.pad_width[1] > 0 and xcenter + self.pad_width[2] < self.originalimage.shape[2] and ycenter + self.pad_width[1] < self.originalimage.shape[1] :
+                                            if boxprediction is not None and len(boxprediction) > 0 and xcenter - self.pad_width[2] > 0 and ycenter - self.pad_width[1] > 0 and xcenter + self.pad_width[2] < self.originalimage.shape[3] and ycenter + self.pad_width[1] < self.originalimage.shape[2] :
                                                     
                                                         
                                                         boxprediction[0]['real_time_event'] = inputtime
