@@ -539,7 +539,7 @@ class NEATCynamic(object):
                             crop_xplus = location[i][1]  + int(self.imagex/2) * self.downsamplefactor 
                             crop_yminus = location[i][0]  - int(self.imagey/2) * self.downsamplefactor 
                             crop_yplus = location[i][0]   + int(self.imagey/2) * self.downsamplefactor 
-                            region =(slice(0,smallimage.shape[0]),slice(int(crop_yminus), int(crop_yplus)),
+                            region =(slice(0,smallimage.shape[0] + 1),slice(int(crop_yminus), int(crop_yplus)),
                                 slice(int(crop_xminus), int(crop_xplus)))
                             
                             crop_image = smallimage[region] 

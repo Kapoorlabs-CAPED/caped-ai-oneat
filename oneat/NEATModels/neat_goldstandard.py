@@ -383,7 +383,7 @@ class NEATDynamic(object):
                                 smallimage = CreateVolume(self.image, self.size_tminus, self.size_tplus, inputtime)
                                       
                                 if self.normalize: 
-                                    smallimage = normalizeFloatZeroOne(smallimage, 1, 99.8, dtype = self.dtype)
+                                    smallimage = normalizeFloatZeroOne(smallimage, 1, 99.8)
                                 # Cut off the region for training movie creation
                                 #Break image into tiles if neccessary
                                 predictions, allx, ally = self.predict_main(smallimage)
@@ -448,7 +448,7 @@ class NEATDynamic(object):
                 remove_candidates_list = []
                 smallimage = CreateVolume(self.image, self.size_tminus, self.size_tplus, inputtime)
                 if self.normalize: 
-                          smallimage = normalizeFloatZeroOne(smallimage, 1, 99.8, dtype = self.dtype)
+                          smallimage = normalizeFloatZeroOne(smallimage, 1, 99.8)
                 # Cut off the region for training movie creation
                 # Break image into tiles if neccessary
                 predictions, allx, ally = self.predict_main(smallimage)
@@ -524,7 +524,7 @@ class NEATDynamic(object):
              if inputtime < self.image.shape[0] - self.imaget:   
                 smallimage = CreateVolume(self.image, self.size_tminus, self.size_tplus, inputtime)
                 if self.normalize: 
-                          smallimage = normalizeFloatZeroOne(smallimage, 1, 99.8, dtype = self.dtype)
+                          smallimage = normalizeFloatZeroOne(smallimage, 1, 99.8)
                 if inputtime%(self.image.shape[0]//4)==0 and inputtime > 0 or inputtime >= self.image.shape[0] - self.imaget - 1:
                                       imwrite((heatsavename + '.tif' ), self.heatmap) 
                 if  str(int(inputtime)) in self.marker_tree:                     
@@ -536,7 +536,7 @@ class NEATDynamic(object):
 
                             crop_yminus = location[i][0]  - int(self.imagey/2) * self.downsamplefactor 
                             crop_yplus = location[i][0]   + int(self.imagey/2) * self.downsamplefactor 
-                            region =(slice(0,smallimage.shape[0]),slice(int(crop_yminus), int(crop_yplus)),
+                            region =(slice(0,smallimage.shape[0] + 1),slice(int(crop_yminus), int(crop_yplus)),
                                 slice(int(crop_xminus), int(crop_xplus)))
                             
                             crop_image = smallimage[region] 
