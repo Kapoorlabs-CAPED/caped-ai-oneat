@@ -263,10 +263,9 @@ class NEATEynamic(object):
         self.imagename = imagename
         self.segdir = segdir
         Name = os.path.basename(os.path.splitext(self.imagename)[0])
-        self.pad_width = (self.config['imagez'], self.config['imagey'], self.config['imagex'])
         print('Obtaining Markers')
         self.segimage = imread(self.segdir + '/' + Name + '.tif')
-        self.markers = GenerateVolumeMarkers(self.segimage, pad_width = self.pad_width)
+        self.markers = GenerateVolumeMarkers(self.segimage)
         self.marker_tree = MakeForest(self.markers)
         self.segimage = None         
 
@@ -306,24 +305,17 @@ class NEATEynamic(object):
         self.marker_tree = marker_tree
         self.remove_markers = remove_markers
        
-        self.image = np.zeros([self.originalimage.shape[0], self.originalimage.shape[1], self.originalimage.shape[2] + self.pad_width[1] * 2, self.originalimage.shape[3] + self.pad_width[2] * 2])
+        self.image = self.originalimage
         if self.remove_markers == True:
            self.generate_maps = False 
-           for i in range(self.image.shape[0]):
-             self.image[i,:] = pad_volumetimelapse(self.originalimage[i,:], self.pad_width)
-           print(f'zero padded image shape ${self.image.shape}')
            self.first_pass_predict()
            self.second_pass_predict()
         if self.remove_markers == False:
            self.generate_maps = False 
 
-           for i in range(self.image.shape[0]):
-             self.image[i,:] = pad_volumetimelapse(self.originalimage[i,:], self.pad_width)
-           print(f'zero padded image shape ${self.image.shape}')
            self.second_pass_predict()
         if self.remove_markers == None:
            self.generate_maps = True 
-           self.image = self.originalimage
            self.default_pass_predict() 
 
     def default_pass_predict(self):
@@ -519,11 +511,11 @@ class NEATEynamic(object):
                                                             self.key_categories, 
                                                             self.key_cord, 
                                                             self.nboxes, 'detection', 'dynamic',marker_tree=self.marker_tree)
-                                            if boxprediction is not None and len(boxprediction) > 0 and xcenter - self.pad_width[2] > 0 and ycenter - self.pad_width[1] > 0 and xcenter + self.pad_width[2] < self.originalimage.shape[3] and ycenter + self.pad_width[1] < self.originalimage.shape[2] :
+                                            if boxprediction is not None and len(boxprediction) > 0 :
                                                     
                                                         boxprediction[0]['real_time_event'] = inputtime
-                                                        boxprediction[0]['xcenter'] = xcenter - self.pad_width[2]
-                                                        boxprediction[0]['ycenter'] = ycenter - self.pad_width[1]
+                                                        boxprediction[0]['xcenter'] = xcenter 
+                                                        boxprediction[0]['ycenter'] = ycenter 
                                                         boxprediction[0]['zcenter'] = zcenter 
 
                                                         boxprediction[0]['xstart'] = xcenter   - int(self.imagex/2) 

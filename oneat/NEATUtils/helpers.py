@@ -436,16 +436,15 @@ def MidSlicesSum(Image, start_project_mid, end_project_mid, axis = 1):
 
 
 
-def GenerateVolumeMarkers(segimage, pad_width = (0,0,0) ):
+def GenerateVolumeMarkers(segimage ):
 
     ndim = len(segimage.shape)
     #TZYX
-    Markers = np.zeros([segimage.shape[0], segimage.shape[1] , segimage.shape[2] + pad_width[1] * 2, segimage.shape[3] + pad_width[2] * 2])
+    Markers = np.zeros([segimage.shape[0], segimage.shape[1] , segimage.shape[2]  segimage.shape[3] ])
     
     for i in tqdm(range(0, segimage.shape[0])):
 
-                        smallimage = segimage[i, :]
-                        newsmallimage = pad_volumetimelapse(smallimage, pad_width)
+                        newsmallimage = segimage[i, :]
                         properties = measure.regionprops(newsmallimage.astype('uint16'))
                         
                         Coordinates = [prop.centroid for prop in properties]
