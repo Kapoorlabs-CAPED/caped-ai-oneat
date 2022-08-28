@@ -308,7 +308,7 @@ def pad_timelapse(image, pad_width):
 
 def pad_volumetimelapse(image, pad_width):
 
-    zero_pad =  np.pad(image, ( (image.shape[0], image.shape[0] + pad_width[0]), (image.shape[1], image.shape[1] + pad_width[1]), (image.shape[2], image.shape[2] + pad_width[2]) ), mode = 'edge')
+    zero_pad =  np.pad(image, ( (image.shape[0], image.shape[0] + pad_width[0]//2), (image.shape[1], image.shape[1] + pad_width[1]//2), (image.shape[2], image.shape[2] + pad_width[2]//2) ), mode = 'edge')
 
     return zero_pad 
 
