@@ -274,8 +274,11 @@ class OneatVisualization:
                         self.seg_image = daskread(segimagedir + imagename + '.tif')[0]
                     else:
                         self.seg_image = imread(segimagedir + imagename + '.tif')    
-                    if len(self.seg_image.shape) == 4:
-                        self.seg_image =  MidSlices(self.seg_image, start_project_mid, end_project_mid, use_dask, axis = 1)
+
+                    if start_project_mid is not None or end_project_mid is not None:      
+                       if len(self.seg_image.shape) == 4:
+                          self.seg_image =  MidSlices(self.seg_image, start_project_mid, end_project_mid, use_dask, axis = 1)
+
 
                     
                     self.viewer.add_labels(self.seg_image.astype('uint16'), name = 'SegImage'+ imagename)
@@ -284,7 +287,10 @@ class OneatVisualization:
                         
             if len(self.image.shape) == 4:
                 self.originalimage = self.image
-                self.image =  MidSlices(self.image, start_project_mid, end_project_mid, use_dask, axis = 1)
+                if start_project_mid is not None or end_project_mid is not None:
+                   self.image =  MidSlices(self.image, start_project_mid, end_project_mid, use_dask, axis = 1)
+               
+                       
             else:
                 self.originalimage = self.image
             self.viewer.add_image(self.image, name= 'Image' + imagename )
