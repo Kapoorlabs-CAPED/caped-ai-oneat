@@ -440,7 +440,7 @@ def GenerateVolumeMarkers(segimage ):
 
     ndim = len(segimage.shape)
     #TZYX
-    Markers = np.zeros([segimage.shape[0], segimage.shape[1] , segimage.shape[2]  segimage.shape[3] ])
+    Markers = np.zeros([segimage.shape[0], segimage.shape[1] , segimage.shape[2] , segimage.shape[3] ])
     
     for i in tqdm(range(0, segimage.shape[0])):
 
