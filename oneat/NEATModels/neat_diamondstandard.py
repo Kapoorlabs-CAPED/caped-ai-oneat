@@ -591,7 +591,7 @@ class NEATEynamic(object):
 
     def overlaptiles(self, sliceregion):
 
-        print(sliceregion)
+        print(sliceregion.shape)
         if self.n_tiles == (1, 1, 1):
             patch = []
             zout = []
