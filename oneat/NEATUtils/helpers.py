@@ -1526,7 +1526,7 @@ def diamondpredictionloop(i, j, k, sz, sy, sx, nboxes, stride, time_prediction, 
         if marker_tree is not None:
             nearest_location = get_nearest_volume(marker_tree, zcentermean, ycentermean, xcentermean, real_time_event)
             if nearest_location is not None:
-               ycentermean, xcentermean = nearest_location
+               zcentermean, ycentermean, xcentermean = nearest_location
         #Correct for zero padding
         
         box = {'xstart': xstart, 'ystart': ystart, 'zstart': zstart, 
@@ -1543,7 +1543,7 @@ def diamondpredictionloop(i, j, k, sz, sy, sx, nboxes, stride, time_prediction, 
             if marker_tree is not None:
                 nearest_location = get_nearest_volume(marker_tree, zcentermean, ycentermean, xcentermean, real_time_event)
                 if nearest_location is not None:
-                    ycentermean, xcentermean = nearest_location
+                    zcentermean, ycentermean, xcentermean = nearest_location
            
             box = { 'xstart': xstart, 'ystart': ystart, 'zstart': zstart, 
                 'xcenterraw': xcenterrawmean, 'ycenterraw': ycenterrawmean, 'zcenterraw': zcenterrawmean,  
@@ -1791,6 +1791,8 @@ def get_nearest(marker_tree, ycenter, xcenter, tcenter):
     if distance <= 30:
         nearest_location = int(indices[nearest_location][0]), int(indices[nearest_location][1])
         return nearest_location[0], nearest_location[1]
+    else:
+        return None    
 
 def get_nearest_volume(marker_tree, zcenter, ycenter, xcenter, tcenter):
     location = (zcenter, ycenter, xcenter)
@@ -1799,7 +1801,9 @@ def get_nearest_volume(marker_tree, zcenter, ycenter, xcenter, tcenter):
 
     if distance <= 30:
         nearest_location = int(indices[nearest_location][0]), int(indices[nearest_location][1]), int(indices[nearest_location][2])
-        return nearest_location[0], nearest_location[1], nearest_location[2]        
+        return nearest_location[0], nearest_location[1], nearest_location[2]   
+    else:
+        return None         
 
 
 def draw_labelimages(image, location):
