@@ -273,7 +273,7 @@ class NEATEynamic(object):
         return self.marker_tree
     
     def predict(self, imagename,  savedir, n_tiles=(1, 1, 1), overlap_percent=0.8,
-                event_threshold=0.5, event_confidence = 0.5, iou_threshold=0.1,  dtype = np.uint8,
+                event_threshold=0.5, event_confidence = 0.5, iou_threshold=0.1,  dtype = 'uint8',
                 marker_tree = None, remove_markers = False, normalize = True,  nms_function = 'iou'):
 
 
@@ -281,7 +281,7 @@ class NEATEynamic(object):
         self.imagename = imagename
         self.Name = os.path.basename(os.path.splitext(self.imagename)[0])
         self.nms_function = nms_function 
-        self.originalimage = imread(imagename)
+        self.originalimage = imread(imagename).astype(self.dtype)
         self.ndim = len(self.originalimage.shape)
         self.normalize = normalize
         self.dtype = dtype
@@ -337,7 +337,7 @@ class NEATEynamic(object):
                                       
                                 smallimage = CreateVolume(self.image, self.size_tminus, self.size_tplus, inputtime)
                                 if self.normalize: 
-                                      smallimage = normalizeFloatZeroOne(smallimage, 1, 99.8, dtype = self.dtype)
+                                      smallimage = normalizeFloatZeroOne(smallimage, 1, 99.8)
                                 # Cut off the region for training movie creation
                                 #Break image into tiles if neccessary
                                 predictions, allx, ally, allz = self.predict_main(smallimage)
@@ -403,7 +403,7 @@ class NEATEynamic(object):
                 remove_candidates_list = []
                 smallimage = CreateVolume(self.image, self.size_tminus, self.size_tplus, inputtime)
                 if self.normalize: 
-                             smallimage = normalizeFloatZeroOne(smallimage, 1, 99.8, dtype = self.dtype)
+                             smallimage = normalizeFloatZeroOne(smallimage, 1, 99.8)
                 # Cut off the region for training movie creation
                 # Break image into tiles if neccessary
                 predictions, allx, ally, allz = self.predict_main(smallimage)
@@ -480,7 +480,7 @@ class NEATEynamic(object):
              if inputtime < self.image.shape[0] - self.imaget:   
                 smallimage = CreateVolume(self.image, self.size_tminus, self.size_tplus, inputtime)
                 if self.normalize: 
-                            smallimage = normalizeFloatZeroOne(smallimage, 1, 99.8, dtype = self.dtype)
+                            smallimage = normalizeFloatZeroOne(smallimage, 1, 99.8)
                 if  str(int(inputtime)) in self.marker_tree:                     
                         tree, location = self.marker_tree[str(int(inputtime))]
                         for i in range(len(location)):
