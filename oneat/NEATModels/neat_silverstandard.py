@@ -284,7 +284,7 @@ class NEATCynamic(object):
         self.Trainingmodel.save(os.path.join(self.model_dir, self.model_name) )
 
     def get_markers(self, imagename, segdir, start_project_mid = 4, end_project_mid = 4,
-     downsamplefactor = 1):
+     downsamplefactor = 1, dtype = 'uint16'):
 
         self.imagename = imagename
         self.segdir = segdir
@@ -292,7 +292,7 @@ class NEATCynamic(object):
         self.pad_width = (self.config['imagey'], self.config['imagex'])
         self.downsamplefactor = downsamplefactor
         print('Obtaining Markers')
-        self.segimage = imread(self.segdir + '/' + Name + '.tif')
+        self.segimage = imread(self.segdir + '/' + Name + '.tif').astype(dtype)
         self.markers = GenerateMarkers(self.segimage, 
         start_project_mid = start_project_mid, end_project_mid = end_project_mid, pad_width = self.pad_width)
         self.marker_tree = MakeTrees(self.markers)
@@ -300,16 +300,17 @@ class NEATCynamic(object):
 
         return self.marker_tree
     
-    def predict(self, imagename,  savedir, n_tiles=(1, 1), overlap_percent=0.8,
+    def predict(self, imagename,  savedir, n_tiles=(1, 1), overlap_percent=0.8, dtype = 'uint16',
                 event_threshold=0.5, event_confidence = 0.5, iou_threshold=0.1,  fidelity=1, downsamplefactor = 1, start_project_mid = 4, end_project_mid = 4,
                 erosion_iterations = 1,  marker_tree = None, remove_markers = False, normalize = True, center_oneat = True, nms_function = 'iou'):
 
 
         
         self.imagename = imagename
+        self.dtype = dtype
         self.Name = os.path.basename(os.path.splitext(self.imagename)[0])
         self.nms_function = nms_function 
-        self.image = imread(imagename)
+        self.image = imread(imagename).astype(self.dtype)
         self.start_project_mid = start_project_mid
         self.end_project_mid = end_project_mid
         self.ndim = len(self.image.shape)
@@ -364,6 +365,8 @@ class NEATCynamic(object):
         if self.remove_markers == None:
            self.generate_maps = True 
            self.default_pass_predict() 
+        if self.normalize: 
+              self.image = normalizeFloatZeroOne(self.image, 1, 99.8)   
 
     def default_pass_predict(self):
         eventboxes = []
@@ -383,8 +386,7 @@ class NEATCynamic(object):
                                       imwrite((heatsavename + '.tif' ), self.heatmap)
                                       
                                 smallimage = CreateVolume(self.image, self.size_tminus, self.size_tplus, inputtime)
-                                if self.normalize: 
-                                            smallimage = normalizeFloatZeroOne(smallimage, 1, 99.8, dtype = self.dtype)
+                               
                                 # Cut off the region for training movie creation
                                 #Break image into tiles if neccessary
                                 predictions, allx, ally = self.predict_main(smallimage)
@@ -447,8 +449,7 @@ class NEATCynamic(object):
                 
                 remove_candidates_list = []
                 smallimage = CreateVolume(self.image, self.size_tminus, self.size_tplus, inputtime)
-                if self.normalize: 
-                       smallimage = normalizeFloatZeroOne(smallimage, 1, 99.8, dtype = self.dtype)
+                
                 # Cut off the region for training movie creation
                 # Break image into tiles if neccessary
                 predictions, allx, ally = self.predict_main(smallimage)
@@ -524,8 +525,7 @@ class NEATCynamic(object):
              if inputtime < self.image.shape[0] - self.imaget:   
                  
                 smallimage = CreateVolume(self.image, self.size_tminus, self.size_tplus, inputtime)
-                if self.normalize: 
-                       smallimage = normalizeFloatZeroOne(smallimage, 1, 99.8, dtype = self.dtype)
+               
 
                 if inputtime%(self.image.shape[0]//4)==0 and inputtime > 0 or inputtime >= self.image.shape[0] - self.imaget - 1:
                                       markers_current = dilation(self.eventmarkers[inputtime,:], disk(2))
