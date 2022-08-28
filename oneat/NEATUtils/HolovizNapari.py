@@ -20,7 +20,8 @@ from scipy import spatial
 from qtpy.QtCore import Qt
 
 from oneat.NEATUtils.oneat_animation.OneatVisualization import MidSlices
-from oneat.NEATUtils.oneat_animation._qt import OneatWidget
+from oneat.NEATUtils.oneat_animation._qt import OneatWidget, OneatVolumeWidget
+
 
 
 default_reader = 'tifffile'
@@ -84,7 +85,7 @@ class NEATViz(object):
                   self.showNapari()
                if self.headless and self.volume == False:
                    self.donotshowNapari()   
-                if self.volume:
+               if self.volume:
                     self.showVolumeNapari()   
                
         def load_json(self):
@@ -138,6 +139,33 @@ class NEATViz(object):
                  self.viewer.window._qt_window.resizeDocks([dock_widget], [200], Qt.Horizontal)  
 
                  napari.run()
+
+        def showVolumeNapari(self):
+                 
+                 self.oneat_widget = OneatVolumeWidget(self.viewer, self.csvdir, self.savedir, 'Name', 
+                 self.key_categories, use_dask = self.use_dask, segimagedir = self.segimagedir,
+                 heatimagedir = self.heatmapimagedir, heatname = self.heatname, 
+                 start_project_mid = self.start_project_mid,
+                 end_project_mid = self.end_project_mid )
+                 Raw_path = os.path.join(self.imagedir, self.fileextension)
+                 X = glob.glob(Raw_path)
+                 Imageids = []
+                 self.oneat_widget.frameWidget.imageidbox.addItem('Select Image')
+                 self.oneat_widget.frameWidget.eventidbox.addItem('Select Event')
+                 for imagename in X:
+                     Imageids.append(imagename)
+
+                 for i in range(0, len(Imageids)):
+                     self.oneat_widget.frameWidget.imageidbox.addItem(str(Imageids[i]))
+                 
+                 for (event_name,event_label) in self.key_categories.items():
+                     if event_label > 0:
+                         self.oneat_widget.frameWidget.eventidbox.addItem(event_name)
+
+                 dock_widget = self.viewer.window.add_dock_widget(self.oneat_widget, area='right')
+                 self.viewer.window._qt_window.resizeDocks([dock_widget], [200], Qt.Horizontal)  
+
+                 napari.run()         
 
 def cluster_points(event_locations_dict,event_locations_size_dict, nms_space, nms_time):
 

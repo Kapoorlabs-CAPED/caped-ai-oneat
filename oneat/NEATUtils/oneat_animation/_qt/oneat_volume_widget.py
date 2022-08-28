@@ -7,7 +7,7 @@ from tifffile import imread,  imwrite
 from ..OneatVolumeVisualization import OneatVolumeVisualization
 from napari_animation._qt import AnimationWidget
 
-class OneatWidget(QWidget):
+class OneatVolumeWidget(QWidget):
     """Widget for interatviely making oneat visualizations using the napari viewer.
 
     Parameters
