@@ -486,7 +486,7 @@ class NEATEynamic(object):
                 if  str(int(inputtime)) in self.marker_tree:                     
                         tree, location = self.marker_tree[str(int(inputtime))]
                         for i in range(len(location)):
-                            
+                            print(location[i])
                             crop_xminus = location[i][2]  - int(self.imagex/2) 
                             crop_xplus = location[i][2]  + int(self.imagex/2)  
                             
