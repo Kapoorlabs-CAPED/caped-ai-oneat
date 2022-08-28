@@ -131,24 +131,19 @@ def normalizeFloatZeroOne(x, pmin=1, pmax=99.8, axis=None, eps=1e-20, dtype = np
 
 
 def normalize_mi_ma(x, mi, ma, eps=1e-20, dtype=np.uint8):
-    """
-    Number expression evaluation for normalization
-    
-    Parameters
-    ----------
-    x : np array of Image patch
-    mi : minimum input percentile value
-    ma : maximum input percentile value
-    eps: avoid dividing by zero
-    dtype: type of numpy array, float 32 defaut
-    """
-    x   = x.astype(dtype,copy=False)
-    eps = dtype(eps)
-    mi  = dtype(mi)
-    ma  = dtype(ma)
-    x = (x - mi) / (ma - mi + eps)
+    if dtype is not None:
+        x   = x.astype(dtype,copy=False)
+        mi  = dtype(mi) if np.isscalar(mi) else mi.astype(dtype,copy=False)
+        ma  = dtype(ma) if np.isscalar(ma) else ma.astype(dtype,copy=False)
+        eps = dtype(eps)
 
-    return x
+    try:
+        import numexpr
+        x = numexpr.evaluate("(x - mi) / ( ma - mi + eps )")
+    except ImportError:
+        x =                   (x - mi) / ( ma - mi + eps )
+
+    return x    
 
 
 
