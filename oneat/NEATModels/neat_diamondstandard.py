@@ -309,15 +309,16 @@ class NEATEynamic(object):
         
         if self.remove_markers == True:
            self.generate_maps = False 
-
-           self.image = pad_volumetimelapse(self.image, self.pad_width)
+           for i in range(self.image.shape[0]):
+             self.image[i,:] = pad_volumetimelapse(self.image[i,:], self.pad_width)
            print(f'zero padded image shape ${self.image.shape}')
            self.first_pass_predict()
            self.second_pass_predict()
         if self.remove_markers == False:
            self.generate_maps = False 
 
-           self.image = pad_volumetimelapse(self.image, self.pad_width)
+           for i in range(self.image.shape[0]):
+             self.image[i,:] = pad_volumetimelapse(self.image[i,:], self.pad_width)
            print(f'zero padded image shape ${self.image.shape}')
            self.second_pass_predict()
         if self.remove_markers == None:
