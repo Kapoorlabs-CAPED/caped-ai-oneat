@@ -501,7 +501,7 @@ class NEATEynamic(object):
                             
                             if crop_image.shape[0] >= self.imaget and  crop_image.shape[1] >= self.imagez and crop_image.shape[2] >= self.imagey and crop_image.shape[3] >= self.imagex:                                                
                                         #Now apply the prediction for counting real events
-                                        
+                                        print('in')
                                         zcenter = location[i][0]
                                         ycenter = location[i][1]
                                         xcenter = location[i][2]
@@ -522,7 +522,7 @@ class NEATEynamic(object):
                                                             self.nboxes, 'detection', 'dynamic',marker_tree=self.marker_tree)
                                             if boxprediction is not None and len(boxprediction) > 0 and xcenter - self.pad_width[2] > 0 and ycenter - self.pad_width[1] > 0 and xcenter + self.pad_width[2] < self.originalimage.shape[3] and ycenter + self.pad_width[1] < self.originalimage.shape[2] :
                                                     
-                                                        
+                                                        print('valid')
                                                         boxprediction[0]['real_time_event'] = inputtime
                                                         boxprediction[0]['xcenter'] = xcenter - self.pad_width[2]
                                                         boxprediction[0]['ycenter'] = ycenter - self.pad_width[1]
@@ -543,7 +543,7 @@ class NEATEynamic(object):
                                         
                                                 event_prob = box[event_name]
                                                 event_confidence = box['confidence']
-                                                
+                                                print(box)
                                                 if event_prob >= self.event_threshold and event_confidence >= self.event_confidence :
                                                     current_event_box.append(box)
                                                     
