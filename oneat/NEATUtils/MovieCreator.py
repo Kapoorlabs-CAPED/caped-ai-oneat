@@ -41,7 +41,7 @@ Total categories for cell classification part of vanilla ONEAT are:
 csv file containing time, ylocation, xlocation of that event/cell type
 """    
    
-def SegFreeMovieLabelDataSet(image_dir, csv_dir, save_dir, static_name, static_label, csv_name_diff, crop_size,gridx = 1, gridy = 1, normPatch = False,  yolo_v1 = True, yolo_v2 = False, tshift = 0, normalizeimage = True):
+def SegFreeMovieLabelDataSet(image_dir, csv_dir, save_dir, static_name, static_label, csv_name_diff, crop_size,gridx = 1, gridy = 1, normPatch = False, yolo_v1 = True, yolo_v2 = False, tshift = 0, normalizeimage = True, dtype = np.uint8):
     
     
             raw_path = os.path.join(image_dir, '*tif')
@@ -72,7 +72,7 @@ def SegFreeMovieLabelDataSet(image_dir, csv_dir, save_dir, static_name, static_l
                                                     print(Csvname)
                                                     image = imread(fname)
                                                     if normPatch ==False and normalizeimage == True:
-                                                       image = normalizeFloatZeroOne( image.astype('uint16'),1,99.8)
+                                                       image = normalizeFloatZeroOne( image,1,99.8, dtype = dtype)
                                                     dataset = pd.read_csv(csvfname)
                                                     time = dataset[dataset.keys()[0]][1:]
                                                     y = dataset[dataset.keys()[1]][1:]
@@ -87,7 +87,7 @@ def SegFreeMovieLabelDataSet(image_dir, csv_dir, save_dir, static_name, static_l
                                                         
                                                       
                                                         
-def SegFreeMovieLabelDataSet4D(image_dir, csv_dir, save_dir, static_name, static_label, csv_name_diff, crop_size, gridx = 1, gridy = 1, normPatch = False,  yolo_v1 = True, yolo_v2 = False, tshift = 0, normalizeimage = True):
+def SegFreeMovieLabelDataSet4D(image_dir, csv_dir, save_dir, static_name, static_label, csv_name_diff, crop_size, gridx = 1, gridy = 1, normPatch = False,  yolo_v1 = True, yolo_v2 = False, tshift = 0, normalizeimage = True, dtype = np.uint8):
     
     
             raw_path = os.path.join(image_dir, '*tif')
@@ -127,13 +127,13 @@ def SegFreeMovieLabelDataSet4D(image_dir, csv_dir, save_dir, static_name, static
                                                     #Categories + XYHW + Confidence 
                                                     for (key, t) in time.items():
                                                        try: 
-                                                          SimpleMovieMaker4D(normalizeimage, t, z[key], y[key], x[key], image, crop_size,gridx, gridy, total_categories, trainlabel, name+ event_name + str(count), save_dir, normPatch, yolo_v1, yolo_v2, tshift) 
+                                                          SimpleMovieMaker4D(normalizeimage, t, z[key], y[key], x[key], image, crop_size,gridx, gridy, total_categories, trainlabel, name+ event_name + str(count), save_dir, normPatch, yolo_v1, yolo_v2, tshift, dtype) 
                                                           count = count + 1
                                                         
                                                        except:
                                                         
                                                            pass
-def SimpleMovieMaker(time, y, x, image, crop_size,gridx, gridy, total_categories, trainlabel, name, save_dir, normPatch,yolo_v1, yolo_v2, tshift):
+def SimpleMovieMaker(time, y, x, image, crop_size,gridx, gridy, total_categories, trainlabel, name, save_dir, normPatch,yolo_v1, yolo_v2, tshift, dtype):
     
        sizex, sizey, size_tminus, size_tplus = crop_size
        
@@ -169,7 +169,7 @@ def SimpleMovieMaker(time, y, x, image, crop_size,gridx, gridy, total_categories
                                 #Define the movie region volume that was cut
                                 crop_image = image[region]   
                                 if normPatch:
-                                    crop_image = normalizeFloatZeroOne( crop_image.astype('uint16'),1,99.8)
+                                    crop_image = normalizeFloatZeroOne( crop_image,1,99.8, dtype = dtype)
                                 seglocationx = (newcenter[1] - crop_xminus)
                                 seglocationy = (newcenter[0] - crop_yminus)
                                 Label[total_categories] =  seglocationx/sizex
@@ -190,7 +190,7 @@ def SimpleMovieMaker(time, y, x, image, crop_size,gridx, gridy, total_categories
                                            writer = csv.writer(open(save_dir + '/' + (newname) + ".csv", "a"))
                                            writer.writerows(Event_data)
 
-def SimpleMovieMaker4D(normalizeimage, time, z, y, x, image, crop_size, gridx, gridy, total_categories, trainlabel, name, save_dir, normPatch, yolo_v1, yolo_v2, tshift):
+def SimpleMovieMaker4D(normalizeimage, time, z, y, x, image, crop_size, gridx, gridy, total_categories, trainlabel, name, save_dir, normPatch, yolo_v1, yolo_v2, tshift, dtype):
     
        sizex, sizey, size_tminus, size_tplus = crop_size
        
@@ -205,7 +205,7 @@ def SimpleMovieMaker4D(normalizeimage, time, z, y, x, image, crop_size, gridx, g
 
        image = image[:,z,:,:]
        if normalizeimage:
-                    image = normalizeFloatZeroOne( image.astype('uint16'),1,99.8)
+                    image = normalizeFloatZeroOne( image,1,99.8, dtype = dtype)
 
        if time > 0:
                
@@ -233,7 +233,7 @@ def SimpleMovieMaker4D(normalizeimage, time, z, y, x, image, crop_size, gridx, g
                                 #Define the movie region volume that was cut
                                 crop_image = image[region]   
                                 if normPatch:
-                                    crop_image = normalizeFloatZeroOne( crop_image.astype('uint16'),1,99.8)
+                                    crop_image = normalizeFloatZeroOne( crop_image,1,99.8, dtype = dtype)
 
                                 seglocationx = (newcenter[1] - crop_xminus)
                                 seglocationy = (newcenter[0] - crop_yminus)
@@ -470,7 +470,7 @@ def Midog_to_oneat_simple(midog_folder, annotation_file,event_type_name_label, a
 
 
 def MovieLabelDataSet(image_dir, seg_image_dir, csv_dir, save_dir, static_name, static_label, csv_name_diff, crop_size, gridx = 1, gridy = 1,  
-yolo_v1 = True, yolo_v2 = False,  tshift  = 0, normalizeimage = True):
+yolo_v1 = True, yolo_v2 = False,  tshift  = 0, normalizeimage = True, dtype = np.uint8):
     
     
             raw_path = os.path.join(image_dir, '*tif')
@@ -523,7 +523,7 @@ yolo_v1 = True, yolo_v2 = False,  tshift  = 0, normalizeimage = True):
                                                       
                                                           MovieMaker(t, y[key], x[key], angle[key], image, segimage, 
                                                           crop_size, gridx, gridy, total_categories, trainlabel, 
-                                                          name + event_name + str(count), save_dir, yolo_v1, yolo_v2, tshift, normalizeimage)
+                                                          name + event_name + str(count), save_dir, yolo_v1, yolo_v2, tshift, normalizeimage, dtype)
                                                           count = count + 1
                                                     image = None
                                                     segimage = None      
@@ -531,7 +531,7 @@ yolo_v1 = True, yolo_v2 = False,  tshift  = 0, normalizeimage = True):
                                                        
                                                         
 def VolumeLabelDataSet(image_dir, seg_image_dir, csv_dir, save_dir, static_name, static_label, csv_name_diff, crop_size, gridx = 1, gridy = 1, gridz = 1,  
-yolo_v1 = True, yolo_v2 = False,  tshift  = 0, normalizeimage = True):
+yolo_v1 = True, yolo_v2 = False,  tshift  = 0, normalizeimage = True, dtype = np.uint8):
     
     
             raw_path = os.path.join(image_dir, '*tif')
@@ -582,7 +582,7 @@ yolo_v1 = True, yolo_v2 = False,  tshift  = 0, normalizeimage = True):
                                                           
                                                           VolumeMaker(t, z[key], y[key], x[key], angle[key], image, segimage, 
                                                           crop_size, gridx, gridy,gridz, total_categories, trainlabel, 
-                                                          name + event_name + str(count), save_dir, yolo_v1, yolo_v2, tshift, normalizeimage)
+                                                          name + event_name + str(count), save_dir, yolo_v1, yolo_v2, tshift, normalizeimage, dtype)
                                                           count = count + 1
                                                     image = None
                                                     segimage = None   
@@ -590,7 +590,7 @@ yolo_v1 = True, yolo_v2 = False,  tshift  = 0, normalizeimage = True):
                                  
 
                
-def VolumeMaker(time, z, y, x, angle, image, segimage, crop_size, gridx, gridy,gridz,  total_categories, trainlabel, name, save_dir,  yolo_v1, yolo_v2, tshift,normalizeimage ):
+def VolumeMaker(time, z, y, x, angle, image, segimage, crop_size, gridx, gridy,gridz,  total_categories, trainlabel, name, save_dir,  yolo_v1, yolo_v2, tshift,normalizeimage, dtype ):
     
 
        sizex, sizey, sizez, size_tminus, size_tplus = crop_size
@@ -605,7 +605,7 @@ def VolumeMaker(time, z, y, x, angle, image, segimage, crop_size, gridx, gridy,g
 
        time = time - tshift
        if normalizeimage:
-                image = normalizeFloatZeroOne(image.astype('uint8'), 1, 99.8)
+                image = normalizeFloatZeroOne(image, 1, 99.8, dtype)
        if time > size_tminus:
 
                #slice the images
@@ -690,7 +690,7 @@ def VolumeMaker(time, z, y, x, angle, image, segimage, crop_size, gridx, gridy,g
 
             
 def MovieMaker(time, y, x, angle, image, segimage, crop_size, gridx, gridy,  total_categories, trainlabel,
-name, save_dir, yolo_v1, yolo_v2, tshift, normalizeimage):
+name, save_dir, yolo_v1, yolo_v2, tshift, normalizeimage, dtype):
     
        sizex, sizey, size_tminus, size_tplus = crop_size
        
@@ -703,7 +703,7 @@ name, save_dir, yolo_v1, yolo_v2, tshift, normalizeimage):
 
        time = time - tshift
        if normalizeimage:
-                    image = normalizeFloatZeroOne(image.astype('uint16'), 1, 99.8)
+                    image = normalizeFloatZeroOne(image, 1, 99.8, dtype)
        if time > size_tminus:
                currentsegimage = segimage[int(time),:].astype('uint16')
                image_props = getHW(x, y, currentsegimage, imagesizex, imagesizey)
@@ -780,7 +780,7 @@ def Readname(fname):
     return os.path.basename(os.path.splitext(fname)[0])
 
 
-def ImageLabelDataSet(image_dir, seg_image_dir, csv_dir,save_dir, static_name, static_label, csv_name_diff,crop_size, gridx = 1, gridy = 1, tshift  = 0):
+def ImageLabelDataSet(image_dir, seg_image_dir, csv_dir,save_dir, static_name, static_label, csv_name_diff,crop_size, gridx = 1, gridy = 1, tshift  = 0, dtype = np.uint8):
     
     
             raw_path = os.path.join(image_dir, '*tif')
@@ -816,7 +816,7 @@ def ImageLabelDataSet(image_dir, seg_image_dir, csv_dir,save_dir, static_name, s
                              trainlabel = static_label[i]
                              if Csvname == csv_name_diff + name + event_name:
                                             image = imread(fname)
-                                            image = normalizeFloatZeroOne( image.astype('uint16'),1,99.8)   
+                                            image = normalizeFloatZeroOne( image,1,99.8, dtype = dtype)   
                                             segimage = imread(Segfname)
                                             dataset = pd.read_csv(csvfname)
                                             time = dataset[dataset.keys()[0]][1:]
@@ -831,7 +831,7 @@ def ImageLabelDataSet(image_dir, seg_image_dir, csv_dir,save_dir, static_name, s
 
 
     
-def SegFreeImageLabelDataSet(image_dir, csv_dir,save_dir, static_name, static_label, csv_name_diff,crop_size, gridx = 1, gridy = 1):
+def SegFreeImageLabelDataSet(image_dir, csv_dir,save_dir, static_name, static_label, csv_name_diff,crop_size, gridx = 1, gridy = 1, dtype = np.uint8):
     
     
             raw_path = os.path.join(image_dir, '*tif')
@@ -853,7 +853,7 @@ def SegFreeImageLabelDataSet(image_dir, csv_dir,save_dir, static_name, static_la
                          name = os.path.basename(os.path.splitext(fname)[0])   
                          image = imread(fname)
                        
-                         image = normalizeFloatZeroOne( image.astype('uint16'),1,99.8)   
+                         image = normalizeFloatZeroOne( image,1,99.8, dtype = dtype)   
                          for i in  range(0, len(static_name)):
                              event_name = static_name[i]
                              trainlabel = static_label[i]
