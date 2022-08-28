@@ -529,7 +529,7 @@ class NEATEynamic(object):
 
                                                         boxprediction[0]['xstart'] = xcenter   - int(self.imagex/2) 
                                                         boxprediction[0]['ystart'] = ycenter   - int(self.imagey/2)   
-                                                        boxprediction[0]['zstart'] = zcenter   - int(self.imagez/2)
+                                                        boxprediction[0]['zstart'] = zcenter   
 
                                                         eventboxes = eventboxes + boxprediction
                                                 
