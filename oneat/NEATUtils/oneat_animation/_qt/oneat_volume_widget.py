@@ -61,8 +61,6 @@ class OneatVolumeWidget(QWidget):
 
         self.frameWidget.plotidbox.addItem('Select a type of plot')
         self.frameWidget.plotidbox.addItem(event_count_plot)
-        self.frameWidget.plotidbox.addItem(cell_count_plot)
-        self.frameWidget.plotidbox.addItem(event_norm_count_plot)
         self.frameWidget.heatstepsSpinBox.valueChanged.connect(self.update_heat_steps)
         self.frameWidget.startprobSpinBox.valueChanged.connect(self.update_start_prob)
         self.frameWidget.nmsspaceSpinBox.valueChanged.connect(self.update_nms_space)
@@ -78,11 +76,11 @@ class OneatVolumeWidget(QWidget):
         self._capture_csv_callback(segimagedir,  use_dask ))
  
         self.frameWidget.plotidbox.currentIndexChanged.connect(lambda eventid = self.frameWidget.imageidbox :
-        self._capture_plot_callback(segimagedir,event_count_plot, cell_count_plot, event_norm_count_plot))
+        self._capture_plot_callback(segimagedir,event_count_plot))
 
         self.frameWidget.recomputeButton.clicked.connect(lambda eventid = self.frameWidget.recomputeButton :
         self._start_callbacks(segimagedir, use_dask, 
-    event_count_plot, cell_count_plot, event_norm_count_plot ))
+    event_count_plot))
 
        
     def _start_callbacks(self,segimagedir, use_dask, 
