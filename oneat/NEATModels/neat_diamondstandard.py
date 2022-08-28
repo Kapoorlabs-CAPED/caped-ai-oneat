@@ -282,7 +282,7 @@ class NEATEynamic(object):
         self.Name = os.path.basename(os.path.splitext(self.imagename)[0])
         self.nms_function = nms_function 
         self.originalimage = imread(imagename)
-        self.ndim = len(self.image.shape)
+        self.ndim = len(self.originalimage.shape)
         self.normalize = normalize
         self.dtype = dtype
         
