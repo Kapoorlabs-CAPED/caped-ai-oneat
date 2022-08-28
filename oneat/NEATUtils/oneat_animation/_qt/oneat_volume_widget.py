@@ -35,8 +35,6 @@ class OneatVolumeWidget(QWidget):
         heatimagedir = None,
         heatname = '_Heat',
         event_count_plot = 'Plot selected event count',
-        cell_count_plot = 'Plot cell count',
-        event_norm_count_plot = 'Plot selected normalized event count',
         parent=None,
     ):
         super().__init__(parent=parent)

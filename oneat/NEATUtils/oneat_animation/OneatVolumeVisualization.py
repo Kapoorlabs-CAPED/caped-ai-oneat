@@ -90,15 +90,10 @@ class OneatVolumeVisualization:
                             countT = len(conditionScore[score_condition])
                             timelist.append(i)
                             eventlist.append(countT)
-                            if self.segimagedir is not None and self.seg_image is not None:
-                                
-                                all_cells = self.cell_count[i]
-                                celllist.append(all_cells + 1)
-                                normeventlist.append(countT/(all_cells+1))
+                           
                         self.cleannormeventlist = []    
-                        if len(self.cleaneventlist) > 0:    
-                                for k in range(len(self.cleaneventlist)):
-                                    self.cleannormeventlist.append(self.cleaneventlist[k]/ celllist[k])      
+                        
+                              
                         if self.plot_event_name == self.event_count_plot:    
                                 self.ax.plot(timelist, eventlist, '-r')
                                 self.ax.plot(self.cleantimelist, self.cleaneventlist, '-g')
@@ -110,26 +105,8 @@ class OneatVolumeVisualization:
                                 
                                 self.figure.savefig(self.savedir  + self.event_name + self.event_count_plot + (os.path.splitext(os.path.basename(self.imagename))[0]  + '.png'), dpi = 300)
 
-                        if self.plot_event_name == self.event_norm_count_plot and len(normeventlist) > 0:    
-                                self.ax.plot(timelist, normeventlist, '-r')
-                                self.ax.plot(self.cleantimelist, self.cleannormeventlist, '-g')
-                                self.ax.set_title(self.event_name + "Normalized Events")
-                                self.ax.set_xlabel("Time")
-                                self.ax.set_ylabel("Normalized Counts")
-                                self.figure.canvas.draw()
-                                self.figure.canvas.flush_events()
-                                
-                                self.figure.savefig(self.savedir  + self.event_name + self.event_norm_count_plot + (os.path.splitext(os.path.basename(self.imagename))[0]  + '.png'), dpi = 300)
-
-                        if self.plot_event_name == self.cell_count_plot and len(celllist) > 0:    
-                                self.ax.plot(timelist, celllist, '-r')
-                                self.ax.set_title("Total Cell counts")
-                                self.ax.set_xlabel("Time")
-                                self.ax.set_ylabel("Total Cell Counts")
-                                self.figure.canvas.draw()
-                                self.figure.canvas.flush_events()
-                                self.figure.savefig(self.savedir  + self.cell_count_plot + (os.path.splitext(os.path.basename(self.imagename))[0]  + '.png'), dpi = 300)        
-
+                       
+                       
 
     def show_image(self, 
                 image_toread, 
