@@ -249,14 +249,7 @@ class OneatVolumeVisualization:
                                 self.confidence_locations.append(confidence)
                 point_properties = {'score' : np.array(self.score_locations), 'confidence' : np.array(self.confidence_locations),
                 'size' : np.array(self.size_locations)}    
-                text_properties = {
-                'text': event_name +': {score:.5f}' + '\n' + 'Confidence' +  ': {confidence:.5f}'
-                + '\n' + 'Size' +  ': {size:.5f}',
-                'anchor': 'upper_left',
-                'translation': [-5, 0],
-                'size': 12,
-                'color': 'pink',
-            }
+             
                 name_remove = ('Detections','Location Map')
                 for layer in list(self.viewer.layers):
                                     
