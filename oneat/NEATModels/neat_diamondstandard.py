@@ -538,7 +538,7 @@ class NEATEynamic(object):
                                         if event_label > 0:
                                              current_event_box = []
                                              for box in eventboxes:
-                                        
+                                                print(box)
                                                 event_prob = box[event_name]
                                                 event_confidence = box['confidence']
                                                 if event_prob >= self.event_threshold and event_confidence >= self.event_confidence :
