@@ -53,7 +53,7 @@ class OneatVolumeVisualization:
                 
                
 
-    def show_plot(self,  plot_event_name, event_count_plot, event_norm_count_plot, cell_count_plot, 
+    def show_plot(self,  plot_event_name, event_count_plot, 
       segimagedir = None, event_threshold = 0 ):
 
         timelist = []
@@ -65,8 +65,6 @@ class OneatVolumeVisualization:
         self.segimagedir = segimagedir
         self.plot_event_name = plot_event_name
         self.event_count_plot = event_count_plot 
-        self.event_norm_count_plot = event_norm_count_plot 
-        self.cell_count_plot = cell_count_plot 
         
         if self.dataset is not None:                             
                

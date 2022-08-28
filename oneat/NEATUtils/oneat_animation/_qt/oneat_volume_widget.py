@@ -125,8 +125,8 @@ class OneatVolumeWidget(QWidget):
          self.oneatvisualization.show_image(get_image_text, imagename, segimagedir, heatmapimagedir, heatname,
           use_dask)
    
-    def _capture_plot_callback(self, segimagedir,event_count_plot, cell_count_plot, event_norm_count_plot):
+    def _capture_plot_callback(self, segimagedir,event_count_plot):
 
          plot_event_name = self.frameWidget.plotidbox.currentText()
-         self.oneatvisualization.show_plot( plot_event_name,event_count_plot,event_norm_count_plot,cell_count_plot,
+         self.oneatvisualization.show_plot( plot_event_name,event_count_plot,
            segimagedir, self.event_threshold)
