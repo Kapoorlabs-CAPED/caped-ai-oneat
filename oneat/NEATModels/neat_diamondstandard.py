@@ -476,7 +476,6 @@ class NEATEynamic(object):
                 if  str(int(inputtime)) in self.marker_tree:                     
                         tree, location = self.marker_tree[str(int(inputtime))]
                         for i in range(len(location)):
-                            print(location[i])
                             crop_xminus = location[i][2]  - int(self.imagex/2) 
                             crop_xplus = location[i][2]  + int(self.imagex/2)  
                             
@@ -528,7 +527,6 @@ class NEATEynamic(object):
                                         if event_label > 0:
                                              current_event_box = []
                                              for box in eventboxes:
-                                                print(box)
                                                 event_prob = box[event_name]
                                                 event_confidence = box['confidence']
                                                 if event_prob >= self.event_threshold and event_confidence >= self.event_confidence :
