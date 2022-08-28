@@ -637,70 +637,7 @@ class NEATCynamic(object):
 
     
 
-    def showNapari(self, imagedir, savedir, yolo_v2=False):
-
-        Raw_path = os.path.join(imagedir, '*tif')
-        X = glob.glob(Raw_path)
-        self.savedir = savedir
-        Imageids = []
-        self.viewer = napari.Viewer()
-        napari.run()
-        for imagename in X:
-            Imageids.append(imagename)
-
-        eventidbox = QComboBox()
-        eventidbox.addItem(EventBoxname)
-        for (event_name, event_label) in self.key_categories.items():
-            eventidbox.addItem(event_name)
-
-        imageidbox = QComboBox()
-        imageidbox.addItem(Boxname)
-        detectionsavebutton = QPushButton(' Save detection Movie')
-
-        for i in range(0, len(Imageids)):
-            imageidbox.addItem(str(Imageids[i]))
-
-        figure = plt.figure(figsize=(4, 4))
-        multiplot_widget = FigureCanvas(figure)
-        ax = multiplot_widget.figure.subplots(1, 1)
-        width = 400
-        dock_widget = self.viewer.window.add_dock_widget(
-            multiplot_widget, name="EventStats", area='right')
-        multiplot_widget.figure.tight_layout()
-        self.viewer.window._qt_window.resizeDocks([dock_widget], [width], Qt.Horizontal)
-        eventidbox.currentIndexChanged.connect(lambda eventid=eventidbox: EventViewer(
-            self.viewer,
-            imread(imageidbox.currentText()),
-            eventidbox.currentText(),
-            self.key_categories,
-            os.path.basename(os.path.splitext(imageidbox.currentText())[0]),
-            savedir,
-            multiplot_widget,
-            ax,
-            figure,
-            yolo_v2,
-
-        )
-                                               )
-
-        imageidbox.currentIndexChanged.connect(
-            lambda trackid=imageidbox: EventViewer(
-                self.viewer,
-                imread(imageidbox.currentText()),
-                eventidbox.currentText(),
-                self.key_categories,
-                os.path.basename(os.path.splitext(imageidbox.currentText())[0]),
-                savedir,
-                multiplot_widget,
-                ax,
-                figure,
-                yolo_v2,
-
-            )
-        )
-
-        self.viewer.window.add_dock_widget(eventidbox, name="Event", area='left')
-        self.viewer.window.add_dock_widget(imageidbox, name="Image", area='left')
+   
 
     def overlaptiles(self, sliceregion):
 
@@ -829,7 +766,6 @@ def CreateVolume(patch, size_tminus, size_tplus, timepoint):
     starttime = timepoint - int(size_tminus)
     endtime = timepoint + int(size_tplus)
     smallimg = patch[starttime:endtime, :]
-    smallimg = tf.reshape(smallimg, (smallimg.shape[1], smallimg.shape[2], smallimg.shape[0]))
     return smallimg
 
 

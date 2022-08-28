@@ -494,12 +494,12 @@ class NEATEynamic(object):
 
                             crop_zminus = location[i][0]  - int(self.imagez/2)  
                             crop_zplus = location[i][0]   + int(self.imagez/2) 
-                            region =(slice(int(crop_zminus), int(crop_zplus)),slice(int(crop_yminus), int(crop_yplus)),
-                                slice(int(crop_xminus), int(crop_xplus)),slice(0,smallimage.shape[0]))
+                            region =(slice(0,smallimage.shape[0]),slice(int(crop_zminus), int(crop_zplus)),slice(int(crop_yminus), int(crop_yplus)),
+                                slice(int(crop_xminus), int(crop_xplus)))
                             
                             crop_image = smallimage[region] 
                             print(crop_image.shape)
-                            if crop_image.shape[-1] >= self.imaget and  crop_image.shape[0] >= self.imagez and crop_image.shape[1] >= self.imagey and crop_image.shape[2] >= self.imagex:                                                
+                            if crop_image.shape[0] >= self.imaget and  crop_image.shape[1] >= self.imagez and crop_image.shape[2] >= self.imagey and crop_image.shape[3] >= self.imagex:                                                
                                         #Now apply the prediction for counting real events
                                     
                                         zcenter = location[i][0]
@@ -744,7 +744,6 @@ def CreateVolume(patch, size_tminus, size_tplus, timepoint):
     endtime = timepoint + int(size_tplus)
     #TZYX needs to be reshaed to ZYXT
     smallimg = patch[starttime:endtime, :]
-    smallimg = tf.reshape(smallimg, (smallimg.shape[1], smallimg.shape[2], smallimg.shape[3], smallimg.shape[0]))
     return smallimg
 
 
