@@ -70,7 +70,7 @@ def SegFreeMovieLabelDataSet(image_dir, csv_dir, save_dir, static_name, static_l
                                      classfound = (Csvname == csv_name_diff +  event_name+ name )  
                                      if classfound:
                                                     print(Csvname)
-                                                    image = imread(fname)
+                                                    image = imread(fname).astype(dtype)
                                                     if normPatch ==False and normalizeimage == True:
                                                        image = normalizeFloatZeroOne( image.astype(dtype),1,99.8, dtype = dtype)
                                                     dataset = pd.read_csv(csvfname)
@@ -116,7 +116,7 @@ def SegFreeMovieLabelDataSet4D(image_dir, csv_dir, save_dir, static_name, static
                                      classfound = (Csvname == csv_name_diff +  event_name+ name )  
                                      if classfound:
                                                     print(Csvname)
-                                                    image = imread(fname)
+                                                    image = imread(fname).astype(dtype)
                                                     dataset = pd.read_csv(csvfname)
                                                     time = dataset[dataset.keys()[0]][1:]
                                                     z = dataset[dataset.keys()[1]][1:]
@@ -506,7 +506,7 @@ yolo_v1 = True, yolo_v2 = False,  tshift  = 0, normalizeimage = True, dtype = np
                                      classfound = (Csvname == csv_name_diff +  event_name + name)   
                                      if classfound:
                                                     print(Csvname)
-                                                    image = imread(fname).astype('uint8')
+                                                    image = imread(fname).astype(dtype)
                                                     segimage = imread(Segfname).astype('uint16')
                                                     dataset = pd.read_csv(csvfname)
                                                     time = dataset[dataset.keys()[0]][1:]
@@ -564,7 +564,7 @@ yolo_v1 = True, yolo_v2 = False,  tshift  = 0, normalizeimage = True, dtype = np
                                      classfound = (Csvname == csv_name_diff +  event_name + name)   
                                      if classfound:
                                                     print(Csvname)
-                                                    image = imread(fname).astype('uint8')
+                                                    image = imread(fname).astype(dtype)
                                                     segimage = imread(Segfname).astype('uint16')
                                                     dataset = pd.read_csv(csvfname)
                                                     time = dataset[dataset.keys()[0]][1:]
@@ -815,7 +815,7 @@ def ImageLabelDataSet(image_dir, seg_image_dir, csv_dir,save_dir, static_name, s
                              event_name = static_name[i]
                              trainlabel = static_label[i]
                              if Csvname == csv_name_diff + name + event_name:
-                                            image = imread(fname)
+                                            image = imread(fname).astype(dtype)
                                             image = normalizeFloatZeroOne( image.astype(dtype),1,99.8, dtype = dtype)   
                                             segimage = imread(Segfname)
                                             dataset = pd.read_csv(csvfname)
@@ -851,7 +851,7 @@ def SegFreeImageLabelDataSet(image_dir, csv_dir,save_dir, static_name, static_la
               for fname in files_raw:
                   
                          name = os.path.basename(os.path.splitext(fname)[0])   
-                         image = imread(fname)
+                         image = imread(fname).astype(dtype)
                        
                          image = normalizeFloatZeroOne( image.astype(dtype),1,99.8, dtype = dtype)   
                          for i in  range(0, len(static_name)):
