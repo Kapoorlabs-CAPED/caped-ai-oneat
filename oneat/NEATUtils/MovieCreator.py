@@ -605,7 +605,7 @@ def VolumeMaker(time, z, y, x, angle, image, segimage, crop_size, gridx, gridy,g
 
        time = time - tshift
        if normalizeimage:
-                image = normalizeFloatZeroOne(image, 1, 99.8, dtype)
+                image = normalizeFloatZeroOne(image, 1, 99.8, dtype = dtype)
        if time > size_tminus:
 
                #slice the images
