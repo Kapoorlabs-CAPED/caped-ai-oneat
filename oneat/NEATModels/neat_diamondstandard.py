@@ -475,7 +475,7 @@ class NEATEynamic(object):
         print('Detecting event locations')
         eventboxes = []
         classedboxes = {}
-        self.n_tiles = (1,1)
+        self.n_tiles = (1,1,1)
         
         for inputtime in tqdm(range(int(self.imaget)//2, self.image.shape[0])):
              if inputtime < self.image.shape[0] - self.imaget:   
