@@ -273,7 +273,7 @@ class NEATEynamic(object):
         return self.marker_tree
     
     def predict(self, imagename,  savedir, n_tiles=(1, 1, 1), overlap_percent=0.8,
-                event_threshold=0.5, event_confidence = 0.5, iou_threshold=0.1,  dtype = 'int8',
+                event_threshold=0.5, event_confidence = 0.5, iou_threshold=0.1,  dtype = np.uint8,
                 marker_tree = None, remove_markers = False, normalize = True,  nms_function = 'iou'):
 
 
