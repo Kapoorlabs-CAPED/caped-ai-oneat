@@ -703,8 +703,7 @@ name, save_dir, yolo_v1, yolo_v2, tshift, normalizeimage, dtype):
 
 
        time = time - tshift
-       if normalizeimage:
-                    image = normalizeFloatZeroOne(image.astype(dtype), 1, 99.8, dtype = dtype)
+       
        if time > size_tminus:
                currentsegimage = segimage[int(time),:].astype('uint16')
                image_props = getHW(x, y, currentsegimage, imagesizex, imagesizey)
@@ -726,7 +725,8 @@ name, save_dir, yolo_v1, yolo_v2, tshift, normalizeimage, dtype):
                                 #T co ordinate
                                 Label[total_categories + 2] = (size_tminus) / (size_tminus + size_tplus)
                                 smallimage = CreateVolume(image, size_tminus, size_tplus, int(time))
-                                
+                                if normalizeimage:
+                                    smallimage = normalizeFloatZeroOne(smallimage.astype(dtype), 1, 99.8, dtype = dtype) 
                                 if x + shift[0]> sizex/2 and y + shift[1] > sizey/2 and x + shift[0] + int(imagesizex/2) < image.shape[2] and y + shift[1]+ int(imagesizey/2) < image.shape[1] and time > size_tminus and time + size_tplus + 1 < image.shape[0]:
                                                 crop_xminus = x  - int(imagesizex/2)
                                                 crop_xplus = x  + int(imagesizex/2)
