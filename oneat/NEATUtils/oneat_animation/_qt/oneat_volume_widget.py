@@ -84,10 +84,10 @@ class OneatVolumeWidget(QWidget):
 
        
     def _start_callbacks(self,segimagedir, use_dask, 
-    event_count_plot, cell_count_plot, event_norm_count_plot ):
+    event_count_plot ):
 
            self._capture_csv_callback(segimagedir, use_dask)
-           self._capture_plot_callback(segimagedir,event_count_plot, cell_count_plot, event_norm_count_plot)
+           self._capture_plot_callback(segimagedir,event_count_plot)
 
     def update_start_prob(self, event):
         """update state of 'heatmapsteps' at current key-frame to reflect GUI state"""
