@@ -231,18 +231,18 @@ class OneatVolumeVisualization:
                         score = listscore[i]
                         confidence = listconfidence[i]   
                         if score > event_threshold:
-                                self.event_locations.append([int(tcenter), int(ycenter), int(xcenter)])   
+                                self.event_locations.append([int(tcenter),int(zcenter), int(ycenter), int(xcenter)])   
 
                                 if int(tcenter) in self.event_locations_dict.keys():
                                     current_list = self.event_locations_dict[int(tcenter)]
-                                    current_list.append([int(ycenter), int(xcenter)])
+                                    current_list.append([int(zcenter),int(ycenter), int(xcenter)])
                                     self.event_locations_dict[int(tcenter)] = current_list 
-                                    self.event_locations_size_dict[(int(tcenter), int(ycenter), int(xcenter))] = [size, score]
+                                    self.event_locations_size_dict[(int(tcenter), int(zcenter), int(ycenter), int(xcenter))] = [size, score]
                                 else:
                                     current_list = []
-                                    current_list.append([int(ycenter), int(xcenter)])
+                                    current_list.append([int(zcenter),int(ycenter), int(xcenter)])
                                     self.event_locations_dict[int(tcenter)] = current_list    
-                                    self.event_locations_size_dict[int(tcenter), int(ycenter), int(xcenter)] = [size, score]
+                                    self.event_locations_size_dict[int(tcenter),int(zcenter), int(ycenter), int(xcenter)] = [size, score]
 
                                 self.size_locations.append(size)
                                 self.score_locations.append(score)
@@ -263,7 +263,7 @@ class OneatVolumeVisualization:
                                     if  any(name in layer.name for name in name_remove):
                                             self.viewer.layers.remove(layer) 
                 if len(self.score_locations) > 0:                             
-                        self.viewer.add_points(self.event_locations,  properties = point_properties, text = text_properties,  name = 'Detections' + event_name, face_color = [0]*4, edge_color = "red") 
+                        self.viewer.add_points(self.event_locations,  properties = point_properties, text = text_properties, ndims = 4,  name = 'Detections' + event_name, face_color = [0]*4, edge_color = "red") 
                         
                
 
