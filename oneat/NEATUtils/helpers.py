@@ -144,6 +144,8 @@ def normalize_mi_ma(x, mi, ma, eps=1e-20, dtype=np.uint8):
     """
     x   = x.astype(dtype,copy=False)
     eps = dtype(eps)
+    mi  = dtype(mi)
+    ma  = dtype(ma)
     x = (x - mi) / (ma - mi + eps)
 
     return x
