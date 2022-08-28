@@ -112,7 +112,7 @@ def save_json(data, fpath, **kwargs):
 
 
 
-def normalizeFloatZeroOne(x, pmin=1, pmax=99.8, axis=None, eps=1e-20, dtype = 'uint8'):
+def normalizeFloatZeroOne(x, pmin=1, pmax=99.8, axis=None, eps=1e-20, dtype = np.uint8):
     """Percentile based Normalization
     
     Normalize patches of image before feeding into the network
@@ -130,7 +130,7 @@ def normalizeFloatZeroOne(x, pmin=1, pmax=99.8, axis=None, eps=1e-20, dtype = 'u
     return normalize_mi_ma(x, mi, ma, eps=eps, dtype = dtype)
 
 
-def normalize_mi_ma(x, mi, ma, eps=1e-20, dtype='uint8'):
+def normalize_mi_ma(x, mi, ma, eps=1e-20, dtype=np.uint8):
     """
     Number expression evaluation for normalization
     
@@ -300,15 +300,7 @@ def pad_timelapse(image, pad_width):
 
     return zero_pad   
 
-def pad_volumetimelapse(image, pad_width):
 
-    zero_pad = np.zeros([image.shape[0], image.shape[1] + pad_width[1] * 2, image.shape[2] + pad_width[2] * 2])
-    twod_pad = (pad_width[1], pad_width[2])
-    for i in range(0, image.shape[0]):
-
-      zero_pad[i,:,:] =  np.pad(image[i,:,:], twod_pad, mode = 'edge')
-
-    return zero_pad 
 
 def time_pad(image, TimeFrames):
     time = image.shape[0]
@@ -437,15 +429,16 @@ def MidSlicesSum(Image, start_project_mid, end_project_mid, axis = 1):
 
 
 
-def GenerateVolumeMarkers(segimage ):
+def GenerateVolumeMarkers(segimage, pad_width = pad_width ):
 
     ndim = len(segimage.shape)
     #TZYX
-    Markers = np.zeros([segimage.shape[0], segimage.shape[1] , segimage.shape[2] , segimage.shape[3] ])
+    Markers = np.zeros([segimage.shape[0], segimage.shape[1] , segimage.shape[2] + pad_width[0] * 2 , segimage.shape[3] + pad_width[1] * 2])
     
     for i in tqdm(range(0, segimage.shape[0])):
 
-                        newsmallimage = segimage[i, :]
+                        smallimage = segimage[i, :]
+                        newsmallimage = pad_timelapse(smallimage, pad_width)
                         properties = measure.regionprops(newsmallimage.astype('uint16'))
                         
                         Coordinates = [prop.centroid for prop in properties]

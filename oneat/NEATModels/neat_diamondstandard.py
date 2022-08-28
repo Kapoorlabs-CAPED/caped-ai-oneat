@@ -1,7 +1,7 @@
 from oneat.NEATUtils import plotters
 import numpy as np
 from oneat.NEATUtils import helpers
-from oneat.NEATUtils.helpers import  pad_volumetimelapse, get_nearest_volume,  load_json, diamondyoloprediction, normalizeFloatZeroOne, GenerateVolumeMarkers, MakeForest,save_diamond_csv, diamond_dynamic_nms
+from oneat.NEATUtils.helpers import  pad_timelapse, get_nearest_volume,  load_json, diamondyoloprediction, normalizeFloatZeroOne, GenerateVolumeMarkers, MakeForest,save_diamond_csv, diamond_dynamic_nms
 from keras import callbacks
 import os
 import sys
@@ -264,15 +264,16 @@ class NEATEynamic(object):
         self.segdir = segdir
         Name = os.path.basename(os.path.splitext(self.imagename)[0])
         print('Obtaining Markers')
+        self.pad_width = (self.config['imagey'], self.config['imagex'])
         self.segimage = imread(self.segdir + '/' + Name + '.tif')
-        self.markers = GenerateVolumeMarkers(self.segimage)
+        self.markers = GenerateVolumeMarkers(self.segimage, pad_width = self.pad_width)
         self.marker_tree = MakeForest(self.markers)
         self.segimage = None         
 
         return self.marker_tree
     
     def predict(self, imagename,  savedir, n_tiles=(1, 1, 1), overlap_percent=0.8,
-                event_threshold=0.5, event_confidence = 0.5, iou_threshold=0.1,  dtype = 'uint8',
+                event_threshold=0.5, event_confidence = 0.5, iou_threshold=0.1,  dtype = np.uint8,
                 marker_tree = None, remove_markers = False, normalize = True,  nms_function = 'iou'):
 
 
@@ -304,18 +305,28 @@ class NEATEynamic(object):
 
         self.marker_tree = marker_tree
         self.remove_markers = remove_markers
-       
-        self.image = self.originalimage
+        
+        
         if self.remove_markers == True:
-           self.generate_maps = False 
-           self.first_pass_predict()
-           self.second_pass_predict()
+            self.generate_maps = False 
+            self.image = np.zeros([self.originalimage.shape[0], self.orgiginalimage.shape[1],  self.orgiginalimage.shape[2] + 2 * self.pad_width[0], self.orgiginalimage.shape[3] + 2 * self.pad_width[1] ])
+            for i in range(self.originalimage.shape[0]):
+               self.image[i,:] = pad_timelapse(self.originalimage[i,:], self.pad_width)
+            
+            print(f'zero padded image shape ${self.image.shape}')
+            self.first_pass_predict()
+            self.second_pass_predict()
         if self.remove_markers == False:
            self.generate_maps = False 
-
+           self.image = np.zeros([self.originalimage.shape[0], self.orgiginalimage.shape[1],  self.orgiginalimage.shape[2] + 2 * self.pad_width[0], self.orgiginalimage.shape[3] + 2 * self.pad_width[1] ])
+           for i in range(self.originalimage.shape[0]):
+               self.image[i,:] = pad_timelapse(self.originalimage[i,:], self.pad_width)
+            
+           print(f'zero padded image shape ${self.image.shape}')
            self.second_pass_predict()
         if self.remove_markers == None:
            self.generate_maps = True 
+           self.image = self.originalimage
            self.default_pass_predict() 
 
         if self.normalize: 
@@ -508,16 +519,17 @@ class NEATEynamic(object):
                                                             self.key_categories, 
                                                             self.key_cord, 
                                                             self.nboxes, 'detection', 'dynamic',marker_tree=self.marker_tree)
-                                            if boxprediction is not None and len(boxprediction) > 0 :
+                                            if boxprediction is not None and len(boxprediction) > 0 and xcenter - self.pad_width[1] > 0 and ycenter - self.pad_width[0] > 0 and xcenter - self.pad_width[1] < self.originalimage.shape[2] and ycenter - self.pad_width[0] < self.originalimage.shape[1] :
+                                                    
                                                     
                                                         boxprediction[0]['real_time_event'] = inputtime
-                                                        boxprediction[0]['xcenter'] = xcenter 
-                                                        boxprediction[0]['ycenter'] = ycenter 
+                                                        boxprediction[0]['xcenter'] = xcenter - self.pad_width[1]
+                                                        boxprediction[0]['ycenter'] = ycenter - self.pad_width[0]
                                                         boxprediction[0]['zcenter'] = zcenter 
 
-                                                        boxprediction[0]['xstart'] = xcenter   - int(self.imagex/2) 
-                                                        boxprediction[0]['ystart'] = ycenter   - int(self.imagey/2)   
-                                                        boxprediction[0]['zstart'] = zcenter   
+                                                        boxprediction[0]['xstart'] = boxprediction[0]['xcenter']   - int(self.imagex/2) 
+                                                        boxprediction[0]['ystart'] = boxprediction[0]['ycenter']   - int(self.imagey/2)   
+                                                        boxprediction[0]['zstart'] = zcenter   - int(self.imagez/2)
 
                                                         eventboxes = eventboxes + boxprediction
                                                 
