@@ -604,7 +604,8 @@ def VolumeMaker(time, z, y, x, angle, image, segimage, crop_size, gridx, gridy,g
 
 
        time = time - tshift
-       
+       if normalizeimage:
+                image = normalizeFloatZeroOne(image.astype('uint8'), 1, 99.8)
        if time > size_tminus:
 
                #slice the images
@@ -614,8 +615,7 @@ def VolumeMaker(time, z, y, x, angle, image, segimage, crop_size, gridx, gridy,g
                if image_props is not None:
                     height, width, depth, center, seg_label = image_props
                     smallimage = CreateVolume(image, size_tminus, size_tplus, int(time))
-                    if normalizeimage:
-                        smallimage = normalizeFloatZeroOne(smallimage.astype('uint16'), 1, 99.8)
+                    
                     for shift in AllShifts:
 
                                 newname = name + 'shift' + str(shift)
@@ -702,6 +702,8 @@ name, save_dir, yolo_v1, yolo_v2, tshift, normalizeimage):
 
 
        time = time - tshift
+       if normalizeimage:
+                    image = normalizeFloatZeroOne(image.astype('uint16'), 1, 99.8)
        if time > size_tminus:
                currentsegimage = segimage[int(time),:].astype('uint16')
                image_props = getHW(x, y, currentsegimage, imagesizex, imagesizey)
@@ -723,8 +725,7 @@ name, save_dir, yolo_v1, yolo_v2, tshift, normalizeimage):
                                 #T co ordinate
                                 Label[total_categories + 2] = (size_tminus) / (size_tminus + size_tplus)
                                 smallimage = CreateVolume(image, size_tminus, size_tplus, int(time))
-                                if normalizeimage:
-                                    smallimage = normalizeFloatZeroOne(smallimage.astype('uint16'), 1, 99.8)
+                                
                                 if x + shift[0]> sizex/2 and y + shift[1] > sizey/2 and x + shift[0] + int(imagesizex/2) < image.shape[2] and y + shift[1]+ int(imagesizey/2) < image.shape[1] and time > size_tminus and time + size_tplus + 1 < image.shape[0]:
                                                 crop_xminus = x  - int(imagesizex/2)
                                                 crop_xplus = x  + int(imagesizex/2)

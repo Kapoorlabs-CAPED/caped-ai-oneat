@@ -36,7 +36,9 @@ oneat/NEATUtils/__init__.py
 oneat/NEATUtils/helpers.py
 oneat/NEATUtils/plotters.py
 oneat/NEATUtils/oneat_animation/OneatVisualization.py
+oneat/NEATUtils/oneat_animation/OneatVolumeVisualization.py
 oneat/NEATUtils/oneat_animation/__init__.py
 oneat/NEATUtils/oneat_animation/_qt/OneatFrameWidget.py
 oneat/NEATUtils/oneat_animation/_qt/__init__.py
+oneat/NEATUtils/oneat_animation/_qt/oneat_volume_widget.py
 oneat/NEATUtils/oneat_animation/_qt/oneat_widget.py
