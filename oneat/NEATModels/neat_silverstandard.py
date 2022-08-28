@@ -300,7 +300,7 @@ class NEATCynamic(object):
 
         return self.marker_tree
     
-    def predict(self, imagename,  savedir, n_tiles=(1, 1), overlap_percent=0.8, dtype = 'uint16',
+    def predict(self, imagename,  savedir, n_tiles=(1, 1), overlap_percent=0.8, dtype = 'uint8',
                 event_threshold=0.5, event_confidence = 0.5, iou_threshold=0.1,  fidelity=1, downsamplefactor = 1, start_project_mid = 4, end_project_mid = 4,
                 erosion_iterations = 1,  marker_tree = None, remove_markers = False, normalize = True, center_oneat = True, nms_function = 'iou'):
 
@@ -366,7 +366,7 @@ class NEATCynamic(object):
            self.generate_maps = True 
            self.default_pass_predict() 
         if self.normalize: 
-              self.image = normalizeFloatZeroOne(self.image, 1, 99.8)   
+              self.image = normalizeFloatZeroOne(self.image, 1, 99.8, dtype = dtype)   
 
     def default_pass_predict(self):
         eventboxes = []

@@ -142,7 +142,8 @@ def normalize_mi_ma(x, mi, ma, eps=1e-20, dtype='uint8'):
     eps: avoid dividing by zero
     dtype: type of numpy array, float 32 defaut
     """
-    x = x.astype(dtype)
+    x   = x.astype(dtype,copy=False)
+    eps = dtype(eps)
     x = (x - mi) / (ma - mi + eps)
 
     return x
