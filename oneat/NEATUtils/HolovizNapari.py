@@ -23,7 +23,6 @@ from oneat.NEATUtils.oneat_animation.OneatVisualization import MidSlices
 from oneat.NEATUtils.oneat_animation._qt import OneatWidget, OneatVolumeWidget
 
 
-
 default_reader = 'tifffile'
 
 
@@ -144,9 +143,7 @@ class NEATViz(object):
                  
                  self.oneat_widget = OneatVolumeWidget(self.viewer, self.csvdir, self.savedir, 'Name', 
                  self.key_categories, use_dask = self.use_dask, segimagedir = self.segimagedir,
-                 heatimagedir = self.heatmapimagedir, heatname = self.heatname, 
-                 start_project_mid = self.start_project_mid,
-                 end_project_mid = self.end_project_mid )
+                 heatimagedir = self.heatmapimagedir, heatname = self.heatname)
                  Raw_path = os.path.join(self.imagedir, self.fileextension)
                  X = glob.glob(Raw_path)
                  Imageids = []
