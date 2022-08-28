@@ -309,7 +309,7 @@ class NEATEynamic(object):
         
         if self.remove_markers == True:
             self.generate_maps = False 
-            self.image = np.zeros([self.originalimage.shape[0], self.orgiginalimage.shape[1],  self.orgiginalimage.shape[2] + 2 * self.pad_width[0], self.orgiginalimage.shape[3] + 2 * self.pad_width[1] ])
+            self.image = np.zeros([self.originalimage.shape[0], self.originalimage.shape[1],  self.originalimage.shape[2] + 2 * self.pad_width[0], self.originalimage.shape[3] + 2 * self.pad_width[1] ])
             for i in range(self.originalimage.shape[0]):
                self.image[i,:] = pad_timelapse(self.originalimage[i,:], self.pad_width)
             
@@ -318,7 +318,7 @@ class NEATEynamic(object):
             self.second_pass_predict()
         if self.remove_markers == False:
            self.generate_maps = False 
-           self.image = np.zeros([self.originalimage.shape[0], self.orgiginalimage.shape[1],  self.orgiginalimage.shape[2] + 2 * self.pad_width[0], self.orgiginalimage.shape[3] + 2 * self.pad_width[1] ])
+           self.image = np.zeros([self.originalimage.shape[0], self.originalimage.shape[1],  self.originalimage.shape[2] + 2 * self.pad_width[0], self.originalimage.shape[3] + 2 * self.pad_width[1] ])
            for i in range(self.originalimage.shape[0]):
                self.image[i,:] = pad_timelapse(self.originalimage[i,:], self.pad_width)
             
