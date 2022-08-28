@@ -536,7 +536,7 @@ class NEATDynamic(object):
 
                             crop_yminus = location[i][0]  - int(self.imagey/2) * self.downsamplefactor 
                             crop_yplus = location[i][0]   + int(self.imagey/2) * self.downsamplefactor 
-                            region =(slice(0,smallimage.shape[0] + 1),slice(int(crop_yminus), int(crop_yplus)),
+                            region =(slice(0,smallimage.shape[0]),slice(int(crop_yminus), int(crop_yplus)),
                                 slice(int(crop_xminus), int(crop_xplus)))
                             
                             crop_image = smallimage[region] 
@@ -762,7 +762,7 @@ class NEATDynamic(object):
 
 def CreateVolume(patch, size_tminus, size_tplus, timepoint):
     starttime = timepoint - int(size_tminus)
-    endtime = timepoint + int(size_tplus)
+    endtime = timepoint + int(size_tplus) + 1
     smallimg = patch[starttime:endtime, :]
 
     return smallimg

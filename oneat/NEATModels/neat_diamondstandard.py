@@ -494,7 +494,7 @@ class NEATEynamic(object):
 
                             crop_zminus = location[i][0]  - int(self.imagez/2)  
                             crop_zplus = location[i][0]   + int(self.imagez/2) 
-                            region =(slice(0,smallimage.shape[0] + 1),slice(int(crop_zminus), int(crop_zplus)),slice(int(crop_yminus), int(crop_yplus)),
+                            region =(slice(0,smallimage.shape[0]),slice(int(crop_zminus), int(crop_zplus)),slice(int(crop_yminus), int(crop_yplus)),
                                 slice(int(crop_xminus), int(crop_xplus)))
                             
                             crop_image = smallimage[region] 
@@ -740,7 +740,7 @@ class NEATEynamic(object):
 
 def CreateVolume(patch, size_tminus, size_tplus, timepoint):
     starttime = timepoint - int(size_tminus)
-    endtime = timepoint + int(size_tplus)
+    endtime = timepoint + int(size_tplus) + 1
     #TZYX needs to be reshaed to ZYXT
     smallimg = patch[starttime:endtime, :]
     return smallimg
