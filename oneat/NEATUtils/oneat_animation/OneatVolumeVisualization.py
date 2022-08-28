@@ -12,7 +12,7 @@ from skimage import morphology
 import csv
 import matplotlib.pyplot as plt
 import cv2
-class OneatVisualization:
+class OneatVolumeVisualization:
 
     def __init__(self, viewer: napari.Viewer,key_categories, csvdir,
      savedir, savename, ax, figure):

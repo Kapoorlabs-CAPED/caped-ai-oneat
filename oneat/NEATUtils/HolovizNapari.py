@@ -42,6 +42,7 @@ class NEATViz(object):
                         start_project_mid = None, 
                         end_project_mid = None,
                         headless = False,
+                        volume = False,
                         event_threshold = 0.999,
                         nms_space = 10,
                         nms_time = 3
@@ -52,6 +53,7 @@ class NEATViz(object):
                self.heatmapimagedir = heatmapimagedir
                self.segimagedir = segimagedir
                self.savedir = savedir
+               self.volume = volume
                self.csvdir = csvdir
                self.heatname = heatname
                self.eventname = eventname
@@ -78,10 +80,12 @@ class NEATViz(object):
                self.key_categories = self.load_json()
                
                
-               if self.headless == False:
+               if self.headless == False and self.volume == False:
                   self.showNapari()
-               if self.headless:
+               if self.headless and self.volume == False:
                    self.donotshowNapari()   
+                if self.volume:
+                    self.showVolumeNapari()   
                
         def load_json(self):
             with open(self.categories_json, 'r') as f:
