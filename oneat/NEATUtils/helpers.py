@@ -112,7 +112,7 @@ def save_json(data, fpath, **kwargs):
 
 
 
-def normalizeFloatZeroOne(x, pmin=1, pmax=99.8, axis=None, eps=1e-20):
+def normalizeFloatZeroOne(x, pmin=1, pmax=99.8, axis=None, eps=1e-20, dtype = 'uint8'):
     """Percentile based Normalization
     
     Normalize patches of image before feeding into the network
@@ -127,10 +127,10 @@ def normalizeFloatZeroOne(x, pmin=1, pmax=99.8, axis=None, eps=1e-20):
     """
     mi = np.percentile(x, pmin, axis=axis, keepdims=True)
     ma = np.percentile(x, pmax, axis=axis, keepdims=True)
-    return normalize_mi_ma(x, mi, ma, eps=eps)
+    return normalize_mi_ma(x, mi, ma, eps=eps, dtype)
 
 
-def normalize_mi_ma(x, mi, ma, eps=1e-20):
+def normalize_mi_ma(x, mi, ma, eps=1e-20, dtype='uint8'):
     """
     Number expression evaluation for normalization
     
@@ -142,7 +142,7 @@ def normalize_mi_ma(x, mi, ma, eps=1e-20):
     eps: avoid dividing by zero
     dtype: type of numpy array, float 32 defaut
     """
-
+    x = x.astype(dtype)
     x = (x - mi) / (ma - mi + eps)
 
     return x
