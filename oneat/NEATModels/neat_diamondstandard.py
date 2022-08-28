@@ -498,6 +498,7 @@ class NEATEynamic(object):
                                 slice(int(crop_xminus), int(crop_xplus)))
                             
                             crop_image = smallimage[region] 
+                            print(self.imaget, self.imagez, self.imagey, self.imagex, crop_image.shape)
                             if crop_image.shape[0] >= self.imaget and  crop_image.shape[1] >= self.imagez and crop_image.shape[2] >= self.imagey and crop_image.shape[3] >= self.imagex:                                                
                                         #Now apply the prediction for counting real events
                                         print('in')
