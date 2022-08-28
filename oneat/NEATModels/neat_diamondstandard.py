@@ -330,7 +330,9 @@ class NEATEynamic(object):
            self.default_pass_predict() 
 
         if self.normalize: 
-              self.image = normalizeFloatZeroOne(self.image, 1, 99.8, dtype = dtype)   
+              #Normalize in volume
+              for i in range(self.image.shape[0]):
+                self.image[i,:] = normalizeFloatZeroOne(self.image[i,:], 1, 99.8, dtype = dtype)   
 
     def default_pass_predict(self):
         eventboxes = []
