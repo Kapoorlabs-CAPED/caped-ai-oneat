@@ -1524,7 +1524,7 @@ def diamondpredictionloop(i, j, k, sz, sy, sx, nboxes, stride, time_prediction, 
             rawangle = -1
         # Compute the box vectors
         if marker_tree is not None:
-            nearest_location = get_nearest_volume(marker_tree, ycentermean, xcentermean, real_time_event)
+            nearest_location = get_nearest_volume(marker_tree, zcentermean, ycentermean, xcentermean, real_time_event)
             if nearest_location is not None:
                ycentermean, xcentermean = nearest_location
         #Correct for zero padding
@@ -1541,7 +1541,7 @@ def diamondpredictionloop(i, j, k, sz, sy, sx, nboxes, stride, time_prediction, 
             realangle = -1
             rawangle = -1
             if marker_tree is not None:
-                nearest_location = get_nearest_volume(marker_tree, ycentermean, xcentermean, real_time_event)
+                nearest_location = get_nearest_volume(marker_tree, zcentermean, ycentermean, xcentermean, real_time_event)
                 if nearest_location is not None:
                     ycentermean, xcentermean = nearest_location
            

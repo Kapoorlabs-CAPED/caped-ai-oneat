@@ -451,6 +451,7 @@ class NEATEynamic(object):
                             iou_current_event_boxes = self.iou_classedboxes[event_name][0]
                             iou_current_event_boxes = sorted(iou_current_event_boxes, key=lambda x: x[event_name], reverse=True)
                             for box in iou_current_event_boxes:
+                                    
                                      closest_location = get_nearest_volume(self.marker_tree, box['zcenter'], box['ycenter'], box['xcenter'], box['real_time_event'])
                                      if closest_location is not None:
                                         zcentermean, ycentermean, xcentermean = closest_location
