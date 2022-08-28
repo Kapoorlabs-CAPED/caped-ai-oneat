@@ -72,7 +72,7 @@ def SegFreeMovieLabelDataSet(image_dir, csv_dir, save_dir, static_name, static_l
                                                     print(Csvname)
                                                     image = imread(fname)
                                                     if normPatch ==False and normalizeimage == True:
-                                                       image = normalizeFloatZeroOne( image,1,99.8, dtype = dtype)
+                                                       image = normalizeFloatZeroOne( image.astype(dtype),1,99.8, dtype = dtype)
                                                     dataset = pd.read_csv(csvfname)
                                                     time = dataset[dataset.keys()[0]][1:]
                                                     y = dataset[dataset.keys()[1]][1:]
@@ -205,7 +205,7 @@ def SimpleMovieMaker4D(normalizeimage, time, z, y, x, image, crop_size, gridx, g
 
        image = image[:,z,:,:]
        if normalizeimage:
-                    image = normalizeFloatZeroOne( image,1,99.8, dtype = dtype)
+                    image = normalizeFloatZeroOne( image.astype(dtype),1,99.8, dtype = dtype)
 
        if time > 0:
                
@@ -605,7 +605,7 @@ def VolumeMaker(time, z, y, x, angle, image, segimage, crop_size, gridx, gridy,g
 
        time = time - tshift
        if normalizeimage:
-                image = normalizeFloatZeroOne(image, 1, 99.8, dtype = dtype)
+                image = normalizeFloatZeroOne(image.astype(dtype), 1, 99.8, dtype = dtype)
        if time > size_tminus:
 
                #slice the images
@@ -703,7 +703,7 @@ name, save_dir, yolo_v1, yolo_v2, tshift, normalizeimage, dtype):
 
        time = time - tshift
        if normalizeimage:
-                    image = normalizeFloatZeroOne(image, 1, 99.8, dtype = dtype)
+                    image = normalizeFloatZeroOne(image.astype(dtype), 1, 99.8, dtype = dtype)
        if time > size_tminus:
                currentsegimage = segimage[int(time),:].astype('uint16')
                image_props = getHW(x, y, currentsegimage, imagesizex, imagesizey)
@@ -816,7 +816,7 @@ def ImageLabelDataSet(image_dir, seg_image_dir, csv_dir,save_dir, static_name, s
                              trainlabel = static_label[i]
                              if Csvname == csv_name_diff + name + event_name:
                                             image = imread(fname)
-                                            image = normalizeFloatZeroOne( image,1,99.8, dtype = dtype)   
+                                            image = normalizeFloatZeroOne( image.astype(dtype),1,99.8, dtype = dtype)   
                                             segimage = imread(Segfname)
                                             dataset = pd.read_csv(csvfname)
                                             time = dataset[dataset.keys()[0]][1:]
@@ -853,7 +853,7 @@ def SegFreeImageLabelDataSet(image_dir, csv_dir,save_dir, static_name, static_la
                          name = os.path.basename(os.path.splitext(fname)[0])   
                          image = imread(fname)
                        
-                         image = normalizeFloatZeroOne( image,1,99.8, dtype = dtype)   
+                         image = normalizeFloatZeroOne( image.astype(dtype),1,99.8, dtype = dtype)   
                          for i in  range(0, len(static_name)):
                              event_name = static_name[i]
                              trainlabel = static_label[i]
