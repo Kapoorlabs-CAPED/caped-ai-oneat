@@ -281,7 +281,7 @@ class NEATEynamic(object):
         self.imagename = imagename
         self.Name = os.path.basename(os.path.splitext(self.imagename)[0])
         self.nms_function = nms_function 
-        self.image = imread(imagename)
+        self.originalimage = imread(imagename)
         self.ndim = len(self.image.shape)
         self.normalize = normalize
         self.dtype = dtype
@@ -298,7 +298,6 @@ class NEATEynamic(object):
         self.iou_threshold = iou_threshold
         self.event_threshold = event_threshold
         self.event_confidence = event_confidence
-        self.originalimage = self.image
         
         self.model = load_model(os.path.join(self.model_dir, self.model_name) + '.h5',
                                 custom_objects={'loss': self.yololoss, 'Concat': Concat})
@@ -306,7 +305,7 @@ class NEATEynamic(object):
         self.marker_tree = marker_tree
         self.remove_markers = remove_markers
        
-        
+        self.image = np.zeros([self.originalimage.shape[0], self.originalimage.shape[1], self.originalimage.shape[2] + self.pad_width[1] * 2, self.originalimage.shape[3] + self.pad_width[2] * 2])
         if self.remove_markers == True:
            self.generate_maps = False 
            for i in range(self.image.shape[0]):
@@ -323,6 +322,7 @@ class NEATEynamic(object):
            self.second_pass_predict()
         if self.remove_markers == None:
            self.generate_maps = True 
+           self.image = self.originalimage
            self.default_pass_predict() 
 
     def default_pass_predict(self):
