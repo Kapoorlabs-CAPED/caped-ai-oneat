@@ -127,7 +127,7 @@ def normalizeFloatZeroOne(x, pmin=1, pmax=99.8, axis=None, eps=1e-20, dtype = 'u
     """
     mi = np.percentile(x, pmin, axis=axis, keepdims=True)
     ma = np.percentile(x, pmax, axis=axis, keepdims=True)
-    return normalize_mi_ma(x, mi, ma, eps=eps, dtype)
+    return normalize_mi_ma(x, mi, ma, eps=eps, dtype = dtype)
 
 
 def normalize_mi_ma(x, mi, ma, eps=1e-20, dtype='uint8'):
