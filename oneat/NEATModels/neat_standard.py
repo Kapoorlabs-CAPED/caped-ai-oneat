@@ -1,6 +1,6 @@
 
 from .neat_goldstandard import NEATDynamic
-
+import numpy as np
 class NEATSDynamic(NEATDynamic):
    
 
