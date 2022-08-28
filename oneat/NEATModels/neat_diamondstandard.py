@@ -273,7 +273,7 @@ class NEATEynamic(object):
         return self.marker_tree
     
     def predict(self, imagename,  savedir, n_tiles=(1, 1, 1), overlap_percent=0.8,
-                event_threshold=0.5, event_confidence = 0.5, iou_threshold=0.1,  dtype = 'uint8',
+                event_threshold=0.5, event_confidence = 0.5, iou_threshold=0.1,  dtype = 'uint16',
                 marker_tree = None, remove_markers = False, normalize = True,  nms_function = 'iou'):
 
 
@@ -494,12 +494,12 @@ class NEATEynamic(object):
 
                             crop_zminus = location[i][0]  - int(self.imagez/2)  
                             crop_zplus = location[i][0]   + int(self.imagez/2) 
-                            region =(slice(0,smallimage.shape[0]),slice(int(crop_zminus), int(crop_zplus)),slice(int(crop_yminus), int(crop_yplus)),
-                                slice(int(crop_xminus), int(crop_xplus)))
+                            region =(slice(int(crop_zminus), int(crop_zplus)),slice(int(crop_yminus), int(crop_yplus)),
+                                slice(int(crop_xminus), int(crop_xplus)),slice(0,smallimage.shape[0]))
                             
                             crop_image = smallimage[region] 
-                            
-                            if crop_image.shape[0] >= self.imaget and  crop_image.shape[1] >= self.imagez and crop_image.shape[2] >= self.imagey and crop_image.shape[3] >= self.imagex:                                                
+                            print(crop_image.shape)
+                            if crop_image.shape[-1] >= self.imaget and  crop_image.shape[0] >= self.imagez and crop_image.shape[1] >= self.imagey and crop_image.shape[2] >= self.imagex:                                                
                                         #Now apply the prediction for counting real events
                                     
                                         zcenter = location[i][0]
