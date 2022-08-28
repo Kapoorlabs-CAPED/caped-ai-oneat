@@ -429,7 +429,7 @@ def MidSlicesSum(Image, start_project_mid, end_project_mid, axis = 1):
 
 
 
-def GenerateVolumeMarkers(segimage, pad_width = pad_width ):
+def GenerateVolumeMarkers(segimage, pad_width  ):
 
     ndim = len(segimage.shape)
     #TZYX
