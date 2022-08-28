@@ -703,7 +703,7 @@ name, save_dir, yolo_v1, yolo_v2, tshift, normalizeimage, dtype):
 
        time = time - tshift
        if normalizeimage:
-                    image = normalizeFloatZeroOne(image, 1, 99.8, dtype)
+                    image = normalizeFloatZeroOne(image, 1, 99.8, dtype = dtype)
        if time > size_tminus:
                currentsegimage = segimage[int(time),:].astype('uint16')
                image_props = getHW(x, y, currentsegimage, imagesizex, imagesizey)
