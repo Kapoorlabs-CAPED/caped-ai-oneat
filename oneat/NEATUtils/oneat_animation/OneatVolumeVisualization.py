@@ -256,7 +256,7 @@ class OneatVolumeVisualization:
                                     if  any(name in layer.name for name in name_remove):
                                             self.viewer.layers.remove(layer) 
                 if len(self.score_locations) > 0:                             
-                        self.viewer.add_points(self.event_locations,  properties = point_properties, text = text_properties, ndim = 4,  name = 'Detections' + event_name, face_color = [0]*4, edge_color = "red") 
+                        self.viewer.add_points(self.event_locations,  properties = point_properties,  ndim = 4,  name = 'Detections' + event_name, face_color = [0]*4, edge_color = "red") 
                         
                
 
