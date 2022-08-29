@@ -324,7 +324,7 @@ class NEATCynamic(object):
         
         self.erosion_iterations = erosion_iterations
         
-        self.heatmap = np.zeros(self.image.shape, dtype = 'float32')  
+        self.heatmap = np.zeros(self.image.shape, dtype = 'uint16')  
         self.eventmarkers = np.zeros(self.image.shape, dtype = 'uint16')
         self.savedir = savedir
         Path(self.savedir).mkdir(exist_ok=True)
@@ -365,8 +365,7 @@ class NEATCynamic(object):
         if self.remove_markers == None:
            self.generate_maps = True 
            self.default_pass_predict() 
-        if self.normalize: 
-              self.image = normalizeFloatZeroOne(self.image, 1, 99.8, dtype = dtype)   
+           
 
     def default_pass_predict(self):
         eventboxes = []
@@ -386,7 +385,8 @@ class NEATCynamic(object):
                                       imwrite((heatsavename + '.tif' ), self.heatmap)
                                       
                                 smallimage = CreateVolume(self.image, self.size_tminus, self.size_tplus, inputtime)
-                               
+                                if self.normalize: 
+                                      smallimage = normalizeFloatZeroOne(smallimage, 1, 99.8, dtype = self.dtype)
                                 # Cut off the region for training movie creation
                                 #Break image into tiles if neccessary
                                 predictions, allx, ally = self.predict_main(smallimage)
@@ -449,7 +449,8 @@ class NEATCynamic(object):
                 
                 remove_candidates_list = []
                 smallimage = CreateVolume(self.image, self.size_tminus, self.size_tplus, inputtime)
-                
+                if self.normalize: 
+                                      smallimage = normalizeFloatZeroOne(smallimage, 1, 99.8, dtype = self.dtype)
                 # Cut off the region for training movie creation
                 # Break image into tiles if neccessary
                 predictions, allx, ally = self.predict_main(smallimage)
@@ -525,7 +526,8 @@ class NEATCynamic(object):
              if inputtime < self.image.shape[0] - self.imaget:   
                  
                 smallimage = CreateVolume(self.image, self.size_tminus, self.size_tplus, inputtime)
-               
+                if self.normalize: 
+                                      smallimage = normalizeFloatZeroOne(smallimage, 1, 99.8, dtype = self.dtype)
 
                 if inputtime%(self.image.shape[0]//4)==0 and inputtime > 0 or inputtime >= self.image.shape[0] - self.imaget - 1:
                                       markers_current = dilation(self.eventmarkers[inputtime,:], disk(2))
