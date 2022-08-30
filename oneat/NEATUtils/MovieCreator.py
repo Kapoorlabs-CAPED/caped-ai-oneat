@@ -615,8 +615,7 @@ def VolumeMaker(time, z, y, x, angle, image, segimage, crop_size, gridx, gridy,g
                     height, width, depth, center, seg_label = image_props
                     smallimage = CreateVolume(image, size_tminus, size_tplus, int(time))
                     if normalizeimage:
-                        for i in range(smallimage.shape[0]):
-                           smallimage[i,:] = normalizeFloatZeroOne(smallimage[i,:].astype(dtype), 1, 99.8, dtype = dtype)
+                        smallimage = normalizeFloatZeroOne(smallimage.astype(dtype), 1, 99.8, dtype = dtype)
                     for shift in AllShifts:
 
                                 newname = name + 'shift' + str(shift)
