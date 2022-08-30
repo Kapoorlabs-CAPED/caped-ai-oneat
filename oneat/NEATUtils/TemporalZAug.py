@@ -226,7 +226,7 @@ class TemporalZAug(object):
           mean = parse_dict['mean']
           sigma = parse_dict['sigma']
           distribution = parse_dict['distribution']   
-          shape = (image.shape[1], image.shape[2])
+          shape = (image.shape[2], image.shape[3])
 
           if distribution == 'Gaussian':
                 
