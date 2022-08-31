@@ -506,7 +506,7 @@ class NEATEynamic(object):
                                 slice(int(crop_xminus), int(crop_xplus)))
                             
                             crop_image = smallimage[region] 
-                            if crop_image.shape[0] >= self.imaget :                                                
+                            if crop_image.shape[0] >= self.imaget and  crop_image.shape[1] >= self.imagez and crop_image.shape[2] >= self.imagey and crop_image.shape[3] >= self.imagex:                                                
                                         #Now apply the prediction for counting real events
                                         zcenter = location[i][0]
                                         ycenter = location[i][1]
@@ -526,7 +526,7 @@ class NEATEynamic(object):
                                                             self.key_categories, 
                                                             self.key_cord, 
                                                             self.nboxes, 'detection', 'dynamic',marker_tree=self.marker_tree)
-                                            if boxprediction is not None and len(boxprediction) > 0 and xcenter - self.pad_width[1] > 0 and ycenter - self.pad_width[0] > 0 and xcenter - self.pad_width[1] < self.originalimage.shape[2] and ycenter - self.pad_width[0] < self.originalimage.shape[1] :
+                                            if boxprediction is not None and len(boxprediction) > 0  :
                                                     
                                                     
                                                         boxprediction[0]['real_time_event'] = inputtime
