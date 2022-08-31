@@ -264,8 +264,7 @@ class NEATEynamic(object):
         self.segdir = segdir
         Name = os.path.basename(os.path.splitext(self.imagename)[0])
         print('Obtaining Markers')
-        self.pad_width = (0,0) 
-        #(self.config['imagey'], self.config['imagex'])
+        self.pad_width = (self.config['imagey'], self.config['imagex'])
         self.segimage = imread(self.segdir + '/' + Name + '.tif')
         self.markers = GenerateVolumeMarkers(self.segimage, pad_width = self.pad_width)
         self.marker_tree = MakeForest(self.markers)
@@ -530,8 +529,8 @@ class NEATEynamic(object):
                                                     
                                                     
                                                         boxprediction[0]['real_time_event'] = inputtime
-                                                        boxprediction[0]['xcenter'] = xcenter - self.pad_width[1]
-                                                        boxprediction[0]['ycenter'] = ycenter - self.pad_width[0]
+                                                        boxprediction[0]['xcenter'] = xcenter 
+                                                        boxprediction[0]['ycenter'] = ycenter 
                                                         boxprediction[0]['zcenter'] = zcenter 
 
                                                         boxprediction[0]['xstart'] = boxprediction[0]['xcenter']   - int(self.imagex/2) 
