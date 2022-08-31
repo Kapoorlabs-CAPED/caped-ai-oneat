@@ -411,7 +411,8 @@ class NEATEynamic(object):
                 remove_candidates_list = []
                 smallimage = CreateVolume(self.image, self.size_tminus, self.size_tplus, inputtime)
                 if self.normalize: 
-                                   smallimage[:,:, self.pad_width[0]:smallimage.shape[2]-self.pad_width[0],self.pad_width[1]:smallimage.shape[3]-self.pad_width[1] ] = normalizeFloatZeroOne(smallimage[:,:, self.pad_width[0]:smallimage.shape[2]-self.pad_width[0],self.pad_width[1]:smallimage.shape[3]-self.pad_width[1] ], 1, 99.8, dtype = self.dtype)
+                                   smallimage = normalizeFloatZeroOne(smallimage, 1, 99.8, dtype = self.dtype)
+
                 # Cut off the region for training movie creation
                 # Break image into tiles if neccessary
                 predictions, allx, ally, allz = self.predict_main(smallimage)
@@ -489,11 +490,10 @@ class NEATEynamic(object):
              if inputtime < self.image.shape[0] - self.imaget:   
                 smallimage = CreateVolume(self.image, self.size_tminus, self.size_tplus, inputtime)
                 if self.normalize: 
-                                   smallimage[:,:, self.pad_width[0]:smallimage.shape[2]-self.pad_width[0],self.pad_width[1]:smallimage.shape[3]-self.pad_width[1] ] = normalizeFloatZeroOne(smallimage[:,:, self.pad_width[0]:smallimage.shape[2]-self.pad_width[0],self.pad_width[1]:smallimage.shape[3]-self.pad_width[1] ], 1, 99.8, dtype = self.dtype)
+                                   smallimage = normalizeFloatZeroOne(smallimage, 1, 99.8, dtype = self.dtype)
                 if  str(int(inputtime)) in self.marker_tree:                     
                         tree, location = self.marker_tree[str(int(inputtime))]
                         for i in range(len(location)):
-                            print(location[i])
                             crop_xminus = location[i][2]  - int(self.imagex/2) 
                             crop_xplus = location[i][2]  + int(self.imagex/2)  
                             
@@ -506,7 +506,6 @@ class NEATEynamic(object):
                                 slice(int(crop_xminus), int(crop_xplus)))
                             
                             crop_image = smallimage[region] 
-                            print(crop_image.shape)
                             if crop_image.shape[0] >= self.imaget and  crop_image.shape[1] >= self.imagez and crop_image.shape[2] >= self.imagey and crop_image.shape[3] >= self.imagex:                                                
                                         #Now apply the prediction for counting real events
                                         zcenter = location[i][0]
@@ -535,7 +534,6 @@ class NEATEynamic(object):
                                                         boxprediction[0]['ycenter'] = ycenter - self.pad_width[0]
                                                         boxprediction[0]['zcenter'] = zcenter 
 
-                                                        print(zcenter, ycenter, xcenter, self.pad_width,boxprediction[0]['zcenter'],boxprediction[0]['ycenter'],boxprediction[0]['xcenter'] )
 
                                                         boxprediction[0]['xstart'] = boxprediction[0]['xcenter']   - int(self.imagex/2) 
                                                         boxprediction[0]['ystart'] = boxprediction[0]['ycenter']   - int(self.imagey/2)   
