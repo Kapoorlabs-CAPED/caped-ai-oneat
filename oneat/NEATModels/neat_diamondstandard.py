@@ -527,11 +527,13 @@ class NEATEynamic(object):
                                                             self.nboxes, 'detection', 'dynamic',marker_tree=self.marker_tree)
                                             if boxprediction is not None and len(boxprediction) > 0 and xcenter - self.pad_width[1] > 0 and ycenter - self.pad_width[0] > 0 and xcenter - self.pad_width[1] < self.originalimage.shape[2] and ycenter - self.pad_width[0] < self.originalimage.shape[1]  :
                                                     
-                                                    
+                                                        
                                                         boxprediction[0]['real_time_event'] = inputtime
                                                         boxprediction[0]['xcenter'] = xcenter  - self.pad_width[1]
                                                         boxprediction[0]['ycenter'] = ycenter - self.pad_width[0]
                                                         boxprediction[0]['zcenter'] = zcenter 
+
+                                                        print(xcenter, ycenter, zcenter, self.pad_width,boxprediction[0]['xcenter'],boxprediction[0]['ycenter'],boxprediction[0]['zcenter'] )
 
                                                         boxprediction[0]['xstart'] = boxprediction[0]['xcenter']   - int(self.imagex/2) 
                                                         boxprediction[0]['ystart'] = boxprediction[0]['ycenter']   - int(self.imagey/2)   
