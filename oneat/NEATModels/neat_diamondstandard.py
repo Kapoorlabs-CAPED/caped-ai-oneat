@@ -264,7 +264,8 @@ class NEATEynamic(object):
         self.segdir = segdir
         Name = os.path.basename(os.path.splitext(self.imagename)[0])
         print('Obtaining Markers')
-        self.pad_width = (self.config['imagey'], self.config['imagex'])
+        self.pad_width =  (0,0)
+        #(self.config['imagey'], self.config['imagex'])
         self.segimage = imread(self.segdir + '/' + Name + '.tif')
         self.markers = GenerateVolumeMarkers(self.segimage, pad_width = self.pad_width)
         self.marker_tree = MakeForest(self.markers)
