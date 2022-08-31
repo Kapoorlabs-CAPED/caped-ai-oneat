@@ -506,6 +506,7 @@ class NEATEynamic(object):
                                 slice(int(crop_xminus), int(crop_xplus)))
                             
                             crop_image = smallimage[region] 
+                            print(crop_image.shape)
                             if crop_image.shape[0] >= self.imaget and  crop_image.shape[1] >= self.imagez and crop_image.shape[2] >= self.imagey and crop_image.shape[3] >= self.imagex:                                                
                                         #Now apply the prediction for counting real events
                                         zcenter = location[i][0]
@@ -534,7 +535,7 @@ class NEATEynamic(object):
                                                         boxprediction[0]['ycenter'] = ycenter - self.pad_width[0]
                                                         boxprediction[0]['zcenter'] = zcenter 
 
-                                                        print(xcenter, ycenter, zcenter, self.pad_width,boxprediction[0]['xcenter'],boxprediction[0]['ycenter'],boxprediction[0]['zcenter'] )
+                                                        print(zcenter, ycenter, xcenter, self.pad_width,boxprediction[0]['zcenter'],boxprediction[0]['ycenter'],boxprediction[0]['xcenter'] )
 
                                                         boxprediction[0]['xstart'] = boxprediction[0]['xcenter']   - int(self.imagex/2) 
                                                         boxprediction[0]['ystart'] = boxprediction[0]['ycenter']   - int(self.imagey/2)   
