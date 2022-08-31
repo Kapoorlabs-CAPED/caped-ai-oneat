@@ -289,7 +289,7 @@ def pad_timelapse(image, pad_width):
     zero_pad = np.zeros([image.shape[0], image.shape[1] + pad_width[0] * 2, image.shape[2] + pad_width[1] * 2])
     for i in range(0, image.shape[0]):
 
-      zero_pad[i,:,:] =  np.pad(image[i,:,:], pad_width, mode = 'edge')
+      zero_pad[i,:,:] =  np.pad(image[i,:,:], pad_width)
 
     return zero_pad   
 
