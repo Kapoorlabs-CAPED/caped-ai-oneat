@@ -562,7 +562,7 @@ class NEATCynamic(object):
                                                                 inputtime, self.config,
                                                                 self.key_categories, self.key_cord, self.nboxes, 'detection',
                                                                 'static', center_oneat = self.center_oneat)
-                                            if boxprediction is not None and len(boxprediction) > 0 and xcenter - self.pad_width[1] > 0 and ycenter - self.pad_width[0] > 0 and xcenter - self.pad_width[1] < self.originalimage.shape[2] and ycenter - self.pad_width[0] < self.originalimage.shape[1] :
+                                            if boxprediction is not None and len(boxprediction) > 0 and xcenter - self.pad_width[1] > 0 and ycenter - self.pad_width[0] > 0 and xcenter - self.pad_width[1] < self.image.shape[2] and ycenter - self.pad_width[0] < self.image.shape[1] :
                                                     
                                                         
                                                         boxprediction[0]['real_time_event'] = inputtime
