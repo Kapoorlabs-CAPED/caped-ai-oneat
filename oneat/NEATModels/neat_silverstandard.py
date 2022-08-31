@@ -568,8 +568,8 @@ class NEATCynamic(object):
                                                         boxprediction[0]['real_time_event'] = inputtime
                                                         boxprediction[0]['xcenter'] = xcenter - self.pad_width[1]
                                                         boxprediction[0]['ycenter'] = ycenter - self.pad_width[0]
-                                                        boxprediction[0]['xstart'] = xcenter   - int(self.imagex/2) * self.downsamplefactor
-                                                        boxprediction[0]['ystart'] = ycenter   - int(self.imagey/2) * self.downsamplefactor  
+                                                        boxprediction[0]['xstart'] = boxprediction[0]['xcenter']   - int(self.imagex/2) * self.downsamplefactor
+                                                        boxprediction[0]['ystart'] =  boxprediction[0]['ycenter']   - int(self.imagey/2) * self.downsamplefactor  
                                                         eventboxes = eventboxes + boxprediction
                                                 
                                            
