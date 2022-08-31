@@ -329,10 +329,8 @@ class NEATEynamic(object):
            self.image = self.originalimage
            self.default_pass_predict() 
 
-        if self.normalize: 
-              #Normalize in volume
-              for i in range(self.image.shape[0]):
-                self.image[i,:] = normalizeFloatZeroOne(self.image[i,:], 1, 99.8, dtype = dtype)   
+   
+                 
 
     def default_pass_predict(self):
         eventboxes = []
@@ -345,7 +343,9 @@ class NEATEynamic(object):
                                 count = count + 1
                                       
                                 smallimage = CreateVolume(self.image, self.size_tminus, self.size_tplus, inputtime)
-                                
+                                #Normalize in volume
+                                if self.normalize: 
+                                   smallimage = normalizeFloatZeroOne(smallimage, 1, 99.8, dtype = self.dtype)
                                 # Cut off the region for training movie creation
                                 #Break image into tiles if neccessary
                                 predictions, allx, ally, allz = self.predict_main(smallimage)
