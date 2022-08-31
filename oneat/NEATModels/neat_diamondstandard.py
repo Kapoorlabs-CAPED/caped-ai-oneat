@@ -525,7 +525,7 @@ class NEATEynamic(object):
                                                             self.key_categories, 
                                                             self.key_cord, 
                                                             self.nboxes, 'detection', 'dynamic',marker_tree=self.marker_tree)
-                                            if boxprediction is not None and len(boxprediction) > 0 and xcenter - self.pad_width[1] > 0 and ycenter - self.pad_width[0] > 0 and xcenter - self.pad_width[1] < self.image.shape[2] and ycenter - self.pad_width[0] < self.image.shape[1]  :
+                                            if boxprediction is not None and len(boxprediction) > 0 and xcenter - self.pad_width[1] > 0 and ycenter - self.pad_width[0] > 0 and xcenter  < self.image.shape[3] - self.pad_width[1] and ycenter  < self.image.shape[2] - self.pad_width[0] :
                                                     
                                                         
                                                         boxprediction[0]['real_time_event'] = inputtime
