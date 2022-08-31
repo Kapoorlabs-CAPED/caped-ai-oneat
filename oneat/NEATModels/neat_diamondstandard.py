@@ -489,7 +489,7 @@ class NEATEynamic(object):
              if inputtime < self.image.shape[0] - self.imaget:   
                 smallimage = CreateVolume(self.image, self.size_tminus, self.size_tplus, inputtime)
                 if self.normalize: 
-                                   smallimage = normalizeFloatZeroOne(smallimage, 1, 99.8, dtype = self.dtype)
+                                   smallimage[:,:, self.pad_width[0]:smallimage.shape[2]-self.pad_width[0],self.pad_width[1]:smallimage.shape[3]-self.pad_width[1] ] = normalizeFloatZeroOne(smallimage[:,:, self.pad_width[0]:smallimage.shape[2]-self.pad_width[0],self.pad_width[1]:smallimage.shape[3]-self.pad_width[1] ], 1, 99.8, dtype = self.dtype)
                 if  str(int(inputtime)) in self.marker_tree:                     
                         tree, location = self.marker_tree[str(int(inputtime))]
                         for i in range(len(location)):
