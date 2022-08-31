@@ -135,7 +135,7 @@ def normalize_mi_ma(x, mi, ma, eps=1e-20, dtype=np.uint8):
     x   = x.astype(dtype)
     mi  = dtype(mi) if np.isscalar(mi) else mi.astype(dtype,copy=False)
     ma  = dtype(ma) if np.isscalar(ma) else ma.astype(dtype,copy=False)
-    eps = dtype(eps)
+    eps = dtype(eps) if np.isscalar(eps) else eps.astype(dtype,copy=False)
 
     x =    (x - mi) / ( ma - mi + eps )
 
