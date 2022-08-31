@@ -132,7 +132,6 @@ def normalizeFloatZeroOne(x, pmin=1, pmax=99.8, axis=None, eps=1e-20, dtype = np
 
 def normalize_mi_ma(x, mi, ma, eps=1e-20, dtype=np.uint8):
    
-    print(dtype, type(dtype))
     x   = x.astype(dtype)
     mi  = dtype(mi) if np.isscalar(mi) else mi.astype(dtype,copy=False)
     ma  = dtype(ma) if np.isscalar(ma) else ma.astype(dtype,copy=False)
