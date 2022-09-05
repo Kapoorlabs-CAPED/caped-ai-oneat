@@ -39,6 +39,7 @@ setup(
         "napari-animation",
         "pydot",
         "albumentations", 
+        "photutils",
        
     ],
     packages=setuptools.find_packages(),
