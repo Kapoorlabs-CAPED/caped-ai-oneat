@@ -14,3 +14,4 @@ natsort
 napari-animation
 pydot
 albumentations
+photutils

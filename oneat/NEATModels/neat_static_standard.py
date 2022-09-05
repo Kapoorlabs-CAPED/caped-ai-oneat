@@ -22,8 +22,8 @@ import tensorflow as tf
 # from IPython.display import clear_output
 from pathlib import Path
 from keras.models import load_model
-from keras.utils import plot_model
-from tifffile import imread, imwrite
+from tensorflow.keras.utils import plot_model
+from tifffile import imread
 import h5py
 
 Boxname = 'ImageIDBox'

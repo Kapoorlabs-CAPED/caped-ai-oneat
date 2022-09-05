@@ -17,7 +17,7 @@ import tensorflow as tf
 from oneat.pretrained import get_registered_models, get_model_details, get_model_instance
 from pathlib import Path
 from keras.models import load_model
-from keras.utils import plot_model
+from tensorflow.keras.utils import plot_model
 from tifffile import imread, imwrite
 import napari
 import glob

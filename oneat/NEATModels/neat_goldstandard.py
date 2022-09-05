@@ -16,18 +16,8 @@ import tensorflow as tf
 from oneat.pretrained import get_registered_models, get_model_details, get_model_instance
 from pathlib import Path
 from keras.models import load_model
-from keras.utils import plot_model
+from tensorflow.keras.utils import plot_model
 from tifffile import imread, imwrite
-import napari
-import glob
-from skimage.morphology import dilation, disk
-import matplotlib.pyplot as plt
-from matplotlib.backends.backend_qt5agg import \
-    FigureCanvasQTAgg as FigureCanvas
-from qtpy.QtCore import Qt
-from qtpy.QtWidgets import QComboBox, QPushButton
-import cv2
-from skimage.measure import label
 
 Boxname = 'ImageIDBox'
 EventBoxname = 'EventIDBox'
