@@ -31,7 +31,6 @@ setup(
         "matplotlib",
         "imagecodecs",
         "napari[all]",
-        "opencv-python",
         "diplib",
         "sklearn",
         "dask",
