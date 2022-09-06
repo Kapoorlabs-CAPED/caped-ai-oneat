@@ -2,7 +2,6 @@ from poplib import POP3_SSL_PORT
 import pandas as pd
 import numpy as np
 import os
-from tqdm import tqdm
 import napari
 from scipy import spatial
 from skimage import measure
@@ -10,8 +9,7 @@ from dask.array.image import imread as daskread
 from tifffile import imread,  imwrite
 from skimage import morphology
 import csv
-import matplotlib.pyplot as plt
-import cv2
+from scipy.ndimage import zoom
 class OneatVisualization:
 
     def __init__(self, viewer: napari.Viewer,key_categories, csvdir,
@@ -535,7 +533,7 @@ def DownsampleData(image, DownsampleFactor):
                         smallimage = np.zeros([image.shape[0],  height,width])
                         for i in range(0, image.shape[0]):
                               # resize image
-                              smallimage[i,:] = cv2.resize(image[i,:].astype('float32'), dim)         
+                              smallimage[i,:] = zoom(image[i,:].astype('float32'), dim)         
 
                         return smallimage
                     else:

@@ -20,15 +20,11 @@ from scipy.optimize import curve_fit
 from scipy.ndimage import zoom
 import glob
 #from napari.qt.threading import thread_worker
-import matplotlib.pyplot  as plt
 #from matplotlib.backends.backend_qt5agg import \
     #FigureCanvasQTAgg as FigureCanvas
-from matplotlib.figure import Figure
 #from qtpy.QtCore import Qt
 #from qtpy.QtWidgets import QComboBox, QPushButton, QSlider
 import h5py
-#import cv2
-import imageio
 Boxname = 'ImageIDBox'
 EventBoxname = 'EventIDBox'
 

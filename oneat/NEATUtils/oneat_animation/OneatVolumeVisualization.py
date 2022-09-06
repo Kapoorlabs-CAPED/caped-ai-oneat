@@ -2,16 +2,11 @@ from poplib import POP3_SSL_PORT
 import pandas as pd
 import numpy as np
 import os
-from tqdm import tqdm
 import napari
-from scipy import spatial
 from skimage import measure
 from dask.array.image import imread as daskread
-from tifffile import imread,  imwrite
+from tifffile import imread
 from skimage import morphology
-import csv
-import matplotlib.pyplot as plt
-import cv2
 class OneatVolumeVisualization:
 
     def __init__(self, viewer: napari.Viewer,key_categories, csvdir,
