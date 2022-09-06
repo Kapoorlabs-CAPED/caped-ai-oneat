@@ -1,12 +1,11 @@
 from oneat.NEATUtils import plotters
 import numpy as np
 from oneat.NEATUtils import helpers
-from oneat.NEATUtils.helpers import MidSlices, pad_timelapse,  MidSlicesSum, get_nearest,  load_json, yoloprediction, normalizeFloatZeroOne, GenerateMarkers, MakeTrees, DownsampleData,save_dynamic_csv, dynamic_nms, gold_nms
+from oneat.NEATUtils.helpers import pad_timelapse,  MidSlicesSum, get_nearest,  load_json, yoloprediction, normalizeFloatZeroOne, GenerateMarkers, MakeTrees, DownsampleData,save_dynamic_csv, dynamic_nms, gold_nms
 from keras import callbacks
 import os
 import keras
 import sys
-from scipy.ndimage.morphology import binary_dilation, binary_erosion
 import math
 from tqdm import tqdm
 from oneat.NEATModels import nets
@@ -19,18 +18,9 @@ from pathlib import Path
 from keras.models import load_model
 from tensorflow.keras.utils import plot_model
 from tifffile import imread, imwrite
-import napari
-import glob
-from skimage.morphology import erosion, dilation, disk
-import matplotlib.pyplot as plt
-from matplotlib.backends.backend_qt5agg import \
-    FigureCanvasQTAgg as FigureCanvas
-from qtpy.QtCore import Qt
-from qtpy.QtWidgets import QComboBox, QPushButton
-import cv2
-from scipy import ndimage
+from skimage.morphology import dilation, disk
+
 from skimage.measure import label
-from skimage import measure
 Boxname = 'ImageIDBox'
 EventBoxname = 'EventIDBox'
 

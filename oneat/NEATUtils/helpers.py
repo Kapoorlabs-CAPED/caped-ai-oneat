@@ -4,7 +4,7 @@ from cmath import sqrt
 import numpy as np
 import collections
 import json
-import cv2
+from scipy.ndimage import zoom
 from scipy import spatial
 from skimage import measure
 from pathlib import Path
@@ -39,7 +39,7 @@ def DownsampleData(image, DownsampleFactor):
                     smallimage = np.zeros([image.shape[0],  height,width])
                     for i in range(0, image.shape[0]):
                           # resize image
-                          smallimage[i,:] = cv2.resize(image[i,:].astype('float32'), dim)         
+                          smallimage[i,:] = zoom(image[i,:].astype('float32'), dim)         
          
                     return smallimage
                 else:
@@ -1264,18 +1264,7 @@ def save_diamond_csv(imagename, key_categories, iou_classedboxes, savedir, maski
                             writer.writerows(event_data)
                             event_data = []    
 
-def area_function(boxes):
-    """Calculate the area of each polygon in polys
 
-    :param polys: a list of polygons, each specified by its verticies
-    :type polys: list
-    :return: a list of areas corresponding the list of polygons
-    :rtype: list
-    """
-    areas = []
-    for poly in boxes:
-        areas.append(cv2.contourArea(np.array(poly, np.int32)))
-    return areas
 
 
 def get_max_score_index(scores, threshold=0, top_k=0, descending=True):
@@ -1786,12 +1775,6 @@ def get_nearest_volume(marker_tree, zcenter, ycenter, xcenter, tcenter):
         return nearest_location[0], nearest_location[1], nearest_location[2]   
     else:
         return None         
-
-
-def draw_labelimages(image, location):
-    cv2.circle(image, location, 2, (255, 0, 0), thickness=-1)
-
-    return image
 
 
 

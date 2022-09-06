@@ -5,13 +5,9 @@ Created on Sun Apr 25 13:32:04 2021
 
 @author: vkapoor
 """
-from oneat.NEATUtils import plotters
 import numpy as np
-from oneat.NEATUtils import helpers
-from oneat.NEATUtils.helpers import load_json, yoloprediction, normalizeFloatZeroOne,microscope_dynamic_nms
-from keras import callbacks
+from oneat.NEATUtils.helpers import  yoloprediction, normalizeFloatZeroOne,microscope_dynamic_nms
 import os
-import tensorflow as tf
 import time
 from oneat.NEATModels.nets import Concat
 from tqdm import tqdm
@@ -21,11 +17,8 @@ from keras.models import load_model
 import csv
 from natsort import natsorted
 import glob
-import matplotlib.pyplot as plt
 import h5py
-import cv2
-from PIL import Image
-import matplotlib.pyplot as plt
+from scipy.ndimage import zoom
 from oneat.NEATModels.neat_goldstandard import NEATDynamic
 from tifffile import imread, imwrite
 
@@ -174,7 +167,7 @@ class NEATPredict(NEATDynamic):
                     current_movies_down = np.zeros([current_movies.shape[0], sizey, sizex])
                     # resize image
                     for j in range(current_movies.shape[0]):
-                        current_movies_down[j, :] = cv2.resize(current_movies[j, :], dim, interpolation=cv2.INTER_AREA)
+                        current_movies_down[j, :] = zoom(current_movies[j, :], dim)
                 else:
                     current_movies_down = current_movies
                 # print(current_movies_down.shape)

@@ -5,7 +5,6 @@ from oneat.NEATUtils.helpers import  pad_timelapse, get_nearest_volume,  load_js
 from keras import callbacks
 import os
 import sys
-import math
 from tqdm import tqdm
 from oneat.NEATModels import nets
 from oneat.NEATModels.nets import Concat

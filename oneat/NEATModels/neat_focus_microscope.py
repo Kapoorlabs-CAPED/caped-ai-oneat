@@ -1,32 +1,24 @@
-from oneat.NEATUtils import plotters
 import numpy as np
-from oneat.NEATUtils import helpers
-from oneat.NEATUtils.helpers import load_json, yoloprediction, normalizeFloatZeroOne,  focyoloprediction, simpleaveragenms
-from keras import callbacks
+from oneat.NEATUtils.helpers import load_json, normalizeFloatZeroOne,  focyoloprediction, simpleaveragenms
 import os
 from matplotlib import cm
 import time
-import cv2
 import pandas as pd
-from scipy.ndimage.filters import median_filter, gaussian_filter, maximum_filter
+from scipy.ndimage.filters import  gaussian_filter
 import tensorflow as tf
 from tqdm import tqdm
 from oneat.NEATModels import nets
 from oneat.NEATModels.nets import Concat
 from oneat.NEATModels.loss import dynamic_yolo_loss
-from scipy.ndimage.morphology import binary_fill_holes
 from keras import backend as K
 #from IPython.display import clear_output
-from keras import optimizers
 from pathlib import Path
 from keras.models import load_model
 from tifffile import imread, imwrite
 import csv
-
-import napari
+from scipy.optimize import curve_fit
+from scipy.ndimage import zoom
 import glob
-from scipy import spatial
-import itertools
 #from napari.qt.threading import thread_worker
 import matplotlib.pyplot  as plt
 #from matplotlib.backends.backend_qt5agg import \
@@ -243,7 +235,7 @@ class NEATFocusPredict(object):
 
                     current_movies_down = np.zeros([sizey, sizex])
                     # resize image
-                    current_movies_down = cv2.resize(current_movies, dim, interpolation=cv2.INTER_AREA)
+                    current_movies_down = zoom.resize(current_movies, dim)
                 else:
                     current_movies_down = current_movies
                 # print(current_movies_down.shape)
@@ -459,18 +451,9 @@ class NEATFocusPredict(object):
 
 
     def draw(self):
-          colors = [(0,255,0),(0,0,255),(255,0,0)]
-          # fontScale
-          fontScale = 1
-
-          # Blue color in BGR
-          textcolor = (255, 0, 0)
-
-          # Line thickness of 2 px
-          thickness = 2  
+         
           for (event_name,event_label) in self.key_categories.items():
                    
-                  event_maskboxes = []
                   if event_label > 0:
                                   
                                    xlocations = []
@@ -523,119 +506,6 @@ class NEATFocusPredict(object):
                                                  widths.append(iou_current_event_box['width'] )  
         
                                    
-                                   
-                        
-                                        
-                                   for j in range(len(xlocations)):
-                                     startlocation = (int(xlocations[j] - heights[j]//2), int(ylocations[j]-widths[j]//2))
-                                     endlocation =  (int(xlocations[j] + heights[j]//2), int(ylocations[j]+ widths[j]//2))
-                                     Z = int(zlocations[j])  
-                                     
-                                   
-                                     
-                                     
-                                     if event_label == 1:                            
-                                       image = self.Colorimage[Z,:,:,1]
-
-                                       color = (0,255,0)
-                                     else:
-                                       color = (0,0,255)
-                                       image = self.Colorimage[Z,:,:,2]
-
-                                     img = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-
-                                     cv2.rectangle(img, startlocation, endlocation, textcolor, thickness)
-                                    
-    
-                                     cv2.putText(img, str('%.4f'%(scores[j])), startlocation, cv2.FONT_HERSHEY_SIMPLEX, 1, textcolor,thickness, cv2.LINE_AA)
-                                     if event_label == 1:
-                                       self.Colorimage[Z,:,:,1] = img[:,:,0]
-                                     else:
-                                       self.Colorimage[Z,:,:,2] = img[:,:,0]
-                                    
-
-
-                  
-
-                    
-    
-    
-    
-    
-    def showNapari(self, imagedir, savedir, yolo_v2 = False):
-         
-         
-         Raw_path = os.path.join(imagedir, '*tif')
-         X = glob.glob(Raw_path)
-         self.savedir = savedir
-         Imageids = []
-         self.viewer = napari.Viewer()
-         napari.run()
-         for imagename in X:
-             Imageids.append(imagename)
-         
-         
-         eventidbox = QComboBox()
-         eventidbox.addItem(EventBoxname)
-         for (event_name,event_label) in self.key_categories.items():
-             
-             eventidbox.addItem(event_name)
-            
-         imageidbox = QComboBox()   
-         imageidbox.addItem(Boxname)   
-         detectionsavebutton = QPushButton(' Save detection Movie')
-         
-         for i in range(0, len(Imageids)):
-             
-             
-             imageidbox.addItem(str(Imageids[i]))
-             
-             
-         figure = plt.figure(figsize=(4, 4))
-         multiplot_widget = FigureCanvas(figure)
-         ax = multiplot_widget.figure.subplots(1, 1)
-         width = 400
-         dock_widget = self.viewer.window.add_dock_widget(
-         multiplot_widget, name="EventStats", area='right')
-         multiplot_widget.figure.tight_layout()
-         self.viewer.window._qt_window.resizeDocks([dock_widget], [width], Qt.Horizontal)    
-         eventidbox.currentIndexChanged.connect(lambda eventid = eventidbox : EventViewer(
-                 self.viewer,
-                 imread(imageidbox.currentText()),
-                 eventidbox.currentText(),
-                 self.key_categories,
-                 os.path.basename(os.path.splitext(imageidbox.currentText())[0]),
-                 savedir,
-                 multiplot_widget,
-                 ax,
-                 figure,
-                 yolo_v2,
-            
-        )
-    )    
-         
-         imageidbox.currentIndexChanged.connect(
-         lambda trackid = imageidbox: EventViewer(
-                 self.viewer,
-                 imread(imageidbox.currentText()),
-                 eventidbox.currentText(),
-                 self.key_categories,
-                 os.path.basename(os.path.splitext(imageidbox.currentText())[0]),
-                 savedir,
-                 multiplot_widget,
-                 ax,
-                 figure,
-                 yolo_v2,
-            
-        )
-    )            
-         
-         
-         self.viewer.window.add_dock_widget(eventidbox, name="Event", area='left')  
-         self.viewer.window.add_dock_widget(imageidbox, name="Image", area='left')     
-                                      
-                                                             
-                             
     def overlaptiles(self, sliceregion):
         
              if self.n_tiles == (1, 1):
@@ -809,93 +679,6 @@ def CreateVolume(patch, imagez, timepoint, imagey, imagex):
                smallimg = patch[starttime:endtime, :]
        
                return smallimg         
-class EventViewer(object):
-    
-    def __init__(self, viewer, image, event_name, key_categories, imagename, savedir, canvas, ax, figure, yolo_v2):
-        
-        
-           self.viewer = viewer
-           self.image = image
-           self.event_name = event_name
-           self.imagename = imagename
-           self.canvas = canvas
-           self.key_categories = key_categories
-           self.savedir = savedir
-           self.ax = ax
-           self.yolo_v2 = yolo_v2
-           self.figure = figure
-           self.plot()
-    
-    def plot(self):
-        
-        self.ax.cla()
-        
-        for (event_name,event_label) in self.key_categories.items():
-                        if event_label > 0 and self.event_name == event_name:
-                             csvname = self.savedir + "/" + event_name + "Location" + (os.path.splitext(os.path.basename(self.imagename))[0] + '.csv')
-                             event_locations, size_locations, angle_locations, line_locations, timelist, eventlist = self.event_counter(csvname)
-                             
-                             for layer in list(self.viewer.layers):
-                                     if event_name in layer.name or layer.name in event_name or event_name + 'angle' in layer.name or layer.name in event_name + 'angle' :
-                                            self.viewer.layers.remove(layer)
-                                     if 'Image' in layer.name or layer.name in 'Image':
-                                            self.viewer.layers.remove(layer)  
-                             self.viewer.add_image(self.image, name='Image')               
-                             self.viewer.add_points(np.asarray(event_locations), size = size_locations ,name = event_name, face_color = [0]*4, edge_color = "red", edge_width = 1)
-                             if self.yolo_v2:
-                                self.viewer.add_shapes(np.asarray(line_locations), name = event_name + 'angle',shape_type='line', face_color = [0]*4, edge_color = "red", edge_width = 1)
-                             self.viewer.theme = 'light'
-                             self.ax.plot(timelist, eventlist, '-r')
-                             self.ax.set_title(event_name + "Events")
-                             self.ax.set_xlabel("Time")
-                             self.ax.set_ylabel("Counts")
-                             self.figure.canvas.draw()
-                             self.figure.canvas.flush_events()
-                             plt.savefig(self.savedir  + event_name   + '.png') 
-                             
-    def event_counter(self, csv_file):
-     
-         time,y,x,score,size,confidence,angle  = np.loadtxt(csv_file, delimiter = ',', skiprows = 1, unpack=True)
-         
-         radius = 10
-         eventcounter = 0
-         eventlist = []
-         timelist = []   
-         listtime = time.tolist()
-         listy = y.tolist()
-         listx = x.tolist()
-         listsize = size.tolist()
-         listangle = angle.tolist()
-         
-         event_locations = []
-         size_locations = []
-         angle_locations = []
-         line_locations = []
-         for i in range(len(listtime)):
-             tcenter = int(listtime[i])
-             print(tcenter)
-             ycenter = listy[i]
-             xcenter = listx[i]
-             size = listsize[i]
-             angle = listangle[i]
-             eventcounter = listtime.count(tcenter)
-             timelist.append(tcenter)
-             eventlist.append(eventcounter)
-             
-             event_locations.append([tcenter, ycenter, xcenter])   
-             size_locations.append(size)
-             
-             xstart = xcenter + radius * math.cos(angle )
-             xend = xcenter - radius  * math.cos(angle)
-             
-             ystart = ycenter + radius * math.sin(angle)
-             yend = ycenter - radius * math.sin(angle)
-             line_locations.append([[tcenter, ystart, xstart], [tcenter, yend, xend]])
-             angle_locations.append(angle)
-             
-            
-         return event_locations, size_locations, angle_locations, line_locations, timelist, eventlist
-
 
 def normalizeZeroOne(x):
     x = x.astype('float32')
@@ -908,22 +691,13 @@ def normalizeZeroOne(x):
     return x
 
 
-def doubleplot(imageA, imageB, titleA, titleB):
-    fig, axes = plt.subplots(1, 2, figsize=(15, 6))
-    ax = axes.ravel()
-    ax[0].imshow(imageA, cmap=cm.Spectral)
-    ax[0].set_title(titleA)
 
-    ax[1].imshow(imageB, cmap=cm.Spectral)
-    ax[1].set_title(titleB)
-
-    plt.tight_layout()
-    plt.show()
     
 def gauss(x, H, A, x0, sigma):
     return H + A * np.exp(-(x - x0) ** 2 / (2 * sigma ** 2))
 
 def gauss_fit(x, y):
+     
     mean = sum(x * y) / sum(y)
     sigma = np.sqrt(sum(y * (x - mean) ** 2) / sum(y))
     popt, pcov = curve_fit(gauss, x, y, p0=[min(y), max(y), mean, sigma])
