@@ -35,6 +35,8 @@ setup(
         "dask",
         "natsort",
         "napari-animation",
+        "pydot",
+        "graphviz",
        
     ],
     packages=setuptools.find_packages(),
