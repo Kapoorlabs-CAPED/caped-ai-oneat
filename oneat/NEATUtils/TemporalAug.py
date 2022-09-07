@@ -11,7 +11,7 @@ import numpy as np
 from albumentations import transforms    
 from scipy import ndimage
 import pandas as pd
-from photutils.datasets import make_noise_image
+#from photutils.datasets import make_noise_image
 class TemporalAug(object):
 
 
