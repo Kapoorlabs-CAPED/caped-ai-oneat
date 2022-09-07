@@ -24,7 +24,6 @@ setup(
     install_requires=[
         
         "pandas",
-        "vollseg",
         "vollseg-napari",
         "scipy",
         "tifffile",

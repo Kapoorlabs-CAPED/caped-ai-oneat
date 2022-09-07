@@ -17,7 +17,6 @@ from skimage.util import invert as invertimage
 from skimage.measure import label
 from skimage.morphology import  dilation, square, binary_dilation, disk
 from skimage import morphology
-from photutils.datasets import make_noise_image
 from skimage.segmentation import watershed
 """
  @author: Varun Kapoor
@@ -1781,17 +1780,6 @@ def get_nearest_volume(marker_tree, zcenter, ycenter, xcenter, tcenter):
 
         
 
-
-def add_distribution_noise(shape, mu):
-               
-                
-              
-                gaussiannoise = make_noise_image(shape, distribution='gaussian', mean=0.,
-                          stddev=mu)
-                poissonnoise = make_noise_image(shape, distribution='poisson', mean=mu)
-                 
-
-                return normalizeFloatZeroOne(gaussiannoise + poissonnoise, 1, 99.8)
 
 
 def save_labelimages(save_dir, image, axes, fname, Name):
