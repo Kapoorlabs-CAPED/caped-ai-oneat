@@ -4,7 +4,6 @@ import os
 from matplotlib import cm
 import time
 import pandas as pd
-from scipy.ndimage.filters import  gaussian_filter
 import tensorflow as tf
 from tqdm import tqdm
 from oneat.NEATModels import nets
@@ -13,8 +12,8 @@ from oneat.NEATModels.loss import dynamic_yolo_loss
 from keras import backend as K
 #from IPython.display import clear_output
 from pathlib import Path
-from keras.models import load_models
-from tifffile import imread, imwrite
+from keras.models import load_model
+from tifffile import imread
 import csv
 from scipy.optimize import curve_fit
 from scipy.ndimage import zoom
