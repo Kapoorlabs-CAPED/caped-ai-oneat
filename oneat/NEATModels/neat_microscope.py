@@ -6,7 +6,7 @@ Created on Sun Apr 25 13:32:04 2021
 @author: vkapoor
 """
 import numpy as np
-from oneat.NEATUtils.helpers import  yoloprediction, normalizeFloatZeroOne,microscope_dynamic_nms
+from oneat.NEATUtils.utils import  yoloprediction, normalizeFloatZeroOne,microscope_dynamic_nms
 import os
 import time
 from oneat.NEATModels.nets import Concat

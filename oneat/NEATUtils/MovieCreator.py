@@ -10,7 +10,7 @@ import json
 from skimage import measure
 from pathlib import Path
 from sklearn.model_selection import train_test_split
-from .helpers import  normalizeFloatZeroOne
+from .utils import  normalizeFloatZeroOne
 from PIL import Image
 
 """
