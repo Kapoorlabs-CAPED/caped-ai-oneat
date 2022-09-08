@@ -6,13 +6,16 @@ import os
 class ScoreModels:
 
 
-     def __init__(self, segimage, predictions, groundtruth):
+     def __init__(self, segimage, predictions, groundtruth, thresholdscore = 1 -  1.0E-6,  thresholdspace = 10, thresholdtime = 2):
 
          self.segimage = segimage
          #A list of all the prediction csv files, path object
          self.predictions = predictions 
          #Approximate locations of the ground truth, Z co ordinate wil be ignored
          self.groundtruth = groundtruth
+         self.thresholdscore = thresholdscore
+         self.thresholdspace = thresholdspace 
+         self.thresholdtime = thresholdtime
          self.Label_Coord = {}
          self.model_scorer()
 
@@ -36,6 +39,7 @@ class ScoreModels:
 
          df = pd.DataFrame(data, columns=columns)
          df.to_csv(self.csv_pred.parent + 'Model_Accuracy')
+         df
 
      def LabelDict(self):
 
@@ -45,7 +49,7 @@ class ScoreModels:
            self.Label_Coord[prop.label] = prop.centroid
 
 
-     def TruePositives(self, thresholdscore = 1 -  1.0E-6,  thresholdspace = 10, thresholdtime = 2):
+     def TruePositives(self):
 
             tp = 0
             dataset_pred  = pd.read_csv(self.csv_pred, delimiter = ',')
@@ -61,7 +65,7 @@ class ScoreModels:
             location_pred = []
             for i in range(len(listtime_pred)):
 
-                if listscore_pred[i] > thresholdscore:   
+                if listscore_pred[i] > self.thresholdscore:   
                     location_pred.append([listtime_pred[i], listy_pred[i], listx_pred[i]])
 
             tree = spatial.cKDTree(location_pred)
@@ -82,15 +86,15 @@ class ScoreModels:
                 closestpoint = tree.query(return_index)
                 spacedistance, timedistance = TimedDistance(return_index, location_pred[closestpoint[1]])
                 
-                if spacedistance < thresholdspace and timedistance < thresholdtime:
+                if spacedistance < self.thresholdspace and timedistance < self.thresholdtime:
                     tp  = tp + 1
             
-            fn = self.FalseNegatives(self.groundtruth, thresholdscore = thresholdscore, thresholdspace = thresholdspace, thresholdtime = thresholdtime)
-            fp = self.FalsePositives(self.groundtruth, thresholdscore = thresholdscore, thresholdspace = thresholdspace, thresholdtime = thresholdtime)
+            fn = self.FalseNegatives(self.groundtruth)
+            fp = self.FalsePositives(self.groundtruth)
             return tp/len(listtime_gt) * 100, fn, fp
         
 
-     def FalseNegatives(self, thresholdscore = 1 -  1.0E-6, thresholdspace = 10, thresholdtime = 2):
+     def FalseNegatives(self):
         
                 
 
@@ -108,7 +112,7 @@ class ScoreModels:
                         for i in range(len(listtime_pred)):
                             
                             
-                            if listscore_pred[i] > thresholdscore:
+                            if listscore_pred[i] > self.thresholdscore:
                               location_pred.append([listtime_pred[i], listy_pred[i], listx_pred[i]])
 
                         tree = spatial.cKDTree(location_pred)
@@ -131,7 +135,7 @@ class ScoreModels:
                             closestpoint = tree.query(return_index)
                             spacedistance, timedistance = TimedDistance(return_index, location_pred[closestpoint[1]])
 
-                            if spacedistance < thresholdspace and timedistance < thresholdtime:
+                            if spacedistance < self.thresholdspace and timedistance < self.thresholdtime:
                                 fn  = fn - 1
 
                         return fn/len(listtime_gt) * 100
