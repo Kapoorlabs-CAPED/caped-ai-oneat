@@ -12,7 +12,7 @@ from collections import OrderedDict
 from warnings import warn
 from csbdeep.utils import _raise
 from csbdeep.utils.six import Path
-from oneat.NEATUtils.helpers import load_json
+from oneat.NEATUtils.utils import load_json
 from csbdeep.utils.tf import keras_import
 get_file = keras_import('utils', 'get_file')
 
