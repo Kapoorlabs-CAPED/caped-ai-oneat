@@ -1,7 +1,7 @@
 from oneat.NEATUtils import plotters
 import numpy as np
-from oneat.NEATUtils import helpers
-from oneat.NEATUtils.helpers import  pad_timelapse, get_nearest_volume,  load_json, diamondyoloprediction, normalizeFloatZeroOne, GenerateVolumeMarkers, MakeForest,save_diamond_csv, diamond_dynamic_nms
+from oneat.NEATUtils import utils
+from oneat.NEATUtils.utils import  pad_timelapse, get_nearest_volume,  load_json, diamondyoloprediction, normalizeFloatZeroOne, GenerateVolumeMarkers, MakeForest,save_diamond_csv, diamond_dynamic_nms
 from keras import callbacks
 import os
 import sys
@@ -165,9 +165,9 @@ class NEATEynamic(object):
     def loadData(self):
 
         #NTZYX shape is the input
-        (X, Y), axes = helpers.load_full_training_data(self.npz_directory, self.npz_name, verbose=True)
+        (X, Y), axes = utils.load_full_training_data(self.npz_directory, self.npz_name, verbose=True)
 
-        (X_val, Y_val), axes = helpers.load_full_training_data(self.npz_directory, self.npz_val_name, verbose=True)
+        (X_val, Y_val), axes = utils.load_full_training_data(self.npz_directory, self.npz_val_name, verbose=True)
 
         self.Xoriginal = X
         self.Xoriginal_val = X_val
