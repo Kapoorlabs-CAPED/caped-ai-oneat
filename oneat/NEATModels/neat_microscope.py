@@ -18,6 +18,7 @@ import csv
 from natsort import natsorted
 import glob
 import h5py
+import tensorflow as tf
 from scipy.ndimage import zoom
 from oneat.NEATModels.neat_goldstandard import NEATDynamic
 from tifffile import imread, imwrite

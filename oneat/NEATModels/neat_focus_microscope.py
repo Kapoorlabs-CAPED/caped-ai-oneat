@@ -13,7 +13,7 @@ from oneat.NEATModels.loss import dynamic_yolo_loss
 from keras import backend as K
 #from IPython.display import clear_output
 from pathlib import Path
-from keras.models import load_model
+from keras.models import load_models
 from tifffile import imread, imwrite
 import csv
 from scipy.optimize import curve_fit

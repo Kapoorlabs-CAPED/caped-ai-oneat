@@ -10,7 +10,7 @@ from keras import layers
 from keras import models
 from keras.layers.core import Lambda
 from keras.layers import  TimeDistributed, Reshape
-
+import tensorflow as tf
 
 
 reg_weight = 1.e-4

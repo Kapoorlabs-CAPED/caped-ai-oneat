@@ -5,6 +5,7 @@ from oneat.NEATUtils.utils import  pad_timelapse, get_nearest_volume,  load_json
 from keras import callbacks
 import os
 import sys
+import tensorflow as tf
 from tqdm import tqdm
 from oneat.NEATModels import nets
 from oneat.NEATModels.nets import Concat
