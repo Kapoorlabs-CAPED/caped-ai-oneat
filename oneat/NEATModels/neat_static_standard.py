@@ -8,8 +8,8 @@ Created on Sat May 23 15:13:01 2020
 
 from oneat.NEATUtils import plotters
 import numpy as np
-from oneat.NEATUtils import helpers
-from oneat.NEATUtils.helpers import load_json, yoloprediction, normalizeFloatZeroOne, \
+from oneat.NEATUtils import utils
+from oneat.NEATUtils.utils import load_json, yoloprediction, normalizeFloatZeroOne, \
  goodboxes, save_static_csv, DownsampleData
 from keras import callbacks
 import os
@@ -186,9 +186,9 @@ class NEATStatic(object):
 
     def loadData(self, sum_channels = False):
 
-        (X, Y), axes = helpers.load_full_training_data(self.npz_directory, self.npz_name, verbose=True)
+        (X, Y), axes = utils.load_full_training_data(self.npz_directory, self.npz_name, verbose=True)
 
-        (X_val, Y_val), axes = helpers.load_full_training_data(self.npz_directory, self.npz_val_name, verbose=True)
+        (X_val, Y_val), axes = utils.load_full_training_data(self.npz_directory, self.npz_val_name, verbose=True)
 
         self.Xoriginal = X
         self.Xoriginal_val = X_val

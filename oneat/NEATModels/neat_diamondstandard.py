@@ -10,7 +10,7 @@ from oneat.NEATModels import nets
 from oneat.NEATModels.nets import Concat
 from oneat.NEATModels.loss import diamond_yolo_loss
 from keras import backend as K
-import tensorflow as tf
+import tensorflow as tfs
 from oneat.pretrained import get_registered_models, get_model_details, get_model_instance
 from pathlib import Path
 from keras.models import load_model

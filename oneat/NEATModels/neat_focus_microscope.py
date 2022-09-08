@@ -1,5 +1,5 @@
 import numpy as np
-from oneat.NEATUtils.helpers import load_json, normalizeFloatZeroOne,  focyoloprediction, simpleaveragenms
+from oneat.NEATUtils.utils import load_json, normalizeFloatZeroOne,  focyoloprediction, simpleaveragenms
 import os
 from matplotlib import cm
 import time

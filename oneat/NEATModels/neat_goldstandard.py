@@ -1,7 +1,7 @@
 from oneat.NEATUtils import plotters
 import numpy as np
-from oneat.NEATUtils import helpers
-from oneat.NEATUtils.helpers import MidSlices, pad_timelapse,  MidSlicesSum, get_nearest,  load_json, yoloprediction, normalizeFloatZeroOne, GenerateMarkers, MakeTrees, DownsampleData,save_dynamic_csv, dynamic_nms, gold_nms
+from oneat.NEATUtils import utils
+from oneat.NEATUtils.utils import MidSlices, pad_timelapse,  MidSlicesSum, get_nearest,  load_json, yoloprediction, normalizeFloatZeroOne, GenerateMarkers, MakeTrees, DownsampleData,save_dynamic_csv, dynamic_nms, gold_nms
 from keras import callbacks
 import os
 import keras
@@ -177,9 +177,9 @@ class NEATDynamic(object):
 
     def loadData(self):
 
-        (X, Y), axes = helpers.load_full_training_data(self.npz_directory, self.npz_name, verbose=True)
+        (X, Y), axes = utils.load_full_training_data(self.npz_directory, self.npz_name, verbose=True)
 
-        (X_val, Y_val), axes = helpers.load_full_training_data(self.npz_directory, self.npz_val_name, verbose=True)
+        (X_val, Y_val), axes = utils.load_full_training_data(self.npz_directory, self.npz_val_name, verbose=True)
 
         self.Xoriginal = X
         self.Xoriginal_val = X_val

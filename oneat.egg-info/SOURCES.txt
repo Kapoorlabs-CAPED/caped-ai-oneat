@@ -29,12 +29,11 @@ oneat/NEATModels/nets.py
 oneat/NEATUtils/HolovizNapari.py
 oneat/NEATUtils/MovieCreator.py
 oneat/NEATUtils/NMS.py
-oneat/NEATUtils/TemporalAug.py
-oneat/NEATUtils/TemporalZAug.py
 oneat/NEATUtils/Zmapgen.py
 oneat/NEATUtils/__init__.py
-oneat/NEATUtils/helpers.py
 oneat/NEATUtils/plotters.py
+oneat/NEATUtils/utils.py
+oneat/NEATUtils/oneat_animation/OneatScoreKeeper.py
 oneat/NEATUtils/oneat_animation/OneatVisualization.py
 oneat/NEATUtils/oneat_animation/OneatVolumeVisualization.py
 oneat/NEATUtils/oneat_animation/__init__.py
