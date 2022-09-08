@@ -17,7 +17,7 @@ class ScoreModels:
          self.thresholdspace = thresholdspace 
          self.thresholdtime = thresholdtime
          self.Label_Coord = {}
-         self.model_scorer()
+        
 
      def model_scorer(self):
 
@@ -39,7 +39,7 @@ class ScoreModels:
 
          df = pd.DataFrame(data, columns=columns)
          df.to_csv(self.csv_pred.parent + 'Model_Accuracy')
-         df
+         return df
 
      def LabelDict(self):
 
