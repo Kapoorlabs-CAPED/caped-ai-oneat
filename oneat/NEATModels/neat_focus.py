@@ -1,33 +1,23 @@
 from oneat.NEATUtils import plotters
 import numpy as np
-from oneat.NEATUtils import helpers
-from oneat.NEATUtils.helpers import  load_json, normalizeFloatZeroOne, focyoloprediction, simpleaveragenms
+from oneat.NEATUtils import utils
+from oneat.NEATUtils.utils import  load_json, normalizeFloatZeroOne, focyoloprediction, simpleaveragenms
 from keras import callbacks
 import os
-import math
 import pandas as pd
-from scipy.ndimage.filters import median_filter, gaussian_filter, maximum_filter
 import tensorflow as tf
 from tqdm import tqdm
 from oneat.NEATModels import nets
 from oneat.NEATModels.nets import Concat
 from oneat.NEATModels.loss import dynamic_yolo_loss
 from keras import backend as K
-#from IPython.display import clear_output
 from keras import optimizers
 from pathlib import Path
 from keras.models import load_model
 from tifffile import imread, imwrite
 import csv
 from scipy.optimize import curve_fit
-import napari
-import glob
-#from napari.qt.threading import thread_worker
 import matplotlib.pyplot  as plt
-#from matplotlib.backends.backend_qt5agg import \
-    #FigureCanvasQTAgg as FigureCanvas
-#from qtpy.QtCore import Qt
-#from qtpy.QtWidgets import QComboBox, QPushButton, QSlider
 import h5py
 Boxname = 'ImageIDBox'
 EventBoxname = 'EventIDBox'
@@ -177,9 +167,9 @@ class NEATFocus(object):
         
     def loadData(self):
         
-        (X,Y),  axes = helpers.load_full_training_data(self.npz_directory, self.npz_name, verbose= True)
+        (X,Y),  axes = utils.load_full_training_data(self.npz_directory, self.npz_name, verbose= True)
 
-        (X_val,Y_val), axes = helpers.load_full_training_data(self.npz_directory, self.npz_val_name,  verbose= True)
+        (X_val,Y_val), axes = utils.load_full_training_data(self.npz_directory, self.npz_val_name,  verbose= True)
         
         
         self.Xoriginal = X
