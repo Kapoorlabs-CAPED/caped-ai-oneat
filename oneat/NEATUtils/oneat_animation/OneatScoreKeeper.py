@@ -14,6 +14,7 @@ class ScoreModels:
          #Approximate locations of the ground truth, Z co ordinate wil be ignored
          self.groundtruth = groundtruth
          self.Label_Coord = {}
+         self.model_scorer()
 
      def model_scorer(self):
 
