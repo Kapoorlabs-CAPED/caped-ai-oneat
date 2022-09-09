@@ -118,7 +118,7 @@ class ScoreModels:
                         return fn/len(self.listtime_gt) * 100
                     
                     
-     def FalsePositives(self, thresholdspace = 10, thresholdtime = 2):
+     def FalsePositives(self):
         
                 
                         fp = len(self.listtime_pred)
@@ -130,7 +130,7 @@ class ScoreModels:
                             closestpoint = tree.query(return_index)
                             spacedistance, timedistance = TimedDistance(return_index, self.location_gt[closestpoint[1]])
 
-                            if spacedistance < thresholdspace and timedistance < thresholdtime:
+                            if spacedistance < self.thresholdspace and timedistance < self.thresholdtime:
                                     fp  = fp - 1
 
                         return fp/len(self.listtime_pred) * 100
