@@ -128,7 +128,7 @@ class ScoreModels:
                             
                             return_index = (int(self.listtime_gt[i]), int(self.listy_gt[i]), int(self.listx_gt[i]))
                             closestpoint = tree.query(return_index)
-                            spacedistance, timedistance = TimedDistance(return_index, self.listtime_pred[closestpoint[1]])
+                            spacedistance, timedistance = TimedDistance(return_index, self.location_pred[closestpoint[1]])
 
                             if spacedistance < thresholdspace and timedistance < thresholdtime:
                                     fp  = fp - 1
