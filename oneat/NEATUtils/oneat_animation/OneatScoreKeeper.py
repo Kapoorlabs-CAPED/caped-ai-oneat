@@ -17,7 +17,8 @@ class ScoreModels:
          self.thresholdspace = thresholdspace 
          self.thresholdtime = thresholdtime
          self.Label_Coord = {}
-        
+         self.Coords = []
+         self.CoordTree = None
 
      def model_scorer(self):
 
@@ -25,6 +26,7 @@ class ScoreModels:
          TP = []
          FP = []
          FN = []
+         self.LabelDict()
          columns = ['Model Name', 'True Positive', 'False Positive', 'False Negative']
          for csv_pred in self.predictions:
             self.csv_pred = csv_pred
@@ -47,6 +49,8 @@ class ScoreModels:
          properties = measure.regionprops(self.segimage)                
          for prop in properties:
            self.Label_Coord[prop.label] = prop.centroid
+           self.Coords.append(prop.centroid)
+         self.CoordTree = spatial.cKDTree(self.Coords)
 
 
      def TruePositives(self):
@@ -84,7 +88,7 @@ class ScoreModels:
             for i in range(len(listtime_gt)):
                 
                 index = (int(listtime_gt[i]), int(listz_gt[i]) , int(listy_gt[i]), int(listx_gt[i]))
-                return_index = return_coordinates(self.segimage, index, self.Label_Coord)
+                return_index = return_coordinates(self.segimage, index, self.Label_Coord, self.CoordTree)
                 closestpoint = tree.query(return_index)
                 spacedistance, timedistance = TimedDistance(return_index, location_pred[closestpoint[1]])
                 
@@ -134,7 +138,7 @@ class ScoreModels:
                         for i in range(len(listtime_gt)):
                             
                             index = (int(listtime_gt[i]), int(listz_gt[i])  ,int(listy_gt[i]), int(listx_gt[i]))
-                            return_index = return_coordinates(self.segimage, index, self.Label_Coord)
+                            return_index = return_coordinates(self.segimage, index, self.Label_Coord, self.CoordTree)
                             closestpoint = tree.query(return_index)
                             spacedistance, timedistance = TimedDistance(return_index, location_pred[closestpoint[1]])
 
@@ -174,7 +178,7 @@ class ScoreModels:
                         for i in range(len(listtime_pred)):
                             
                             index = (int(listtime_gt[i]), int(listz_gt[i])  ,int(listy_gt[i]), int(listx_gt[i]))
-                            return_index = return_coordinates(self.segimage, index, self.Label_Coord)
+                            return_index = return_coordinates(self.segimage, index, self.Label_Coord, self.CoordTree)
                             closestpoint = tree.query(return_index)
                             spacedistance, timedistance = TimedDistance(return_index, location_gt[closestpoint[1]])
 
@@ -196,11 +200,11 @@ def TimedDistance(pointA, pointB):
      
      return spacedistance, timedistance
 
-def return_coordinates(image, coord, Label_Coord):
+def return_coordinates(image, coord, Label_Coord, CoordTree):
 
   
     print(coord, image.shape)
-    label = image[coord[0],:,coord[2],coord[3]]
+    label = image[CoordTree.query(coord)]
     print(label)
     return_coord = Label_Coord[label]
 
