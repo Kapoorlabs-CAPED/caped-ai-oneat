@@ -89,13 +89,12 @@ class ScoreModels:
             listx_gt = X_gt.tolist()
             for i in range(len(listtime_gt)):
                 
-                index = (int(listtime_gt[i]), int(listz_gt[i]) , int(listy_gt[i]), int(listx_gt[i]))
-                return_index = return_coordinates(self.segimage, index, self.Label_Coord, self.CoordTree)
+                return_index = (int(listtime_gt[i]), int(listz_gt[i]) , int(listy_gt[i]), int(listx_gt[i]))
                 closestpoint = tree.query(return_index)
                 spacedistance, timedistance = TimedDistance(return_index, location_pred[closestpoint[1]])
-                
+                    
                 if spacedistance < self.thresholdspace and timedistance < self.thresholdtime:
-                    tp  = tp + 1
+                        tp  = tp + 1
             
             fn = self.FalseNegatives(self.groundtruth)
             fp = self.FalsePositives(self.groundtruth)
@@ -139,13 +138,12 @@ class ScoreModels:
                         fn = len(listtime_gt)
                         for i in range(len(listtime_gt)):
                             
-                            index = (int(listtime_gt[i]), int(listz_gt[i])  ,int(listy_gt[i]), int(listx_gt[i]))
-                            return_index = return_coordinates(self.segimage, index, self.Label_Coord, self.CoordTree)
+                            return_index = (int(listtime_gt[i]), int(listz_gt[i])  ,int(listy_gt[i]), int(listx_gt[i]))
                             closestpoint = tree.query(return_index)
                             spacedistance, timedistance = TimedDistance(return_index, location_pred[closestpoint[1]])
 
                             if spacedistance < self.thresholdspace and timedistance < self.thresholdtime:
-                                fn  = fn - 1
+                                    fn  = fn - 1
 
                         return fn/len(listtime_gt) * 100
                     
@@ -179,13 +177,12 @@ class ScoreModels:
                         tree = spatial.cKDTree(location_gt)
                         for i in range(len(listtime_pred)):
                             
-                            index = (int(listtime_gt[i]), int(listz_gt[i])  ,int(listy_gt[i]), int(listx_gt[i]))
-                            return_index = return_coordinates(self.segimage, index, self.Label_Coord, self.CoordTree)
+                            return_index = (int(listtime_gt[i]), int(listz_gt[i])  ,int(listy_gt[i]), int(listx_gt[i]))
                             closestpoint = tree.query(return_index)
                             spacedistance, timedistance = TimedDistance(return_index, location_gt[closestpoint[1]])
 
                             if spacedistance < thresholdspace and timedistance < thresholdtime:
-                                fp  = fp - 1
+                                    fp  = fp - 1
 
                         return fp/len(listtime_pred) * 100
                     
@@ -205,9 +202,8 @@ def TimedDistance(pointA, pointB):
 def return_coordinates(image, coord, Label_Coord, CoordTree):
 
   
-    print(coord, image.shape)
-    label = image[coord[0],:,coord[2],coord[3]]
-    print(label)
-    return_coord = Label_Coord[np.max(label)]
+    label = image[coord[0],coord[1],coord[2],coord[3]]
+    if label > 0:
+            return_coord = Label_Coord[label]
 
-    return tuple(return_coord[0], return_coord[-2], return_coord[-1])      
+            return tuple(return_coord[0], return_coord[-2], return_coord[-1])      
