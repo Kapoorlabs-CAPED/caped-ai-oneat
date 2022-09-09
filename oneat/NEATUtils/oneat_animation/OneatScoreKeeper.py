@@ -121,7 +121,7 @@ class ScoreModels:
      def FalsePositives(self, thresholdspace = 10, thresholdtime = 2):
         
                 
-                        fp = len(self.listtime_gt)
+                        fp = len(self.listtime_pred)
                        
                         tree = spatial.cKDTree(self.location_gt)
                         for i in range(len(self.listtime_pred)):
@@ -133,7 +133,7 @@ class ScoreModels:
                             if spacedistance < thresholdspace and timedistance < thresholdtime:
                                     fp  = fp - 1
 
-                        return fp/len(self.listtime_gt) * 100
+                        return fp/len(self.listtime_pred) * 100
                     
                     
                                 
