@@ -123,7 +123,7 @@ class ScoreModels:
                 
                         fp = len(self.listtime_pred)
                        
-                        tree = spatial.cKDTree(self.listtime_pred)
+                        tree = spatial.cKDTree(self.location_pred)
                         for i in range(len(self.location_gt)):
                             
                             return_index = (int(self.listtime_gt[i]), int(self.listy_gt[i]), int(self.listx_gt[i]))
