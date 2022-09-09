@@ -79,7 +79,7 @@ class ScoreModels:
          data = list(zip(Name, TP, FP, FN))
 
          df = pd.DataFrame(data, columns=columns)
-         df.to_csvstr((self.csv_pred.parent) + 'Model_Accuracy')
+         df.to_csv(str(self.csv_pred.parent) + 'Model_Accuracy')
          return df
 
      
