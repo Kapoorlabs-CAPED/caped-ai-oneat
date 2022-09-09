@@ -46,7 +46,7 @@ class ScoreModels:
      def LabelDict(self):
 
          for i in range(self.segimage.shape[0]):
-            properties = measure.regionprops(self.segimage)                
+            properties = measure.regionprops(self.segimage[i,:,:,:])                
             for prop in properties:
                     self.Label_Coord[prop.label] = (i,*prop.centroid)
                     self.Coords.append((i,*prop.centroid))
