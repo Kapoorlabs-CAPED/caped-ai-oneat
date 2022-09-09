@@ -17,7 +17,7 @@ class ScoreModels:
          self.thresholdtime = thresholdtime
          self.location_pred = []
          self.location_gt = []
-         
+
          self.listtime_pred = []
          self.listy_pred = []
          self.listx_pred = []
@@ -79,7 +79,7 @@ class ScoreModels:
          data = list(zip(Name, TP, FP, FN))
 
          df = pd.DataFrame(data, columns=columns)
-         df.to_csv(self.csv_pred.parent + 'Model_Accuracy')
+         df.to_csvstr((self.csv_pred.parent) + 'Model_Accuracy')
          return df
 
      
