@@ -35,16 +35,7 @@ class ScoreModels:
          FN = []
         
          columns = ['Model Name', 'True Positive', 'False Positive', 'False Negative']
-         dataset_pred  = pd.read_csv(self.csv_pred, delimiter = ',')
-         T_pred = dataset_pred[dataset_pred.keys()[0]][0:]
-         Y_pred = dataset_pred[dataset_pred.keys()[2]][0:]
-         X_pred = dataset_pred[dataset_pred.keys()[3]][0:]
-         Score_pred = dataset_pred[dataset_pred.keys()[4]][0:]
-        
-         self.listtime_pred = T_pred.tolist()
-         self.listy_pred = Y_pred.tolist()
-         self.listx_pred = X_pred.tolist()
-         self.listscore_pred = Score_pred.tolist()
+         
 
          dataset_gt  = pd.read_csv(self.groundtruth, delimiter = ',')
          T_gt = dataset_gt[dataset_gt.keys()[0]][0:]
@@ -55,14 +46,27 @@ class ScoreModels:
          self.listy_gt = Y_gt.tolist()
          self.listx_gt = X_gt.tolist()
         
-         for i in range(len(self.listtime_pred)):
-
-            if self.listscore_pred[i] > self.thresholdscore:   
-                self.location_pred.append([self.listtime_pred[i], self.listy_pred[i], self.listx_pred[i]])
+         
 
          for csv_pred in self.predictions:
             self.csv_pred = csv_pred
             name = self.csv_pred.stem
+            dataset_pred  = pd.read_csv(self.csv_pred, delimiter = ',')
+            T_pred = dataset_pred[dataset_pred.keys()[0]][0:]
+            Y_pred = dataset_pred[dataset_pred.keys()[2]][0:]
+            X_pred = dataset_pred[dataset_pred.keys()[3]][0:]
+            Score_pred = dataset_pred[dataset_pred.keys()[4]][0:]
+        
+            self.listtime_pred = T_pred.tolist()
+            self.listy_pred = Y_pred.tolist()
+            self.listx_pred = X_pred.tolist()
+            self.listscore_pred = Score_pred.tolist()
+
+            for i in range(len(self.listtime_pred)):
+
+            if self.listscore_pred[i] > self.thresholdscore:   
+                self.location_pred.append([self.listtime_pred[i], self.listy_pred[i], self.listx_pred[i]])
+
             tp, fn, fp = self.TruePositives()
             
             Name.append(name)
