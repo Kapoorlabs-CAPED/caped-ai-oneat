@@ -48,7 +48,7 @@ class ScoreModels:
          for i in range(self.segimage.shape[0]):
             properties = measure.regionprops(self.segimage[i,:,:,:])                
             for prop in properties:
-                    centroid_int = = np.round(prop.centroid).astype(int)
+                    centroid_int = np.round(prop.centroid).astype(int)
                     print((i,*centroid_int)) 
                     self.Label_Coord[prop.label] = (i,*centroid_int)
                     self.Coords.append((i,*centroid_int))
