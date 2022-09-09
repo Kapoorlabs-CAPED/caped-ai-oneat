@@ -123,12 +123,12 @@ class ScoreModels:
                 
                         fp = len(self.listtime_pred)
                        
-                        tree = spatial.cKDTree(self.location_gt)
+                        tree = spatial.cKDTree(self.listtime_pred)
                         for i in range(len(self.location_gt)):
                             
                             return_index = (int(self.listtime_gt[i]), int(self.listy_gt[i]), int(self.listx_gt[i]))
                             closestpoint = tree.query(return_index)
-                            spacedistance, timedistance = TimedDistance(return_index, self.location_gt[closestpoint[1]])
+                            spacedistance, timedistance = TimedDistance(return_index, self.listtime_pred[closestpoint[1]])
 
                             if spacedistance < thresholdspace and timedistance < thresholdtime:
                                     fp  = fp - 1
