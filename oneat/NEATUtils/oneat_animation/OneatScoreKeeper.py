@@ -83,8 +83,8 @@ class ScoreModels:
                 if spacedistance < self.thresholdspace and timedistance < self.thresholdtime:
                         tp  = tp + 1
             
-            fn = self.FalseNegatives(self.groundtruth)
-            fp = self.FalsePositives(self.groundtruth)
+            fn = self.FalseNegatives()
+            fp = self.FalsePositives()
             return tp/len(listtime_gt) * 100, fn, fp
         
 
