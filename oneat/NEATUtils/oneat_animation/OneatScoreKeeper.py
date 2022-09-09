@@ -73,15 +73,17 @@ class ScoreModels:
 
             dataset_gt  = pd.read_csv(self.groundtruth, delimiter = ',')
             T_gt = dataset_gt[dataset_gt.keys()[0]][0:]
+            Z_gt = dataset_gt[dataset_gt.keys()[1]][0:]
             Y_gt = dataset_gt[dataset_gt.keys()[2]][0:]
             X_gt = dataset_gt[dataset_gt.keys()[3]][0:]
 
             listtime_gt = T_gt.tolist()
+            listz_gt = Z_gt.tolist()
             listy_gt = Y_gt.tolist()
             listx_gt = X_gt.tolist()
             for i in range(len(listtime_gt)):
                 
-                index = (int(listtime_gt[i]) ,int(listy_gt[i]), int(listx_gt[i]))
+                index = (int(listtime_gt[i]), int(listz_gt[i]) , int(listy_gt[i]), int(listx_gt[i]))
                 return_index = return_coordinates(self.segimage, index, self.Label_Coord)
                 closestpoint = tree.query(return_index)
                 spacedistance, timedistance = TimedDistance(return_index, location_pred[closestpoint[1]])
@@ -120,17 +122,18 @@ class ScoreModels:
 
                         dataset_gt  = pd.read_csv(self.groundtruth, delimiter = ',')
                         T_gt = dataset_gt[dataset_gt.keys()[0]][0:]
+                        Z_gt = dataset_gt[dataset_gt.keys()[1]][0:]
                         Y_gt = dataset_gt[dataset_gt.keys()[2]][0:]
                         X_gt = dataset_gt[dataset_gt.keys()[3]][0:]
 
                         listtime_gt = T_gt.tolist()
+                        listz_gt = Z_gt.tolist()
                         listy_gt = Y_gt.tolist()
                         listx_gt = X_gt.tolist()
-                        location_gt = []
                         fn = len(listtime_gt)
                         for i in range(len(listtime_gt)):
                             
-                            index = (int(listtime_gt[i]) ,int(listy_gt[i]), int(listx_gt[i]))
+                            index = (int(listtime_gt[i]), int(listz_gt[i])  ,int(listy_gt[i]), int(listx_gt[i]))
                             return_index = return_coordinates(self.segimage, index, self.Label_Coord)
                             closestpoint = tree.query(return_index)
                             spacedistance, timedistance = TimedDistance(return_index, location_pred[closestpoint[1]])
@@ -152,10 +155,12 @@ class ScoreModels:
 
                         dataset_gt  = pd.read_csv(self.groundtruth, delimiter = ',')
                         T_gt = dataset_gt[dataset_gt.keys()[0]][0:]
-                        Y_gt = dataset_gt[dataset_gt.keys()[1]][0:]
-                        X_gt = dataset_gt[dataset_gt.keys()[2]][0:]
+                        Z_gt = dataset_gt[dataset_gt.keys()[1]][0:]
+                        Y_gt = dataset_gt[dataset_gt.keys()[2]][0:]
+                        X_gt = dataset_gt[dataset_gt.keys()[3]][0:]
 
                         listtime_gt = T_gt.tolist()
+                        listz_gt = Z_gt.tolist()
                         listy_gt = Y_gt.tolist()
                         listx_gt = X_gt.tolist()
                         location_gt = []
@@ -168,7 +173,7 @@ class ScoreModels:
                         tree = spatial.cKDTree(location_gt)
                         for i in range(len(listtime_pred)):
                             
-                            index = (int(listtime_gt[i]) ,int(listy_gt[i]), int(listx_gt[i]))
+                            index = (int(listtime_gt[i]), int(listz_gt[i])  ,int(listy_gt[i]), int(listx_gt[i]))
                             return_index = return_coordinates(self.segimage, index, self.Label_Coord)
                             closestpoint = tree.query(return_index)
                             spacedistance, timedistance = TimedDistance(return_index, location_gt[closestpoint[1]])
@@ -194,8 +199,8 @@ def TimedDistance(pointA, pointB):
 def return_coordinates(image, coord, Label_Coord):
 
   
-    index = *coord
-    label = image[index]
+    
+    label = image[coord]
     return_coord = Label_Coord[label]
 
     return tuple(return_coord[0], return_coord[-2], return_coord[-1])      
