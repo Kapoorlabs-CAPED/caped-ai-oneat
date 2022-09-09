@@ -45,11 +45,11 @@ class ScoreModels:
 
      def LabelDict(self):
 
-         
-         properties = measure.regionprops(self.segimage)                
-         for prop in properties:
-           self.Label_Coord[prop.label] = prop.centroid
-           self.Coords.append(prop.centroid)
+         for i in range(self.segimage.shape[0]):
+            properties = measure.regionprops(self.segimage)                
+            for prop in properties:
+                    self.Label_Coord[prop.label] = (i,*prop.centroid)
+                    self.Coords.append((i,*prop.centroid))
          self.CoordTree = spatial.cKDTree(self.Coords)
 
 
@@ -204,7 +204,7 @@ def return_coordinates(image, coord, Label_Coord, CoordTree):
 
   
     print(coord, image.shape)
-    label = image[CoordTree.query(coord)]
+    label = image[coord]
     print(label)
     return_coord = Label_Coord[label]
 
