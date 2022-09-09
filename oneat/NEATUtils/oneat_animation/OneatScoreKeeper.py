@@ -48,6 +48,7 @@ class ScoreModels:
          for i in range(self.segimage.shape[0]):
             properties = measure.regionprops(self.segimage[i,:,:,:])                
             for prop in properties:
+                    print((i,*prop.centroid)) 
                     self.Label_Coord[prop.label] = (i,*prop.centroid)
                     self.Coords.append((i,*prop.centroid))
          self.CoordTree = spatial.cKDTree(self.Coords)
