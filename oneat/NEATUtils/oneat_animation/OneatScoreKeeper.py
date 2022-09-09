@@ -16,7 +16,8 @@ class ScoreModels:
          self.thresholdspace = thresholdspace 
          self.thresholdtime = thresholdtime
          self.location_pred = []
-
+         self.location_gt = []
+         
          self.listtime_pred = []
          self.listy_pred = []
          self.listx_pred = []
@@ -47,7 +48,7 @@ class ScoreModels:
          self.listx_gt = X_gt.tolist()
          for i in range(len(self.listtime_gt)):
 
-              self.listtime_gt.append([self.listtime_gt[i], self.listy_gt[i], self.listx_gt[i]])
+              self.location_gt.append([self.listtime_gt[i], self.listy_gt[i], self.listx_gt[i]])
          
 
          for csv_pred in self.predictions:
