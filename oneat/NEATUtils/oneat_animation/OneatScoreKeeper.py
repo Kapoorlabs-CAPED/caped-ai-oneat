@@ -199,8 +199,9 @@ def TimedDistance(pointA, pointB):
 def return_coordinates(image, coord, Label_Coord):
 
   
-    
+    print(coord)
     label = image[coord]
+    print(label)
     return_coord = Label_Coord[label]
 
     return tuple(return_coord[0], return_coord[-2], return_coord[-1])      
