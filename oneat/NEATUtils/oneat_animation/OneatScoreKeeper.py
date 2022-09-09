@@ -6,9 +6,8 @@ import os
 class ScoreModels:
 
 
-     def __init__(self, segimage, predictions, groundtruth, thresholdscore = 1 -  1.0E-6,  thresholdspace = 10, thresholdtime = 2):
+     def __init__(self, predictions, groundtruth, thresholdscore = 1 -  1.0E-6,  thresholdspace = 10, thresholdtime = 2):
 
-         self.segimage = segimage
          #A list of all the prediction csv files, path object
          self.predictions = predictions 
          #Approximate locations of the ground truth, Z co ordinate wil be ignored
@@ -26,7 +25,7 @@ class ScoreModels:
          TP = []
          FP = []
          FN = []
-         self.LabelDict()
+        
          columns = ['Model Name', 'True Positive', 'False Positive', 'False Negative']
          for csv_pred in self.predictions:
             self.csv_pred = csv_pred
@@ -43,17 +42,7 @@ class ScoreModels:
          df.to_csv(self.csv_pred.parent + 'Model_Accuracy')
          return df
 
-     def LabelDict(self):
-
-         for i in range(self.segimage.shape[0]):
-            properties = measure.regionprops(self.segimage[i,:,:,:])                
-            for prop in properties:
-                    centroid_int = np.round(prop.centroid).astype(int)
-                    print((i,*centroid_int)) 
-                    self.Label_Coord[prop.label] = (i,*centroid_int)
-                    self.Coords.append((i,*centroid_int))
-         self.CoordTree = spatial.cKDTree(self.Coords)
-
+     
 
      def TruePositives(self):
 
