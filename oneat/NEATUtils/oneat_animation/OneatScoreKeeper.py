@@ -15,9 +15,17 @@ class ScoreModels:
          self.thresholdscore = thresholdscore
          self.thresholdspace = thresholdspace 
          self.thresholdtime = thresholdtime
-         self.Label_Coord = {}
-         self.Coords = []
-         self.CoordTree = None
+         self.location_pred = []
+
+         self.listtime_pred = []
+         self.listy_pred = []
+         self.listx_pred = []
+         self.listscore_pred = []
+
+         self.listtime_gt = []
+         self.listy_gt = []
+         self.listx_gt = []
+
 
      def model_scorer(self):
 
@@ -27,6 +35,31 @@ class ScoreModels:
          FN = []
         
          columns = ['Model Name', 'True Positive', 'False Positive', 'False Negative']
+         dataset_pred  = pd.read_csv(self.csv_pred, delimiter = ',')
+         T_pred = dataset_pred[dataset_pred.keys()[0]][0:]
+         Y_pred = dataset_pred[dataset_pred.keys()[2]][0:]
+         X_pred = dataset_pred[dataset_pred.keys()[3]][0:]
+         Score_pred = dataset_pred[dataset_pred.keys()[4]][0:]
+        
+         self.listtime_pred = T_pred.tolist()
+         self.listy_pred = Y_pred.tolist()
+         self.listx_pred = X_pred.tolist()
+         self.listscore_pred = Score_pred.tolist()
+
+         dataset_gt  = pd.read_csv(self.groundtruth, delimiter = ',')
+         T_gt = dataset_gt[dataset_gt.keys()[0]][0:]
+         Y_gt = dataset_gt[dataset_gt.keys()[2]][0:]
+         X_gt = dataset_gt[dataset_gt.keys()[3]][0:]
+
+         self.listtime_gt = T_gt.tolist()
+         self.listy_gt = Y_gt.tolist()
+         self.listx_gt = X_gt.tolist()
+        
+         for i in range(len(self.listtime_pred)):
+
+            if self.listscore_pred[i] > self.thresholdscore:   
+                self.location_pred.append([self.listtime_pred[i], self.listy_pred[i], self.listx_pred[i]])
+
          for csv_pred in self.predictions:
             self.csv_pred = csv_pred
             name = self.csv_pred.stem
@@ -47,127 +80,53 @@ class ScoreModels:
      def TruePositives(self):
 
             tp = 0
-            dataset_pred  = pd.read_csv(self.csv_pred, delimiter = ',')
-            T_pred = dataset_pred[dataset_pred.keys()[0]][0:]
-            Y_pred = dataset_pred[dataset_pred.keys()[2]][0:]
-            X_pred = dataset_pred[dataset_pred.keys()[3]][0:]
-            Score_pred = dataset_pred[dataset_pred.keys()[4]][0:]
-            
-            listtime_pred = T_pred.tolist()
-            listy_pred = Y_pred.tolist()
-            listx_pred = X_pred.tolist()
-            listscore_pred = Score_pred.tolist()
-            location_pred = []
-            for i in range(len(listtime_pred)):
-
-                if listscore_pred[i] > self.thresholdscore:   
-                    location_pred.append([listtime_pred[i], listy_pred[i], listx_pred[i]])
-
-            tree = spatial.cKDTree(location_pred)
-
-
-            dataset_gt  = pd.read_csv(self.groundtruth, delimiter = ',')
-            T_gt = dataset_gt[dataset_gt.keys()[0]][0:]
-            Y_gt = dataset_gt[dataset_gt.keys()[2]][0:]
-            X_gt = dataset_gt[dataset_gt.keys()[3]][0:]
-
-            listtime_gt = T_gt.tolist()
-            listy_gt = Y_gt.tolist()
-            listx_gt = X_gt.tolist()
-            for i in range(len(listtime_gt)):
+            tree = spatial.cKDTree(self.location_pred)
+            for i in range(len(self.listtime_gt)):
                 
-                return_index = (int(listtime_gt[i]),  int(listy_gt[i]), int(listx_gt[i]))
+                return_index = (int(self.listtime_gt[i]),  int(self.listy_gt[i]), int(self.listx_gt[i]))
                 closestpoint = tree.query(return_index)
-                spacedistance, timedistance = TimedDistance(return_index, location_pred[closestpoint[1]])
+                spacedistance, timedistance = TimedDistance(return_index, self.location_pred[closestpoint[1]])
                     
                 if spacedistance < self.thresholdspace and timedistance < self.thresholdtime:
                         tp  = tp + 1
             
             fn = self.FalseNegatives()
             fp = self.FalsePositives()
-            return tp/len(listtime_gt) * 100, fn, fp
+            return tp/len(self.listtime_gt) * 100, fn, fp
         
 
      def FalseNegatives(self):
         
-                
-
-                        dataset_pred  = pd.read_csv(self.csv_pred, delimiter = ',')
-                        T_pred = dataset_pred[dataset_pred.keys()[0]][0:]
-                        Y_pred = dataset_pred[dataset_pred.keys()[1]][0:]
-                        X_pred = dataset_pred[dataset_pred.keys()[2]][0:]
-                        Score_pred = dataset_pred[dataset_pred.keys()[3]][0:]
-                        
-                        listtime_pred = T_pred.tolist()
-                        listy_pred = Y_pred.tolist()
-                        listx_pred = X_pred.tolist()
-                        listscore_pred = Score_pred.tolist()
-                        location_pred = []
-                        for i in range(len(listtime_pred)):
+                        tree = spatial.cKDTree(self.location_pred)
+                        fn = len(self.listtime_gt)
+                        for i in range(len(self.listtime_gt)):
                             
-                            
-                            if listscore_pred[i] > self.thresholdscore:
-                              location_pred.append([listtime_pred[i], listy_pred[i], listx_pred[i]])
-
-                        tree = spatial.cKDTree(location_pred)
-
-
-                        dataset_gt  = pd.read_csv(self.groundtruth, delimiter = ',')
-                        T_gt = dataset_gt[dataset_gt.keys()[0]][0:]
-                        Y_gt = dataset_gt[dataset_gt.keys()[2]][0:]
-                        X_gt = dataset_gt[dataset_gt.keys()[3]][0:]
-
-                        listtime_gt = T_gt.tolist()
-                        listy_gt = Y_gt.tolist()
-                        listx_gt = X_gt.tolist()
-                        fn = len(listtime_gt)
-                        for i in range(len(listtime_gt)):
-                            
-                            return_index = (int(listtime_gt[i]),int(listy_gt[i]), int(listx_gt[i]))
+                            return_index = (int(self.listtime_gt[i]),int(self.listy_gt[i]), int(self.listx_gt[i]))
                             closestpoint = tree.query(return_index)
-                            spacedistance, timedistance = TimedDistance(return_index, location_pred[closestpoint[1]])
+                            spacedistance, timedistance = TimedDistance(return_index, self.location_pred[closestpoint[1]])
 
                             if spacedistance < self.thresholdspace and timedistance < self.thresholdtime:
                                     fn  = fn - 1
 
-                        return fn/len(listtime_gt) * 100
-                    
+                        return fn/len(self.listtime_gt) * 100
                     
                     
      def FalsePositives(self, thresholdspace = 10, thresholdtime = 2):
         
                 
-            
-                        dataset_pred  = pd.read_csv(self.csv_pred, delimiter = ',')
-                        T_pred = dataset_pred[dataset_pred.keys()[0]][0:]
-                        listtime_pred = T_pred.tolist()
-
-                        dataset_gt  = pd.read_csv(self.groundtruth, delimiter = ',')
-                        T_gt = dataset_gt[dataset_gt.keys()[0]][0:]
-                        Y_gt = dataset_gt[dataset_gt.keys()[2]][0:]
-                        X_gt = dataset_gt[dataset_gt.keys()[3]][0:]
-
-                        listtime_gt = T_gt.tolist()
-                        listy_gt = Y_gt.tolist()
-                        listx_gt = X_gt.tolist()
-                        location_gt = []
-                        fp = len(listtime_pred)
-                        
-                        for i in range(len(listtime_gt)):
-                        
-                            location_gt.append([listtime_gt[i], listy_gt[i], listx_gt[i]])
-
-                        tree = spatial.cKDTree(location_gt)
-                        for i in range(len(listtime_pred)):
+                        fp = len(self.listtime_pred)
+                       
+                        tree = spatial.cKDTree(self.location_gt)
+                        for i in range(len(self.location_gt)):
                             
-                            return_index = (int(listtime_gt[i]), int(listy_gt[i]), int(listx_gt[i]))
+                            return_index = (int(self.listtime_gt[i]), int(self.listy_gt[i]), int(self.listx_gt[i]))
                             closestpoint = tree.query(return_index)
-                            spacedistance, timedistance = TimedDistance(return_index, location_gt[closestpoint[1]])
+                            spacedistance, timedistance = TimedDistance(return_index, self.location_gt[closestpoint[1]])
 
                             if spacedistance < thresholdspace and timedistance < thresholdtime:
                                     fp  = fp - 1
 
-                        return fp/len(listtime_pred) * 100
+                        return fp/len(self.listtime_pred) * 100
                     
                     
                                 
