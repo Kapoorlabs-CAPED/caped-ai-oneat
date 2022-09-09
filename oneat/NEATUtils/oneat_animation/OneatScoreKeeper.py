@@ -45,7 +45,9 @@ class ScoreModels:
          self.listtime_gt = T_gt.tolist()
          self.listy_gt = Y_gt.tolist()
          self.listx_gt = X_gt.tolist()
-        
+         for i in range(len(self.listtime_gt)):
+
+              self.listtime_gt.append([self.listtime_gt[i], self.listy_gt[i], self.listx_gt[i]])
          
 
          for csv_pred in self.predictions:
