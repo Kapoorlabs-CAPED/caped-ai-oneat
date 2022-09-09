@@ -200,7 +200,7 @@ def return_coordinates(image, coord, Label_Coord):
 
   
     print(coord)
-    label = image[coord]
+    label = image[tuple(zip(*coord))]
     print(label)
     return_coord = Label_Coord[label]
 
