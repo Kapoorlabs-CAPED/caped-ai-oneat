@@ -206,10 +206,12 @@ def headlesscall(image, imagename, key_categories, event_threshold, nms_space, n
                                 event_locations_dict = {}
                                 event_locations_size_dict = {}
                                 if batch == False:
-                                   csvnames = [csvdir + "/" + event_name + "Location" + (os.path.splitext(os.path.basename(imagename))[0] + '.csv')]
+                                   csvnames = [csvdir + "/" + event_name + "Location" + (os.path.splitext(os.path.basename(imagename)))[0] + '.csv']
+                                   savename = event_name + "Location" + (os.path.splitext(os.path.basename(imagename)))[0]
                                 else:
                                      csvnames = list(Path(csvdir).glob('*.csv'))
-                                for csvname in csvnames:     
+                                for csvname in csvnames:    
+                                        savename = csvname.stem 
                                         dataset   = pd.read_csv(csvname, delimiter = ',')
                                         #Data is written as T, Y, X, Score, Size, Confidence
                                         T =  dataset[ dataset.keys()[0]][0:]
@@ -289,8 +291,7 @@ def headlesscall(image, imagename, key_categories, event_threshold, nms_space, n
                                         event_count = sorted(event_count, key=lambda x: x[0], reverse=False)
                                         
                                         event_data = []
-                                        csvname = savedir + "/" + 'Clean' +  event_name + "Location" + (
-                                        os.path.splitext(os.path.basename(imagename))[0])
+                                        csvname = savedir + "/" + 'Clean' +  savename
                                         if(os.path.exists(csvname + ".csv")):
                                                     os.remove(csvname + ".csv")
                                         writer = csv.writer(open(csvname + ".csv", "a", newline=''))
