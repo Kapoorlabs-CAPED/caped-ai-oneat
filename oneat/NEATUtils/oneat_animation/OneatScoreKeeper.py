@@ -67,7 +67,7 @@ class ScoreModels:
 
             for i in range(len(self.listtime_pred)):
 
-                if self.listscore_pred[i] > self.thresholdscore:   
+                if self.listscore_pred[i] >= self.thresholdscore:   
                     self.location_pred.append([self.listtime_pred[i], self.listy_pred[i], self.listx_pred[i]])
 
             tp, fn, fp = self.TruePositives()
