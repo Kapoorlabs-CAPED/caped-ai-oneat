@@ -304,7 +304,9 @@ class NEATEynamic(object):
         self.marker_tree = marker_tree
         self.remove_markers = remove_markers
         
-        
+        #Normalize in volume
+        if self.normalize: 
+            self.image = normalizeFloatZeroOne(self.image, 1, 99.8, dtype = self.dtype)
         if self.remove_markers == True:
             self.generate_maps = False 
             self.image = np.zeros([self.originalimage.shape[0], self.originalimage.shape[1],  self.originalimage.shape[2] + 2 * self.pad_width[0], self.originalimage.shape[3] + 2 * self.pad_width[1] ])
@@ -336,14 +338,13 @@ class NEATEynamic(object):
         count = 0
 
         print('Detecting event locations')
+
         for inputtime in tqdm(range(0, self.image.shape[0])):
                     if inputtime < self.image.shape[0] - self.imaget and inputtime > int(self.imaget)//2:
                                 count = count + 1
                                       
                                 smallimage = CreateVolume(self.image, self.size_tminus, self.size_tplus, inputtime)
-                                #Normalize in volume
-                                if self.normalize: 
-                                   smallimage = normalizeFloatZeroOne(smallimage, 1, 99.8, dtype = self.dtype)
+                                
                                 # Cut off the region for training movie creation
                                 #Break image into tiles if neccessary
                                 predictions, allx, ally, allz = self.predict_main(smallimage)
@@ -408,8 +409,6 @@ class NEATEynamic(object):
                 
                 remove_candidates_list = []
                 smallimage = CreateVolume(self.image, self.size_tminus, self.size_tplus, inputtime)
-                if self.normalize: 
-                                   smallimage = normalizeFloatZeroOne(smallimage, 1, 99.8, dtype = self.dtype)
                 # Cut off the region for training movie creation
                 # Break image into tiles if neccessary
                 predictions, allx, ally, allz = self.predict_main(smallimage)
@@ -486,8 +485,6 @@ class NEATEynamic(object):
         for inputtime in tqdm(range(int(self.imaget)//2, self.image.shape[0])):
              if inputtime < self.image.shape[0] - self.imaget:   
                 smallimage = CreateVolume(self.image, self.size_tminus, self.size_tplus, inputtime)
-                if self.normalize: 
-                                  smallimage = normalizeFloatZeroOne(smallimage, 1, 99.8, dtype = self.dtype)
                 if  str(int(inputtime)) in self.marker_tree:                     
                         tree, location = self.marker_tree[str(int(inputtime))]
                         for i in range(len(location)):
