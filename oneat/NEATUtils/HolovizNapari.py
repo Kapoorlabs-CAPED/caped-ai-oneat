@@ -107,7 +107,6 @@ class NEATViz(object):
                         Name  = os.path.basename(os.path.splitext(imagename)[0]) 
                         image = imread(imagename)
                         seg_image = imread(self.segimagedir + Name + '.tif')
-                        print(imagename)
                         if self.start_project_mid is not None or self.end_project_mid is not None:
                           if len(seg_image.shape) == 4:
                             seg_image =  MidSlices(seg_image, self.start_project_mid, self.end_project_mid, False, axis = 1)
