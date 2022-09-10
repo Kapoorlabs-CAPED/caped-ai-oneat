@@ -43,6 +43,7 @@ class NEATViz(object):
                         end_project_mid = None,
                         headless = False,
                         volume = False,
+                        batch = False,
                         event_threshold = 0.999,
                         nms_space = 10,
                         nms_time = 3
@@ -58,6 +59,7 @@ class NEATViz(object):
                self.heatname = heatname
                self.eventname = eventname
                self.headless = headless 
+               self.batch = batch
                self.event_threshold = event_threshold
                self.nms_space = nms_space
                self.nms_time = nms_time
@@ -108,7 +110,7 @@ class NEATViz(object):
                         if self.start_project_mid is not None or self.end_project_mid is not None:
                           if len(seg_image.shape) == 4:
                             seg_image =  MidSlices(seg_image, self.start_project_mid, self.end_project_mid, False, axis = 1)
-                        headlesscall(image, imagename, self.key_categories, self.event_threshold, self.nms_space, self.nms_time, self.csvdir, self.savedir)     
+                        headlesscall(image, imagename, self.key_categories, self.event_threshold, self.nms_space, self.nms_time, self.csvdir, self.savedir, self.batch)     
                                
                                 
                  
@@ -193,7 +195,7 @@ def cluster_points(event_locations_dict,event_locations_size_dict, nms_space, nm
                                                     event_locations_size_dict.pop((int(currenttime), int(nearest_location[0]), int(nearest_location[1])))   
      return event_locations_size_dict                                                     
 
-def headlesscall(image, imagename, key_categories, event_threshold, nms_space, nms_time,csvdir, savedir):
+def headlesscall(image, imagename, key_categories, event_threshold, nms_space, nms_time,csvdir, savedir, batch):
             for (event_name,event_label) in key_categories.items():
                             if event_label > 0:
                                 event_locations = []
@@ -203,98 +205,101 @@ def headlesscall(image, imagename, key_categories, event_threshold, nms_space, n
                                 confidence_locations = []
                                 event_locations_dict = {}
                                 event_locations_size_dict = {}
-                                csvname = csvdir + "/" + event_name + "Location" + (os.path.splitext(os.path.basename(imagename))[0] + '.csv')
-                                dataset   = pd.read_csv(csvname, delimiter = ',')
-                                dataset_index =  dataset.index
-                                #Data is written as T, Y, X, Score, Size, Confidence
-                                T =  dataset[ dataset.keys()[0]][0:]
-                                Z =  dataset[ dataset.keys()[1]][0:]
-                                Y = dataset[dataset.keys()[2]][0:]
-                                X = dataset[dataset.keys()[3]][0:]
-                                Score = dataset[dataset.keys()[4]][0:]
-                                Size = dataset[dataset.keys()[5]][0:]
-                                Confidence = dataset[dataset.keys()[6]][0:]
-                                listtime = T.tolist()
-                                listz = Z.tolist()
-                                listy = Y.tolist()
-                                listx = X.tolist()
-                                listsize = Size.tolist()
-                                
-                                
-                                listscore = Score.tolist()
-                                listconfidence = Confidence.tolist()
-                                
-                            
-                                for i in (range(len(listtime))):
+                                if batch == False:
+                                   csvnames = [csvdir + "/" + event_name + "Location" + (os.path.splitext(os.path.basename(imagename))[0] + '.csv')]
+                                else:
+                                     csvnames = list(Path(csvdir).glob('*.csv'))
+                                for csvname in csvnames:     
+                                        dataset   = pd.read_csv(csvname, delimiter = ',')
+                                        #Data is written as T, Y, X, Score, Size, Confidence
+                                        T =  dataset[ dataset.keys()[0]][0:]
+                                        Z =  dataset[ dataset.keys()[1]][0:]
+                                        Y = dataset[dataset.keys()[2]][0:]
+                                        X = dataset[dataset.keys()[3]][0:]
+                                        Score = dataset[dataset.keys()[4]][0:]
+                                        Size = dataset[dataset.keys()[5]][0:]
+                                        Confidence = dataset[dataset.keys()[6]][0:]
+                                        listtime = T.tolist()
+                                        listz = Z.tolist()
+                                        listy = Y.tolist()
+                                        listx = X.tolist()
+                                        listsize = Size.tolist()
                                         
-                                        tcenter = int(listtime[i])
-                                        zcenter = listz[i]
-                                        ycenter = listy[i]
-                                        xcenter = listx[i]
-                                        size = listsize[i]
-                                        score = listscore[i]
-                                        confidence = listconfidence[i]   
-                                        if score > event_threshold:
-                                                event_locations.append([int(tcenter), int(ycenter), int(xcenter)])   
-
-                                                if int(tcenter) in event_locations_dict.keys():
-                                                    current_list = event_locations_dict[int(tcenter)]
-                                                    current_list.append([int(ycenter), int(xcenter)])
-                                                    event_locations_dict[int(tcenter)] = current_list 
-                                                    event_locations_size_dict[(int(tcenter), int(ycenter), int(xcenter))] = [size, score]
-                                                else:
-                                                    current_list = []
-                                                    current_list.append([int(ycenter), int(xcenter)])
-                                                    event_locations_dict[int(tcenter)] = current_list    
-                                                    event_locations_size_dict[int(tcenter), int(ycenter), int(xcenter)] = [size, score]
-
-                                                size_locations.append(size)
-                                                score_locations.append(score)
-                                                confidence_locations.append(confidence)
-
-                                event_locations_size_dict = cluster_points(event_locations_dict,event_locations_size_dict, nms_space, nms_time)
-                                event_locations_clean = []             
-                                dict_locations = event_locations_size_dict.keys()
-                                tlocations = []
-                                zlocations = []   
-                                ylocations = []
-                                xlocations = []
-                                scores = []
-                                radiuses = []
-                                confidences = []
-                                angles = []
-                                for location, sizescore in event_locations_size_dict.items():
-                                    tlocations.append(float(location[0]))
-                                    if len(image.shape) == 4:
-                                        zlocations.append(float(image.shape[1]//2))
-                                    else:
-                                        zlocations.append(0)
-                                    ylocations.append(float(location[1]))
-                                    xlocations.append(float(location[2]))
-                                    scores.append(float(sizescore[1])) 
-                                    radiuses.append(float(sizescore[0]))
-                                    confidences.append(1)
-                                    angles.append(2)
-                                for location  in dict_locations:
-                                    event_locations_clean.append(location)
                                         
+                                        listscore = Score.tolist()
+                                        listconfidence = Confidence.tolist()
+                                        
+                                    
+                                        for i in (range(len(listtime))):
+                                                
+                                                tcenter = int(listtime[i])
+                                                zcenter = listz[i]
+                                                ycenter = listy[i]
+                                                xcenter = listx[i]
+                                                size = listsize[i]
+                                                score = listscore[i]
+                                                confidence = listconfidence[i]   
+                                                if score > event_threshold:
+                                                        event_locations.append([int(tcenter), int(ycenter), int(xcenter)])   
 
-                                event_count = np.column_stack(
-                                            [tlocations, zlocations, ylocations, xlocations, scores, radiuses, confidences, angles])
-                                event_count = sorted(event_count, key=lambda x: x[0], reverse=False)
-                                
-                                event_data = []
-                                csvname = savedir + "/" + 'Clean' +  event_name + "Location" + (
-                                os.path.splitext(os.path.basename(imagename))[0])
-                                if(os.path.exists(csvname + ".csv")):
-                                            os.remove(csvname + ".csv")
-                                writer = csv.writer(open(csvname + ".csv", "a", newline=''))
-                                filesize = os.stat(csvname + ".csv").st_size
+                                                        if int(tcenter) in event_locations_dict.keys():
+                                                            current_list = event_locations_dict[int(tcenter)]
+                                                            current_list.append([int(ycenter), int(xcenter)])
+                                                            event_locations_dict[int(tcenter)] = current_list 
+                                                            event_locations_size_dict[(int(tcenter), int(ycenter), int(xcenter))] = [size, score]
+                                                        else:
+                                                            current_list = []
+                                                            current_list.append([int(ycenter), int(xcenter)])
+                                                            event_locations_dict[int(tcenter)] = current_list    
+                                                            event_locations_size_dict[int(tcenter), int(ycenter), int(xcenter)] = [size, score]
 
-                                if filesize < 1:
-                                            writer.writerow(['T', 'Z', 'Y', 'X', 'Score', 'Size', 'Confidence', 'Angle'])
-                                for line in event_count:
-                                            if line not in event_data:
-                                                event_data.append(line)
-                                            writer.writerows(event_data)
-                                            event_data = []        
+                                                        size_locations.append(size)
+                                                        score_locations.append(score)
+                                                        confidence_locations.append(confidence)
+
+                                        event_locations_size_dict = cluster_points(event_locations_dict,event_locations_size_dict, nms_space, nms_time)
+                                        event_locations_clean = []             
+                                        dict_locations = event_locations_size_dict.keys()
+                                        tlocations = []
+                                        zlocations = []   
+                                        ylocations = []
+                                        xlocations = []
+                                        scores = []
+                                        radiuses = []
+                                        confidences = []
+                                        angles = []
+                                        for location, sizescore in event_locations_size_dict.items():
+                                            tlocations.append(float(location[0]))
+                                            if len(image.shape) == 4:
+                                                zlocations.append(float(image.shape[1]//2))
+                                            else:
+                                                zlocations.append(0)
+                                            ylocations.append(float(location[1]))
+                                            xlocations.append(float(location[2]))
+                                            scores.append(float(sizescore[1])) 
+                                            radiuses.append(float(sizescore[0]))
+                                            confidences.append(1)
+                                            angles.append(2)
+                                        for location  in dict_locations:
+                                            event_locations_clean.append(location)
+                                                
+
+                                        event_count = np.column_stack(
+                                                    [tlocations, zlocations, ylocations, xlocations, scores, radiuses, confidences, angles])
+                                        event_count = sorted(event_count, key=lambda x: x[0], reverse=False)
+                                        
+                                        event_data = []
+                                        csvname = savedir + "/" + 'Clean' +  event_name + "Location" + (
+                                        os.path.splitext(os.path.basename(imagename))[0])
+                                        if(os.path.exists(csvname + ".csv")):
+                                                    os.remove(csvname + ".csv")
+                                        writer = csv.writer(open(csvname + ".csv", "a", newline=''))
+                                        filesize = os.stat(csvname + ".csv").st_size
+
+                                        if filesize < 1:
+                                                    writer.writerow(['T', 'Z', 'Y', 'X', 'Score', 'Size', 'Confidence', 'Angle'])
+                                        for line in event_count:
+                                                    if line not in event_data:
+                                                        event_data.append(line)
+                                                    writer.writerows(event_data)
+                                                    event_data = []        
