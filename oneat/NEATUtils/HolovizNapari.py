@@ -211,7 +211,9 @@ def headlesscall(image, imagename, key_categories, event_threshold, nms_space, n
                                 else:
                                      csvnames = list(Path(csvdir).glob('*.csv'))
                                 for csvname in csvnames:    
-                                        savename = csvname.stem 
+                                        
+                                        savename = csvname.stem
+                                        print(savename) 
                                         dataset   = pd.read_csv(csvname, delimiter = ',')
                                         #Data is written as T, Y, X, Score, Size, Confidence
                                         T =  dataset[ dataset.keys()[0]][0:]
