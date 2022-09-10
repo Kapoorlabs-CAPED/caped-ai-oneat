@@ -306,7 +306,7 @@ class NEATEynamic(object):
         
         #Normalize in volume
         if self.normalize: 
-            self.imaoriginalimagege = normalizeFloatZeroOne(self.originalimage, 1, 99.8, dtype = self.dtype)
+            self.originalimage = normalizeFloatZeroOne(self.originalimage, 1, 99.8, dtype = self.dtype)
         if self.remove_markers == True:
             self.generate_maps = False 
             self.image = np.zeros([self.originalimage.shape[0], self.originalimage.shape[1],  self.originalimage.shape[2] + 2 * self.pad_width[0], self.originalimage.shape[3] + 2 * self.pad_width[1] ])
