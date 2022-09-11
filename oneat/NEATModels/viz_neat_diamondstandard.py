@@ -139,7 +139,8 @@ class VizNEATEynamic(object):
                                 smallimage = tf.reshape(smallimage, (smallimage.shape[0], smallimage.shape[2], smallimage.shape[3],smallimage.shape[4], smallimage.shape[1]))
                                 activations = activation_model.predict(smallimage)
                                 print(type(activations), len(activations))
-                                print(np.array(activations).shape)
+                                for activation in activations:
+                                    print(activation.shape)
 
 
 def CreateVolume(patch, size_tminus, size_tplus, timepoint):
