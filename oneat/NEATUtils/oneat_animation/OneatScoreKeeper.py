@@ -36,7 +36,7 @@ class ScoreModels:
          FN = []
          GT = []
          Pred = []
-         columns = ['Model Name', 'True Positive', 'False Positive', 'False Negative', 'Total Predictions', 'GT predictions']
+         columns = ['Model Name', 'True Positive', 'False Positive', 'False Negative',  'GT predictions']
          
 
          dataset_gt  = pd.read_csv(self.groundtruth, delimiter = ',')
@@ -70,15 +70,14 @@ class ScoreModels:
 
                 if float(self.listscore_pred[i]) >= float(self.thresholdscore):   
                     self.location_pred.append([int(self.listtime_pred[i]), int(self.listy_pred[i]), int(self.listx_pred[i])])
-            tp, fn, fp, pred, gt = self.TruePositives()
+            tp, fn,  pred, gt = self.TruePositives()
             
             Name.append(name)
             TP.append(tp)
             FN.append(fn)
-            FP.append(fp)
+            FP.append(tp - gt)
             GT.append(gt)
-            Pred.append(pred)
-         data = list(zip(Name, TP, FP, FN, Pred, GT))
+         data = list(zip(Name, TP, FP, FN, GT))
 
          df = pd.DataFrame(data, columns=columns)
          df.to_csv(str(self.csv_pred.parent) + '_Model_Accuracy' + '.csv')
@@ -100,8 +99,7 @@ class ScoreModels:
                         tp  = tp + 1
             
             fn = self.FalseNegatives()
-            fp = self.FalsePositives()
-            return tp, fn, fp, len(self.location_pred), len(self.location_gt)
+            return tp, fn,  len(self.location_pred), len(self.location_gt)
         
 
      def FalseNegatives(self):
@@ -120,22 +118,7 @@ class ScoreModels:
                         return fn
                     
                     
-     def FalsePositives(self):
-        
-                
-                        fp = len(self.location_pred)
-                        print(fp)
-                        tree = spatial.cKDTree(self.location_gt)
-                        for i in range(len(self.location_pred)):
-                            
-                            return_index = self.location_pred[i]
-                            closestpoint = tree.query(return_index)
-                            spacedistance, timedistance = TimedDistance(return_index, self.location_gt[closestpoint[1]])
-                            if spacedistance < self.thresholdspace and timedistance < self.thresholdtime:
-                                    fp  = fp - 1
-
-                        return fp
-                    
+     
                     
                                 
  
