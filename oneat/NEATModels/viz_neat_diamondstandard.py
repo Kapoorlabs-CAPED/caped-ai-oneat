@@ -131,7 +131,7 @@ class VizNEATEynamic(object):
         activation_model = models.Model(inputs= self.model.input, outputs=layer_outputs)
         for inputtime in tqdm(range(0, 10)):
                     if inputtime < self.image.shape[0] - self.imaget and inputtime > int(self.imaget)//2:
-                                count = count + 1
+                               
                                       
                                 smallimage = CreateVolume(self.image, self.size_tminus, self.size_tplus, inputtime)
                                 activations = activation_model.predict(smallimage)
