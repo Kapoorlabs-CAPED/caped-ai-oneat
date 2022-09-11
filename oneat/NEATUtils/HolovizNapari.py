@@ -211,7 +211,13 @@ def headlesscall(image, imagename, key_categories, event_threshold, nms_space, n
                                 else:
                                      csvnames = list(Path(csvdir).glob('*.csv'))
                                 for csvname in csvnames:    
-                                        
+                                        event_locations = []
+                                        size_locations = []
+                                        score_locations = []
+                                        event_locations = []
+                                        confidence_locations = []
+                                        event_locations_dict = {}
+                                        event_locations_size_dict = {}
                                         savename = csvname.stem
                                         print(savename) 
                                         dataset   = pd.read_csv(csvname, delimiter = ',')
