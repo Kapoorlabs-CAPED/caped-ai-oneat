@@ -125,7 +125,7 @@ class ScoreModels:
                             closestpoint = tree.query(return_index)
                             spacedistance, timedistance = TimedDistance(return_index, self.location_pred[closestpoint[1]])
 
-                            if spacedistance > self.thresholdspace and timedistance > self.thresholdtime:
+                            if spacedistance > self.thresholdspace or timedistance > self.thresholdtime:
                                     fn  = fn + 1
 
                         return fn
