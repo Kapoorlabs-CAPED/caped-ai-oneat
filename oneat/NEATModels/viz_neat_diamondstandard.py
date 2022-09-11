@@ -13,11 +13,11 @@ from keras import models
 from keras.models import load_model
 from tensorflow.keras.utils import plot_model
 from tifffile import imread
-
+import napari
 
 class VizNEATEynamic(object):
 
-    def __init__(self,  config, imagename, model_dir, model_name,  catconfig=None, cordconfig=None, timepoints = 10, dtype = np.uint8, n_tiles = (1,1,1), normalize = True):
+    def __init__(self,  config, imagename, model_dir, model_name,  catconfig=None, cordconfig=None, timepoints = 4, dtype = np.uint8, n_tiles = (1,1,1), normalize = True):
 
         self.config = config
         self.model_dir = model_dir
@@ -32,7 +32,7 @@ class VizNEATEynamic(object):
         self.image = imread(imagename).astype(self.dtype)
         self.normalize = normalize
        
-           
+        self.viewer = napari.Viewer()   
         if self.config != None:
             self.npz_directory = config.npz_directory
             self.npz_name = config.npz_name
@@ -105,6 +105,7 @@ class VizNEATEynamic(object):
             self.yolo_v2 = self.config['yolo_v2']
             self.stride = self.config['stride']
 
+
     def VizNets(self):
         self.model_keras = nets.DIANET
 
@@ -139,10 +140,10 @@ class VizNEATEynamic(object):
                                 smallimage = tf.reshape(smallimage, (smallimage.shape[0], smallimage.shape[2], smallimage.shape[3],smallimage.shape[4], smallimage.shape[1]))
                                 activations = activation_model.predict(smallimage)
                                 print(type(activations), len(activations))
-                                for activation in activations:
-                                    print(activation.shape)
+                                for count, activation in enumerate(activations):
+                                    self.viewer.add_image(activation, name= 'Activation' + str(count), blending= 'additive', colormap='inferno' )
 
-
+        napari.run()
 def CreateVolume(patch, size_tminus, size_tplus, timepoint):
     starttime = timepoint - int(size_tminus)
     endtime = timepoint + int(size_tplus) + 1
