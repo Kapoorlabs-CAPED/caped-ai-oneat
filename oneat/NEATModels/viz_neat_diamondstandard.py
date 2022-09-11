@@ -17,7 +17,7 @@ from tifffile import imread
 
 class VizNEATEynamic(object):
 
-    def __init__(self,  config, imagename, model_dir, model_name,  catconfig=None, cordconfig=None, timepoints = 10,  dtype = np.uint8, n_tiles = (1,1,1), normalize = True):
+    def __init__(self,  config, imagename, model_dir, model_name,  catconfig=None, cordconfig=None, timepoints = 10, dtype = np.uint8, n_tiles = (1,1,1), normalize = True):
 
         self.config = config
         self.model_dir = model_dir
@@ -137,7 +137,7 @@ class VizNEATEynamic(object):
                                 print(smallimage.shape)
                                 smallimage = np.expand_dims(smallimage,0)
                                 smallimage = tf.reshape(smallimage, (smallimage.shape[0], smallimage.shape[2], smallimage.shape[3],smallimage.shape[4], smallimage.shape[1]))
-                                activations = activation_model.predict(smallimage)
+                                activations = np.asarray(activation_model.predict(smallimage))
                                 print(activations.shape,activations[0,:].shape )
                                 output_activations.append(activations[0,:])
 
@@ -147,5 +147,5 @@ def CreateVolume(patch, size_tminus, size_tplus, timepoint):
     starttime = timepoint - int(size_tminus)
     endtime = timepoint + int(size_tplus) + 1
     #TZYX needs to be reshaed to ZYXT
-    smallimg = patch[starttime:endtime, :]
+    smallimg = patch[starttime:endtime,]
     return smallimg
