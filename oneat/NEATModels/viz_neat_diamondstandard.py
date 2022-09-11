@@ -29,7 +29,7 @@ class VizNEATEynamic(object):
         self.catconfig = catconfig
         self.cordconfig = cordconfig
 
-        self.originalimage = imread(imagename).astype(self.dtype)
+        self.image = imread(imagename).astype(self.dtype)
         self.normalize = normalize
        
            
@@ -118,12 +118,10 @@ class VizNEATEynamic(object):
 
         self.yololoss = diamond_yolo_loss(self.categories, self.gridx, self.gridy, self.gridz, self.nboxes,
                                           self.box_vector, self.entropy, self.yolo_v0, self.yolo_v1, self.yolo_v2)
-        self.pad_width = (self.config['imagey'], self.config['imagex'])
+
         if self.normalize: 
-            self.originalimage = normalizeFloatZeroOne(self.originalimage, 1, 99.8, dtype = self.dtype)
-        self.image = np.zeros([self.originalimage.shape[0], self.originalimage.shape[1],  self.originalimage.shape[2] + 2 * self.pad_width[0], self.originalimage.shape[3] + 2 * self.pad_width[1] ])
-        for i in range(self.originalimage.shape[0]):
-            self.image[i,:] = pad_timelapse(self.originalimage[i,:], self.pad_width) 
+            self.image = normalizeFloatZeroOne(self.image, 1, 99.8, dtype = self.dtype)
+       
         self.model = load_model(os.path.join(self.model_dir, self.model_name) + '.h5',
                                 custom_objects={'loss': self.yololoss, 'Concat': Concat})    
 
