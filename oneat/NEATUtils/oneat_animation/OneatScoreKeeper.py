@@ -121,7 +121,7 @@ class ScoreModels:
         
                 
                         fp = len(self.location_pred)
-                       
+                        print(fp)
                         tree = spatial.cKDTree(self.location_gt)
                         for i in range(len(self.location_pred)):
                             
