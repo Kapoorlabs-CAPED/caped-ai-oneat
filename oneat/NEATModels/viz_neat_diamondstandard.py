@@ -26,6 +26,7 @@ class VizNEATEynamic(object):
         self.imagename = imagename
         self.originalimage = imread(imagename).astype(self.dtype)
         self.normalize = normalize
+        self.dtype = dtype
         self.pad_width = (self.config['imagey'], self.config['imagex'])
         if self.normalize: 
             self.originalimage = normalizeFloatZeroOne(self.originalimage, 1, 99.8, dtype = self.dtype)
