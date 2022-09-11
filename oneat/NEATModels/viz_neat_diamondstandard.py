@@ -17,7 +17,7 @@ from tifffile import imread
 
 class VizNEATEynamic(object):
 
-    def __init__(self, imagename, config, model_dir, model_name,  catconfig=None, cordconfig=None,  dtype = np.uint8, n_tiles = (1,1,1), normalize = True):
+    def __init__(self,  config, imagename, model_dir, model_name,  catconfig=None, cordconfig=None,  dtype = np.uint8, n_tiles = (1,1,1), normalize = True):
 
         self.config = config
         self.model_dir = model_dir

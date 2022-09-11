@@ -8,7 +8,7 @@ from .neat_silverstandard import NEATCynamic
 from .neat_diamondstandard import NEATEynamic
 from .neat_focus import NEATFocus
 from .neat_faststandard import NEATSynamic
-
+from .viz_neat_diamondstandard import VizNEATEynamic
 from .neat_standard import NEATSDynamic
 
 from .neat_microscope import NEATPredict
