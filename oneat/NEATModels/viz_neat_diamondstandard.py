@@ -17,7 +17,7 @@ import napari
 
 class VizNEATEynamic(object):
 
-    def __init__(self,  config, imagename, model_dir, model_name,  catconfig=None, cordconfig=None, timepoints = 4, dtype = np.uint8, n_tiles = (1,1,1), normalize = True):
+    def __init__(self,  config, imagename, model_dir, model_name,  catconfig=None, cordconfig=None, timepoints = 4, layer_viz = 10, dtype = np.uint8, n_tiles = (1,1,1), normalize = True):
 
         self.config = config
         self.model_dir = model_dir
@@ -28,7 +28,7 @@ class VizNEATEynamic(object):
         self.timepoints = timepoints
         self.catconfig = catconfig
         self.cordconfig = cordconfig
-
+        self.layer_viz = layer_viz
         self.image = imread(imagename).astype(self.dtype)
         self.normalize = normalize
        
@@ -127,7 +127,7 @@ class VizNEATEynamic(object):
                                 custom_objects={'loss': self.yololoss, 'Concat': Concat})    
 
 
-        layer_outputs = [layer.output for layer in self.model.layers]
+        layer_outputs = [layer.output for layer in self.model.layers[:self.layer_viz]]
         activation_model = models.Model(inputs= self.model.input, outputs=layer_outputs)
         output_activations = []
         for inputtime in tqdm(range(0, self.timepoints)):
