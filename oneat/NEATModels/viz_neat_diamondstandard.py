@@ -116,6 +116,17 @@ class VizNEATEynamic(object):
 
         layer_outputs = [layer.output for layer in self.model.layers]
         activation_model = models.Model(inputs= self.model.input, outputs=layer_outputs)
-        activations = activation_model.predict(self.image)
-        print(activations.shape)
+        for inputtime in tqdm(range(0, 10)):
+                    if inputtime < self.image.shape[0] - self.imaget and inputtime > int(self.imaget)//2:
+                                count = count + 1
+                                      
+                                smallimage = CreateVolume(self.image, self.size_tminus, self.size_tplus, inputtime)
+                                activations = activation_model.predict(smallimage)
+                                print(activations.shape)
 
+def CreateVolume(patch, size_tminus, size_tplus, timepoint):
+    starttime = timepoint - int(size_tminus)
+    endtime = timepoint + int(size_tplus) + 1
+    #TZYX needs to be reshaed to ZYXT
+    smallimg = patch[starttime:endtime, :]
+    return smallimg
