@@ -98,51 +98,40 @@ class ScoreModels:
      def TruePositives(self):
 
             tp = 0
-            tree = spatial.cKDTree(self.location_pred)
-            for i in range(len(self.listtime_gt)):
+            fp = 0
+            tree = spatial.cKDTree(self.location_gt)
+            for i in range(len(self.location_pred)):
                 
-                return_index = (int(self.listtime_gt[i]),  int(self.listy_gt[i]), int(self.listx_gt[i]))
+                return_index = self.location_pred[i]
                 closestpoint = tree.query(return_index)
-                spacedistance, timedistance = TimedDistance(return_index, self.location_pred[closestpoint[1]])
+                spacedistance, timedistance = TimedDistance(return_index, self.location_gt[closestpoint[1]])
                     
                 if spacedistance < self.thresholdspace and timedistance < self.thresholdtime:
                         tp  = tp + 1
+                else:
+                        fp = fp + 1        
             
             fn = self.FalseNegatives()
-            fp = self.FalsePositives()
             return tp, fn, fp, len(self.location_pred), len(self.location_gt)
         
 
      def FalseNegatives(self):
         
                         tree = spatial.cKDTree(self.location_pred)
-                        fn = len(self.listtime_gt)
+                        fn = 0
                         for i in range(len(self.listtime_gt)):
                             
                             return_index = (int(self.listtime_gt[i]),int(self.listy_gt[i]), int(self.listx_gt[i]))
                             closestpoint = tree.query(return_index)
                             spacedistance, timedistance = TimedDistance(return_index, self.location_pred[closestpoint[1]])
 
-                            if spacedistance < self.thresholdspace and timedistance < self.thresholdtime:
-                                    fn  = fn - 1
+                            if spacedistance > self.thresholdspace and timedistance > self.thresholdtime:
+                                    fn  = fn + 1
 
                         return fn
                     
                     
-     def FalsePositives(self):
-        
-                
-                        fp = len(self.location_pred)
-                        tree = spatial.cKDTree(self.location_gt)
-                        for i in range(len(self.location_pred)):
-                            
-                            return_index = self.location_pred[i]
-                            closestpoint = tree.query(return_index)
-                            spacedistance, timedistance = TimedDistance(return_index, self.location_gt[closestpoint[1]])
-                            if spacedistance < self.thresholdspace and timedistance < self.thresholdtime:
-                                    fp  = fp - 1
-
-                        return fp
+    
                     
                     
                                 

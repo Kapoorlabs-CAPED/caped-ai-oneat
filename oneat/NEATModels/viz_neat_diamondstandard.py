@@ -17,7 +17,7 @@ import napari
 
 class VizNEATEynamic(object):
 
-    def __init__(self,  config, imagename, model_dir, model_name,  catconfig=None, cordconfig=None, timepoints = 4, layer_viz = 10, dtype = np.uint8, n_tiles = (1,1,1), normalize = True):
+    def __init__(self,  config, imagename, model_dir, model_name,  catconfig=None, cordconfig=None, timepoints = 4, layer_viz_start = 10, layer_viz_end = 20, dtype = np.uint8, n_tiles = (1,1,1), normalize = True):
 
         self.config = config
         self.model_dir = model_dir
@@ -28,7 +28,8 @@ class VizNEATEynamic(object):
         self.timepoints = timepoints
         self.catconfig = catconfig
         self.cordconfig = cordconfig
-        self.layer_viz = layer_viz
+        self.layer_viz_start = layer_viz_start 
+        self.layer_viz_end = layer_viz_end
         self.image = imread(imagename).astype(self.dtype)
         self.normalize = normalize
        
@@ -127,24 +128,25 @@ class VizNEATEynamic(object):
                                 custom_objects={'loss': self.yololoss, 'Concat': Concat})    
 
 
-        layer_outputs = [layer.output for layer in self.model.layers[:self.layer_viz]]
+        layer_outputs = [layer.output for layer in self.model.layers[self.layer_viz_start:self.layer_viz_end]]
         activation_model = models.Model(inputs= self.model.input, outputs=layer_outputs)
-       
-        for inputtime in tqdm(range(0, self.timepoints)):
-                    if inputtime < self.image.shape[0] - self.imaget and inputtime > int(self.imaget)//2:
+
+        for inputtime in tqdm(range(0, self.image.shape[0])):
+               if inputtime < self.image.shape[0] - self.imaget and inputtime > int(self.imaget)//2:
                                
                                       
                                 smallimage = CreateVolume(self.image, self.size_tminus, self.size_tplus, inputtime)
-                                
+                                self.viewer.add_image(np.sum(smallimage, axis = 0), name= 'Image', blending= 'additive' )
                                 smallimage = np.expand_dims(smallimage,0)
                                 smallimage = tf.reshape(smallimage, (smallimage.shape[0], smallimage.shape[2], smallimage.shape[3],smallimage.shape[4], smallimage.shape[1]))
                                 activations = activation_model.predict(smallimage)
                                 print(type(activations), len(activations))
                                 for count, activation in enumerate(activations):
-                                    print(activation.shape)
-                                    self.viewer.add_image(activation, name= 'Activation' + str(count), blending= 'additive', colormap='inferno' )
-
+                                    max_activation = np.sum(activation, axis = -1)
+                                    self.viewer.add_image(max_activation, name= 'Activation' + str(count), blending= 'additive', colormap='inferno' )
+        
         napari.run()
+
 def CreateVolume(patch, size_tminus, size_tplus, timepoint):
     starttime = timepoint - int(size_tminus)
     endtime = timepoint + int(size_tplus) + 1
