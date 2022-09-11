@@ -75,7 +75,7 @@ class ScoreModels:
             Name.append(name)
             TP.append(tp)
             FN.append(fn)
-            FP.append(tp - gt)
+            FP.append(gt - tp)
             GT.append(gt)
          data = list(zip(Name, TP, FP, FN, GT))
 
