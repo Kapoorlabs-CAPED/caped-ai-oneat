@@ -129,18 +129,19 @@ class VizNEATEynamic(object):
 
         layer_outputs = [layer.output for layer in self.model.layers[:self.layer_viz]]
         activation_model = models.Model(inputs= self.model.input, outputs=layer_outputs)
-        output_activations = []
+       
         for inputtime in tqdm(range(0, self.timepoints)):
                     if inputtime < self.image.shape[0] - self.imaget and inputtime > int(self.imaget)//2:
                                
                                       
                                 smallimage = CreateVolume(self.image, self.size_tminus, self.size_tplus, inputtime)
-                                print(smallimage.shape)
+                                
                                 smallimage = np.expand_dims(smallimage,0)
                                 smallimage = tf.reshape(smallimage, (smallimage.shape[0], smallimage.shape[2], smallimage.shape[3],smallimage.shape[4], smallimage.shape[1]))
                                 activations = activation_model.predict(smallimage)
                                 print(type(activations), len(activations))
                                 for count, activation in enumerate(activations):
+                                    print(activation.shape)
                                     self.viewer.add_image(activation, name= 'Activation' + str(count), blending= 'additive', colormap='inferno' )
 
         napari.run()
