@@ -25,7 +25,8 @@ class VizNEATEynamic(object):
         self.n_tiles = n_tiles
         self.imagename = imagename
         self.dtype = dtype
-
+        self.catconfig = catconfig
+        self.cordconfig = cordconfig
 
         self.originalimage = imread(imagename).astype(self.dtype)
         self.normalize = normalize
