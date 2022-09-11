@@ -26,16 +26,11 @@ class VizNEATEynamic(object):
         self.imagename = imagename
         self.dtype = dtype
 
-        
+
         self.originalimage = imread(imagename).astype(self.dtype)
         self.normalize = normalize
        
-        self.pad_width = (self.config['imagey'], self.config['imagex'])
-        if self.normalize: 
-            self.originalimage = normalizeFloatZeroOne(self.originalimage, 1, 99.8, dtype = self.dtype)
-        self.image = np.zeros([self.originalimage.shape[0], self.originalimage.shape[1],  self.originalimage.shape[2] + 2 * self.pad_width[0], self.originalimage.shape[3] + 2 * self.pad_width[1] ])
-        for i in range(self.originalimage.shape[0]):
-            self.image[i,:] = pad_timelapse(self.originalimage[i,:], self.pad_width)    
+           
         if self.config != None:
             self.npz_directory = config.npz_directory
             self.npz_name = config.npz_name
@@ -109,7 +104,12 @@ class VizNEATEynamic(object):
             self.stride = self.config['stride']
 
     def VizNets(self):
-
+        self.pad_width = (self.config['imagey'], self.config['imagex'])
+        if self.normalize: 
+            self.originalimage = normalizeFloatZeroOne(self.originalimage, 1, 99.8, dtype = self.dtype)
+        self.image = np.zeros([self.originalimage.shape[0], self.originalimage.shape[1],  self.originalimage.shape[2] + 2 * self.pad_width[0], self.originalimage.shape[3] + 2 * self.pad_width[1] ])
+        for i in range(self.originalimage.shape[0]):
+            self.image[i,:] = pad_timelapse(self.originalimage[i,:], self.pad_width) 
         self.model = load_model(os.path.join(self.model_dir, self.model_name) + '.h5',
                                 custom_objects={'loss': self.yololoss, 'Concat': Concat})    
 
