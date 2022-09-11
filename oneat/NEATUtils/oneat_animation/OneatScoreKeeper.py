@@ -35,8 +35,9 @@ class ScoreModels:
          FP = []
          FN = []
          GT = []
+         Score_thresh= []
          Pred = []
-         columns = ['Model Name', 'True Positive', 'False Positive', 'False Negative', 'Total Predictions', 'GT predictions']
+         columns = ['Model Name', 'True Positive', 'False Positive', 'False Negative', 'Total Predictions', 'GT predictions', 'Score Threshold']
          
 
          dataset_gt  = pd.read_csv(self.groundtruth, delimiter = ',')
@@ -85,7 +86,8 @@ class ScoreModels:
             FP.append(fp)
             GT.append(gt)
             Pred.append(pred)
-         data = list(zip(Name, TP, FP, FN, Pred, GT))
+            Score_thresh.append(self.thresholdscore)
+         data = list(zip(Name, TP, FP, FN, Pred, GT, Score_thresh))
 
          df = pd.DataFrame(data, columns=columns)
          df.to_csv(str(self.csv_pred.parent) + '_Model_Accuracy' + '.csv')
