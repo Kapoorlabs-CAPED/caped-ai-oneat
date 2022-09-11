@@ -17,7 +17,7 @@ from tifffile import imread
 
 class VizNEATEynamic(object):
 
-    def __init__(self,  config, imagename, model_dir, model_name,  catconfig=None, cordconfig=None,  dtype = np.uint8, n_tiles = (1,1,1), normalize = True):
+    def __init__(self,  config, imagename, model_dir, model_name,  catconfig=None, cordconfig=None, timepoints = 10,  dtype = np.uint8, n_tiles = (1,1,1), normalize = True):
 
         self.config = config
         self.model_dir = model_dir
@@ -25,6 +25,7 @@ class VizNEATEynamic(object):
         self.n_tiles = n_tiles
         self.imagename = imagename
         self.dtype = dtype
+        self.timepoints = timepoints
         self.catconfig = catconfig
         self.cordconfig = cordconfig
 
@@ -129,13 +130,17 @@ class VizNEATEynamic(object):
 
         layer_outputs = [layer.output for layer in self.model.layers]
         activation_model = models.Model(inputs= self.model.input, outputs=layer_outputs)
-        for inputtime in tqdm(range(0, 10)):
+        output_activations = []
+        for inputtime in tqdm(range(0, self.timepoints)):
                     if inputtime < self.image.shape[0] - self.imaget and inputtime > int(self.imaget)//2:
                                
                                       
                                 smallimage = CreateVolume(self.image, self.size_tminus, self.size_tplus, inputtime)
-                                activations = activation_model.predict(smallimage)
-                                print(activations.shape)
+                                activations = activation_model.predict(np.expand_dims(smallimage,0))
+                                print(activations.shape,activations[0,:].shape )
+                                output_activations.append(activations[0,:])
+
+        output_activations = np.asarray(output_activations)                        
 
 def CreateVolume(patch, size_tminus, size_tplus, timepoint):
     starttime = timepoint - int(size_tminus)
