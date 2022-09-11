@@ -98,7 +98,7 @@ class ScoreModels:
             
             fn = self.FalseNegatives()
             fp = self.FalsePositives()
-            return tp/len(self.listtime_gt) * 100, fn, fp
+            return tp, fn, fp
         
 
      def FalseNegatives(self):
@@ -114,7 +114,7 @@ class ScoreModels:
                             if spacedistance < self.thresholdspace and timedistance < self.thresholdtime:
                                     fn  = fn - 1
 
-                        return fn/len(self.listtime_gt) * 100
+                        return fn
                     
                     
      def FalsePositives(self):
@@ -131,7 +131,7 @@ class ScoreModels:
                             if spacedistance < self.thresholdspace and timedistance < self.thresholdtime:
                                     fp  = fp - 1
 
-                        return fp/len(self.location_pred) * 100
+                        return fp
                     
                     
                                 
