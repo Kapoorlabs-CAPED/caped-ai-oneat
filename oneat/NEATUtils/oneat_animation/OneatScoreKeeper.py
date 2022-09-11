@@ -34,8 +34,9 @@ class ScoreModels:
          TP = []
          FP = []
          FN = []
-        
-         columns = ['Model Name', 'True Positive', 'False Positive', 'False Negative']
+         GT = []
+         Pred = []
+         columns = ['Model Name', 'True Positive', 'False Positive', 'False Negative', 'Total Predictions', 'GT predictions']
          
 
          dataset_gt  = pd.read_csv(self.groundtruth, delimiter = ',')
@@ -69,16 +70,18 @@ class ScoreModels:
 
                 if float(self.listscore_pred[i]) >= float(self.thresholdscore):   
                     self.location_pred.append([int(self.listtime_pred[i]), int(self.listy_pred[i]), int(self.listx_pred[i])])
-            tp, fn, fp = self.TruePositives()
+            tp, fn, fp, pred, gt = self.TruePositives()
             
             Name.append(name)
             TP.append(tp)
             FN.append(fn)
             FP.append(fp)
-         data = list(zip(Name, TP, FP, FN))
+            GT.append(gt)
+            Pred.append(pred)
+         data = list(zip(Name, TP, FP, FN, Pred, GT))
 
          df = pd.DataFrame(data, columns=columns)
-         df.to_csv(str(self.csv_pred.parent) + 'Model_Accuracy')
+         df.to_csv(str(self.csv_pred.parent) + '_Model_Accuracy' + '.csv')
          return df
 
      
@@ -98,7 +101,7 @@ class ScoreModels:
             
             fn = self.FalseNegatives()
             fp = self.FalsePositives()
-            return tp, fn, fp
+            return tp, fn, fp, len(self.location_pred), len(self.location_gt)
         
 
      def FalseNegatives(self):
