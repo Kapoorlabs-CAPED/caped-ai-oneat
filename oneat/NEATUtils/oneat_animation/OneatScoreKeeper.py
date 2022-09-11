@@ -54,16 +54,12 @@ class ScoreModels:
 
          for csv_pred in self.predictions:
             self.location_pred = []
-            self.location_gt = []
 
             self.listtime_pred = []
             self.listy_pred = []
             self.listx_pred = []
             self.listscore_pred = []
 
-            self.listtime_gt = []
-            self.listy_gt = []
-            self.listx_gt = []
             self.csv_pred = csv_pred
             name = self.csv_pred.stem
             dataset_pred  = pd.read_csv(self.csv_pred, delimiter = ',')
