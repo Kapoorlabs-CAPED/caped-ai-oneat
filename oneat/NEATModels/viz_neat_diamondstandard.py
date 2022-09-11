@@ -105,6 +105,18 @@ class VizNEATEynamic(object):
             self.stride = self.config['stride']
 
     def VizNets(self):
+        self.model_keras = nets.DIANET
+
+        if self.multievent == True:
+            self.last_activation = 'sigmoid'
+            self.entropy = 'binary'
+
+        if self.multievent == False:
+            self.last_activation = 'softmax'
+            self.entropy = 'notbinary'
+
+        self.yololoss = diamond_yolo_loss(self.categories, self.gridx, self.gridy, self.gridz, self.nboxes,
+                                          self.box_vector, self.entropy, self.yolo_v0, self.yolo_v1, self.yolo_v2)
         self.pad_width = (self.config['imagey'], self.config['imagex'])
         if self.normalize: 
             self.originalimage = normalizeFloatZeroOne(self.originalimage, 1, 99.8, dtype = self.dtype)
