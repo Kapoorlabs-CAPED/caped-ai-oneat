@@ -68,7 +68,7 @@ class ScoreModels:
             for i in range(len(self.listtime_pred)):
 
                 if self.listscore_pred[i] >= self.thresholdscore:   
-                    self.location_pred.append([self.listtime_pred[i], self.listy_pred[i], self.listx_pred[i]])
+                    self.location_pred.append([int(self.listtime_pred[i]), int(self.listy_pred[i]), int(self.listx_pred[i])])
             tp, fn, fp = self.TruePositives()
             
             Name.append(name)
@@ -120,18 +120,18 @@ class ScoreModels:
      def FalsePositives(self):
         
                 
-                        fp = len(self.listtime_pred)
+                        fp = len(self.location_pred)
                        
                         tree = spatial.cKDTree(self.location_gt)
-                        for i in range(len(self.listtime_pred)):
+                        for i in range(len(self.location_pred)):
                             
-                            return_index = (int(self.listtime_pred[i]), int(self.listy_pred[i]), int(self.listx_pred[i]))
+                            return_index = self.location_pred[i]
                             closestpoint = tree.query(return_index)
                             spacedistance, timedistance = TimedDistance(return_index, self.location_gt[closestpoint[1]])
                             if spacedistance < self.thresholdspace and timedistance < self.thresholdtime:
                                     fp  = fp - 1
 
-                        return fp/len(self.listtime_pred) * 100
+                        return fp/len(self.location_pred) * 100
                     
                     
                                 
