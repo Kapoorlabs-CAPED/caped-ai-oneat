@@ -1020,7 +1020,7 @@ def save_static_csv(imagename, key_categories, iou_classedboxes, savedir, downsa
                 for iou_current_event_box in iou_current_event_boxes:
                     xcenter = iou_current_event_box['xcenter'] * downsamplefactor
                     ycenter = iou_current_event_box['ycenter'] * downsamplefactor
-                    tcenter = iou_current_event_box['real_time_event'] + 1
+                    tcenter = iou_current_event_box['real_time_event']
                     confidence = iou_current_event_box['confidence']
                     score = iou_current_event_box[event_name]
                     radius = np.sqrt(
@@ -1148,7 +1148,7 @@ def save_dynamic_csv(imagename, key_categories, iou_classedboxes, savedir, downs
                 for iou_current_event_box in iou_current_event_boxes:
                     xcenter = iou_current_event_box['xcenter'] * downsamplefactor
                     ycenter = iou_current_event_box['ycenter'] * downsamplefactor
-                    tcenter = iou_current_event_box['real_time_event'] + 1
+                    tcenter = iou_current_event_box['real_time_event']
                     confidence = iou_current_event_box['confidence']
                     angle = iou_current_event_box['realangle']
                     score = iou_current_event_box[event_name]
@@ -1215,7 +1215,7 @@ def save_diamond_csv(imagename, key_categories, iou_classedboxes, savedir, maski
                     xcenter = iou_current_event_box['xcenter'] 
                     ycenter = iou_current_event_box['ycenter'] 
                     zcenter = iou_current_event_box['zcenter']
-                    tcenter = iou_current_event_box['real_time_event'] + 1
+                    tcenter = iou_current_event_box['real_time_event']
                     confidence = iou_current_event_box['confidence']
                     angle = iou_current_event_box['realangle']
                     score = iou_current_event_box[event_name]
