@@ -25,6 +25,7 @@ oneat/NEATModels/neat_silverstandard.py
 oneat/NEATModels/neat_standard.py
 oneat/NEATModels/neat_static_standard.py
 oneat/NEATModels/nets.py
+oneat/NEATModels/viz_neat_diamondstandard.py
 oneat/NEATUtils/HolovizNapari.py
 oneat/NEATUtils/MovieCreator.py
 oneat/NEATUtils/NMS.py
