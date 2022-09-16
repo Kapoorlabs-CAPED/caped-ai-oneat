@@ -544,12 +544,12 @@ class NEATDynamic(object):
                                                                 inputtime, self.config,
                                                                 self.key_categories, self.key_cord, self.nboxes, 'detection',
                                                                 'dynamic', center_oneat = self.center_oneat)
-                                            if boxprediction is not None and len(boxprediction) > 0 and xcenter - self.pad_width[1] > 0 and ycenter - self.pad_width[0] > 0 and xcenter  < self.image.shape[2] - self.pad_width[1] and ycenter  < self.image.shape[1] - self.pad_width[0]:
+                                            if boxprediction is not None and len(boxprediction) > 0 and xcenter - self.pad_width[1]//2 > 0 and ycenter - self.pad_width[0]//2 > 0 and xcenter  < self.image.shape[2] - self.pad_width[1]//2 and ycenter  < self.image.shape[1] - self.pad_width[0]//2:
                                                     
                                                         
                                                         boxprediction[0]['real_time_event'] = inputtime
-                                                        boxprediction[0]['xcenter'] = xcenter - self.pad_width[1]
-                                                        boxprediction[0]['ycenter'] = ycenter - self.pad_width[0]
+                                                        boxprediction[0]['xcenter'] = xcenter - self.pad_width[1]//2
+                                                        boxprediction[0]['ycenter'] = ycenter - self.pad_width[0]//2
                                                         boxprediction[0]['xstart'] = boxprediction[0]['xcenter']   - int(self.imagex/2) * self.downsamplefactor
                                                         boxprediction[0]['ystart'] = boxprediction[0]['ycenter']   - int(self.imagey/2) * self.downsamplefactor  
                                                         eventboxes = eventboxes + boxprediction

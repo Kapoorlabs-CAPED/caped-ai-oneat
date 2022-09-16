@@ -281,10 +281,10 @@ def load_full_training_data(directory, filename, axes=None, verbose=True):
 
 def pad_timelapse(image, pad_width):
 
-    zero_pad = np.zeros([image.shape[0], image.shape[1] + pad_width[0] * 2, image.shape[2] + pad_width[1] * 2])
+    zero_pad = np.zeros([image.shape[0], image.shape[1] + pad_width[0] , image.shape[2] + pad_width[1] ])
     for i in range(0, image.shape[0]):
 
-      zero_pad[i,:,:] =  np.pad(image[i,:,:], pad_width, mode = 'edge')
+      zero_pad[i,:,:] =  np.pad(image[i,:,:], ( (pad_width[0]//2, pad_width[0]//2), (pad_width[1]//2, pad_width[1]//2 )  ), mode = 'edge')
 
     return zero_pad   
 
@@ -421,7 +421,7 @@ def GenerateVolumeMarkers(segimage, pad_width  ):
 
     ndim = len(segimage.shape)
     #TZYX
-    Markers = np.zeros([segimage.shape[0], segimage.shape[1] , segimage.shape[2] + pad_width[0] * 2 , segimage.shape[3] + pad_width[1] * 2])
+    Markers = np.zeros([segimage.shape[0], segimage.shape[1] , segimage.shape[2] + pad_width[0] , segimage.shape[3] + pad_width[1] ])
     
     for i in tqdm(range(0, segimage.shape[0])):
 
@@ -449,7 +449,7 @@ def GenerateVolumeMarkers(segimage, pad_width  ):
 def GenerateMarkers(segimage,  start_project_mid = 4, end_project_mid = 4, pad_width = (0,0) ):
 
     ndim = len(segimage.shape)
-    Markers = np.zeros([segimage.shape[0], segimage.shape[-2] + pad_width[0] * 2, segimage.shape[-1] + pad_width[1] * 2])
+    Markers = np.zeros([segimage.shape[0], segimage.shape[-2] + pad_width[0], segimage.shape[-1] + pad_width[1]])
     
     for i in tqdm(range(0, segimage.shape[0])):
 

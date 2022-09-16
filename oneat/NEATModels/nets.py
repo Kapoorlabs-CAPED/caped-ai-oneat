@@ -395,7 +395,7 @@ def ORNET(input_shape, categories,unit, box_vector,nboxes = 1, stage_number = 3,
     
     return model
 
-def DIANET(input_shape, categories, box_vector,nboxes = 1, stage_number = 3,  depth = 38, start_kernel = 3, mid_kernel = 3, startfilter = 32,  input_weights = None, last_activation = 'softmax'):
+def VollNet(input_shape, categories, box_vector,nboxes = 1, stage_number = 3,  depth = 38, start_kernel = 3, mid_kernel = 3, startfilter = 32,  input_weights = None, last_activation = 'softmax'):
   
     img_input = layers.Input(shape = (None, None, None, input_shape[3]))
     print(img_input)

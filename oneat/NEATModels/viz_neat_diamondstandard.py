@@ -108,7 +108,7 @@ class VizNEATEynamic(object):
 
 
     def VizNets(self):
-        self.model_keras = nets.DIANET
+        self.model_keras = nets.VollNet
 
         if self.multievent == True:
             self.last_activation = 'sigmoid'

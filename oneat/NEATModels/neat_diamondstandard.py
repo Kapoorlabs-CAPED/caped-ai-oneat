@@ -137,7 +137,7 @@ class NEATEynamic(object):
         self.Xoriginal = None
         self.Xoriginal_val = None
 
-        self.model_keras = nets.DIANET
+        self.model_keras = nets.VollNet
 
         if self.multievent == True:
             self.last_activation = 'sigmoid'
@@ -309,7 +309,7 @@ class NEATEynamic(object):
             self.originalimage = normalizeFloatZeroOne(self.originalimage, 1, 99.8, dtype = self.dtype)
         if self.remove_markers == True:
             self.generate_maps = False 
-            self.image = np.zeros([self.originalimage.shape[0], self.originalimage.shape[1],  self.originalimage.shape[2] + 2 * self.pad_width[0], self.originalimage.shape[3] + 2 * self.pad_width[1] ])
+            self.image = np.zeros([self.originalimage.shape[0], self.originalimage.shape[1],  self.originalimage.shape[2] + self.pad_width[0], self.originalimage.shape[3] + self.pad_width[1] ])
             for i in range(self.originalimage.shape[0]):
                self.image[i,:] = pad_timelapse(self.originalimage[i,:], self.pad_width)
             
@@ -318,7 +318,7 @@ class NEATEynamic(object):
             self.second_pass_predict()
         if self.remove_markers == False:
            self.generate_maps = False 
-           self.image = np.zeros([self.originalimage.shape[0], self.originalimage.shape[1],  self.originalimage.shape[2] + 2 * self.pad_width[0], self.originalimage.shape[3] + 2 * self.pad_width[1] ])
+           self.image = np.zeros([self.originalimage.shape[0], self.originalimage.shape[1],  self.originalimage.shape[2] + self.pad_width[0], self.originalimage.shape[3] + self.pad_width[1] ])
            for i in range(self.originalimage.shape[0]):
                self.image[i,:] = pad_timelapse(self.originalimage[i,:], self.pad_width)
             
@@ -520,12 +520,12 @@ class NEATEynamic(object):
                                                             self.key_categories, 
                                                             self.key_cord, 
                                                             self.nboxes, 'detection', 'dynamic',marker_tree=self.marker_tree)
-                                            if boxprediction is not None and len(boxprediction) > 0 and xcenter - self.pad_width[1] > 0 and ycenter - self.pad_width[0] > 0 and xcenter  < self.image.shape[3] - self.pad_width[1] and ycenter  < self.image.shape[2] - self.pad_width[0] :
+                                            if boxprediction is not None and len(boxprediction) > 0 and xcenter - self.pad_width[1]//2 > 0 and ycenter - self.pad_width[0]//2 > 0 and xcenter  < self.image.shape[3] - self.pad_width[1]//2 and ycenter  < self.image.shape[2] - self.pad_width[0]//2 :
                                                     
                                                         
                                                         boxprediction[0]['real_time_event'] = inputtime
-                                                        boxprediction[0]['xcenter'] = xcenter  - self.pad_width[1]
-                                                        boxprediction[0]['ycenter'] = ycenter - self.pad_width[0]
+                                                        boxprediction[0]['xcenter'] = xcenter  - self.pad_width[1]//2
+                                                        boxprediction[0]['ycenter'] = ycenter - self.pad_width[0]//2
                                                         boxprediction[0]['zcenter'] = zcenter 
 
 
