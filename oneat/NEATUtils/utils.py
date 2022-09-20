@@ -18,6 +18,9 @@ from skimage.measure import label
 from skimage.morphology import  dilation, square, binary_dilation, disk
 from skimage import morphology
 from skimage.segmentation import watershed
+
+from scipy.ndimage import binary_fill_holes
+from scipy.ndimage import find_objects
 """
  @author: Varun Kapoor
 
