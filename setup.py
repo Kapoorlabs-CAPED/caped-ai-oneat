@@ -37,6 +37,7 @@ setup(
         "napari-animation",
         "pydot",
         "graphviz",
+        "oneat-augmentations",
        
     ],
     packages=setuptools.find_packages(),
