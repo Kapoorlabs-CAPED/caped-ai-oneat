@@ -1210,7 +1210,7 @@ def resnet_3D_v2(input_shape, categories,box_vector, stage_number = 3, depth = 3
 
 def resnet_3d_lstm_layer(inputs,
                          num_filters = 64,
-                         lstm_kernel = 3,
+                         kernel_size = 3,
                          strides = 1,
                          return_sequences = True,
                          activation='relu',
@@ -1219,7 +1219,7 @@ def resnet_3d_lstm_layer(inputs,
                          ):
     
      conv_lstm_3d = ConvLSTM2D(filters = num_filters, 
-                kernel_size = (lstm_kernel, lstm_kernel),  
+                kernel_size = (kernel_size, kernel_size),  
                 activation=activation, 
                 strides = strides,
                 data_format = 'channels_last',
