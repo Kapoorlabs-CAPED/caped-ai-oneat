@@ -145,10 +145,8 @@ class NEATDynamic(object):
         self.Xoriginal = None
         self.Xoriginal_val = None
 
-        if self.residual:
-            self.model_keras = nets.ORNET
-        else:
-            self.model_keras = nets.OSNET
+        self.model_keras = nets.ORNET
+      
 
         if self.multievent == True:
             self.last_activation = 'sigmoid'

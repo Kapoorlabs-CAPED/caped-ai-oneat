@@ -12,3 +12,4 @@ natsort
 napari-animation
 pydot
 graphviz
+oneat-augmentations
