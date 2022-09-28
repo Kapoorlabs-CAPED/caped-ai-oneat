@@ -4,8 +4,8 @@ from __future__ import print_function
 import keras as K
 from keras import regularizers
 from keras.layers import BatchNormalization, Activation
-from keras.layers import Conv2D, Conv3D 
-from tensorflow.keras.layers import ConvLSTM1D, ConvLSTM2D
+from keras.layers import Conv1D, Conv2D, Conv3D 
+from keras.layers import ConvLSTM1D, ConvLSTM2D
 from keras import layers
 from keras import models
 from keras.layers.core import Lambda
@@ -783,7 +783,92 @@ def resnet_v2(input_shape, categories, box_vector,nboxes = 1, stage_number = 3, 
         
     return model
 
+def resnet_1D_regression(input_shape,  stage_number = 3,  depth = 38,  start_kernel = 3, mid_kernel = 3, startfilter = 48,  input_weights = None, last_activation = 'linear'):
+    """
+    # Returns
+        model (Model): Keras model instance
+    """
 
+    last_conv_factor =  2 ** (stage_number - 1)
+    img_input = layers.Input(shape = (None, 1))
+    if (depth - 2) % 9 != 0:
+        raise ValueError('depth should be 9n+2 (eg 56 or 110 in [b])')
+    # Start model definition.
+    num_filters_in = startfilter
+    num_res_blocks = int((depth - 2) / 9)
+
+    # v2 performs Conv2D with BN-ReLU on input before splitting into 2 paths
+    x = resnet_layer_1D(inputs=img_input,
+                     num_filters=num_filters_in,
+                     kernel_size = start_kernel,
+                     conv_first=True)
+
+    # Instantiate the stack of residual units
+    for stage in range(stage_number):
+        for res_block in range(num_res_blocks):
+            activation = 'relu'
+            batch_normalization = True
+            strides = 1
+            if stage == 0:
+                num_filters_out = num_filters_in * 4
+                if res_block == 0:  # first layer and first stage
+                    activation = None
+                    batch_normalization = False
+            else:
+                num_filters_out = num_filters_in * 2
+                if res_block == 0:  # not first layer and not first stage
+                    strides = 2  # downsample
+
+            # bottleneck residual unit
+            y = resnet_layer_1D(inputs=x,
+                             num_filters=num_filters_in,
+                             kernel_size=1,
+                             strides=strides,
+                             activation=activation,
+                             batch_normalization=batch_normalization,
+                             conv_first=False)
+            y = resnet_layer_1D(inputs=y,
+                             num_filters=num_filters_in,
+                               kernel_size= mid_kernel,
+                             conv_first=False)
+            y = resnet_layer_1D(inputs=y,
+                             num_filters=num_filters_out,
+                             kernel_size=1,
+                             conv_first=False)
+            if res_block == 0:
+                # linear projection residual shortcut connection to match
+                # changed dims
+                x = resnet_layer_1D(inputs=x,
+                                 num_filters=num_filters_out,
+                                 kernel_size=1,
+                                 strides=strides,
+                                 activation=None,
+                                 batch_normalization=False)
+              
+            x = K.layers.add([x, y])
+        
+        num_filters_in = num_filters_out
+
+    # Add classifier on top.
+    # v2 has BN-ReLU before Pooling
+    x = (Conv2D(1, kernel_size= mid_kernel,kernel_regularizer=regularizers.l2(reg_weight), padding = 'same'))(x)
+    x = BatchNormalization()(x)
+    x = Activation('relu')(x)
+    
+    outputs = x
+    
+    inputs = img_input
+   
+     
+    # Create model.
+    model = models.Model(inputs, outputs)
+    
+    
+    if input_weights is not None:
+
+        model.load_weights(input_weights, by_name =True)
+        
+    return model
 
 def resnet_v2_class(input_shape, categories, box_vector,nboxes = 1, stage_number = 3,  depth = 38,  start_kernel = 3, mid_kernel = 3, startfilter = 48,  input_weights = None, last_activation = 'softmax'):
     """ResNet Version 2 Model builder [b]
@@ -1136,6 +1221,7 @@ def resnet_3d_lstm_layer(inputs,
      conv_lstm_3d = ConvLSTM2D(filters = num_filters, 
                 kernel_size = (lstm_kernel, lstm_kernel),  
                 activation=activation, 
+                strides = strides,
                 data_format = 'channels_last',
                 return_sequences = return_sequences, 
                 padding = "same")
@@ -1208,6 +1294,48 @@ def resnet_layer(inputs,
         x (tensor): tensor as input to the next layer
     """
     conv = Conv2D(num_filters,
+                  kernel_size=kernel_size,
+                  strides=strides,
+                  padding='same',
+                  kernel_initializer='he_normal',
+                  kernel_regularizer=regularizers.l2(1e-4))
+
+    x = inputs
+    if conv_first:
+        x = conv(x)
+        if batch_normalization:
+            x = BatchNormalization()(x)
+        if activation is not None:
+            x = Activation(activation)(x)
+    else:
+        if batch_normalization:
+            x = BatchNormalization()(x)
+        if activation is not None:
+            x = Activation(activation)(x)
+        x = conv(x)
+    return x
+
+def resnet_layer_1D(inputs,
+                 num_filters=64,
+                 kernel_size=3,
+                 strides=1,
+                 activation='relu',
+                 batch_normalization=True,
+                 conv_first=True):
+    """1D Convolution-Batch Normalization-Activation stack builder
+    # Arguments
+        inputs (tensor): input tensor from input image or previous layer
+        num_filters (int): Conv2D number of filters
+        kernel_size (int): Conv2D square kernel dimensions
+        strides (int): Conv2D square stride dimensions
+        activation (string): activation name
+        batch_normalization (bool): whether to include batch normalization
+        conv_first (bool): conv-bn-activation (True) or
+            bn-activation-conv (False)
+    # Returns
+        x (tensor): tensor as input to the next layer
+    """
+    conv = Conv1D(num_filters,
                   kernel_size=kernel_size,
                   strides=strides,
                   padding='same',
