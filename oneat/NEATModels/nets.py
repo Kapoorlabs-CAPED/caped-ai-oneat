@@ -19,8 +19,6 @@ reg_weight = 1.e-4
 Using RESNET and stacked layer style architechtures to define NEAT architecture
 """
 
-
-
 class Concat(layers.Layer):
 
      def __init__(self, axis = -1, name = 'Concat', **kwargs):
@@ -105,10 +103,7 @@ def ORNET(input_shape, categories,unit, box_vector,nboxes = 1, stage_number = 3,
             x = K.layers.add([x, y])
         num_filters_in = num_filters_out
 
-    # Add classifier on top.
-    # v2 has BN-ReLU before Pooling
-    x = BatchNormalization()(x)
-    x = Activation('relu')(x)
+
     num_filters_in_TD = startfilter
     num_res_blocks = int((depth - 2) / 9)
     
@@ -162,10 +157,7 @@ def ORNET(input_shape, categories,unit, box_vector,nboxes = 1, stage_number = 3,
             z = K.layers.add([z, yz])
         num_filters_in_TD = num_filters_out
 
-    # Add classifier on top.
-    # v2 has BN-ReLU before Pooling
-    z = BatchNormalization()(z)
-    z = Activation('relu')(z)
+  
     branchAdd = layers.add([z, x])
     
     x = ConvLSTM2D(filters = unit, kernel_size = (lstm_kernel, lstm_kernel),  activation='relu', data_format = 'channels_last', return_sequences = False, padding = "same", name = "newlstmdeep")(branchAdd)
@@ -279,9 +271,7 @@ def LORNET(input_shape, categories,unit, box_vector,nboxes = 1, stage_number = 3
                              kernel_size = mid_kernel,
                              return_sequences = False,
                              conv_first=False)
-    x = BatchNormalization()(x)
-    x = Activation('relu')(x)
-    
+ 
 
     input_cat = Lambda(lambda x:x[:,:,:,0:categories])(x)
     input_box = Lambda(lambda x:x[:,:,:,categories:])(x)
@@ -290,12 +280,8 @@ def LORNET(input_shape, categories,unit, box_vector,nboxes = 1, stage_number = 3
     output_cat = (Conv2D(categories, (round(input_shape[1]/last_conv_factor),round(input_shape[2]/last_conv_factor)),activation= last_activation,kernel_regularizer=regularizers.l2(reg_weight), padding = 'valid', name = 'yolo'))(input_cat)
     output_box = (Conv2D(nboxes*(box_vector), (round(input_shape[1]/last_conv_factor),round(input_shape[2]/last_conv_factor)),activation= 'sigmoid' ,kernel_regularizer=regularizers.l2(reg_weight), padding = 'valid', name = 'secyolo'))(input_box)
 
-
-
-
     block = Concat(-1)
     outputs = block([output_cat,output_box]) 
-    
   
     inputs = img_input
    
@@ -313,7 +299,6 @@ def LORNET(input_shape, categories,unit, box_vector,nboxes = 1, stage_number = 3
 def VollNet(input_shape, categories, box_vector,nboxes = 1, stage_number = 3,  depth = 38, start_kernel = 3, mid_kernel = 3, startfilter = 32,  input_weights = None, last_activation = 'softmax'):
   
     img_input = layers.Input(shape = (None, None, None, input_shape[3]))
-    print(img_input)
     if (depth - 2) % 9 != 0:
         raise ValueError('depth should be 9n+2 (eg 56 or 110 in [b])')
     # Start model definition.
@@ -370,15 +355,6 @@ def VollNet(input_shape, categories, box_vector,nboxes = 1, stage_number = 3,  d
               
             x = K.layers.add([x, y])
         num_filters_in = num_filters_out
-
-    # Add classifier on top.
-    # v2 has BN-ReLU before Pooling
-    x = BatchNormalization()(x)
-    x = Activation('relu')(x)
-    num_res_blocks = int((depth - 2) / 9)
-    
-    
-  
    
     input_cat = Lambda(lambda x:x[:,:,:,:,0:categories])(x)
     input_box = Lambda(lambda x:x[:,:,:,:,categories:])(x)
@@ -398,7 +374,7 @@ def VollNet(input_shape, categories, box_vector,nboxes = 1, stage_number = 3,  d
 
     if input_weights is not None:
 
-       model.load_weights(input_weights, by_name =True)
+       model.load_weights(input_weights, by_name = True)
     
     return model
 
@@ -633,13 +609,9 @@ def resnet_lstm_v2(input_shape, categories, box_vector,nboxes = 1, stage_number 
                              kernel_size = mid_kernel,
                              return_sequences = False,
                              conv_first=False)
-    x = BatchNormalization()(x)
-    x = Activation('relu')(x)
+  
     input_cat = Lambda(lambda x:x[:,:,:,0:categories])(x)
     input_box = Lambda(lambda x:x[:,:,:,categories:])(x)
-    
-      
-    
 
     output_cat = (Conv2D(categories, (round(input_shape[0]/last_conv_factor),round(input_shape[1]/last_conv_factor)),activation= last_activation ,kernel_regularizer=regularizers.l2(reg_weight), padding = 'valid'))(input_cat)
     output_box = (Conv2D(nboxes * (box_vector), (round(input_shape[0]/last_conv_factor),round(input_shape[1]/last_conv_factor)),activation= 'sigmoid' ,kernel_regularizer=regularizers.l2(reg_weight), padding = 'valid'))(input_box)
@@ -747,16 +719,9 @@ def resnet_v2(input_shape, categories, box_vector,nboxes = 1, stage_number = 3, 
         
         num_filters_in = num_filters_out
 
-    # Add classifier on top.
-    # v2 has BN-ReLU before Pooling
 
-    x = BatchNormalization()(x)
-    x = Activation('relu')(x)
     input_cat = Lambda(lambda x:x[:,:,:,0:categories])(x)
     input_box = Lambda(lambda x:x[:,:,:,categories:])(x)
-    
-      
-    
 
     output_cat = (Conv2D(categories, (round(input_shape[0]/last_conv_factor),round(input_shape[1]/last_conv_factor)),activation= last_activation ,kernel_regularizer=regularizers.l2(reg_weight), padding = 'valid'))(input_cat)
     output_box = (Conv2D(nboxes * (box_vector), (round(input_shape[0]/last_conv_factor),round(input_shape[1]/last_conv_factor)),activation= 'sigmoid' ,kernel_regularizer=regularizers.l2(reg_weight), padding = 'valid'))(input_box)
@@ -847,8 +812,6 @@ def resnet_1D_regression(input_shape,  stage_number = 3,  depth = 38,  start_ker
     # Add classifier on top.
     # v2 has BN-ReLU before Pooling
     x = (Conv2D(1, kernel_size= mid_kernel,kernel_regularizer=regularizers.l2(reg_weight), padding = 'same'))(x)
-    x = BatchNormalization()(x)
-    x = Activation(last_activation)(x)
     
     outputs = x
     
@@ -948,10 +911,6 @@ def resnet_v2_class(input_shape, categories, box_vector,nboxes = 1, stage_number
         
         num_filters_in = num_filters_out
 
-    # Add classifier on top.
-    # v2 has BN-ReLU before Pooling
-
-    
     input_cat = Lambda(lambda x:x[:,:,:,0:categories])(x)
     outputs = (Conv2D(categories, (round(input_shape[0]/last_conv_factor),round(input_shape[1]/last_conv_factor)),activation= last_activation ,kernel_regularizer=regularizers.l2(reg_weight), padding = 'valid'))(input_cat)
    
@@ -1061,10 +1020,7 @@ def resnet_lstm_v2_class(input_shape, categories, box_vector,nboxes = 1, stage_n
                              kernel_size = mid_kernel,
                              return_sequences = False,
                              conv_first=False)
-    x = BatchNormalization()(x)
-    x = Activation('relu')(x)
 
-    
     input_cat = Lambda(lambda x:x[:,:,:,0:categories])(x)
     outputs = (Conv2D(categories, (round(input_shape[0]/last_conv_factor),round(input_shape[1]/last_conv_factor)),activation= last_activation ,kernel_regularizer=regularizers.l2(reg_weight), padding = 'valid'))(input_cat)
    
