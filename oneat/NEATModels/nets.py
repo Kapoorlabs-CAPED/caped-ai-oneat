@@ -565,21 +565,18 @@ def resnet_lstm_v2(input_shape, categories, box_vector,nboxes = 1, stage_number 
     # Start model definition.
     num_filters_in = startfilter
     num_res_blocks = int((depth - 2) / 9)
-
+    return_sequences = True
     # v2 performs Conv2D with BN-ReLU on input before splitting into 2 paths
     x = resnet_lstm_layer(inputs=img_input,
                      num_filters=num_filters_in,
                      kernel_size = start_kernel,
-                     return_sequences = True,
+                     return_sequences = return_sequences,
                      conv_first=True)
 
     # Instantiate the stack of residual units
     for stage in range(stage_number):
         for res_block in range(num_res_blocks):
-            if stage == stage_number - 1 and res_block == num_res_blocks - 1:
-                return_sequences = False
-            else:
-                return_sequences = True
+            
             activation = 'relu'
             batch_normalization = True
             strides = 1
@@ -600,11 +597,11 @@ def resnet_lstm_v2(input_shape, categories, box_vector,nboxes = 1, stage_number 
                              strides=strides,
                              activation=activation,
                              batch_normalization=batch_normalization,
-                             return_sequences = True,
+                             return_sequences = return_sequences,
                              conv_first=False)
             y = resnet_lstm_layer(inputs=y,
                              num_filters=num_filters_in,
-                             return_sequences = True,
+                             return_sequences = return_sequences,
                              kernel_size= mid_kernel,
                              conv_first=False)
             y = resnet_lstm_layer(inputs=y,
@@ -615,10 +612,7 @@ def resnet_lstm_v2(input_shape, categories, box_vector,nboxes = 1, stage_number 
             if res_block == 0:
                 # linear projection residual shortcut connection to match
                 # changed dims
-                if stage == stage_number - 1:
-                    return_sequences = False 
-                else:
-                    return_sequences = True
+                
                     
                 x = resnet_lstm_layer(inputs=x,
                                  num_filters=num_filters_out,
@@ -634,7 +628,13 @@ def resnet_lstm_v2(input_shape, categories, box_vector,nboxes = 1, stage_number 
 
     # Add classifier on top.
     # v2 has BN-ReLU before Pooling
-    
+    x = resnet_lstm_layer(inputs=x,
+                             num_filters=num_filters_out,
+                             kernel_size = mid_kernel,
+                             return_sequences = False,
+                             conv_first=False)
+    x = BatchNormalization()(x)
+    x = Activation('relu')(x)
     input_cat = Lambda(lambda x:x[:,:,:,0:categories])(x)
     input_box = Lambda(lambda x:x[:,:,:,categories:])(x)
     
@@ -693,21 +693,16 @@ def resnet_v2(input_shape, categories, box_vector,nboxes = 1, stage_number = 3, 
     # Start model definition.
     num_filters_in = startfilter
     num_res_blocks = int((depth - 2) / 9)
-
     # v2 performs Conv2D with BN-ReLU on input before splitting into 2 paths
     x = resnet_layer(inputs=img_input,
                      num_filters=num_filters_in,
                      kernel_size = start_kernel,
-                     return_sequences = True,
                      conv_first=True)
 
     # Instantiate the stack of residual units
     for stage in range(stage_number):
         for res_block in range(num_res_blocks):
-            if stage == stage_number - 1 and res_block == num_res_blocks - 1:
-                return_sequences = False
-            else:
-                return_sequences = True
+           
             activation = 'relu'
             batch_normalization = True
             strides = 1
@@ -727,32 +722,25 @@ def resnet_v2(input_shape, categories, box_vector,nboxes = 1, stage_number = 3, 
                              kernel_size=1,
                              strides=strides,
                              activation=activation,
-                             return_sequences = True,
                              batch_normalization=batch_normalization,
                              conv_first=False)
             y = resnet_layer(inputs=y,
                              num_filters=num_filters_in,
                              kernel_size= mid_kernel,
-                             return_sequences = True,
                              conv_first=False)
             y = resnet_layer(inputs=y,
                              num_filters=num_filters_out,
                              kernel_size=1,
-                             return_sequences = return_sequences,
                              conv_first=False)
             if res_block == 0:
                 # linear projection residual shortcut connection to match
                 # changed dims
-                if stage == stage_number - 1:
-                    return_sequences = False 
-                else:
-                    return_sequences = True    
+                   
                 x = resnet_layer(inputs=x,
                                  num_filters=num_filters_out,
                                  kernel_size=1,
                                  strides=strides,
                                  activation=None,
-                                 return_sequences = return_sequences,
                                  batch_normalization=False)
               
             x = K.layers.add([x, y])
@@ -761,7 +749,9 @@ def resnet_v2(input_shape, categories, box_vector,nboxes = 1, stage_number = 3, 
 
     # Add classifier on top.
     # v2 has BN-ReLU before Pooling
- 
+
+    x = BatchNormalization()(x)
+    x = Activation('relu')(x)
     input_cat = Lambda(lambda x:x[:,:,:,0:categories])(x)
     input_box = Lambda(lambda x:x[:,:,:,categories:])(x)
     
@@ -1066,7 +1056,13 @@ def resnet_lstm_v2_class(input_shape, categories, box_vector,nboxes = 1, stage_n
     # Add classifier on top.
     # v2 has BN-ReLU before Pooling
  
-    
+    x = resnet_lstm_layer(inputs=x,
+                             num_filters=num_filters_out,
+                             kernel_size = mid_kernel,
+                             return_sequences = False,
+                             conv_first=False)
+    x = BatchNormalization()(x)
+    x = Activation('relu')(x)
 
     
     input_cat = Lambda(lambda x:x[:,:,:,0:categories])(x)
