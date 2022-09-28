@@ -53,13 +53,14 @@ class NEATDynamic(object):
     
     """
 
-    def __init__(self, config, model_dir, model_name,  catconfig=None, cordconfig=None):
+    def __init__(self, config, model_dir, model_name,  catconfig=None, cordconfig=None, pure_lstm = False):
 
         self.config = config
         self.catconfig = catconfig
         self.cordconfig = cordconfig
         self.model_dir = model_dir
         self.model_name = model_name
+        self.pure_lstm = pure_lstm
         if self.config != None:
             self.npz_directory = config.npz_directory
             self.npz_name = config.npz_name

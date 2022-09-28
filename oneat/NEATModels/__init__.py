@@ -10,7 +10,7 @@ from .neat_focus import NEATFocus
 from .neat_faststandard import NEATSynamic
 from .viz_neat_diamondstandard import VizNEATEynamic
 from .neat_standard import NEATSDynamic
-
+from .neat_lstmstandard import NEATLDynamic
 from .neat_microscope import NEATPredict
 from .neat_static_standard import NEATStatic
 from .nets import Concat
