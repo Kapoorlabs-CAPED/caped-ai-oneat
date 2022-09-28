@@ -209,20 +209,19 @@ def LORNET(input_shape, categories,unit, box_vector,nboxes = 1, stage_number = 3
     num_filters_in = startfilter
     num_res_blocks = int((depth - 2) / 9)
     last_conv_factor =  2 ** (stage_number - 1)
+    return_sequences = True
     # v2 performs Conv2D with BN-ReLU on input before splitting into 2 paths
     x = resnet_3d_lstm_layer(inputs=img_input,
                      num_filters=num_filters_in,
-                     return_sequences = True,
+                     return_sequences = return_sequences,
                      kernel_size = start_kernel,
                      conv_first=True)
 
     # Instantiate the stack of residual units
     for stage in range(stage_number):
         for res_block in range(num_res_blocks):
-            if stage == stage_number - 1:
-                return_sequences = False
-            else:
-                return_sequences = True    
+          
+                    
             activation = 'relu'
             batch_normalization = True
             strides = 1
@@ -242,13 +241,13 @@ def LORNET(input_shape, categories,unit, box_vector,nboxes = 1, stage_number = 3
                              kernel_size=1,
                              strides=strides,
                              activation=activation,
-                             return_sequences = True,
+                             return_sequences = return_sequences,
                              batch_normalization=batch_normalization,
                              conv_first=False)
             y = resnet_3d_lstm_layer(inputs=y,
                              num_filters=num_filters_in,
                                kernel_size= mid_kernel,
-                               return_sequences = True,
+                               return_sequences = return_sequences,
                              conv_first=False)
             y = resnet_3d_lstm_layer(inputs=y,
                              num_filters=num_filters_out,
@@ -267,12 +266,19 @@ def LORNET(input_shape, categories,unit, box_vector,nboxes = 1, stage_number = 3
                                  activation=None,
                                  return_sequences = return_sequences,
                                  batch_normalization=False)
-              
+                
+                
+                
             x = K.layers.add([x, y])
         num_filters_in = num_filters_out
 
     # Add classifier on top.
     # v2 has BN-ReLU before Pooling
+    x = resnet_3d_lstm_layer(inputs=x,
+                             num_filters=num_filters_out,
+                             kernel_size = mid_kernel,
+                             return_sequences = False,
+                             conv_first=False)
     x = BatchNormalization()(x)
     x = Activation('relu')(x)
     
