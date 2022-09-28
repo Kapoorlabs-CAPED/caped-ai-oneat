@@ -259,12 +259,16 @@ def LORNET(input_shape, categories,unit, box_vector,nboxes = 1, stage_number = 3
             if res_block == 0:
                 # linear projection residual shortcut connection to match
                 # changed dims
+                if stage == stage_number - 1:
+                    return_sequences = False 
+                else:
+                    return_sequences = True
                 x = resnet_3d_lstm_layer(inputs=x,
                                  num_filters=num_filters_out,
                                  kernel_size=1,
                                  strides=strides,
                                  activation=None,
-                                 return_sequences = True,
+                                 return_sequences = return_sequences,
                                  batch_normalization=False)
               
             x = K.layers.add([x, y])
@@ -608,12 +612,16 @@ def resnet_lstm_v2(input_shape, categories, box_vector,nboxes = 1, stage_number 
             if res_block == 0:
                 # linear projection residual shortcut connection to match
                 # changed dims
+                if stage == stage_number - 1:
+                    return_sequences = False 
+                else:
+                    return_sequences = True
                 x = resnet_lstm_layer(inputs=x,
                                  num_filters=num_filters_out,
                                  kernel_size=1,
                                  strides=strides,
                                  activation=None,
-                                 return_sequences = True,
+                                 return_sequences = return_sequences,
                                  batch_normalization=False)
               
             x = K.layers.add([x, y])
@@ -731,12 +739,16 @@ def resnet_v2(input_shape, categories, box_vector,nboxes = 1, stage_number = 3, 
             if res_block == 0:
                 # linear projection residual shortcut connection to match
                 # changed dims
+                if stage == stage_number - 1:
+                    return_sequences = False 
+                else:
+                    return_sequences = True    
                 x = resnet_layer(inputs=x,
                                  num_filters=num_filters_out,
                                  kernel_size=1,
                                  strides=strides,
                                  activation=None,
-                                 return_sequences = True,
+                                 return_sequences = return_sequences,
                                  batch_normalization=False)
               
             x = K.layers.add([x, y])
