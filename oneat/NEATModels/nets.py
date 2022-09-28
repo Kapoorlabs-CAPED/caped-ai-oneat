@@ -263,6 +263,7 @@ def LORNET(input_shape, categories,unit, box_vector,nboxes = 1, stage_number = 3
                     return_sequences = False 
                 else:
                     return_sequences = True
+                print(stage, return_sequences)    
                 x = resnet_3d_lstm_layer(inputs=x,
                                  num_filters=num_filters_out,
                                  kernel_size=1,
@@ -616,6 +617,7 @@ def resnet_lstm_v2(input_shape, categories, box_vector,nboxes = 1, stage_number 
                     return_sequences = False 
                 else:
                     return_sequences = True
+                    
                 x = resnet_lstm_layer(inputs=x,
                                  num_filters=num_filters_out,
                                  kernel_size=1,
