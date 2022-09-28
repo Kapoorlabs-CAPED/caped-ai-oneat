@@ -146,7 +146,10 @@ class NEATDynamic(object):
         self.Xoriginal = None
         self.Xoriginal_val = None
 
-        self.model_keras = nets.ORNET
+        if self.pure_lstm == False:  
+           self.model_keras = nets.ORNET
+        if self.pure_lstm:
+            self.model_keras = nets.LORNET   
       
 
         if self.multievent == True:
