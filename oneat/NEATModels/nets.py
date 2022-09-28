@@ -42,60 +42,6 @@ class Concat(layers.Layer):
 
         return y 
 
-
-
-
-
-
-def TDresnet_layer(inputs,
-                 num_filters=64,
-                 kernel_size= 3,
-                 strides=1,
-                 activation='relu',
-                 batch_normalization=True,
-                 conv_first=True):
-    """2D Convolution-Batch Normalization-Activation stack builder
-    # Arguments
-        inputs (tensor): input tensor from input image or previous layer
-        num_filters (int): Conv2D number of filters
-        kernel_size (int): Conv2D square kernel dimensions
-        strides (int): Conv2D square stride dimensions
-        activation (string): activation name
-        batch_normalization (bool): whether to include batch normalization
-        conv_first (bool): conv-bn-activation (True) or
-            bn-activation-conv (False)
-    # Returns
-        x (tensor): tensor as input to the next layer
-    """
-    
-    conv = TimeDistributed(Conv2D(num_filters,
-                  kernel_size=kernel_size,
-                  strides=strides,
-                  padding='same',
-                  kernel_initializer='he_normal',
-                  kernel_regularizer=regularizers.l2(1e-4)))
-
-    x = inputs
-    if conv_first:
-        x = conv(x)
-        if batch_normalization:
-            x = TimeDistributed(BatchNormalization())(x)
-        if activation is not None:
-            x = TimeDistributed(Activation(activation))(x)
-    else:
-        if batch_normalization:
-            x = TimeDistributed(BatchNormalization())(x)
-        if activation is not None:
-            x = TimeDistributed(Activation(activation))(x)
-        x = conv(x)
-    return x
-
-
-
-
-
-
-
 def ORNET(input_shape, categories,unit, box_vector,nboxes = 1, stage_number = 3,  depth = 38, start_kernel = 3, mid_kernel = 3, lstm_kernel = 3, startfilter = 32,  input_weights = None, last_activation = 'softmax'):
     """ResNet Version 2 Model builder [b]
     depth of 29 == max pooling of 28 for image patch of 55
@@ -220,19 +166,11 @@ def ORNET(input_shape, categories,unit, box_vector,nboxes = 1, stage_number = 3,
     # v2 has BN-ReLU before Pooling
     z = BatchNormalization()(z)
     z = Activation('relu')(z)
-    
-    
-    
     branchAdd = layers.add([z, x])
-    
-
     
     x = ConvLSTM2D(filters = unit, kernel_size = (lstm_kernel, lstm_kernel),  activation='relu', data_format = 'channels_last', return_sequences = False, padding = "same", name = "newlstmdeep")(branchAdd)
 
 
-    x = (Conv2D(categories + nboxes * box_vector, kernel_size= mid_kernel,kernel_regularizer=regularizers.l2(reg_weight), padding = 'same'))(x)
-    x = BatchNormalization()(x)
-    x = Activation('relu')(x)
     input_cat = Lambda(lambda x:x[:,:,:,0:categories])(x)
     input_box = Lambda(lambda x:x[:,:,:,categories:])(x)
 
@@ -280,6 +218,10 @@ def LORNET(input_shape, categories,unit, box_vector,nboxes = 1, stage_number = 3
     # Instantiate the stack of residual units
     for stage in range(stage_number):
         for res_block in range(num_res_blocks):
+            if stage == stage_number - 1 and res_block == num_res_blocks - 1:
+                return_sequences = False
+            else:
+                return_sequences = True    
             activation = 'relu'
             batch_normalization = True
             strides = 1
@@ -299,16 +241,20 @@ def LORNET(input_shape, categories,unit, box_vector,nboxes = 1, stage_number = 3
                              kernel_size=1,
                              strides=strides,
                              activation=activation,
+                             return_sequences = return_sequences,
                              batch_normalization=batch_normalization,
                              conv_first=False)
             y = resnet_3d_lstm_layer(inputs=y,
                              num_filters=num_filters_in,
                                kernel_size= mid_kernel,
+                               return_sequences = return_sequences,
                              conv_first=False)
             y = resnet_3d_lstm_layer(inputs=y,
                              num_filters=num_filters_out,
                              kernel_size=1,
+                             return_sequences = return_sequences,
                              conv_first=False)
+            
             if res_block == 0:
                 # linear projection residual shortcut connection to match
                 # changed dims
@@ -317,6 +263,7 @@ def LORNET(input_shape, categories,unit, box_vector,nboxes = 1, stage_number = 3
                                  kernel_size=1,
                                  strides=strides,
                                  activation=None,
+                                 return_sequences = return_sequences,
                                  batch_normalization=False)
               
             x = K.layers.add([x, y])
@@ -327,14 +274,7 @@ def LORNET(input_shape, categories,unit, box_vector,nboxes = 1, stage_number = 3
     x = BatchNormalization()(x)
     x = Activation('relu')(x)
     
-    branchAdd = x
-    
-    x = ConvLSTM2D(filters = unit, kernel_size = (lstm_kernel, lstm_kernel),  activation='relu', data_format = 'channels_last', return_sequences = False, padding = "same", name = "newlstmdeep")(branchAdd)
 
-
-    x = (Conv2D(categories + nboxes * box_vector, kernel_size= mid_kernel,kernel_regularizer=regularizers.l2(reg_weight), padding = 'same'))(x)
-    x = BatchNormalization()(x)
-    x = Activation('relu')(x)
     input_cat = Lambda(lambda x:x[:,:,:,0:categories])(x)
     input_box = Lambda(lambda x:x[:,:,:,categories:])(x)
 
@@ -431,9 +371,7 @@ def VollNet(input_shape, categories, box_vector,nboxes = 1, stage_number = 3,  d
     
     
   
-    x = (Conv3D(categories + nboxes * box_vector, kernel_size= mid_kernel,kernel_regularizer=regularizers.l2(reg_weight), padding = 'same'))(x)
-    x = BatchNormalization()(x)
-    x = Activation('relu')(x)
+   
     input_cat = Lambda(lambda x:x[:,:,:,:,0:categories])(x)
     input_box = Lambda(lambda x:x[:,:,:,:,categories:])(x)
     
@@ -460,6 +398,48 @@ def VollNet(input_shape, categories, box_vector,nboxes = 1, stage_number = 3,  d
 
 
 
+def TDresnet_layer(inputs,
+                 num_filters=64,
+                 kernel_size= 3,
+                 strides=1,
+                 activation='relu',
+                 batch_normalization=True,
+                 conv_first=True):
+    """2D Convolution-Batch Normalization-Activation stack builder
+    # Arguments
+        inputs (tensor): input tensor from input image or previous layer
+        num_filters (int): Conv2D number of filters
+        kernel_size (int): Conv2D square kernel dimensions
+        strides (int): Conv2D square stride dimensions
+        activation (string): activation name
+        batch_normalization (bool): whether to include batch normalization
+        conv_first (bool): conv-bn-activation (True) or
+            bn-activation-conv (False)
+    # Returns
+        x (tensor): tensor as input to the next layer
+    """
+    
+    conv = TimeDistributed(Conv2D(num_filters,
+                  kernel_size=kernel_size,
+                  strides=strides,
+                  padding='same',
+                  kernel_initializer='he_normal',
+                  kernel_regularizer=regularizers.l2(1e-4)))
+
+    x = inputs
+    if conv_first:
+        x = conv(x)
+        if batch_normalization:
+            x = TimeDistributed(BatchNormalization())(x)
+        if activation is not None:
+            x = TimeDistributed(Activation(activation))(x)
+    else:
+        if batch_normalization:
+            x = TimeDistributed(BatchNormalization())(x)
+        if activation is not None:
+            x = TimeDistributed(Activation(activation))(x)
+        x = conv(x)
+    return x
 
 
     
@@ -853,7 +833,7 @@ def resnet_1D_regression(input_shape,  stage_number = 3,  depth = 38,  start_ker
     # v2 has BN-ReLU before Pooling
     x = (Conv2D(1, kernel_size= mid_kernel,kernel_regularizer=regularizers.l2(reg_weight), padding = 'same'))(x)
     x = BatchNormalization()(x)
-    x = Activation('relu')(x)
+    x = Activation(last_activation)(x)
     
     outputs = x
     
