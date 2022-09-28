@@ -219,7 +219,7 @@ def LORNET(input_shape, categories,unit, box_vector,nboxes = 1, stage_number = 3
     # Instantiate the stack of residual units
     for stage in range(stage_number):
         for res_block in range(num_res_blocks):
-            if stage == stage_number - 1 and res_block == num_res_blocks - 1:
+            if stage == stage_number - 1:
                 return_sequences = False
             else:
                 return_sequences = True    
@@ -259,11 +259,7 @@ def LORNET(input_shape, categories,unit, box_vector,nboxes = 1, stage_number = 3
             if res_block == 0:
                 # linear projection residual shortcut connection to match
                 # changed dims
-                if stage == stage_number - 1:
-                    return_sequences = False 
-                else:
-                    return_sequences = True
-                print(stage, return_sequences)    
+                
                 x = resnet_3d_lstm_layer(inputs=x,
                                  num_filters=num_filters_out,
                                  kernel_size=1,
