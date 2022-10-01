@@ -147,7 +147,6 @@ class dynamic_config(argparse.Namespace):
             ok['startfilter']        = _is_int(self.startfilter, 1)
             ok['stage_number']        = _is_int(self.stage_number, 1)
             ok['last_conv_factor']        = _is_int(self.last_conv_factor, 1)
-            ok['lstm_hidden_unit']         = _is_int(self.lstm_hidden_unit,1)
             ok['epochs']        = _is_int(self.epochs, 1)
             ok['nboxes']       = _is_int(self.nboxes, 1)
             
@@ -174,7 +173,7 @@ class dynamic_config(argparse.Namespace):
            
 class diamond_config(argparse.Namespace):
     
-    def __init__(self, npz_directory = None, npz_name = None, npz_val_name = None, key_categories = None, key_cord = None,  stage_number = 3, last_conv_factor = 4, imagex = 64, imagey = 64, imagez = 4, size_tminus = 1, size_tplus = 1,  nboxes = 1, depth = 29, start_kernel = 3, mid_kernel = 3,  startfilter = 48, epochs =100, learning_rate = 1.0E-4, batch_size = 10, model_name = 'NEATModel', yolo_v0 = False, yolo_v1 = True, yolo_v2 = False, multievent = False, show = True, **kwargs):
+    def __init__(self, npz_directory = None, npz_name = None, npz_val_name = None, pure_lstm = False, key_categories = None, key_cord = None,  stage_number = 3, last_conv_factor = 4, imagex = 64, imagey = 64, imagez = 4, size_tminus = 1, size_tplus = 1,  nboxes = 1, depth = 29, start_kernel = 3, mid_kernel = 3,  startfilter = 48, epochs =100, learning_rate = 1.0E-4, batch_size = 10, model_name = 'NEATModel', yolo_v0 = False, yolo_v1 = True, yolo_v2 = False, multievent = False, show = True, **kwargs):
         
         
            self.npz_directory = npz_directory
@@ -206,6 +205,7 @@ class diamond_config(argparse.Namespace):
            self.last_conv_factor = last_conv_factor
            self.size_tminus = size_tminus
            self.size_tplus = size_tplus
+           self.pure_lstm = pure_lstm
            self.is_valid()
     
 
@@ -238,7 +238,8 @@ class diamond_config(argparse.Namespace):
                  'batch_size' : self.batch_size,
                  'show' : self.show,
                  'stage_number' : self.stage_number,
-                 'last_conv_factor' : self.last_conv_factor
+                 'last_conv_factor' : self.last_conv_factor,
+                 'pure_lstm' : self.pure_lstm,
                  }
          
          for (k,v) in self.key_categories.items():
@@ -275,6 +276,7 @@ class diamond_config(argparse.Namespace):
             ok['yolo_v0'] = isinstance(self.yolo_v0,bool)
             ok['yolo_v1'] = isinstance(self.yolo_v1,bool)
             ok['yolo_v2'] = isinstance(self.yolo_v2,bool)
+            ok['pure_lstm'] = isinstance(self.pure_lstm,bool)
             ok['depth']         = _is_int(self.depth,1)
             ok['stride']         = _is_int(self.stride,1)
             ok['start_kernel']       = _is_int(self.start_kernel,1)
