@@ -88,7 +88,6 @@ class NEATStatic(object):
             self.mid_kernel = staticconfig.mid_kernel
             self.learning_rate = staticconfig.learning_rate
             self.epochs = staticconfig.epochs
-            self.residual = staticconfig.residual
             self.startfilter = staticconfig.startfilter
             self.batch_size = staticconfig.batch_size
             self.multievent = staticconfig.multievent
@@ -119,7 +118,6 @@ class NEATStatic(object):
             self.mid_kernel = self.staticconfig['mid_kernel']
             self.learning_rate = self.staticconfig['learning_rate']
             self.epochs = self.staticconfig['epochs']
-            self.residual = self.staticconfig['residual']
             self.startfilter = self.staticconfig['startfilter']
             self.batch_size = self.staticconfig['batch_size']
             self.multievent = self.staticconfig['multievent']
@@ -145,10 +143,7 @@ class NEATStatic(object):
         if self.class_only == False:
 
                 if self.train_lstm == False:     
-                    if self.residual:
-                        self.model_keras = nets.resnet_v2
-                    else:
-                        self.model_keras = nets.seqnet_v2
+                    self.model_keras = nets.resnet_v2
 
                 if self.train_lstm:
 

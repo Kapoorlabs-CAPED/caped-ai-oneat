@@ -15,7 +15,6 @@ class dynamic_config(argparse.Namespace):
                  npz_val_name = None, 
                  key_categories = None, 
                  key_cord = None,  
-                 residual = True,
                  stage_number = 3, 
                  last_conv_factor = 4, 
                  imagex = 128, 
@@ -26,7 +25,6 @@ class dynamic_config(argparse.Namespace):
                  depth = 29, 
                  start_kernel = 3, 
                  mid_kernel = 3, 
-                 lstm_kernel = 3, 
                  startfilter = 48, 
                  lstm_hidden_unit = 16, 
                  epochs =100, 
@@ -46,7 +44,6 @@ class dynamic_config(argparse.Namespace):
            self.npz_val_name = npz_val_name
            self.key_categories = key_categories
            self.key_cord = key_cord
-           self.residual = residual
            self.yolo_v0 = yolo_v0
            self.yolo_v1 = yolo_v1
            self.yolo_v2 = yolo_v2
@@ -57,7 +54,6 @@ class dynamic_config(argparse.Namespace):
            self.depth = depth
            self.start_kernel = start_kernel
            self.mid_kernel = mid_kernel
-           self.lstm_kernel = lstm_kernel
            self.startfilter = startfilter
            self.lstm_hidden_unit = lstm_hidden_unit
            self.epochs = epochs
@@ -83,7 +79,6 @@ class dynamic_config(argparse.Namespace):
                  'npz_name' : self.npz_name,
                  'npz_val_name' : self.npz_val_name,
                  'model_name' : self.model_name,
-                 'residual' : self.residual,
                  'multievent' : self.multievent,
                  'yolo_v0': self.yolo_v0,
                  'yolo_v1': self.yolo_v1,
@@ -98,7 +93,6 @@ class dynamic_config(argparse.Namespace):
                  'categories' : self.categories,
                  'box_vector' : self.box_vector,
                  'start_kernel' : self.start_kernel,
-                 'lstm_kernel' : self.lstm_kernel,
                  'mid_kernel' : self.mid_kernel,
                  'startfilter' : self.startfilter,
                  'lstm_hidden_unit' : self.lstm_hidden_unit,
@@ -142,7 +136,6 @@ class dynamic_config(argparse.Namespace):
             ok['npz_directory'] = isinstance(self.npz_directory, str)
             ok['npz_name'] = isinstance(self.npz_name, str)
             ok['npz_val_name'] = isinstance(self.npz_val_name, str)
-            ok['residual'] = isinstance(self.residual,bool)
             ok['pure_lstm'] = isinstance(self.pure_lstm,bool)
             ok['yolo_v0'] = isinstance(self.yolo_v0,bool)
             ok['yolo_v1'] = isinstance(self.yolo_v1,bool)
@@ -151,7 +144,6 @@ class dynamic_config(argparse.Namespace):
             ok['stride']         = _is_int(self.stride,1)
             ok['start_kernel']       = _is_int(self.start_kernel,1)
             ok['mid_kernel']         = _is_int(self.mid_kernel,1)
-            ok['lstm_kernel']         = _is_int(self.lstm_kernel,1)
             ok['startfilter']        = _is_int(self.startfilter, 1)
             ok['stage_number']        = _is_int(self.stage_number, 1)
             ok['last_conv_factor']        = _is_int(self.last_conv_factor, 1)

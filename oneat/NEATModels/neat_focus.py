@@ -82,7 +82,6 @@ class NEATFocus(object):
                 self.mid_kernel = config.mid_kernel
                 self.learning_rate = config.learning_rate
                 self.epochs = config.epochs
-                self.residual = config.residual
                 self.startfilter = config.startfilter
                 self.batch_size = config.batch_size
                 self.multievent = config.multievent
@@ -119,7 +118,6 @@ class NEATFocus(object):
                 self.mid_kernel = self.config['mid_kernel']
                 self.learning_rate = self.config['learning_rate']
                 self.epochs = self.config['epochs']
-                self.residual = self.config['residual']
                 self.startfilter = self.config['startfilter']
                 self.batch_size = self.config['batch_size']
                 self.multievent = self.config['multievent']
@@ -150,11 +148,7 @@ class NEATFocus(object):
         self.Xoriginal = None
         self.Xoriginal_val = None
         
-        if self.residual:
-            self.model_keras = nets.resnet_3D_v2
-        else:
-            self.model_keras = nets.seqnet_3D_v2
-            
+        self.model_keras = nets.resnet_3D_v2
         if self.multievent == True:
            self.last_activation = 'sigmoid'
            self.entropy = 'binary'

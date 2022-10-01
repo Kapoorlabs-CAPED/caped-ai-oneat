@@ -78,7 +78,6 @@ class NEATDynamic(object):
             self.lstm_kernel = config.lstm_kernel
             self.learning_rate = config.learning_rate
             self.epochs = config.epochs
-            self.residual = config.residual
             self.startfilter = config.startfilter
             self.batch_size = config.batch_size
             self.multievent = config.multievent
@@ -117,7 +116,6 @@ class NEATDynamic(object):
             self.lstm_hidden_unit = self.config['lstm_hidden_unit']
             self.learning_rate = self.config['learning_rate']
             self.epochs = self.config['epochs']
-            self.residual = self.config['residual']
             self.startfilter = self.config['startfilter']
             self.batch_size = self.config['batch_size']
             self.multievent = self.config['multievent']
@@ -241,7 +239,7 @@ class NEATDynamic(object):
         self.Y_val = dummyY_val
 
 
-        self.Trainingmodel = self.model_keras(input_shape, self.categories, unit=self.lstm_hidden_unit,
+        self.Trainingmodel = self.model_keras(input_shape, self.categories, 
                                               box_vector=Y_rest.shape[-1], nboxes=self.nboxes,
                                               stage_number=self.stage_number,
                                               depth=self.depth, start_kernel=self.start_kernel,
