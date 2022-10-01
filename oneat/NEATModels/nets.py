@@ -9,7 +9,7 @@ from keras.layers import ConvLSTM1D, ConvLSTM2D
 from keras import layers
 from keras import models
 from keras.layers.core import Lambda
-from keras.layers import  TimeDistributed, Reshape
+from keras.layers import  TimeDistributed
 import tensorflow as tf
 
 
@@ -191,7 +191,7 @@ def ORNET(input_shape, categories,unit, box_vector,nboxes = 1, stage_number = 3,
     
     return model
 
-def LORNET(input_shape, categories,unit, box_vector,nboxes = 1, stage_number = 3,  depth = 38, start_kernel = 3, mid_kernel = 3, lstm_kernel = 3, startfilter = 32,  input_weights = None, last_activation = 'softmax'):
+def LORNET(input_shape, categories, box_vector,nboxes = 1, stage_number = 3,  depth = 38, start_kernel = 3, mid_kernel = 3,  startfilter = 32,  input_weights = None, last_activation = 'softmax'):
     """ResNet Version 2 Model builder [b]
     depth of 29 == max pooling of 28 for image patch of 55
     depth of 56 == max pooling of 14 for image patch of 55

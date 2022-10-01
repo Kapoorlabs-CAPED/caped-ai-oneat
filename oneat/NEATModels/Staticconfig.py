@@ -18,7 +18,7 @@ import numpy as np
 class static_config(argparse.Namespace):
     
     def __init__(self, npz_directory = None, npz_name = None, npz_val_name = None, key_categories = None, key_cord = None, 
-    residual = True,stage_number = 3, gridx = 1, gridy = 1, nboxes = 1, 
+    stage_number = 3, gridx = 1, gridy = 1, nboxes = 1, 
                  depth = 29, start_kernel = 3, mid_kernel = 3,startfilter = 32, show = True, imagex = 64, imagey = 64,
                  epochs =100,  learning_rate = 1.0E-4, batch_size = 10, model_name = 'NEATModel', yolo_v0 = True, multievent = True,  **kwargs):
         
@@ -29,7 +29,6 @@ class static_config(argparse.Namespace):
            self.npz_val_name = npz_val_name
            self.key_categories = key_categories
            self.key_cord = key_cord
-           self.residual = residual
            self.depth = depth
            self.start_kernel = start_kernel
            self.mid_kernel = mid_kernel
@@ -61,7 +60,6 @@ class static_config(argparse.Namespace):
                  'npz_directory' : self.npz_directory,
                  'npz_name' : self.npz_name,
                  'npz_val_name' : self.npz_val_name,
-                 'residual' : self.residual,
                  'depth' : self.depth,
                  'start_kernel' : self.start_kernel,
                  'mid_kernel' : self.mid_kernel,
@@ -71,7 +69,6 @@ class static_config(argparse.Namespace):
                  'nboxes' : self.nboxes,
                  'imagex' : self.imagex,
                  'imagey' : self.imagey,
-                
                  'epochs' : self.epochs,
                  'categories' : self.categories,
                  'box_vector' : self.box_vector,
@@ -116,7 +113,6 @@ class static_config(argparse.Namespace):
             ok['npz_directory'] = isinstance(self.npz_directory, str)
             ok['npz_name'] = isinstance(self.npz_name, str)
             ok['npz_val_name'] = isinstance(self.npz_val_name, str)
-            ok['residual'] = isinstance(self.residual,bool)
             ok['yolo_v0'] = isinstance(self.yolo_v0,bool)
             ok['depth']         = _is_int(self.depth,1)
            
