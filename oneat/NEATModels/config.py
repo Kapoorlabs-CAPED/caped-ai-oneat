@@ -272,7 +272,6 @@ class diamond_config(argparse.Namespace):
             ok['npz_directory'] = isinstance(self.npz_directory, str)
             ok['npz_name'] = isinstance(self.npz_name, str)
             ok['npz_val_name'] = isinstance(self.npz_val_name, str)
-            ok['residual'] = isinstance(self.residual,bool)
             ok['yolo_v0'] = isinstance(self.yolo_v0,bool)
             ok['yolo_v1'] = isinstance(self.yolo_v1,bool)
             ok['yolo_v2'] = isinstance(self.yolo_v2,bool)
