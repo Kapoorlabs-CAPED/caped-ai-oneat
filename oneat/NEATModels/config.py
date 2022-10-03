@@ -8,7 +8,7 @@ Created on Tue Jul  7 15:25:10 2020
 import argparse
 import numpy as np
 
-class dynamic_config(argparse.Namespace):
+class lstm_config(argparse.Namespace):
     
     def __init__(self, npz_directory = None, 
                  npz_name = None, 
@@ -171,7 +171,7 @@ class dynamic_config(argparse.Namespace):
            
            
            
-class diamond_config(argparse.Namespace):
+class volume_config(argparse.Namespace):
     
     def __init__(self, npz_directory = None, npz_name = None, npz_val_name = None, pure_lstm = False, key_categories = None, key_cord = None,  stage_number = 3, last_conv_factor = 4, imagex = 64, imagey = 64, imagez = 4, size_tminus = 1, size_tplus = 1,  nboxes = 1, depth = 29, start_kernel = 3, mid_kernel = 3,  startfilter = 48, epochs =100, learning_rate = 1.0E-4, batch_size = 10, model_name = 'NEATModel', yolo_v0 = False, yolo_v1 = True, yolo_v2 = False, multievent = False, show = True, **kwargs):
         
