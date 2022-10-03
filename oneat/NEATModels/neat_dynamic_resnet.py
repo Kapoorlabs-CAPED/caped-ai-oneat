@@ -23,7 +23,7 @@ Boxname = 'ImageIDBox'
 EventBoxname = 'EventIDBox'
 
 
-class NEATCynamic(object):
+class NEATTResNet(object):
     """
     Parameters
     ----------

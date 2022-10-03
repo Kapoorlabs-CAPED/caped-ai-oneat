@@ -30,7 +30,7 @@ Boxname = 'ImageIDBox'
 CellTypeBoxname = 'CellIDBox'
 
 
-class NEATStatic(object):
+class NEATResNet(object):
     """
     Parameters
     ----------
@@ -146,7 +146,6 @@ class NEATStatic(object):
                     self.model_keras = nets.resnet_v2
 
                 if self.train_lstm:
-
                         self.model_keras = nets.resnet_lstm_v2        
 
                 if self.multievent == True:
