@@ -20,10 +20,10 @@ import glob
 import h5py
 import tensorflow as tf
 from scipy.ndimage import zoom
-from oneat.NEATModels.neat_goldstandard import NEATDynamic
+from oneat.NEATModels.neat_lstm import NEATLRNet
 from tifffile import imread, imwrite
 
-class NEATPredict(NEATDynamic):
+class NEATPredict(NEATLRNet):
     
 
     def __init__(self, config, model_dir, model_name, catconfig=None, cordconfig=None):

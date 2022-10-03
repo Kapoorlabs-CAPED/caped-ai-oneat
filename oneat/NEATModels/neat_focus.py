@@ -148,7 +148,7 @@ class NEATFocus(object):
         self.Xoriginal = None
         self.Xoriginal_val = None
         
-        self.model_keras = nets.resnet_3D_v2
+        self.model_keras = nets.VollNet
         if self.multievent == True:
            self.last_activation = 'sigmoid'
            self.entropy = 'binary'
@@ -157,7 +157,7 @@ class NEATFocus(object):
         if self.multievent == False:
            self.last_activation = 'softmax'              
            self.entropy = 'notbinary' 
-        self.yololoss = dynamic_yolo_loss(self.categories, self.gridx, self.gridy, self.gridz, 1, self.box_vector, self.entropy, self.yolo_v0, self.yolo_v1, self.yolo_v2)
+        self.yolo_loss = dynamic_yolo_loss(self.categories, self.gridx, self.gridy, self.gridz, 1, self.box_vector, self.entropy, self.yolo_v0, self.yolo_v1, self.yolo_v2)
         
         
     def loadData(self):
@@ -220,7 +220,7 @@ class NEATFocus(object):
         
             
         sgd = optimizers.SGD(lr=self.learning_rate, momentum = 0.99, decay=1e-6, nesterov = True)
-        self.Trainingmodel.compile(optimizer=sgd, loss = self.yololoss, metrics=['accuracy'])
+        self.Trainingmodel.compile(optimizer=sgd, loss = self.yolo_loss, metrics=['accuracy'])
         
         self.Trainingmodel.summary()
         
@@ -269,7 +269,7 @@ class NEATFocus(object):
         data_p = data_p.decode().replace("learning_rate","lr").encode()
         f.attrs['training_config'] = data_p
         f.close()
-        self.model =  load_model( self.model_dir + self.model_name + '.h5',  custom_objects={'loss':self.yololoss, 'Concat':Concat})
+        self.model =  load_model( self.model_dir + self.model_name + '.h5',  custom_objects={'loss':self.yolo_loss, 'Concat':Concat})
          
         self.first_pass_predict()
         

@@ -6,9 +6,8 @@ import time
 import pandas as pd
 import tensorflow as tf
 from tqdm import tqdm
-from oneat.NEATModels import nets
+from oneat.NEATModels.neat_focus import NEATFocus
 from oneat.NEATModels.nets import Concat
-from oneat.NEATModels.loss import dynamic_yolo_loss
 from keras import backend as K
 #from IPython.display import clear_output
 from pathlib import Path
@@ -27,137 +26,13 @@ import h5py
 Boxname = 'ImageIDBox'
 EventBoxname = 'EventIDBox'
 
-class NEATFocusPredict(object):
-    """
-    Parameters
-    ----------
-
-    NpzDirectory : Specify the location of npz file containing the training data with movies and labels
-
-    TrainModelName : Specify the name of the npz file containing training data and labels
-
-    ValidationModelName :  Specify the name of the npz file containing validation data and labels
-
-    categories : Number of action classes
-
-    Categories_Name : List of class names and labels
-
-    model_dir : Directory location where trained model weights are to be read or written from
-
-    model_name : The h5 file of CNN + LSTM + Dense Neural Network to be used for training
-
-    model_keras : The model as it appears as a Keras function
-
-    model_weights : If re-training model_weights = model_dir + model_name else None as default
-
-    lstm_hidden_units : Number of hidden units for LSTm layer, 64 by default
-
-    epochs :  Number of training epochs, 55 by default
-
-    batch_size : batch_size to be used for training, 20 by default
-
-
-
-    """
-
+class NEATFocusPredict(NEATFocus):
+    
     def __init__(self, config, model_dir, model_name, catconfig=None, cordconfig=None):
 
-        self.config = config
-        self.catconfig = catconfig
-        self.cordconfig = cordconfig
-        self.model_dir = model_dir
-        self.model_name = model_name
-        if self.config != None:
-            self.npz_directory = config.npz_directory
-            self.npz_name = config.npz_name
-            self.npz_val_name = config.npz_val_name
-            self.key_categories = config.key_categories
-            self.stage_number = config.stage_number
-            self.last_conv_factor = config.last_conv_factor
-            self.show = config.show
-            self.key_cord = config.key_cord
-            self.box_vector = len(config.key_cord)
-            self.categories = len(config.key_categories)
-            self.depth = config.depth
-            self.start_kernel = config.start_kernel
-            self.mid_kernel = config.mid_kernel
-            self.learning_rate = config.learning_rate
-            self.epochs = config.epochs
-            self.startfilter = config.startfilter
-            self.batch_size = config.batch_size
-            self.multievent = config.multievent
-            self.imagex = config.imagex
-            self.imagey = config.imagey
-            self.imagez = config.size_tminus + config.size_tplus + 1
-            self.size_zminus = config.size_tminus
-            self.size_zplus = config.size_tplus
-            self.nboxes = 1
-            self.gridx = 1
-            self.gridy = 1
-            self.gridz = 1
-            self.yolo_v0 = True
-            self.yolo_v1 = False
-            self.yolo_v2 = False
-            self.stride = config.last_conv_factor
-        if self.config == None:
+          super().__init__(config = config, model_dir = model_dir, model_name = model_name, catconfig = catconfig, cordconfig = cordconfig)
 
-            try:
-                self.config = load_json(self.model_dir + os.path.splitext(self.model_name)[0] + '_Parameter.json')
-            except:
-                self.config = load_json(self.model_dir + self.model_name + '_Parameter.json')
 
-            self.npz_directory = self.config['npz_directory']
-            self.npz_name = self.config['npz_name']
-            self.npz_val_name = self.config['npz_val_name']
-            self.key_categories = self.catconfig
-            self.box_vector = self.config['box_vector']
-            self.show = self.config['show']
-            self.key_cord = self.cordconfig
-            self.categories = len(self.catconfig)
-            self.depth = self.config['depth']
-            self.start_kernel = self.config['start_kernel']
-            self.mid_kernel = self.config['mid_kernel']
-            self.learning_rate = self.config['learning_rate']
-            self.epochs = self.config['epochs']
-            self.startfilter = self.config['startfilter']
-            self.batch_size = self.config['batch_size']
-            self.multievent = self.config['multievent']
-            self.imagex = self.config['imagex']
-            self.imagey = self.config['imagey']
-            self.imagez = self.config['size_tminus'] + self.config['size_tplus'] + 1
-            self.size_zminus = self.config['size_tminus']
-            self.size_zplus = self.config['size_tplus']
-            self.nboxes = 1
-            self.stage_number = self.config['stage_number']
-            self.last_conv_factor = self.config['last_conv_factor']
-            self.gridx = 1
-            self.gridy = 1
-            self.gridz = 1
-            self.yolo_v0 = False
-            self.yolo_v1 = True
-            self.yolo_v2 = False
-            self.stride = self.config['last_conv_factor']
-
-        self.X = None
-        self.Y = None
-        self.axes = None
-        self.X_val = None
-        self.Y_val = None
-        self.Trainingmodel = None
-        self.Xoriginal = None
-        self.Xoriginal_val = None
-
-        self.model_keras = nets.ORNET
-        if self.multievent == True:
-            self.last_activation = 'sigmoid'
-            self.entropy = 'binary'
-
-        if self.multievent == False:
-            self.last_activation = 'softmax'
-            self.entropy = 'notbinary'
-
-        self.yololoss = dynamic_yolo_loss(self.categories, self.gridx, self.gridy, self.gridz, 1, self.box_vector,
-                                          self.entropy, self.yolo_v0, self.yolo_v1, self.yolo_v2)
 
     def predict(self, imagedir, Z_imagedir, Z_movie_name_list, Z_movie_input, start,
                 Z_start, downsample=False, fileextension='*TIF', nb_prediction=3, Z_n_tiles=(1, 2, 2),
