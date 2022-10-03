@@ -38,6 +38,7 @@ setup(
         "pydot",
         "graphviz",
         "oneat-augmentations",
+        "hydra-core",
        
     ],
     packages=setuptools.find_packages(),
