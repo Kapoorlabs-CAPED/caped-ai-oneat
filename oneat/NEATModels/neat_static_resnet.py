@@ -351,7 +351,8 @@ class NEATResNet(object):
                 self.eventboxes = eventboxes
 
                 self.nms()
-                self.to_csv()
+                if self.savedir is not None:
+                   self.to_csv()
                 eventboxes = []
                 classedboxes = {}
 
@@ -397,7 +398,8 @@ class NEATResNet(object):
             self.eventboxes = eventboxes
             # self.iou_classedboxes = classedboxes
             self.nms()
-            self.to_csv()
+            if self.savedir is not None:
+               self.to_csv()
             eventboxes = []
             classedboxes = {}
 

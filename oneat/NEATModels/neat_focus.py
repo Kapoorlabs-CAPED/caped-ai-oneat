@@ -246,7 +246,7 @@ class NEATFocus(object):
     
         
         
-    def predict(self,imagename, savedir, n_tiles = (1,1), overlap_percent = 0.8, event_threshold = 0.5, iou_threshold = 0.0001, radius = 10, normalize = True):
+    def predict(self,imagename, savedir = None , n_tiles = (1,1), overlap_percent = 0.8, event_threshold = 0.5, iou_threshold = 0.0001, radius = 10, normalize = True):
         
         self.imagename = imagename
         self.image = imread(imagename)
@@ -288,21 +288,7 @@ class NEATFocus(object):
                     if inputz <= self.image.shape[0] - self.imagez:
                                 
                                 eventboxes = []
-                                
-                                
-                                
                                 self.currentZ = inputz
-                                if inputz == 0 or inputz >= self.image.shape[0] -self.imagez - 1:
-                                        savename = self.savedir+ "/"  + (os.path.splitext(os.path.basename(self.imagename))[0])+ '_Colored'                       
-
-
-                                        imwrite((savename + '.tif' ), self.Colorimage)
-                                        
-                                        self.savename = self.savedir+ "/"  + (os.path.splitext(os.path.basename(self.imagename))[0])+ '_Mask'
-
-
-                                        imwrite((self.savename + '.tif' ), self.Maskimage)
-                                        
                                 smallimage = CreateVolume(self.image, self.imagez, inputz)
 
                                 #self.current_Zpoints = [(j,k) for j in range(smallimage.shape[1]) for k in range(smallimage.shape[2]) ]
@@ -338,7 +324,8 @@ class NEATFocus(object):
                                 self.classedboxes = classedboxes    
                                 self.eventboxes =  eventboxes
                                 self.nms()
-                                self.to_csv()
+                                if self.savedir is not None:
+                                   self.to_csv()
                                 self.draw()
                                 eventboxes = []
                                 classedboxes = {}    
@@ -371,26 +358,7 @@ class NEATFocus(object):
         self.iou_classedboxes = best_iou_classedboxes      
         self.all_iou_classedboxes = all_best_iou_classedboxes
 
-    def genmap(self):
 
-                image = imread(self.savename + '.tif')
-                Name = os.path.basename(os.path.splitext(self.savename)[0])
-                Signal_first = image[:, :, :, 1]
-                Signal_second = image[:, :, :, 2]
-                Sum_signal_first = gaussian_filter(np.sum(Signal_first, axis=0), self.radius)
-                
-                Sum_signal_first = normalizeZeroOne(Sum_signal_first)
-                Sum_signal_second = gaussian_filter(np.sum(Signal_second, axis=0), self.radius)
-
-                Sum_signal_second = normalizeZeroOne(Sum_signal_second)
-
-                Zmap = np.zeros([Sum_signal_first.shape[0], Sum_signal_first.shape[1], 3])
-                Zmap[:, :, 0] = Sum_signal_first
-                Zmap[:, :, 1] = Sum_signal_second
-                Zmap[:, :, 2] = (Sum_signal_first + Sum_signal_second)/2
-
-
-                imwrite(self.savedir + Name + '_Zmap' + '.tif', Zmap)
     def to_csv(self):
         
 
@@ -415,7 +383,7 @@ class NEATFocus(object):
                                             event_count = np.column_stack([zlocations,scores, max_scores]) 
                                             event_count = sorted(event_count, key = lambda x:x[0], reverse = False)
                                             event_data = []
-                                            csvname = self.savedir+ "/" + (os.path.splitext(os.path.basename(self.imagename))[0])  + event_name  +  "_FocusQuality"
+                                            csvname = self.savedir + "/" + (os.path.splitext(os.path.basename(self.imagename))[0])  + event_name  +  "_FocusQuality"
                                             writer = csv.writer(open(csvname  +".csv", "a"))
                                             filesize = os.stat(csvname + ".csv").st_size
                                             if filesize < 1:
@@ -438,7 +406,7 @@ class NEATFocus(object):
 
 
                                          if event_label > 0:         
-                                              readcsvname = self.savedir+ "/" + (os.path.splitext(os.path.basename(self.imagename))[0])  + event_name  +  "_FocusQuality"
+                                              readcsvname = self.savedir + "/" + (os.path.splitext(os.path.basename(self.imagename))[0])  + event_name  +  "_FocusQuality"
                                               self.dataset   = pd.read_csv(readcsvname, delimiter = ',')
                                               self.dataset_index = self.dataset.index
             
@@ -458,17 +426,12 @@ class NEATFocus(object):
     def print_planes(self):
         for (event_name,event_label) in self.key_categories.items():
              if event_label > 0:
-                     csvfname =  self.savedir+ "/" + (os.path.splitext(os.path.basename(self.imagename))[0])  + event_name  +  "_FocusQuality" + ".csv"
+                     csvfname =  self.savedir + "/" + (os.path.splitext(os.path.basename(self.imagename))[0])  + event_name  +  "_FocusQuality" + ".csv"
                      dataset = pd.read_csv(csvfname, skiprows = 0)
                      z = dataset[dataset.keys()[0]][1:]
                      score = dataset[dataset.keys()[1]][1:]
-                     terminalZ = dataset[dataset.keys()[2]][1:]
-                     subZ = terminalZ[terminalZ > 0.1]
-                     maxscore = np.max(score)
                      try: 
                          maxz = z[np.argmax(score)] + 2
-                       
-
                          print('Best Zs'+ (os.path.splitext(os.path.basename(self.imagename))[0]) + 'for'+ event_name + 'at' +  str(maxz))
                      except:
 

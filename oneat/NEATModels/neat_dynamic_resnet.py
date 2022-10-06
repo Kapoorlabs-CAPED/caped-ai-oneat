@@ -283,7 +283,7 @@ class NEATTResNet(object):
 
         return self.marker_tree
     
-    def predict(self, imagename,  savedir, n_tiles=(1, 1), overlap_percent=0.8, dtype = np.uint8,
+    def predict(self, imagename,  savedir = None, n_tiles=(1, 1), overlap_percent=0.8, dtype = np.uint8,
                 event_threshold=0.5, event_confidence = 0.5, iou_threshold=0.1,  fidelity=1, downsamplefactor = 1, start_project_mid = 4, end_project_mid = 4,
                 erosion_iterations = 1,  marker_tree = None, remove_markers = False, normalize = True, center_oneat = True, nms_function = 'iou'):
 
@@ -310,7 +310,8 @@ class NEATTResNet(object):
         self.heatmap = np.zeros(self.image.shape, dtype = 'uint16')  
         self.eventmarkers = np.zeros(self.image.shape, dtype = 'uint16')
         self.savedir = savedir
-        Path(self.savedir).mkdir(exist_ok=True)
+        if self.savedir is not None:
+           Path(self.savedir).mkdir(exist_ok=True)
         if len(n_tiles) > 2:
             n_tiles = (n_tiles[-2], n_tiles[-1])
         self.n_tiles = n_tiles
@@ -355,7 +356,8 @@ class NEATTResNet(object):
         eventboxes = []
         classedboxes = {}    
         count = 0
-        heatsavename = self.savedir+ "/"  + (os.path.splitext(os.path.basename(self.imagename))[0])+ '_Heat' 
+        if self.savedir is not None:
+           heatsavename = self.savedir + "/"  + (os.path.splitext(os.path.basename(self.imagename))[0])+ '_Heat' 
 
         print('Detecting event locations')
         self.image = DownsampleData(self.image, self.downsamplefactor)
@@ -412,7 +414,8 @@ class NEATTResNet(object):
                                 if inputtime > 0 and inputtime%(self.imaget) == 0:
                                     
                                     self.nms()
-                                    self.to_csv()
+                                    if self.savedir is not None:
+                                       self.to_csv()
                                     eventboxes = []
                                     classedboxes = {}    
                                     count = 0
@@ -498,8 +501,8 @@ class NEATTResNet(object):
         eventboxes = []
         classedboxes = {}
         self.n_tiles = (1,1)
-        
-        heatsavename = self.savedir+ "/"  + (os.path.splitext(os.path.basename(self.imagename))[0])+ '_Heat'
+        if self.savedir is not None:
+           heatsavename = self.savedir+ "/"  + (os.path.splitext(os.path.basename(self.imagename))[0])+ '_Heat'
         
   
         for inputtime in tqdm(range(int(self.imaget)//2, self.image.shape[0])):
@@ -609,11 +612,11 @@ class NEATTResNet(object):
 
 
     def to_csv(self):
-         if self.remove_markers is not None:
-            save_dynamic_csv(self.imagename, self.key_categories, self.iou_classedboxes, self.savedir, 1,  z = self.z)        
-         if self.remove_markers is None:
-            save_dynamic_csv(self.imagename, self.key_categories, self.iou_classedboxes, self.savedir, self.downsamplefactor,  z = self.z)          
-  
+                if self.remove_markers is not None:
+                    save_dynamic_csv(self.imagename, self.key_categories, self.iou_classedboxes, self.savedir, 1,  z = self.z)        
+                if self.remove_markers is None:
+                    save_dynamic_csv(self.imagename, self.key_categories, self.iou_classedboxes, self.savedir, self.downsamplefactor,  z = self.z)          
+        
 
     
 

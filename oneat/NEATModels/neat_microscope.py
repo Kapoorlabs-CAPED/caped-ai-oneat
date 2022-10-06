@@ -294,23 +294,7 @@ class NEATPredict(NEATLRNet):
                 event_count = np.column_stack([xlocations, ylocations])
                 total_event_count = np.column_stack([tlocations, ylocations, xlocations, scores, radiuses, confidences])
                 csvname = self.basedirResults + "/" + event_name
-                if len(xlocations) > 0:
-                    writer = csv.writer(open(csvname + ".ini", 'w'))
-                    writer.writerow(["[main]"])
-                    writer.writerow(["nbPredictions=" + str(self.nb_prediction)])
-                    live_event_data = []
-                    count = 1
-
-                    for line in event_count:
-                        if len(live_event_data) > self.nb_prediction:
-                            break
-                        live_event_data.append(line)
-                        writer.writerow(["[" + str(count) + "]"])
-                        writer.writerow(["x=" + str(live_event_data[0][0])])
-                        writer.writerow(["y=" + str(live_event_data[0][1])])
-                        live_event_data = []
-
-                        count = count + 1
+                
 
                 ImageResults = self.basedirResults + '/' + 'ImageLocations'
                 Path(ImageResults).mkdir(exist_ok=True)

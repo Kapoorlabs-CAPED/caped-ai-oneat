@@ -2,6 +2,8 @@ import numpy as np
 from oneat.NEATUtils.utils import load_json, normalizeFloatZeroOne,  focyoloprediction, simpleaveragenms
 import os
 from matplotlib import cm
+from scipy.ndimage import gaussian_filter
+from tifffile import imwrite
 import time
 import pandas as pd
 import tensorflow as tf
@@ -209,7 +211,7 @@ class NEATFocusPredict(NEATFocus):
         Zmap[:, :, 1] = Sum_signal_second
         Zmap[:, :, 2] = (Sum_signal_first + Sum_signal_second) / 2
 
-        imwrite(self.savedir + Name + '_Zmap' + '.tif', Zmap)
+        imwrite(self.basedirResults + Name + '_Zmap' + '.tif', Zmap)
 
     def to_csv(self):
         
@@ -235,7 +237,7 @@ class NEATFocusPredict(NEATFocus):
                                             event_count = np.column_stack([zlocations,scores, max_scores]) 
                                             event_count = sorted(event_count, key = lambda x:x[0], reverse = False)
                                             event_data = []
-                                            csvname = self.savedir+ "/" + (os.path.splitext(os.path.basename(self.imagename))[0])  + event_name  +  "_FocusQuality"
+                                            csvname = self.basedirResults + "/" + (os.path.splitext(os.path.basename(self.imagename))[0])  + event_name  +  "_FocusQuality"
                                             writer = csv.writer(open(csvname  +".csv", "a"))
                                             filesize = os.stat(csvname + ".csv").st_size
                                             if filesize < 1:
@@ -258,7 +260,7 @@ class NEATFocusPredict(NEATFocus):
 
 
                                          if event_label > 0:         
-                                              readcsvname = self.savedir+ "/" + (os.path.splitext(os.path.basename(self.imagename))[0])  + event_name  +  "_FocusQuality"
+                                              readcsvname = self.basedirResults + "/" + (os.path.splitext(os.path.basename(self.imagename))[0])  + event_name  +  "_FocusQuality"
                                               self.dataset   = pd.read_csv(readcsvname, delimiter = ',')
                                               self.dataset_index = self.dataset.index
             
@@ -267,37 +269,23 @@ class NEATFocusPredict(NEATFocus):
                                               score = self.dataset[self.dataset.keys()[1]][1:]
                                               
                                               H, A, mu0, sigma = gauss_fit(np.array(Z), np.array(score))
-                                              csvname = self.savedir+ "/" + (os.path.splitext(os.path.basename(self.imagename))[0])  + event_name  +  "_GaussFitFocusQuality"
+                                              csvname = self.basedirResults + "/" + (os.path.splitext(os.path.basename(self.imagename))[0])  + event_name  +  "_GaussFitFocusQuality"
                                               writer = csv.writer(open(csvname  +".csv", "a"))
                                               filesize = os.stat(csvname + ".csv").st_size
                                               if filesize < 1:
                                                  writer.writerow(['Amplitude','Mean','Sigma'])
                                                  writer.writerow([A, mu0,sigma])
                                               
-                                              csvname = self.savedir + "/" + event_name
+                                              csvname = self.basedirResults + "/" + event_name
 
-                                              writer = csv.writer(open(csvname + ".ini", 'w'))
-                                              writer.writerow(["[main]"])
-                                              
-                                              live_event_data = []
-                                              count = 1
-                            
-                                              for line in event_count:
                                                 
-                                                 live_event_data.append(line)
-                                                 writer.writerow(["[" + str(count) + "]"])
-                                                 writer.writerow(["mean=" + str(mu0)])
-                                                 writer.writerow(["sigma=" + str(sigma)])
-                                                 live_event_data = []
-                            
-                                                 count = count + 1   
                                                  
 
 
     def print_planes(self):
         for (event_name,event_label) in self.key_categories.items():
              if event_label > 0:
-                     csvfname =  self.savedir+ "/" + (os.path.splitext(os.path.basename(self.imagename))[0])  + event_name  +  "_FocusQuality" + ".csv"
+                     csvfname =  self.basedirResults + "/" + (os.path.splitext(os.path.basename(self.imagename))[0])  + event_name  +  "_FocusQuality" + ".csv"
                      dataset = pd.read_csv(csvfname, skiprows = 0)
                      z = dataset[dataset.keys()[0]][1:]
                      score = dataset[dataset.keys()[1]][1:]

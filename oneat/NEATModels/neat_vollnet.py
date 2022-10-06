@@ -272,7 +272,7 @@ class NEATVollNet(object):
 
         return self.marker_tree
     
-    def predict(self, imagename,  savedir, n_tiles=(1, 1, 1), overlap_percent=0.8,
+    def predict(self, imagename,  savedir = None, n_tiles=(1, 1, 1), overlap_percent=0.8,
                 event_threshold=0.5, event_confidence = 0.5, iou_threshold=0.1,  dtype = np.uint8,
                 marker_tree = None, remove_markers = False, normalize = True,  nms_function = 'iou'):
 
@@ -286,10 +286,9 @@ class NEATVollNet(object):
         self.ndim = len(self.originalimage.shape)
         self.normalize = normalize
         
-        
-        
         self.savedir = savedir
-        Path(self.savedir).mkdir(exist_ok=True)
+        if self.savedir is not None:
+           Path(self.savedir).mkdir(exist_ok=True)
         if len(n_tiles) == 3:   
            n_tiles = (n_tiles[-3], n_tiles[-2], n_tiles[-1])
         else:
@@ -392,7 +391,8 @@ class NEATVollNet(object):
                                 if inputtime > 0 and inputtime%(self.imaget) == 0:
                                     
                                     self.nms()
-                                    self.to_csv()
+                                    if self.savedir is not None:
+                                       self.to_csv()
                                     eventboxes = []
                                     classedboxes = {}    
                                     count = 0
@@ -591,7 +591,7 @@ class NEATVollNet(object):
 
 
     def to_csv(self):
-         save_volume_csv(self.imagename, self.key_categories, self.iou_classedboxes, self.savedir)          
+             save_volume_csv(self.imagename, self.key_categories, self.iou_classedboxes, self.savedir)          
     
 
     def overlaptiles(self, sliceregion):

@@ -84,7 +84,7 @@ class OneatVisualization:
                 self.cleaneventlist = []
                 self.cleantimelist = [] 
                 self.event_locations_clean.clear()              
-                dict_locations =self.event_locations_size_dict.keys()
+                dict_locations = self.event_locations_size_dict.keys()
                 tlocations = []
                 zlocations = []   
                 ylocations = []

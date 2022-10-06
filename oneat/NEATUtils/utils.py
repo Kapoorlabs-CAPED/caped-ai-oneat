@@ -97,6 +97,7 @@ def MarkerToCSV(MarkerImage):
 
 def load_json(fpath):
     with open(fpath, 'r') as f:
+        
         return json.load(f)
 
 
@@ -1219,7 +1220,6 @@ def save_volume_csv(imagename, key_categories, iou_classedboxes, savedir, maskim
                     radius = np.sqrt(
                         iou_current_event_box['height'] * iou_current_event_box['height'] + iou_current_event_box[
                             'width'] * iou_current_event_box['width'] +  iou_current_event_box['depth'] * iou_current_event_box['depth'] ) // 3
-                    radius = radius 
                     
                     if maskimage is not None:
                         if maskimage[int(tcenter), int(ycenter), int(xcenter)] > 0:

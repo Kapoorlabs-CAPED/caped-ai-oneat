@@ -304,7 +304,8 @@ class NEATLRNet(object):
         
         self.heatmap = np.zeros(self.image.shape, dtype = 'uint16')  
         self.savedir = savedir
-        Path(self.savedir).mkdir(exist_ok=True)
+        if self.savedir is not None:
+            Path(self.savedir).mkdir(exist_ok=True)
         if len(n_tiles) > 2:
             n_tiles = (n_tiles[-2], n_tiles[-1])
         self.n_tiles = n_tiles
@@ -350,7 +351,8 @@ class NEATLRNet(object):
         eventboxes = []
         classedboxes = {}    
         count = 0
-        heatsavename = self.savedir+ "/"  + (os.path.splitext(os.path.basename(self.imagename))[0])+ '_Heat' 
+        if self.savedir is not None:
+           heatsavename = self.savedir+ "/"  + (os.path.splitext(os.path.basename(self.imagename))[0])+ '_Heat' 
 
         print('Detecting event locations')
         self.image = DownsampleData(self.image, self.downsamplefactor)
@@ -407,7 +409,8 @@ class NEATLRNet(object):
                                 if inputtime > 0 and inputtime%(self.imaget) == 0:
                                     
                                     self.nms()
-                                    self.to_csv()
+                                    if self.savedir is not None:
+                                       self.to_csv()
                                     eventboxes = []
                                     classedboxes = {}    
                                     count = 0
@@ -494,8 +497,8 @@ class NEATLRNet(object):
         eventboxes = []
         classedboxes = {}
         self.n_tiles = (1,1)
-        
-        heatsavename = self.savedir+ "/"  + (os.path.splitext(os.path.basename(self.imagename))[0])+ '_Heat'
+        if self.savedir is not None:
+            heatsavename = self.savedir+ "/"  + (os.path.splitext(os.path.basename(self.imagename))[0])+ '_Heat'
         
   
         for inputtime in tqdm(range(int(self.imaget)//2, self.image.shape[0])):
@@ -563,7 +566,8 @@ class NEATLRNet(object):
                 self.classedboxes = classedboxes    
                 self.eventboxes =  eventboxes
                 self.iou_classedboxes = classedboxes
-                self.to_csv()
+                if self.savedir is not None:
+                   self.to_csv()
                 eventboxes = []
                 classedboxes = {}   
 
