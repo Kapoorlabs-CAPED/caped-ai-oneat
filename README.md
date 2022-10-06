@@ -20,9 +20,9 @@ This package can be installed by
 If you are building this from the source, clone the repository and install via
 
 ```bash
-git clone https://github.com/Kapoorlabs-CAPED/CAPED-AI-oneat/
+git clone https://github.com/Kapoorlabs-caped/caped-ai-oneat/
 
-cd CAPED-AI-oneat
+cd caped-ai-oneat
 
 pip install --user -e .
 
@@ -41,8 +41,8 @@ Pipenv allows you to install dependencies in a virtual environment.
 pip install --user pipenv
 
 # clone the repository and sync the dependencies
-git clone https://github.com/Kapoorlabs-CAPED/CAPED-AI-oneat/
-cd CAPED-AI-oneat
+git clone https://github.com/Kapoorlabs-caped/caped-ai-oneat/
+cd caped-ai-oneat
 pipenv sync
 
 # make the current package available
