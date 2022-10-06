@@ -1,6 +1,6 @@
-# Oneat
+# oneat
 
-ONEAT = Open Network for Event as Action Topologies
+oneat = Open Network for Event as Action Topologies
 
 [![PyPI version](https://img.shields.io/pypi/v/oneat.svg)](https://pypi.org/project/oneat)
 
