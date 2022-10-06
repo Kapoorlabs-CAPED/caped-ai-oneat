@@ -26,7 +26,7 @@ from tifffile import imread, imwrite
 class NEATPredict(NEATLRNet):
     
 
-    def __init__(self, config, model_dir, model_name, catconfig=None, cordconfig=None):
+    def __init__(self, config, model_dir, model_name, catconfig, cordconfig):
 
           super().__init__(config = config, model_dir = model_dir, model_name = model_name, catconfig = catconfig, cordconfig = cordconfig)
 

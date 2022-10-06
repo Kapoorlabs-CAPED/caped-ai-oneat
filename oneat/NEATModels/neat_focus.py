@@ -303,7 +303,7 @@ class NEATFocus(object):
 
                                         imwrite((self.savename + '.tif' ), self.Maskimage)
                                         
-                                smallimage = CreateVolume(self.image, self.imagez, inputz,self.imagex, self.imagey)
+                                smallimage = CreateVolume(self.image, self.imagez, inputz)
 
                                 #self.current_Zpoints = [(j,k) for j in range(smallimage.shape[1]) for k in range(smallimage.shape[2]) ]
                                 # Cut off the region for training movie creation
@@ -711,7 +711,7 @@ def chunk_list(image, patchshape, stride, pair):
             return patch, rowstart, colstart
         
         
-def CreateVolume(patch, imagez, timepoint, imagey, imagex):
+def CreateVolume(patch, imagez, timepoint):
     
                starttime = timepoint
                endtime = timepoint + imagez

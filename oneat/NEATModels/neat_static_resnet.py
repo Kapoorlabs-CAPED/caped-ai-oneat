@@ -63,7 +63,7 @@ class NEATResNet(object):
     
     """
 
-    def __init__(self, staticconfig, model_dir, model_name, catconfig=None, cordconfig=None, class_only = False, train_lstm = False):
+    def __init__(self, staticconfig, model_dir, model_name, catconfig, cordconfig, class_only = False, train_lstm = False):
 
         self.staticconfig = staticconfig
         self.catconfig = catconfig
@@ -72,6 +72,9 @@ class NEATResNet(object):
         self.model_name = model_name
         self.class_only = class_only
         self.train_lstm = train_lstm
+        self.key_cord = self.cordconfig
+        self.categories = len(self.catconfig)
+        self.key_categories = self.catconfig
         if self.staticconfig != None:
             self.npz_directory = staticconfig.npz_directory
             self.npz_name = staticconfig.npz_name
@@ -108,11 +111,8 @@ class NEATResNet(object):
             self.npz_directory = self.staticconfig['npz_directory']
             self.npz_name = self.staticconfig['npz_name']
             self.npz_val_name = self.staticconfig['npz_val_name']
-            self.key_categories = self.catconfig
             self.box_vector = self.staticconfig['box_vector']
             self.show = self.staticconfig['show']
-            self.key_cord = self.cordconfig
-            self.categories = len(self.catconfig)
             self.depth = self.staticconfig['depth']
             self.start_kernel = self.staticconfig['start_kernel']
             self.mid_kernel = self.staticconfig['mid_kernel']

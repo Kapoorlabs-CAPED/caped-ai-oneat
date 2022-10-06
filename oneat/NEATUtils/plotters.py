@@ -236,7 +236,7 @@ def Printsilverpredict(idx, model, data, Truelabel, key_categories,key_cord, gri
 
     if plot:
               plt.show()    
-class PlotDiamondHistory(keras.callbacks.Callback):
+class PlotVolumeHistory(keras.callbacks.Callback):
     
     
     def __init__(self, Trainingmodel, X, Y, key_categories, key_cord, gridx, gridy, gridz, plot = False, nboxes = 1):
@@ -288,9 +288,9 @@ class PlotDiamondHistory(keras.callbacks.Callback):
          plt.show()
          #clear_output(True)
         idx = random.randint(1,self.X.shape[0] - 1)
-        Printdiamondpredict(idx,self.Trainingmodel, self.X, self.Y, self.key_categories, self.key_cord, self.gridx, self.gridy, self.gridz, plot = self.plot, nboxes = self.nboxes)
+        PrintVolumepredict(idx,self.Trainingmodel, self.X, self.Y, self.key_categories, self.key_cord, self.gridx, self.gridy, self.gridz, plot = self.plot, nboxes = self.nboxes)
         
-def Printdiamondpredict(idx, model, data, Truelabel, key_categories,key_cord, gridx, gridy, gridz,  plot = False, nboxes = 1):
+def PrintVolumepredict(idx, model, data, Truelabel, key_categories,key_cord, gridx, gridy, gridz,  plot = False, nboxes = 1):
 
     
     Image = data[idx]

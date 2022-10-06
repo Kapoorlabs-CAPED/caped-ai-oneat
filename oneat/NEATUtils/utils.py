@@ -588,7 +588,7 @@ def distance(x, y):
 
 
 
-def compare_function_diamond(box1, box2, imagex, imagey, imagez):
+def compare_function_volume(box1, box2, imagex, imagey, imagez):
             w1, h1, d1 = box1['width'], box1['height'], box1['depth']
             w2, h2, d2 = box2['width'], box2['height'], box2['depth']
             x1 = box1['xstart']
@@ -654,7 +654,7 @@ def compare_function_sec(box1, box2):
             return distance([x1center, y1center], [x2center, y2center])
 
 
-def compare_function_sec_diamond(box1, box2):
+def compare_function_sec_volume(box1, box2):
 
             x1center = box1['xcenter']
             x2center = box2['xcenter']
@@ -744,7 +744,7 @@ def goodboxes(boxes, scores, nms_threshold, score_threshold, imagex, imagey,
     return Averageboxes
 
 
-def diamondboxes(boxes, scores, nms_threshold, score_threshold, imagex, imagey, imagez,
+def volumeboxes(boxes, scores, nms_threshold, score_threshold, imagex, imagey, imagez,
                nms_function = 'iou' ):
 
     if len(boxes) == 0:
@@ -785,7 +785,7 @@ def diamondboxes(boxes, scores, nms_threshold, score_threshold, imagex, imagey, 
                 j = idxs[pos]
                 
                 if nms_function == 'dist':
-                    overlap = compare_function_sec_diamond(boxes[i], boxes[j])
+                    overlap = compare_function_sec_volume(boxes[i], boxes[j])
                     overlap_veto = nms_threshold * (imagex * imagex + imagey * imagey + imagez * imagez)
                     # if there is sufficient overlap, suppress the current bounding box
                     if overlap <= overlap_veto:
@@ -794,7 +794,7 @@ def diamondboxes(boxes, scores, nms_threshold, score_threshold, imagex, imagey, 
                                   Averageboxes.append(boxes[i])
                             suppress.append(pos)
                 else:
-                    overlap = compare_function_diamond(boxes[i], boxes[j], imagex, imagey, imagez)
+                    overlap = compare_function_volume(boxes[i], boxes[j], imagex, imagey, imagez)
                     overlap_veto = nms_threshold    
                     if overlap >= overlap_veto:
                         if boxes[i] not in Averageboxes:
@@ -1090,11 +1090,11 @@ def gold_nms(heatmap, classedboxes, event_name, downsamplefactor, iou_threshold,
 
 
 
-def diamond_dynamic_nms(classedboxes, event_name, iou_threshold, event_threshold, gridx, gridy, gridz, nms_function = 'iou'):
+def volume_dynamic_nms(classedboxes, event_name, iou_threshold, event_threshold, gridx, gridy, gridz, nms_function = 'iou'):
                 
                sorted_event_box = classedboxes[event_name][0]
                scores = [ sorted_event_box[i][event_name]  for i in range(len(sorted_event_box))]
-               best_sorted_event_box = diamondboxes(sorted_event_box, scores, iou_threshold, event_threshold,  gridx, gridy, gridz, nms_function = nms_function)
+               best_sorted_event_box = volumeboxes(sorted_event_box, scores, iou_threshold, event_threshold,  gridx, gridy, gridz, nms_function = nms_function)
                
                return best_sorted_event_box
 
@@ -1198,7 +1198,7 @@ def save_dynamic_csv(imagename, key_categories, iou_classedboxes, savedir, downs
                             event_data = []
     
 
-def save_diamond_csv(imagename, key_categories, iou_classedboxes, savedir, maskimage = None):
+def save_volume_csv(imagename, key_categories, iou_classedboxes, savedir, maskimage = None):
     
         for (event_name, event_label) in key_categories.items():
 
@@ -1306,27 +1306,7 @@ def get_max_score_index(scores, threshold=0, top_k=0, descending=True):
     return npscores.tolist()
 
 
-"""
-This method is used to create a segmentation image of an input image (StarDist probability or distance map) using marker controlled watershedding using a mask image (UNET) 
-"""
 
-
-def WatershedwithMask(Image, Label, mask, grid):
-    properties = measure.regionprops(Label, Image)
-    Coordinates = [prop.centroid for prop in properties]
-    Coordinates = sorted(Coordinates, key=lambda k: [k[1], k[0]])
-    Coordinates.append((0, 0))
-    Coordinates = np.asarray(Coordinates)
-
-    coordinates_int = np.round(Coordinates).astype(int)
-    markers_raw = np.zeros_like(Image)
-    markers_raw[tuple(coordinates_int.T)] = 1 + np.arange(len(Coordinates))
-
-    markers = dilation(markers_raw, disk(2))
-    Image = sobel(Image)
-    watershedImage = watershed(Image, markers, mask=mask)
-
-    return watershedImage, markers
 
 
 """
@@ -1356,7 +1336,7 @@ def yoloprediction(sy, sx, time_prediction, stride, inputtime, config, key_categ
     return LocationBoxes
 
 
-def diamondyoloprediction(sz, sy, sx, time_prediction, stride, inputtime, config, key_categories, key_cord, nboxes, mode,
+def volumeyoloprediction(sz, sy, sx, time_prediction, stride, inputtime, config, key_categories, key_cord, nboxes, mode,
                    event_type, marker_tree=None):
     LocationBoxes = []
     j = 0
@@ -1373,7 +1353,7 @@ def diamondyoloprediction(sz, sy, sx, time_prediction, stride, inputtime, config
 
             if k > time_prediction.shape[2]:
                 break
-            Classybox = diamondpredictionloop(i, j, k, sz, sy, sx, nboxes, stride, time_prediction, config, key_categories, key_cord,
+            Classybox = volumepredictionloop(i, j, k, sz, sy, sx, nboxes, stride, time_prediction, config, key_categories, key_cord,
                                     inputtime, mode, event_type, marker_tree = marker_tree)
             # Append the box and the maximum likelehood detected class
             if Classybox is not None:
@@ -1381,7 +1361,7 @@ def diamondyoloprediction(sz, sy, sx, time_prediction, stride, inputtime, config
 
     return LocationBoxes    
 
-def diamondpredictionloop(i, j, k, sz, sy, sx, nboxes, stride, time_prediction, config, key_categories, key_cord, inputtime, mode,
+def volumepredictionloop(i, j, k, sz, sy, sx, nboxes, stride, time_prediction, config, key_categories, key_cord, inputtime, mode,
                    event_type, marker_tree = None):
     total_classes = len(key_categories)
     total_coords = len(key_cord)

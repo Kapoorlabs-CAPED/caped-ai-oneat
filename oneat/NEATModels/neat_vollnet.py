@@ -1,7 +1,7 @@
 from oneat.NEATUtils import plotters
 import numpy as np
 from oneat.NEATUtils import utils
-from oneat.NEATUtils.utils import  pad_timelapse, get_nearest_volume,  load_json, diamondyoloprediction, normalizeFloatZeroOne, GenerateVolumeMarkers, MakeForest,save_diamond_csv, diamond_dynamic_nms
+from oneat.NEATUtils.utils import  pad_timelapse, get_nearest_volume,  load_json, volumeyoloprediction, normalizeFloatZeroOne, GenerateVolumeMarkers, MakeForest,save_volume_csv, volume_dynamic_nms
 from keras import callbacks
 import os
 import sys
@@ -9,7 +9,7 @@ import tensorflow as tf
 from tqdm import tqdm
 from oneat.NEATModels import nets
 from oneat.NEATModels.nets import Concat
-from oneat.NEATModels.loss import diamond_yolo_loss
+from oneat.NEATModels.loss import volume_yolo_loss
 from oneat.pretrained import get_registered_models, get_model_details, get_model_instance
 from pathlib import Path
 from keras.models import load_model
@@ -49,13 +49,16 @@ class NEATVollNet(object):
     
     """
 
-    def __init__(self, config, model_dir, model_name,  catconfig=None, cordconfig=None):
+    def __init__(self, config, model_dir, model_name, catconfig, cordconfig):
 
         self.config = config
         self.catconfig = catconfig
         self.cordconfig = cordconfig
         self.model_dir = model_dir
         self.model_name = model_name
+        self.key_cord = self.cordconfig
+        self.categories = len(self.catconfig)
+        self.key_categories = self.catconfig
         if self.config != None:
             self.npz_directory = config.npz_directory
             self.npz_name = config.npz_name
@@ -98,11 +101,10 @@ class NEATVollNet(object):
             self.npz_directory = self.config['npz_directory']
             self.npz_name = self.config['npz_name']
             self.npz_val_name = self.config['npz_val_name']
-            self.key_categories = self.catconfig
+            
             self.box_vector = self.config['box_vector']
             self.show = self.config['show']
-            self.key_cord = self.cordconfig
-            self.categories = len(self.catconfig)
+            
             self.depth = self.config['depth']
             self.start_kernel = self.config['start_kernel']
             self.mid_kernel = self.config['mid_kernel']
@@ -146,7 +148,7 @@ class NEATVollNet(object):
         if self.multievent == False:
             self.last_activation = 'softmax'
             self.entropy = 'notbinary'
-        self.yololoss = diamond_yolo_loss(self.categories, self.gridx, self.gridy, self.gridz, self.nboxes,
+        self.yololoss = volume_yolo_loss(self.categories, self.gridx, self.gridy, self.gridz, self.nboxes,
                                           self.box_vector, self.entropy, self.yolo_v0, self.yolo_v1, self.yolo_v2)
 
     @classmethod   
@@ -242,7 +244,7 @@ class NEATVollNet(object):
         hrate = callbacks.History()
         srate = callbacks.ModelCheckpoint(self.model_dir + self.model_name, monitor='loss', verbose=1,
                                           save_best_only=False, save_weights_only=False, mode='auto', period=1)
-        prate = plotters.PlotDiamondHistory(self.Trainingmodel, self.X_val, self.Y_val, self.key_categories, self.key_cord,
+        prate = plotters.PlotVolumeHistory(self.Trainingmodel, self.X_val, self.Y_val, self.key_categories, self.key_cord,
                                      self.gridx, self.gridy, self.gridz, plot=self.show, nboxes=self.nboxes)
 
         # Train the model and save as a h5 file
@@ -356,7 +358,7 @@ class NEATVollNet(object):
                                      #For each tile the prediction vector has shape N H W Categories + Training Vector labels
                                      for i in range(0, sum_time_prediction.shape[0]):
                                           time_prediction =  sum_time_prediction[i]
-                                          boxprediction = diamondyoloprediction(
+                                          boxprediction = volumeyoloprediction(
                                           allz[p],  
                                           ally[p], 
                                           allx[p], 
@@ -421,7 +423,7 @@ class NEATVollNet(object):
                         # For each tile the prediction vector has shape N H W Categories + Training Vector labels
                         for i in range(0, sum_time_prediction.shape[0]):
                             time_prediction = sum_time_prediction[i]
-                            boxprediction = diamondyoloprediction(
+                            boxprediction = volumeyoloprediction(
                                           allz[p],  
                                           ally[p], 
                                           allx[p], 
@@ -510,7 +512,7 @@ class NEATVollNet(object):
                                         if sum_time_prediction is not None:
                                             #For each tile the prediction vector has shape N H W Categories + Training Vector labels
                                             time_prediction =  sum_time_prediction[0]
-                                            boxprediction = diamondyoloprediction(
+                                            boxprediction = volumeyoloprediction(
                                                             0,  
                                                             0, 
                                                             0, 
@@ -565,7 +567,7 @@ class NEATVollNet(object):
         for (event_name,event_label) in self.key_categories.items():
             if event_label == 0:
                #best_sorted_event_box = self.classedboxes[event_name][0]
-               best_sorted_event_box = diamond_dynamic_nms(self.classedboxes, event_name, self.iou_threshold, self.event_threshold, self.imagex, self.imagey, self.imagez, nms_function = self.nms_function )
+               best_sorted_event_box = volume_dynamic_nms(self.classedboxes, event_name, self.iou_threshold, self.event_threshold, self.imagex, self.imagey, self.imagez, nms_function = self.nms_function )
 
                best_iou_classedboxes[event_name] = [best_sorted_event_box]
 
@@ -580,7 +582,7 @@ class NEATVollNet(object):
         for (event_name,event_label) in self.key_categories.items():
             if event_label > 0:
                #best_sorted_event_box = self.classedboxes[event_name][0]
-               best_sorted_event_box = diamond_dynamic_nms(self.classedboxes, event_name, self.iou_threshold, self.event_threshold, self.imagex, self.imagey, self.imagez, nms_function = self.nms_function )
+               best_sorted_event_box = volume_dynamic_nms(self.classedboxes, event_name, self.iou_threshold, self.event_threshold, self.imagex, self.imagey, self.imagez, nms_function = self.nms_function )
 
                best_iou_classedboxes[event_name] = [best_sorted_event_box]
 
@@ -589,7 +591,7 @@ class NEATVollNet(object):
 
 
     def to_csv(self):
-         save_diamond_csv(self.imagename, self.key_categories, self.iou_classedboxes, self.savedir)          
+         save_volume_csv(self.imagename, self.key_categories, self.iou_classedboxes, self.savedir)          
     
 
     def overlaptiles(self, sliceregion):

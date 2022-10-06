@@ -53,13 +53,16 @@ class NEATLRNet(object):
     
     """
 
-    def __init__(self, config, model_dir, model_name,  catconfig=None, cordconfig=None):
+    def __init__(self, config, model_dir, model_name, catconfig, cordconfig):
 
         self.config = config
         self.catconfig = catconfig
         self.cordconfig = cordconfig
         self.model_dir = model_dir
         self.model_name = model_name
+        self.key_cord = self.cordconfig
+        self.categories = len(self.catconfig)
+        self.key_categories = self.catconfig
         if self.config != None:
             self.npz_directory = config.npz_directory
             self.npz_name = config.npz_name
@@ -96,16 +99,11 @@ class NEATLRNet(object):
         if self.config == None:
 
             self.config = load_json(os.path.join(self.model_dir, self.model_name) + '_Parameter.json')
-            
-
             self.npz_directory = self.config['npz_directory']
             self.npz_name = self.config['npz_name']
             self.npz_val_name = self.config['npz_val_name']
-            self.key_categories = self.catconfig
             self.box_vector = self.config['box_vector']
             self.show = self.config['show']
-            self.key_cord = self.cordconfig
-            self.categories = len(self.catconfig)
             self.depth = self.config['depth']
             self.start_kernel = self.config['start_kernel']
             self.mid_kernel = self.config['mid_kernel']

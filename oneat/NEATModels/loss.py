@@ -79,7 +79,7 @@ def extract_ground_event_pred(y_pred, categories, grid_h, grid_w, grid_t, event_
             
     
 
-def extract_ground_event_diamond_truth(y_true, categories, grid_h, grid_w, grid_d, nboxes, box_vector,yolo_v0,yolo_v1,yolo_v2):
+def extract_ground_event_volume_truth(y_true, categories, grid_h, grid_w, grid_d, nboxes, box_vector,yolo_v0,yolo_v1,yolo_v2):
     
     true_box_class = y_true[...,0:categories]
     
@@ -101,7 +101,7 @@ def extract_ground_event_diamond_truth(y_true, categories, grid_h, grid_w, grid_
     return true_box_class, true_box_xyz, true_box_whd, true_box_conf, true_box_angle 
                
     
-def extract_ground_event_diamond_pred(y_pred, categories, grid_h, grid_w, grid_d, event_grid, nboxes, box_vector, yolo_v0,yolo_v1,yolo_v2):
+def extract_ground_event_volume_pred(y_pred, categories, grid_h, grid_w, grid_d, event_grid, nboxes, box_vector, yolo_v0,yolo_v1,yolo_v2):
     
     pred_box_class = y_pred[...,0:categories]
     
@@ -237,7 +237,7 @@ def compute_conf_loss(pred_box_wh, true_box_wh, pred_box_xy,true_box_xy,true_box
 
         return loss_conf 
 
-def compute_conf_loss_diamond(pred_box_whd, true_box_whd, pred_box_xyz,true_box_xyz,true_box_conf,pred_box_conf):
+def compute_conf_loss_volume(pred_box_whd, true_box_whd, pred_box_xyz,true_box_xyz,true_box_conf,pred_box_conf):
     
 # compute the intersection of all boxes at once (the IOU)
         intersect_whd = K.maximum(K.zeros_like(pred_box_whd), (pred_box_whd + true_box_whd)/2 - K.square(pred_box_xyz[...,0:3]- true_box_xyz[...,0:3]) )
@@ -344,11 +344,11 @@ def dynamic_yolo_loss(categories, grid_h, grid_w, grid_t, nboxes, box_vector, en
     return loss 
 
 
-def diamond_yolo_loss(categories, grid_h, grid_w, grid_d, nboxes, box_vector, entropy, yolo_v0, yolo_v1, yolo_v2):
+def volume_yolo_loss(categories, grid_h, grid_w, grid_d, nboxes, box_vector, entropy, yolo_v0, yolo_v1, yolo_v2):
     def loss(y_true, y_pred):    
         event_grid = get_event_grid(grid_h, grid_w, grid_d, nboxes)
-        true_box_class, true_box_xyz, true_box_whd, true_box_conf, true_box_angle = extract_ground_event_diamond_truth(y_true, categories, grid_h, grid_w,grid_d, nboxes, box_vector, yolo_v0, yolo_v1, yolo_v2)
-        pred_box_class, pred_box_xyz, pred_box_whd, pred_box_conf, pred_box_angle = extract_ground_event_diamond_pred(y_pred, categories, grid_h, grid_w,grid_d, event_grid, nboxes, box_vector, yolo_v0, yolo_v1, yolo_v2)
+        true_box_class, true_box_xyz, true_box_whd, true_box_conf, true_box_angle = extract_ground_event_volume_truth(y_true, categories, grid_h, grid_w,grid_d, nboxes, box_vector, yolo_v0, yolo_v1, yolo_v2)
+        pred_box_class, pred_box_xyz, pred_box_whd, pred_box_conf, pred_box_angle = extract_ground_event_volume_pred(y_pred, categories, grid_h, grid_w,grid_d, event_grid, nboxes, box_vector, yolo_v0, yolo_v1, yolo_v2)
 
         loss_xywht = calc_loss_xyzwhd(true_box_conf, true_box_xyz, pred_box_xyz, true_box_whd, pred_box_whd)
 
@@ -357,12 +357,12 @@ def diamond_yolo_loss(categories, grid_h, grid_w, grid_d, nboxes, box_vector, en
    
 
         if yolo_v1:
-                    loss_conf = compute_conf_loss_diamond(pred_box_whd, true_box_whd, pred_box_xyz,true_box_xyz,true_box_conf,pred_box_conf)
+                    loss_conf = compute_conf_loss_volume(pred_box_whd, true_box_whd, pred_box_xyz,true_box_xyz,true_box_conf,pred_box_conf)
                     # Adding it all up   
                     combinedloss = (loss_xywht + loss_conf + loss_class)
         if yolo_v2:
                      
-                    loss_conf = compute_conf_loss_diamond(pred_box_whd, true_box_whd, pred_box_xyz,true_box_xyz,true_box_conf,pred_box_conf) 
+                    loss_conf = compute_conf_loss_volume(pred_box_whd, true_box_whd, pred_box_xyz,true_box_xyz,true_box_conf,pred_box_conf) 
                     loss_angle = calc_loss_angle( true_box_angle, pred_box_angle)                             
                     combinedloss = (loss_xywht + loss_conf + loss_class + loss_angle) 
 

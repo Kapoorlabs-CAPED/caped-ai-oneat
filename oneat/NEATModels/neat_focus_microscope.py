@@ -28,7 +28,7 @@ EventBoxname = 'EventIDBox'
 
 class NEATFocusPredict(NEATFocus):
     
-    def __init__(self, config, model_dir, model_name, catconfig=None, cordconfig=None):
+    def __init__(self, config, model_dir, model_name, catconfig, cordconfig):
 
           super().__init__(config = config, model_dir = model_dir, model_name = model_name, catconfig = catconfig, cordconfig = cordconfig)
 
@@ -125,7 +125,7 @@ class NEATFocusPredict(NEATFocus):
 
                         eventboxes = []
                         classedboxes = {}
-                        smallimage = CreateVolume(self.image, self.imagez, inputz, self.imagex, self.imagey)
+                        smallimage = CreateVolume(self.image, self.imagez, inputz)
                         predictions, allx, ally = self.predict_main(smallimage)
                         for p in range(0, len(predictions)):
 
@@ -536,7 +536,7 @@ def chunk_list(image, patchshape, stride, pair):
             return patch, rowstart, colstart
         
         
-def CreateVolume(patch, imagez, timepoint, imagey, imagex):
+def CreateVolume(patch, imagez, timepoint):
     
                starttime = timepoint
                endtime = timepoint + imagez
