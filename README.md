@@ -1,11 +1,11 @@
 # Oneat
 
-ONEAT = Otherwise Not Even Accurate Tracks
+ONEAT = Open Network for Event as Action Topologies
 
 [![PyPI version](https://img.shields.io/pypi/v/oneat.svg)](https://pypi.org/project/oneat)
 
 
-This project provides static and action classification networks for LSTM based networks to recoganize cell events such as division, apoptosis, cell rearrangement for various imaging modalities.
+This project provides static and action classification networks for LSTM/CNN based networks to recoganize cell events such as division, apoptosis, cell rearrangement for various imaging modalities.
 
 
 
