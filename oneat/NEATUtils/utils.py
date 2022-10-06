@@ -1450,7 +1450,6 @@ def volumepredictionloop(i, j, k, sz, sy, sx, nboxes, stride, time_prediction, c
             real_time_event = inputtime
         if mode == 'prediction':
             real_time_event = int(inputtime)
-            box_time_event = int(inputtime)
         
         # Compute the box vectors
         if marker_tree is not None:

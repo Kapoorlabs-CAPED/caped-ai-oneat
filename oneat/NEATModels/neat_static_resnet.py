@@ -266,24 +266,18 @@ class NEATResNet(object):
         self.Trainingmodel.fit(self.X, self.Y, batch_size=self.batch_size, epochs=self.epochs,
                                validation_data=(self.X_val, self.Y_val), shuffle=True,
                                callbacks=[lrate, hrate, srate, prate])
-        # clear_output(wait=True)
-
         # Removes the old model to be replaced with new model, if old one exists
         if os.path.exists(self.model_dir + self.model_name):
             os.remove(self.model_dir + self.model_name)
 
         self.Trainingmodel.save(self.model_dir + self.model_name)
 
-    def predict(self, imagename, savedir, event_threshold, n_tiles=(1, 1), overlap_percent=0.8, iou_threshold=0.01,
+    def predict(self, imagename, savedir = None, event_threshold = 0.5, event_confidence = 0.5, n_tiles=(1, 1), overlap_percent=0.8, iou_threshold=0.01,
                 height=None, width=None, RGB=False, fidelity = 1, downsamplefactor = 1, normalize = True, center_oneat = True):
 
         self.imagename = imagename
         self.image = imread(imagename)
-        self.ColorimageDynamic = np.zeros([self.image.shape[0], self.image.shape[1], self.image.shape[2], 3],
-                                          dtype='uint16')
-        self.ColorimageDynamic[:, :, :, 0] = self.image
-        self.ColorimageStatic = np.zeros([self.image.shape[0], self.image.shape[1], self.image.shape[2], 3],
-                                         dtype='uint16')
+       
         self.savedir = savedir
         self.n_tiles = n_tiles
         self.center_oneat = center_oneat
@@ -295,6 +289,7 @@ class NEATResNet(object):
         self.overlap_percent = overlap_percent
         self.iou_threshold = iou_threshold
         self.event_threshold = event_threshold
+        self.event_confidence = event_confidence
         self.originalimage = self.image
         self.image = DownsampleData(self.image, self.downsamplefactor)
         
@@ -343,7 +338,8 @@ class NEATResNet(object):
                         for box in eventboxes:
 
                             event_prob = box[event_name]
-                            if event_prob >= self.event_threshold[event_label]:
+                            event_confidence = box['confidence']
+                            if event_prob >= self.event_threshold[event_label] and event_confidence >= self.event_confidence :
                                 current_event_box.append(box)
                         classedboxes[event_name] = [current_event_box]
 
@@ -390,7 +386,8 @@ class NEATResNet(object):
                     for box in eventboxes:
 
                         event_prob = box[event_name]
-                        if event_prob >= self.event_threshold:
+                        event_confidence = box['confidence']
+                        if event_prob >= self.event_threshold and event_confidence >= self.event_confidence :
                             current_event_box.append(box)
                     classedboxes[event_name] = [current_event_box]
 
