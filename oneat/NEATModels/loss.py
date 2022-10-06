@@ -22,35 +22,23 @@ def get_event_grid(grid_h, grid_w, grid_t, boxes):
     return event_grid
 
 
-def extract_ground_event_truth(y_true, categories, grid_h, grid_w, grid_t, nboxes, box_vector,yolo_v0,yolo_v1,yolo_v2):
+def extract_ground_event_truth(y_true, categories, grid_h, grid_w, grid_t, nboxes, box_vector):
     
     true_box_class = y_true[...,0:categories]
     
     true_nboxes = K.reshape(y_true[...,categories:], (-1, grid_h * grid_w * grid_t, nboxes, box_vector))
-    
-   
 
     true_box_xyt = true_nboxes[...,0:3]
 
     true_box_wh =  true_nboxes[...,3:5] 
     
-    if yolo_v0:
-        true_box_conf = 1
-        true_box_angle = 2
-        
-    
-    else:
-            if yolo_v1:    
-               true_box_conf = true_nboxes[...,-1]
-               true_box_angle = 2
-            if yolo_v2:
-                true_box_conf = true_nboxes[...,-2]
-                true_box_angle = true_nboxes[...,-1]
+    true_box_conf = true_nboxes[...,-1]
+            
                 
-    return true_box_class, true_box_xyt, true_box_wh, true_box_conf, true_box_angle 
+    return true_box_class, true_box_xyt, true_box_wh, true_box_conf
                
     
-def extract_ground_event_pred(y_pred, categories, grid_h, grid_w, grid_t, event_grid, nboxes, box_vector, yolo_v0,yolo_v1,yolo_v2):
+def extract_ground_event_pred(y_pred, categories, grid_h, grid_w, grid_t, event_grid, nboxes, box_vector):
     
     pred_box_class = y_pred[...,0:categories]
     
@@ -61,25 +49,14 @@ def extract_ground_event_pred(y_pred, categories, grid_h, grid_w, grid_t, event_
 
     pred_box_wh = pred_nboxes[...,3:5]
         
-    if yolo_v0:
-        
-        pred_box_conf = 1
-        pred_box_angle = 2
-        
-    
-    else:
-            if yolo_v1:    
-               pred_box_conf = pred_nboxes[...,-1]
-               pred_box_angle = 2
-            if yolo_v2:
-                pred_box_conf = pred_nboxes[...,-2]
-                pred_box_angle = pred_nboxes[...,-1]
+    pred_box_conf = pred_nboxes[...,-1]
+            
                 
-    return pred_box_class, pred_box_xyt, pred_box_wh, pred_box_conf, pred_box_angle 
+    return pred_box_class, pred_box_xyt, pred_box_wh, pred_box_conf  
             
     
 
-def extract_ground_event_volume_truth(y_true, categories, grid_h, grid_w, grid_d, nboxes, box_vector,yolo_v0,yolo_v1,yolo_v2):
+def extract_ground_event_volume_truth(y_true, categories, grid_h, grid_w, grid_d, nboxes, box_vector):
     
     true_box_class = y_true[...,0:categories]
     
@@ -91,17 +68,13 @@ def extract_ground_event_volume_truth(y_true, categories, grid_h, grid_w, grid_d
 
     true_box_whd =  true_nboxes[...,4:7] 
     
-    if yolo_v1:    
-        true_box_conf = true_nboxes[...,-1]
-        true_box_angle = 2
-    if yolo_v2:
-        true_box_conf = true_nboxes[...,-2]
-        true_box_angle = true_nboxes[...,-1]
+    true_box_conf = true_nboxes[...,-1]
+   
                 
-    return true_box_class, true_box_xyz, true_box_whd, true_box_conf, true_box_angle 
+    return true_box_class, true_box_xyz, true_box_whd, true_box_conf 
                
     
-def extract_ground_event_volume_pred(y_pred, categories, grid_h, grid_w, grid_d, event_grid, nboxes, box_vector, yolo_v0,yolo_v1,yolo_v2):
+def extract_ground_event_volume_pred(y_pred, categories, grid_h, grid_w, grid_d, event_grid, nboxes, box_vector):
     
     pred_box_class = y_pred[...,0:categories]
     
@@ -111,14 +84,9 @@ def extract_ground_event_volume_pred(y_pred, categories, grid_h, grid_w, grid_d,
     
     pred_box_whd = pred_nboxes[...,4:7]
         
-    if yolo_v1:    
-               pred_box_conf = pred_nboxes[...,-1]
-               pred_box_angle = 2
-    if yolo_v2:
-                pred_box_conf = pred_nboxes[...,-2]
-                pred_box_angle = pred_nboxes[...,-1]
+    pred_box_conf = pred_nboxes[...,-1]
                 
-    return pred_box_class, pred_box_xyz, pred_box_whd, pred_box_conf, pred_box_angle 
+    return pred_box_class, pred_box_xyz, pred_box_whd, pred_box_conf 
             
 
 
@@ -130,7 +98,7 @@ def get_cell_grid(grid_h, grid_w, boxes):
     return cell_grid
 
     
-def extract_ground_cell_pred(y_pred, categories, grid_h, grid_w, cell_grid, nboxes, box_vector, yolo_v0):
+def extract_ground_cell_pred(y_pred, categories, grid_h, grid_w, cell_grid, nboxes, box_vector):
 
         pred_box_class = y_pred[...,0:categories]
         
@@ -140,17 +108,11 @@ def extract_ground_cell_pred(y_pred, categories, grid_h, grid_w, cell_grid, nbox
     
         pred_box_wh = pred_nboxes[...,-3:-1]
         
-        if yolo_v0:
-            
-                pred_box_conf = 1
-         
-        else: 
-        
-                pred_box_conf = pred_nboxes[...,-1]
+        pred_box_conf = pred_nboxes[...,-1]
         
         return pred_box_class, pred_box_xy, pred_box_wh, pred_box_conf
 
-def extract_ground_cell_truth(y_truth, categories, grid_h, grid_w, nboxes, box_vector, yolo_v0):
+def extract_ground_cell_truth(y_truth, categories, grid_h, grid_w, nboxes, box_vector):
 
         true_box_class = y_truth[...,0:categories]
         
@@ -160,13 +122,7 @@ def extract_ground_cell_truth(y_truth, categories, grid_h, grid_w, nboxes, box_v
     
         true_box_wh = true_nboxes[...,-3:-1]
         
-        if yolo_v0:
-             
-               true_box_conf = 1
-         
-        else: 
-        
-               true_box_conf = true_nboxes[...,-1]
+        true_box_conf = true_nboxes[...,-1]
         
         return true_box_class, true_box_xy, true_box_wh, true_box_conf
 
@@ -270,7 +226,7 @@ def compute_conf_loss_static(pred_box_wh, true_box_wh, pred_box_xy,true_box_xy,t
 
         return loss_conf        
 
-def calc_loss_xywh(true_box_conf, true_box_xy, pred_box_xy, true_box_wh, pred_box_wh):
+def calc_loss_xywh(true_box_xy, pred_box_xy, true_box_wh, pred_box_wh):
 
     
     loss_xy      = K.sum(K.sum(K.square(true_box_xy - pred_box_xy), axis = -1), axis = -1)
@@ -279,7 +235,7 @@ def calc_loss_xywh(true_box_conf, true_box_xy, pred_box_xy, true_box_wh, pred_bo
     loss_xywh = lambdacoord * loss_xywh
     return loss_xywh
 
-def calc_loss_xyzwhd(true_box_conf, true_box_xyz, pred_box_xyz, true_box_whd, pred_box_whd):
+def calc_loss_xyzwhd(true_box_xyz, pred_box_xyz, true_box_whd, pred_box_whd):
 
     
     loss_xyz      = K.sum(K.sum(K.square(true_box_xyz - pred_box_xyz), axis = -1), axis = -1)
@@ -301,6 +257,7 @@ def calc_loss_angle(true_box_angle, pred_box_angle):
     loss_angle      = K.sum(K.sum(K.square(true_box_angle - pred_box_angle), axis = -1), axis = -1)
     loss_angle = lambdaangle * loss_angle
     return loss_angle
+
 def calc_loss_class(true_box_class, pred_box_class, entropy):
 
     
@@ -315,28 +272,19 @@ def calc_loss_class(true_box_class, pred_box_class, entropy):
 
 
 
-def dynamic_yolo_loss(categories, grid_h, grid_w, grid_t, nboxes, box_vector, entropy, yolo_v0, yolo_v1, yolo_v2):
+def dynamic_yolo_loss(categories, grid_h, grid_w, grid_t, nboxes, box_vector, entropy):
+    
     def loss(y_true, y_pred):    
         event_grid = get_event_grid(grid_h, grid_w, grid_t, nboxes)
-        true_box_class, true_box_xyt, true_box_wh, true_box_conf, true_box_angle = extract_ground_event_truth(y_true, categories, grid_h, grid_w,grid_t, nboxes, box_vector, yolo_v0, yolo_v1, yolo_v2)
-        pred_box_class, pred_box_xyt, pred_box_wh, pred_box_conf, pred_box_angle = extract_ground_event_pred(y_pred, categories, grid_h, grid_w,grid_t, event_grid, nboxes, box_vector, yolo_v0, yolo_v1, yolo_v2)
+        true_box_class, true_box_xyt, true_box_wh, true_box_conf = extract_ground_event_truth(y_true, categories, grid_h, grid_w,grid_t, nboxes, box_vector)
+        pred_box_class, pred_box_xyt, pred_box_wh, pred_box_conf = extract_ground_event_pred(y_pred, categories, grid_h, grid_w,grid_t, event_grid, nboxes, box_vector)
 
-        loss_xywht = calc_loss_xywh(true_box_conf, true_box_xyt, pred_box_xyt, true_box_wh, pred_box_wh)
+        loss_xywht = calc_loss_xywh(true_box_xyt, pred_box_xyt, true_box_wh, pred_box_wh)
 
         loss_class   = calc_loss_class(true_box_class, pred_box_class, entropy)
         
-        if yolo_v0:
-                    combinedloss = (loss_xywht + loss_class)
-
-        if yolo_v1:
-                    loss_conf = compute_conf_loss(pred_box_wh, true_box_wh, pred_box_xyt,true_box_xyt,true_box_conf,pred_box_conf)
-                    # Adding it all up   
-                    combinedloss = (loss_xywht + loss_conf + loss_class)
-        if yolo_v2:
-                     
-                    loss_conf = compute_conf_loss(pred_box_wh, true_box_wh, pred_box_xyt,true_box_xyt,true_box_conf,pred_box_conf) 
-                    loss_angle = calc_loss_angle( true_box_angle, pred_box_angle)                             
-                    combinedloss = (loss_xywht + loss_conf + loss_class + loss_angle) 
+        loss_conf = compute_conf_loss(pred_box_wh, true_box_wh, pred_box_xyt,true_box_xyt,true_box_conf,pred_box_conf) 
+        combinedloss = (loss_xywht + loss_conf + loss_class) 
 
 
         return combinedloss 
@@ -344,28 +292,20 @@ def dynamic_yolo_loss(categories, grid_h, grid_w, grid_t, nboxes, box_vector, en
     return loss 
 
 
-def volume_yolo_loss(categories, grid_h, grid_w, grid_d, nboxes, box_vector, entropy, yolo_v0, yolo_v1, yolo_v2):
+def volume_yolo_loss(categories, grid_h, grid_w, grid_d, nboxes, box_vector, entropy):
     def loss(y_true, y_pred):    
         event_grid = get_event_grid(grid_h, grid_w, grid_d, nboxes)
-        true_box_class, true_box_xyz, true_box_whd, true_box_conf, true_box_angle = extract_ground_event_volume_truth(y_true, categories, grid_h, grid_w,grid_d, nboxes, box_vector, yolo_v0, yolo_v1, yolo_v2)
-        pred_box_class, pred_box_xyz, pred_box_whd, pred_box_conf, pred_box_angle = extract_ground_event_volume_pred(y_pred, categories, grid_h, grid_w,grid_d, event_grid, nboxes, box_vector, yolo_v0, yolo_v1, yolo_v2)
+        true_box_class, true_box_xyz, true_box_whd, true_box_conf = extract_ground_event_volume_truth(y_true, categories, grid_h, grid_w,grid_d, nboxes, box_vector)
+        pred_box_class, pred_box_xyz, pred_box_whd, pred_box_conf = extract_ground_event_volume_pred(y_pred, categories, grid_h, grid_w,grid_d, event_grid, nboxes, box_vector)
 
-        loss_xywht = calc_loss_xyzwhd(true_box_conf, true_box_xyz, pred_box_xyz, true_box_whd, pred_box_whd)
+        loss_xywht = calc_loss_xyzwhd( true_box_xyz, pred_box_xyz, true_box_whd, pred_box_whd)
 
         loss_class   = calc_loss_class(true_box_class, pred_box_class, entropy)
-        
-   
 
-        if yolo_v1:
-                    loss_conf = compute_conf_loss_volume(pred_box_whd, true_box_whd, pred_box_xyz,true_box_xyz,true_box_conf,pred_box_conf)
+        loss_conf = compute_conf_loss_volume(pred_box_whd, true_box_whd, pred_box_xyz,true_box_xyz,true_box_conf,pred_box_conf)
                     # Adding it all up   
-                    combinedloss = (loss_xywht + loss_conf + loss_class)
-        if yolo_v2:
-                     
-                    loss_conf = compute_conf_loss_volume(pred_box_whd, true_box_whd, pred_box_xyz,true_box_xyz,true_box_conf,pred_box_conf) 
-                    loss_angle = calc_loss_angle( true_box_angle, pred_box_angle)                             
-                    combinedloss = (loss_xywht + loss_conf + loss_class + loss_angle) 
-
+        combinedloss = (loss_xywht + loss_conf + loss_class)
+       
 
         return combinedloss 
         
@@ -375,7 +315,7 @@ def volume_yolo_loss(categories, grid_h, grid_w, grid_d, nboxes, box_vector, ent
 
 
 
-def static_yolo_loss(categories, grid_h, grid_w, nboxes, box_vector, entropy, yolo_v0):
+def static_yolo_loss(categories, grid_h, grid_w, nboxes, box_vector, entropy):
     
     def loss(y_true, y_pred):    
 
@@ -387,16 +327,9 @@ def static_yolo_loss(categories, grid_h, grid_w, nboxes, box_vector, entropy, yo
 
         loss_class   = calc_loss_class(true_box_class, pred_box_class, entropy)
         
-        if yolo_v0:
-            
-                    combinedloss = (loss_xywh + loss_class)
-
-        else:
-                    loss_conf = compute_conf_loss_static(pred_box_wh, true_box_wh, pred_box_xy,true_box_xy,true_box_conf,pred_box_conf)
-                    # Adding it all up   
-                    combinedloss = (loss_xywh + loss_conf + loss_class)
-
-
+        loss_conf = compute_conf_loss_static(pred_box_wh, true_box_wh, pred_box_xy,true_box_xy,true_box_conf,pred_box_conf)
+        
+        combinedloss = (loss_xywh + loss_conf + loss_class)
 
         return combinedloss 
         
@@ -413,10 +346,7 @@ def static_yolo_loss_segfree(categories, grid_h, grid_w, nboxes, box_vector, ent
 
         loss_class   = calc_loss_class(true_box_class, pred_box_class, entropy)
         
-                    # Adding it all up   
         combinedloss = (loss_xy + loss_class)
-
-
 
         return combinedloss 
         
