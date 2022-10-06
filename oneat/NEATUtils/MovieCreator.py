@@ -40,7 +40,7 @@ Total categories for cell classification part of vanilla ONEAT are:
 csv file containing time, ylocation, xlocation of that event/cell type
 """    
    
-def SegFreeMovieLabelDataSet(image_dir, csv_dir, save_dir, static_name, static_label, csv_name_diff, crop_size,gridx = 1, gridy = 1, normPatch = False, yolo_v1 = True, yolo_v2 = False, tshift = 0, normalizeimage = True, dtype = np.uint8):
+def SegFreeMovieLabelDataSet(image_dir, csv_dir, save_dir, static_name, static_label, csv_name_diff, crop_size,gridx = 1, gridy = 1, normPatch = False, tshift = 0, normalizeimage = True, dtype = np.uint8):
     
     
             raw_path = os.path.join(image_dir, '*tif')
@@ -81,12 +81,12 @@ def SegFreeMovieLabelDataSet(image_dir, csv_dir, save_dir, static_name, static_l
                                                     #Categories + XYHW + Confidence 
                                                     for (key, t) in time.items():
                                                     
-                                                          SimpleMovieMaker(t, y[key], x[key], image, crop_size,gridx, gridy, total_categories, trainlabel, name+ event_name + str(count), save_dir, normPatch,yolo_v1, yolo_v2, tshift) 
+                                                          SimpleMovieMaker(t, y[key], x[key], image, crop_size,gridx, gridy, total_categories, trainlabel, name+ event_name + str(count), save_dir, normPatch,tshift) 
                                                           count = count + 1
                                                         
                                                       
                                                         
-def SegFreeMovieLabelDataSet4D(image_dir, csv_dir, save_dir, static_name, static_label, csv_name_diff, crop_size, gridx = 1, gridy = 1, normPatch = False,  yolo_v1 = True, yolo_v2 = False, tshift = 0, normalizeimage = True, dtype = np.uint8):
+def SegFreeMovieLabelDataSet4D(image_dir, csv_dir, save_dir, static_name, static_label, csv_name_diff, crop_size, gridx = 1, gridy = 1, normPatch = False,  tshift = 0, normalizeimage = True, dtype = np.uint8):
     
     
             raw_path = os.path.join(image_dir, '*tif')
@@ -126,13 +126,13 @@ def SegFreeMovieLabelDataSet4D(image_dir, csv_dir, save_dir, static_name, static
                                                     #Categories + XYHW + Confidence 
                                                     for (key, t) in time.items():
                                                        try: 
-                                                          SimpleMovieMaker4D(normalizeimage, t, z[key], y[key], x[key], image, crop_size,gridx, gridy, total_categories, trainlabel, name+ event_name + str(count), save_dir, normPatch, yolo_v1, yolo_v2, tshift, dtype) 
+                                                          SimpleMovieMaker4D(normalizeimage, t, z[key], y[key], x[key], image, crop_size,gridx, gridy, total_categories, trainlabel, name+ event_name + str(count), save_dir, normPatch,  tshift, dtype) 
                                                           count = count + 1
                                                         
                                                        except:
                                                         
                                                            pass
-def SimpleMovieMaker(time, y, x, image, crop_size,gridx, gridy, total_categories, trainlabel, name, save_dir, normPatch,yolo_v1, yolo_v2, tshift, dtype):
+def SimpleMovieMaker(time, y, x, image, crop_size,gridx, gridy, total_categories, trainlabel, name, save_dir, normPatch, tshift, dtype):
     
        sizex, sizey, size_tminus, size_tplus = crop_size
        
@@ -150,11 +150,9 @@ def SimpleMovieMaker(time, y, x, image, crop_size,gridx, gridy, total_categories
                         newname = name + 'shift' + str(shift)
                         Event_data = []
                         
-                        if yolo_v1:    
-                            Label = np.zeros([total_categories + 6])
-                        if yolo_v2:
-                            Label = np.zeros([total_categories + 7])
-                        Label[trainlabel] = 1
+                           
+                        Label = np.zeros([total_categories + 6])
+                        
                         
                         newcenter = (y - shift[1],x - shift[0] )
                         if x + shift[0]> sizex/2 and y + shift[1] > sizey/2 and x + shift[0] + int(imagesizex/2) < image.shape[2] and y + shift[1]+ int(imagesizey/2) < image.shape[1] and time > size_tminus and time + size_tplus + 1 < image.shape[0]:
@@ -189,7 +187,7 @@ def SimpleMovieMaker(time, y, x, image, crop_size,gridx, gridy, total_categories
                                            writer = csv.writer(open(save_dir + '/' + (newname) + ".csv", "a"))
                                            writer.writerows(Event_data)
 
-def SimpleMovieMaker4D(normalizeimage, time, z, y, x, image, crop_size, gridx, gridy, total_categories, trainlabel, name, save_dir, normPatch, yolo_v1, yolo_v2, tshift, dtype):
+def SimpleMovieMaker4D(normalizeimage, time, z, y, x, image, crop_size, gridx, gridy, total_categories, trainlabel, name, save_dir, normPatch, tshift, dtype):
     
        sizex, sizey, size_tminus, size_tplus = crop_size
        
@@ -214,10 +212,7 @@ def SimpleMovieMaker4D(normalizeimage, time, z, y, x, image, crop_size, gridx, g
                         Event_data = []
                         
                         
-                        if yolo_v1:    
-                            Label = np.zeros([total_categories + 6])
-                        if yolo_v2:
-                            Label = np.zeros([total_categories + 7])
+                        Label = np.zeros([total_categories + 6])
                         Label[trainlabel] = 1
                         
                         newcenter = (y - shift[1],x - shift[0] )
@@ -469,7 +464,7 @@ def Midog_to_oneat_simple(midog_folder, annotation_file,event_type_name_label, a
 
 
 def MovieLabelDataSet(image_dir, seg_image_dir, csv_dir, save_dir, static_name, static_label, csv_name_diff, crop_size, gridx = 1, gridy = 1,  
-yolo_v1 = True, yolo_v2 = False,  tshift  = 0, normalizeimage = True, dtype = np.uint8):
+tshift  = 0, normalizeimage = True, dtype = np.uint8):
     
     
             raw_path = os.path.join(image_dir, '*tif')
@@ -522,7 +517,7 @@ yolo_v1 = True, yolo_v2 = False,  tshift  = 0, normalizeimage = True, dtype = np
                                                       
                                                           MovieMaker(t, y[key], x[key], angle[key], image, segimage, 
                                                           crop_size, gridx, gridy, total_categories, trainlabel, 
-                                                          name + event_name + str(count), save_dir, yolo_v1, yolo_v2, tshift, normalizeimage, dtype)
+                                                          name + event_name + str(count), save_dir, tshift, normalizeimage, dtype)
                                                           count = count + 1
                                                     image = None
                                                     segimage = None      
@@ -530,7 +525,7 @@ yolo_v1 = True, yolo_v2 = False,  tshift  = 0, normalizeimage = True, dtype = np
                                                        
                                                         
 def VolumeLabelDataSet(image_dir, seg_image_dir, csv_dir, save_dir, static_name, static_label, csv_name_diff, crop_size, gridx = 1, gridy = 1, gridz = 1,  
-yolo_v1 = True, yolo_v2 = False,  tshift  = 0, normalizeimage = True, dtype = np.uint8):
+tshift  = 0, normalizeimage = True, dtype = np.uint8):
     
     
             raw_path = os.path.join(image_dir, '*tif')
@@ -581,7 +576,7 @@ yolo_v1 = True, yolo_v2 = False,  tshift  = 0, normalizeimage = True, dtype = np
                                                           
                                                           VolumeMaker(t, z[key], y[key], x[key], angle[key], image, segimage, 
                                                           crop_size, gridx, gridy,gridz, total_categories, trainlabel, 
-                                                          name + event_name + str(count), save_dir, yolo_v1, yolo_v2, tshift, normalizeimage, dtype)
+                                                          name + event_name + str(count), save_dir, tshift, normalizeimage, dtype)
                                                           count = count + 1
                                                     image = None
                                                     segimage = None   
@@ -589,7 +584,7 @@ yolo_v1 = True, yolo_v2 = False,  tshift  = 0, normalizeimage = True, dtype = np
                                  
 
                
-def VolumeMaker(time, z, y, x, angle, image, segimage, crop_size, gridx, gridy,gridz,  total_categories, trainlabel, name, save_dir,  yolo_v1, yolo_v2, tshift,normalizeimage, dtype ):
+def VolumeMaker(time, z, y, x, angle, image, segimage, crop_size, gridx, gridy,gridz,  total_categories, trainlabel, name, save_dir, tshift,normalizeimage, dtype ):
     
 
        sizex, sizey, sizez, size_tminus, size_tplus = crop_size
@@ -624,10 +619,7 @@ def VolumeMaker(time, z, y, x, angle, image, segimage, crop_size, gridx, gridy,g
                                 y = center[1]
                                 z = center[0]
                             
-                                if yolo_v1:    
-                                    Label = np.zeros([total_categories + 8])
-                                if yolo_v2:
-                                    Label = np.zeros([total_categories + 9])
+                                Label = np.zeros([total_categories + 8])
                                 Label[trainlabel] = 1
                                 
                                 #T co ordinate
@@ -666,13 +658,7 @@ def VolumeMaker(time, z, y, x, angle, image, segimage, crop_size, gridx, gridy,g
 
 
 
-                                                if yolo_v1:
-                                                        Label[total_categories + 7] = 1 
-                                                        
-                                                if yolo_v2:
-
-                                                    Label[total_categories + 7] = 1 
-                                                    Label[total_categories + 8] = angle        
+                                                Label[total_categories + 7] = 1 
                                                 #Write the image as 32 bit tif file 
                                                 if(crop_image.shape[0] == size_tplus + size_tminus + 1 and crop_image.shape[1]== imagesizez and crop_image.shape[2]== imagesizey and crop_image.shape[3]== imagesizex ):
 
@@ -689,7 +675,7 @@ def VolumeMaker(time, z, y, x, angle, image, segimage, crop_size, gridx, gridy,g
 
             
 def MovieMaker(time, y, x, angle, image, segimage, crop_size, gridx, gridy,  total_categories, trainlabel,
-name, save_dir, yolo_v1, yolo_v2, tshift, normalizeimage, dtype):
+name, save_dir, tshift, normalizeimage, dtype):
     
        sizex, sizey, size_tminus, size_tplus = crop_size
        
@@ -716,10 +702,7 @@ name, save_dir, yolo_v1, yolo_v2, tshift, normalizeimage, dtype):
                                 x = center[1]
                                 y = center[0]
                             
-                                if yolo_v1:    
-                                    Label = np.zeros([total_categories + 6])
-                                if yolo_v2:
-                                    Label = np.zeros([total_categories + 7])
+                                Label = np.zeros([total_categories + 6])
                                 Label[trainlabel] = 1
                                 #T co ordinate
                                 Label[total_categories + 2] = (size_tminus) / (size_tminus + size_tplus)
@@ -748,13 +731,7 @@ name, save_dir, yolo_v1, yolo_v2, tshift, normalizeimage, dtype):
                                                 Label[total_categories + 3] = height/imagesizey
                                                 #Width
                                                 Label[total_categories + 4] = width/imagesizex
-
-                                                if yolo_v1:
-                                                        Label[total_categories + 5] = 1 
-                                                        
-                                                if yolo_v2:
-                                                    Label[total_categories + 5] = 1 
-                                                    Label[total_categories + 6] = angle        
+                                                Label[total_categories + 5] = 1 
                                                 #Write the image as 32 bit tif file 
                                                 if(crop_image.shape[0] == size_tplus + size_tminus + 1 and crop_image.shape[1]== imagesizey and crop_image.shape[2]== imagesizex):
 
@@ -878,7 +855,7 @@ def CreateVolume(patch, size_tminus, size_tplus, timepoint):
     return smallimg
 
 
-def createNPZ(save_dir, axes, save_name = 'Yolov0oneat', save_name_val = 'Yolov0oneatVal', expand = True, 
+def createNPZ(save_dir, axes, save_name = 'oneat', save_name_val = 'oneatVal', expand = True, 
 static = False, flip_channel_axis = False, train_size = 0.95):
             
             data = []

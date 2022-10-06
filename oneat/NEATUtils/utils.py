@@ -1144,7 +1144,6 @@ def save_dynamic_csv(imagename, key_categories, iou_classedboxes, savedir, downs
                 confidences = []
                 tlocations = []
                 radiuses = []
-                angles = []
 
                 iou_current_event_boxes = iou_classedboxes[event_name][0]
                 iou_current_event_boxes = sorted(iou_current_event_boxes, key=lambda x: x[event_name], reverse=True)
@@ -1153,7 +1152,6 @@ def save_dynamic_csv(imagename, key_categories, iou_classedboxes, savedir, downs
                     ycenter = iou_current_event_box['ycenter'] * downsamplefactor
                     tcenter = iou_current_event_box['real_time_event']
                     confidence = iou_current_event_box['confidence']
-                    angle = iou_current_event_box['realangle']
                     score = iou_current_event_box[event_name]
                     radius = np.sqrt(
                         iou_current_event_box['height'] * iou_current_event_box['height'] + iou_current_event_box[
@@ -1168,7 +1166,6 @@ def save_dynamic_csv(imagename, key_categories, iou_classedboxes, savedir, downs
                                 confidences.append(confidence)
                                 tlocations.append(tcenter)
                                 radiuses.append(radius)
-                                angles.append(angle)
                                 zlocations.append(z)
                     else:
                                 xlocations.append(xcenter)
@@ -1177,10 +1174,9 @@ def save_dynamic_csv(imagename, key_categories, iou_classedboxes, savedir, downs
                                 confidences.append(confidence)
                                 tlocations.append(tcenter)
                                 radiuses.append(radius)
-                                angles.append(angle)
                                 zlocations.append(z)        
                 event_count = np.column_stack(
-                            [tlocations, zlocations, ylocations, xlocations, scores, radiuses, confidences, angles])
+                            [tlocations, zlocations, ylocations, xlocations, scores, radiuses, confidences])
                 event_count = sorted(event_count, key=lambda x: x[0], reverse=False) 
                 event_data = []
                 csvname = savedir + "/" + event_name + "Location" + (
@@ -1190,7 +1186,7 @@ def save_dynamic_csv(imagename, key_categories, iou_classedboxes, savedir, downs
                 filesize = os.stat(csvname + ".csv").st_size
 
                 if filesize < 1:
-                            writer.writerow(['T', 'Z', 'Y', 'X', 'Score', 'Size', 'Confidence', 'Angle'])
+                            writer.writerow(['T', 'Z', 'Y', 'X', 'Score', 'Size', 'Confidence'])
                 for line in event_count:
                             if line not in event_data:
                                 event_data.append(line)
@@ -1210,7 +1206,6 @@ def save_volume_csv(imagename, key_categories, iou_classedboxes, savedir, maskim
                 confidences = []
                 tlocations = []
                 radiuses = []
-                angles = []
 
                 iou_current_event_boxes = iou_classedboxes[event_name][0]
                 iou_current_event_boxes = sorted(iou_current_event_boxes, key=lambda x: x[event_name], reverse=True)
@@ -1220,7 +1215,6 @@ def save_volume_csv(imagename, key_categories, iou_classedboxes, savedir, maskim
                     zcenter = iou_current_event_box['zcenter']
                     tcenter = iou_current_event_box['real_time_event']
                     confidence = iou_current_event_box['confidence']
-                    angle = iou_current_event_box['realangle']
                     score = iou_current_event_box[event_name]
                     radius = np.sqrt(
                         iou_current_event_box['height'] * iou_current_event_box['height'] + iou_current_event_box[
@@ -1236,7 +1230,6 @@ def save_volume_csv(imagename, key_categories, iou_classedboxes, savedir, maskim
                                 confidences.append(confidence)
                                 tlocations.append(tcenter)
                                 radiuses.append(radius)
-                                angles.append(angle)
                                 
                     else:
                                 xlocations.append(xcenter)
@@ -1246,10 +1239,9 @@ def save_volume_csv(imagename, key_categories, iou_classedboxes, savedir, maskim
                                 confidences.append(confidence)
                                 tlocations.append(tcenter)
                                 radiuses.append(radius)
-                                angles.append(angle)
                                         
                 event_count = np.column_stack(
-                            [tlocations, zlocations, ylocations, xlocations, scores, radiuses, confidences, angles])
+                            [tlocations, zlocations, ylocations, xlocations, scores, radiuses, confidences])
                 event_count = sorted(event_count, key=lambda x: x[0], reverse=False) 
                 event_data = []
                 csvname = savedir + "/" + event_name + "Location" + (
@@ -1259,7 +1251,7 @@ def save_volume_csv(imagename, key_categories, iou_classedboxes, savedir, maskim
                 filesize = os.stat(csvname + ".csv").st_size
 
                 if filesize < 1:
-                            writer.writerow(['T', 'Z', 'Y', 'X', 'Score', 'Size', 'Confidence', 'Angle'])
+                            writer.writerow(['T', 'Z', 'Y', 'X', 'Score', 'Size', 'Confidence'])
                 for line in event_count:
                             if line not in event_data:
                                 event_data.append(line)
@@ -1389,8 +1381,6 @@ def volumepredictionloop(i, j, k, sz, sy, sx, nboxes, stride, time_prediction, c
     widthmean = 0
     heightmean = 0
     depthmean = 0
-    anglemean = 0
-    angle = 0
   
     zcenter = 0
     confidencemean = 0
@@ -1415,15 +1405,9 @@ def volumepredictionloop(i, j, k, sz, sy, sx, nboxes, stride, time_prediction, c
             depth = trainshapez
             pass
         if event_type == 'dynamic' and mode == 'detection':
-            if config['yolo_v2']:
-                angle = prediction_vector[total_classes + config['angle'] + b * total_coords]
-                confidence = prediction_vector[total_classes + config['c'] + b * total_coords]
-            if config['yolo_v1']:
-                angle = 2
-                confidence = prediction_vector[total_classes + config['c'] + b * total_coords]
+            confidence = prediction_vector[total_classes + config['c'] + b * total_coords]
            
         if mode == 'prediction':
-            angle = 2
             confidence = 1
 
         if event_type == 'static':
@@ -1440,7 +1424,6 @@ def volumepredictionloop(i, j, k, sz, sy, sx, nboxes, stride, time_prediction, c
         depthmean = depthmean + depth
         
         confidencemean = confidencemean + confidence
-        anglemean = anglemean + angle
 
         xcenterrawmean = xcenterrawmean + xcenterraw
         ycenterrawmean = ycenterrawmean + ycenterraw
@@ -1455,7 +1438,6 @@ def volumepredictionloop(i, j, k, sz, sy, sx, nboxes, stride, time_prediction, c
     depthmean = depthmean / nboxes
 
     confidencemean = confidencemean / nboxes
-    anglemean = anglemean / nboxes
     xcenterrawmean = xcenterrawmean / nboxes
     ycenterrawmean = ycenterrawmean / nboxes
     zcenterrawmean = zcenterrawmean / nboxes
@@ -1469,12 +1451,7 @@ def volumepredictionloop(i, j, k, sz, sy, sx, nboxes, stride, time_prediction, c
         if mode == 'prediction':
             real_time_event = int(inputtime)
             box_time_event = int(inputtime)
-        if config['yolo_v2']:
-            realangle = 2 * math.pi * anglemean 
-            rawangle = anglemean
-        else:
-            realangle = -1 
-            rawangle = -1
+        
         # Compute the box vectors
         if marker_tree is not None:
             nearest_location = get_nearest_volume(marker_tree, zcentermean, ycentermean, xcentermean, real_time_event)
@@ -1486,13 +1463,11 @@ def volumepredictionloop(i, j, k, sz, sy, sx, nboxes, stride, time_prediction, c
                'xcenterraw': xcenterrawmean, 'ycenterraw': ycenterrawmean, 'zcenterraw': zcenterrawmean,  
                'xcenter': xcentermean, 'ycenter': ycentermean, 'zcenter': zcentermean, 
                'real_time_event': real_time_event, 'height': heightmean, 'width': widthmean, 'depth': depthmean, 
-               'confidence': confidencemean, 'realangle': realangle, 'rawangle': rawangle}
+               'confidence': confidencemean}
            
                                          
     if event_type == 'static':
             real_time_event = int(inputtime)
-            realangle = -1
-            rawangle = -1
             if marker_tree is not None:
                 nearest_location = get_nearest_volume(marker_tree, zcentermean, ycentermean, xcentermean, real_time_event)
                 if nearest_location is not None:
@@ -1502,7 +1477,7 @@ def volumepredictionloop(i, j, k, sz, sy, sx, nboxes, stride, time_prediction, c
                 'xcenterraw': xcenterrawmean, 'ycenterraw': ycenterrawmean, 'zcenterraw': zcenterrawmean,  
                'xcenter': xcentermean, 'ycenter': ycentermean, 'zcenter': zcentermean, 
                'real_time_event': real_time_event, 'height': heightmean, 'width': widthmean, 'depth': depthmean, 
-               'confidence': confidencemean, 'realangle': realangle, 'rawangle': rawangle}
+               'confidence': confidencemean}
                 
 
     
@@ -1559,9 +1534,7 @@ def predictionloop(j, k, sx, sy, nboxes, stride, time_prediction, config, key_ca
     boxtcentermean = 0
     widthmean = 0
     heightmean = 0
-    anglemean = 0
     boxtstartmean = 0
-    angle = 0
     boxtstart = inputtime
     tcenter = 0
     boxtcenter = 0
@@ -1588,17 +1561,9 @@ def predictionloop(j, k, sx, sy, nboxes, stride, time_prediction, config, key_ca
             tcenterraw = prediction_vector[total_classes + config['t'] + b * total_coords]
             boxtcenter = int((prediction_vector[total_classes + config['t'] + b * total_coords]))
             boxtstart = inputtime
-            if config['yolo_v2']:
-                angle = prediction_vector[total_classes + config['angle'] + b * total_coords]
-                confidence = prediction_vector[total_classes + config['c'] + b * total_coords]
-            if config['yolo_v1']:
-                angle = 2
-                confidence = prediction_vector[total_classes + config['c'] + b * total_coords]
-            if config['yolo_v0']:
-                angle = 2
-                confidence = 1
+            confidence = prediction_vector[total_classes + config['c'] + b * total_coords]
+            
         if mode == 'prediction':
-            angle = 2
             confidence = 1
 
         if event_type == 'static':
@@ -1606,10 +1571,8 @@ def predictionloop(j, k, sx, sy, nboxes, stride, time_prediction, config, key_ca
             tcenter = int(inputtime)
             tcenterraw = 1
             boxtstart = inputtime
-            if config['yolo_v0'] == False:
-                confidence = prediction_vector[total_classes + config['c'] + b * total_coords]
-            if config['yolo_v0']:
-                confidence = 1
+            confidence = prediction_vector[total_classes + config['c'] + b * total_coords]
+            
 
         xcentermean = xcentermean + xcenter
         ycentermean = ycentermean + ycenter
@@ -1619,7 +1582,6 @@ def predictionloop(j, k, sx, sy, nboxes, stride, time_prediction, config, key_ca
         tcentermean = tcentermean + tcenter
         boxtstartmean = boxtstartmean + boxtstart
         boxtcentermean = boxtcentermean + boxtcenter
-        anglemean = anglemean + angle
         xcenterrawmean = xcenterrawmean + xcenterraw
         ycenterrawmean = ycenterrawmean + ycenterraw
         tcenterrawmean = tcenterrawmean + tcenterraw
@@ -1629,7 +1591,6 @@ def predictionloop(j, k, sx, sy, nboxes, stride, time_prediction, config, key_ca
     widthmean = widthmean / nboxes
     confidencemean = confidencemean / nboxes
     tcentermean = tcentermean / nboxes
-    anglemean = anglemean / nboxes
     boxtcentermean = boxtcentermean / nboxes
     xcenterrawmean = xcenterrawmean / nboxes
     ycenterrawmean = ycenterrawmean / nboxes
@@ -1646,12 +1607,7 @@ def predictionloop(j, k, sx, sy, nboxes, stride, time_prediction, config, key_ca
         if mode == 'prediction':
             real_time_event = int(inputtime)
             box_time_event = int(inputtime)
-        if config['yolo_v2']:
-            realangle = math.pi * (anglemean + 0.5)
-            rawangle = anglemean
-        else:
-            realangle = 2
-            rawangle = 2
+        
         # Compute the box vectors
         if marker_tree is not None:
             nearest_location = get_nearest(marker_tree, ycentermean, xcentermean, real_time_event)
@@ -1662,15 +1618,12 @@ def predictionloop(j, k, sx, sy, nboxes, stride, time_prediction, config, key_ca
         box = {'xstart': xstart, 'ystart': ystart, 'tstart': boxtstartmean, 'xcenterraw': xcenterrawmean,
                             'ycenterraw': ycenterrawmean, 'tcenterraw': tcenterrawmean, 'xcenter': xcentermean,
                             'ycenter': ycentermean, 'real_time_event': real_time_event, 'box_time_event': box_time_event,
-                            'height': heightmean, 'width': widthmean, 'confidence': confidencemean, 'realangle': realangle,
-                            'rawangle': rawangle}
+                            'height': heightmean, 'width': widthmean, 'confidence': confidencemean}
            
                                          
     if event_type == 'static':
             real_time_event = int(inputtime)
             box_time_event = int(inputtime)
-            realangle = 0
-            rawangle = 0
             if marker_tree is not None:
                 nearest_location = get_nearest(marker_tree, ycentermean, xcentermean, real_time_event)
                 if nearest_location is not None:
@@ -1679,8 +1632,7 @@ def predictionloop(j, k, sx, sy, nboxes, stride, time_prediction, config, key_ca
             box = {'xstart': xstart, 'ystart': ystart, 'tstart': boxtstartmean, 'xcenterraw': xcenterrawmean,
                                 'ycenterraw': ycenterrawmean, 'tcenterraw': tcenterrawmean, 'xcenter': xcentermean,
                                 'ycenter': ycentermean, 'real_time_event': real_time_event, 'box_time_event': box_time_event,
-                                'height': heightmean, 'width': widthmean, 'confidence': confidencemean, 'realangle': realangle,
-                                'rawangle': rawangle}
+                                'height': heightmean, 'width': widthmean, 'confidence': confidencemean}
                 
 
     
