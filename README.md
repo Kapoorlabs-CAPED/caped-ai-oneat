@@ -1,11 +1,11 @@
-# Oneat
+# oneat
 
-ONEAT = Otherwise Not Even Accurate Tracks
+oneat = Open Network for Event as Action Topologies
 
 [![PyPI version](https://img.shields.io/pypi/v/oneat.svg)](https://pypi.org/project/oneat)
 
 
-This project provides static and action classification networks for LSTM based networks to recoganize cell events such as division, apoptosis, cell rearrangement for various imaging modalities.
+This project provides static and action classification networks for LSTM/CNN based networks to recoganize cell events such as division, apoptosis, cell rearrangement for various imaging modalities.
 
 
 
@@ -20,9 +20,9 @@ This package can be installed by
 If you are building this from the source, clone the repository and install via
 
 ```bash
-git clone https://github.com/Kapoorlabs-CAPED/CAPED-AI-oneat/
+git clone https://github.com/Kapoorlabs-caped/caped-ai-oneat/
 
-cd CAPED-AI-oneat
+cd caped-ai-oneat
 
 pip install --user -e .
 
@@ -41,8 +41,8 @@ Pipenv allows you to install dependencies in a virtual environment.
 pip install --user pipenv
 
 # clone the repository and sync the dependencies
-git clone https://github.com/Kapoorlabs-CAPED/CAPED-AI-oneat/
-cd CAPED-AI-oneat
+git clone https://github.com/Kapoorlabs-caped/caped-ai-oneat/
+cd caped-ai-oneat
 pipenv sync
 
 # make the current package available
