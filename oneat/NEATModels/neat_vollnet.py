@@ -554,7 +554,8 @@ class NEATVollNet(object):
                 self.classedboxes = classedboxes    
                 self.eventboxes =  eventboxes
                 self.iou_classedboxes = classedboxes
-                self.to_csv()
+                if self.savedir is not None:
+                   self.to_csv()
                 eventboxes = []
                 classedboxes = {}   
 
