@@ -149,7 +149,7 @@ class NEATVollNet(object):
             self.last_activation = 'softmax'
             self.entropy = 'notbinary'
         self.yololoss = volume_yolo_loss(self.categories, self.gridx, self.gridy, self.gridz, self.nboxes,
-                                          self.box_vector, self.entropy, self.yolo_v0, self.yolo_v1, self.yolo_v2)
+                                          self.box_vector, self.entropy)
 
     @classmethod   
     def local_from_pretrained(cls, name_or_alias=None):
