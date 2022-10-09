@@ -317,7 +317,7 @@ class NEATLRNet(object):
         self.downsamplefactor = downsamplefactor
         self.originalimage = self.image
         self.center_oneat = center_oneat
-        
+        self.iou_classedboxes = {}
         self.model = load_model(os.path.join(self.model_dir, self.model_name) + '.h5',
                                 custom_objects={'loss': self.yololoss, 'Concat': Concat})
 

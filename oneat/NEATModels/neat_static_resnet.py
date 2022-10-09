@@ -304,6 +304,7 @@ class NEATResNet(object):
 
         eventboxes = []
         classedboxes = {}
+        self.iou_classedboxes = {}
         if self.normalize:
                     self.image = normalizeFloatZeroOne(self.image, 1, 99.8)
        

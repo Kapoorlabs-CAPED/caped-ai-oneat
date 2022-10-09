@@ -263,6 +263,7 @@ class NEATFocus(object):
         self.iou_threshold = iou_threshold
         self.event_threshold = event_threshold
         self.normalize = normalize
+        self.iou_classedboxes = {}
         self.maskboxes = {}
         f = h5py.File(self.model_dir + self.model_name + '.h5', 'r+')
         data_p = f.attrs['training_config']

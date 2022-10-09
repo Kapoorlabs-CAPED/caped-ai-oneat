@@ -298,7 +298,7 @@ class NEATVollNet(object):
         self.iou_threshold = iou_threshold
         self.event_threshold = event_threshold
         self.event_confidence = event_confidence
-        
+        self.iou_classedboxes = {}
         self.model = load_model(os.path.join(self.model_dir, self.model_name) + '.h5',
                                 custom_objects={'loss': self.yololoss, 'Concat': Concat})
 

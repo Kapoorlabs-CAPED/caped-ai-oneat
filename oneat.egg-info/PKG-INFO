@@ -1,12 +1,10 @@
 Metadata-Version: 2.1
 Name: oneat
-Version: 4.6.1
+Version: 4.6.2
 Summary: Static and Dynamic classification tool.
 Home-page: https://github.com/Kapoorlabs-CAPED/CAPED-AI-oneat/
 Author: Varun Kapoor
 Author-email: randomaccessiblekapoor@gmail.com
-License: UNKNOWN
-Platform: UNKNOWN
 Classifier: Development Status :: 3 - Alpha
 Classifier: Natural Language :: English
 Classifier: License :: OSI Approved :: MIT License
@@ -15,14 +13,14 @@ Classifier: Programming Language :: Python
 Classifier: Programming Language :: Python :: 3.9
 Description-Content-Type: text/markdown
 
-# Oneat
+# oneat
 
-ONEAT = Otherwise Not Even Accurate Tracks
+oneat = Open Network for Event as Action Topologies
 
 [![PyPI version](https://img.shields.io/pypi/v/oneat.svg)](https://pypi.org/project/oneat)
 
 
-This project provides static and action classification networks for LSTM based networks to recoganize cell events such as division, apoptosis, cell rearrangement for various imaging modalities.
+This project provides static and action classification networks for LSTM/CNN based networks to recoganize cell events such as division, apoptosis, cell rearrangement for various imaging modalities.
 
 
 
@@ -37,9 +35,9 @@ This package can be installed by
 If you are building this from the source, clone the repository and install via
 
 ```bash
-git clone https://github.com/Kapoorlabs-CAPED/CAPED-AI-oneat/
+git clone https://github.com/Kapoorlabs-caped/caped-ai-oneat/
 
-cd CAPED-AI-oneat
+cd caped-ai-oneat
 
 pip install --user -e .
 
@@ -58,8 +56,8 @@ Pipenv allows you to install dependencies in a virtual environment.
 pip install --user pipenv
 
 # clone the repository and sync the dependencies
-git clone https://github.com/Kapoorlabs-CAPED/CAPED-AI-oneat/
-cd CAPED-AI-oneat
+git clone https://github.com/Kapoorlabs-caped/caped-ai-oneat/
+cd caped-ai-oneat
 pipenv sync
 
 # make the current package available
@@ -84,6 +82,4 @@ oneat comes with different options to combine segmentation with classification o
 
 - The [image.sc forum](https://forum.image.sc/tag/oneat) is the best place to start getting help and support. Make sure to use the tag `oneat`, since we are monitoring all questions with this tag.
 - If you have technical questions or found a bug, feel free to [open an issue](https://github.com/Kapoorlabs-CAPED/CAPED-AI-oneat/issues).
-
-
 
