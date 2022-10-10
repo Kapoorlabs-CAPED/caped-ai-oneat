@@ -605,9 +605,9 @@ class NEATVollNet(object):
                         if event_name in self.all_iou_classedboxes:
                             boxes = self.all_iou_classedboxes[event_name]
                             boxes.append(best_sorted_event_box)
-                            self.all_iou_classedboxes[event_name] = boxes 
+                            self.all_iou_classedboxes[event_name] = [boxes] 
                         else:
-                            self.all_iou_classedboxes[event_name] = best_sorted_event_box
+                            self.all_iou_classedboxes[event_name] = [best_sorted_event_box]
         self.iou_classedboxes = best_iou_classedboxes
 
 
