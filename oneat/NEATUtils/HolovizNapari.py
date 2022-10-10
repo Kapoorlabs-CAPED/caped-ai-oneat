@@ -78,7 +78,6 @@ class NEATViz(object):
                self.viewer = napari.Viewer()
                
                self.time = 0
-               self.load_json()
                self.key_categories = self.load_json()
                
                
