@@ -1206,7 +1206,7 @@ def save_volume(key_categories : dict, iou_classedboxes : dict, all_iou_classed_
                           boxes = v 
                           if k in all_iou_classed_boxes.keys():
                                oldboxes = all_iou_classed_boxes.values()
-                               boxes.append(oldboxes)
+                               boxes.append(oldboxes[0][0])
                                
                 all_iou_classed_boxes[event_name] = boxes
     print('in',all_iou_classed_boxes )            
