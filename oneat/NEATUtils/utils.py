@@ -1194,7 +1194,7 @@ def save_dynamic_csv(imagename, key_categories, iou_classedboxes, savedir, downs
                             writer.writerows(event_data)
                             event_data = []
     
-def save_volume(key_categories, iou_classedboxes, all_iou_classed_boxes):
+def save_volume(key_categories : dict, iou_classedboxes, all_iou_classed_boxes):
     
     
     for (event_name, event_label) in key_categories.items():
@@ -1205,8 +1205,9 @@ def save_volume(key_categories, iou_classedboxes, all_iou_classed_boxes):
                 iou_current_event_boxes = iou_classedboxes[event_name][0]
                 print('can do sorting', iou_current_event_boxes)
                 iou_current_event_boxes = sorted(iou_current_event_boxes, key=lambda x: x[event_name], reverse=True)
-                boxes = all_iou_classed_boxes[event_name][0]
-                iou_current_event_boxes.append(boxes)
+                if event_name in all_iou_classed_boxes.keys():
+                  boxes = all_iou_classed_boxes[event_name][0]
+                  iou_current_event_boxes.append(boxes)
                 all_iou_classed_boxes[event_name] = iou_current_event_boxes
                 
     return all_iou_classed_boxes            
