@@ -348,6 +348,7 @@ class NEATResNet(object):
                         classedboxes[event_name] = [current_event_box]
 
                 self.classedboxes = classedboxes
+                self.all_iou_classedboxes = classedboxes
                 self.eventboxes = eventboxes
 
                 self.nms()
@@ -396,6 +397,7 @@ class NEATResNet(object):
                     classedboxes[event_name] = [current_event_box]
 
             self.classedboxes = classedboxes
+            self.all_iou_classedboxes = classedboxes
             self.eventboxes = eventboxes
             # self.iou_classedboxes = classedboxes
             self.nms()

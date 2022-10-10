@@ -1,7 +1,7 @@
 from oneat.NEATUtils import plotters
 import numpy as np
 from oneat.NEATUtils import utils
-from oneat.NEATUtils.utils import  pad_timelapse, get_nearest_volume,  load_json, volumeyoloprediction, normalizeFloatZeroOne, GenerateVolumeMarkers, MakeForest,save_volume_csv, volume_dynamic_nms
+from oneat.NEATUtils.utils import save_volume, pad_timelapse, get_nearest_volume,  load_json, volumeyoloprediction, normalizeFloatZeroOne, GenerateVolumeMarkers, MakeForest,save_volume_csv, volume_dynamic_nms
 from keras import callbacks
 import os
 import sys
@@ -390,7 +390,7 @@ class NEATVollNet(object):
                                                             current_event_box.append(box)
                                                      classedboxes[event_name] = [current_event_box]
                                                  
-                                self.classedboxes = classedboxes    
+                                self.classedboxes = classedboxes   
                                 self.eventboxes =  eventboxes
                                 
                                 
@@ -399,6 +399,8 @@ class NEATVollNet(object):
                                     self.nms()
                                     if self.savedir is not None:
                                        self.to_csv()
+                                    if self.activations:
+                                       self.to_activations()   
                                     eventboxes = []
                                     classedboxes = {}    
                                     count = 0
@@ -560,8 +562,11 @@ class NEATVollNet(object):
                 self.classedboxes = classedboxes    
                 self.eventboxes =  eventboxes
                 self.iou_classedboxes = classedboxes
+                self.all_iou_classedboxes = classedboxes
                 if self.savedir is not None:
                    self.to_csv()
+                if self.activations:
+                    self.to_activations()   
                 eventboxes = []
                 classedboxes = {}   
 
@@ -579,16 +584,11 @@ class NEATVollNet(object):
 
                best_iou_classedboxes[event_name] = [best_sorted_event_box]
                
-               if self.activations:
-                        if event_name in self.all_iou_classedboxes:
-                            boxes = self.all_iou_classedboxes[event_name]
-                            boxes.append(best_sorted_event_box)
-                            self.all_iou_classedboxes[event_name] = boxes 
-                        else:
-                            self.all_iou_classedboxes[event_name] = best_sorted_event_box    
+                   
 
         self.iou_classedboxes = best_iou_classedboxes
-               
+        
+                              
 
 
     def nms(self):
@@ -605,16 +605,18 @@ class NEATVollNet(object):
                         if event_name in self.all_iou_classedboxes:
                             boxes = self.all_iou_classedboxes[event_name]
                             boxes.append(best_sorted_event_box)
-                            self.all_iou_classedboxes[event_name] = [boxes] 
+                            self.all_iou_classedboxes[event_name] = boxes 
                         else:
-                            self.all_iou_classedboxes[event_name] = [best_sorted_event_box]
+                            self.all_iou_classedboxes[event_name] = best_sorted_event_box
         self.iou_classedboxes = best_iou_classedboxes
 
 
 
     def to_csv(self):
              save_volume_csv(self.imagename, self.key_categories, self.iou_classedboxes, self.savedir)          
-    
+ 
+    def to_activations(self):
+             self.all_iou_classedboxes =  save_volume( self.key_categories, self.iou_classedboxes, self.all_iou_classedboxes)
 
     def overlaptiles(self, sliceregion):
 

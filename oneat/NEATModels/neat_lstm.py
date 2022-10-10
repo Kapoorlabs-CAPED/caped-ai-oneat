@@ -319,6 +319,7 @@ class NEATLRNet(object):
         self.originalimage = self.image
         self.center_oneat = center_oneat
         self.iou_classedboxes = {}
+        self.all_iou_classedboxes = {}
         self.model = self._build()
 
         self.marker_tree = marker_tree
@@ -407,7 +408,7 @@ class NEATLRNet(object):
                                                             current_event_box.append(box)
                                                      classedboxes[event_name] = [current_event_box]
                                                  
-                                self.classedboxes = classedboxes    
+                                self.classedboxes = classedboxes 
                                 self.eventboxes =  eventboxes
                                 
                                 
