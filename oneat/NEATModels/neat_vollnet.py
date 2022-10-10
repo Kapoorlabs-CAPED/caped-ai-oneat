@@ -583,11 +583,10 @@ class NEATVollNet(object):
                best_sorted_event_box = volume_dynamic_nms(self.classedboxes, event_name, self.iou_threshold, self.event_threshold, self.imagex, self.imagey, self.imagez, nms_function = self.nms_function )
 
                best_iou_classedboxes[event_name] = [best_sorted_event_box]
-               
                    
 
         self.iou_classedboxes = best_iou_classedboxes
-        
+        self.all_iou_classedboxes = best_iou_classedboxes
                               
 
 
@@ -601,15 +600,9 @@ class NEATVollNet(object):
                best_sorted_event_box = volume_dynamic_nms(self.classedboxes, event_name, self.iou_threshold, self.event_threshold, self.imagex, self.imagey, self.imagez, nms_function = self.nms_function )
 
                best_iou_classedboxes[event_name] = [best_sorted_event_box]
-               if self.activations:
-                        if event_name in self.all_iou_classedboxes:
-                            boxes = self.all_iou_classedboxes[event_name]
-                            boxes.append(best_sorted_event_box)
-                            self.all_iou_classedboxes[event_name] = boxes 
-                        else:
-                            self.all_iou_classedboxes[event_name] = best_sorted_event_box
+               
         self.iou_classedboxes = best_iou_classedboxes
-
+        self.all_iou_classedboxes = best_iou_classedboxes
 
 
     def to_csv(self):
