@@ -299,6 +299,7 @@ class NEATVollNet(object):
         self.event_threshold = event_threshold
         self.event_confidence = event_confidence
         self.iou_classedboxes = {}
+        self.list_all_boxes = []
         self.all_iou_classedboxes = {}
         self.model = self._build()
 
