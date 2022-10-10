@@ -285,7 +285,7 @@ class NEATTResNet(object):
     
     def predict(self, imagename,  savedir = None, n_tiles=(1, 1), overlap_percent=0.8, dtype = np.uint8,
                 event_threshold=0.5, event_confidence = 0.5, iou_threshold=0.1,  fidelity=1, downsamplefactor = 1, start_project_mid = 4, end_project_mid = 4,
-                erosion_iterations = 1,  marker_tree = None, remove_markers = False, normalize = True, center_oneat = True, nms_function = 'iou'):
+                erosion_iterations = 1,  marker_tree = None, remove_markers = False, normalize = True, center_oneat = True, nms_function = 'iou', activations = False ):
 
 
         
@@ -298,6 +298,7 @@ class NEATTResNet(object):
         self.end_project_mid = end_project_mid
         self.ndim = len(self.image.shape)
         self.normalize = normalize
+        self.activations = activations
         self.z = 0
         if self.ndim == 4:
            self.z = self.image.shape[1]//2
@@ -324,6 +325,7 @@ class NEATTResNet(object):
         self.originalimage = self.image
         self.center_oneat = center_oneat
         self.iou_classedboxes = {}
+        self.all_iou_classedboxes = {}
         self.model = self._build()
 
         self.marker_tree = marker_tree
@@ -592,7 +594,13 @@ class NEATTResNet(object):
                best_sorted_event_box = dynamic_nms(self.heatmap, self.classedboxes, event_name,  self.downsamplefactor, self.iou_threshold, self.event_threshold, self.imagex, self.imagey, self.fidelity, generate_map = self.generate_maps, nms_function = self.nms_function )
 
                best_iou_classedboxes[event_name] = [best_sorted_event_box]
-
+               if self.activations:
+                        if event_name in self.all_iou_classedboxes:
+                            boxes = self.all_iou_classedboxes[event_name]
+                            boxes.append(best_sorted_event_box)
+                            self.all_iou_classedboxes[event_name] = boxes 
+                        else:
+                            self.all_iou_classedboxes[event_name] = best_sorted_event_box 
         self.iou_classedboxes = best_iou_classedboxes
                
 

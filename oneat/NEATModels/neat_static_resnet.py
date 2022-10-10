@@ -273,7 +273,7 @@ class NEATResNet(object):
         self.Trainingmodel.save(self.model_dir + self.model_name)
 
     def predict(self, imagename, savedir = None, event_threshold = 0.5, event_confidence = 0.5, n_tiles=(1, 1), overlap_percent=0.8, iou_threshold=0.01,
-                height=None, width=None, RGB=False, fidelity = 1, downsamplefactor = 1, normalize = True, center_oneat = True):
+                height=None, width=None, RGB=False, fidelity = 1, downsamplefactor = 1, normalize = True, center_oneat = True, activations = False):
 
         self.imagename = imagename
         self.image = imread(imagename)
@@ -291,6 +291,7 @@ class NEATResNet(object):
         self.event_threshold = event_threshold
         self.event_confidence = event_confidence
         self.originalimage = self.image
+        self.activations = activations
         self.image = DownsampleData(self.image, self.downsamplefactor)
         
         self.normalize = normalize
@@ -306,6 +307,7 @@ class NEATResNet(object):
         eventboxes = []
         classedboxes = {}
         self.iou_classedboxes = {}
+        self.all_iou_classedboxes = {}
         if self.normalize:
                     self.image = normalizeFloatZeroOne(self.image, 1, 99.8)
        
@@ -422,7 +424,13 @@ class NEATResNet(object):
              
 
                 best_iou_classedboxes[event_name] = [best_sorted_event_box]
-
+                if self.activations:
+                        if event_name in self.all_iou_classedboxes:
+                            boxes = self.all_iou_classedboxes[event_name]
+                            boxes.append(best_sorted_event_box)
+                            self.all_iou_classedboxes[event_name] = boxes 
+                        else:
+                            self.all_iou_classedboxes[event_name] = best_sorted_event_box
         self.iou_classedboxes = best_iou_classedboxes
 
     def to_csv(self):

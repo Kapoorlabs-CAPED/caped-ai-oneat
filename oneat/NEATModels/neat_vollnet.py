@@ -274,7 +274,7 @@ class NEATVollNet(object):
     
     def predict(self, imagename,  savedir = None, n_tiles=(1, 1, 1), overlap_percent=0.8,
                 event_threshold=0.5, event_confidence = 0.5, iou_threshold=0.1,  dtype = np.uint8,
-                marker_tree = None, remove_markers = False, normalize = True,  nms_function = 'iou'):
+                marker_tree = None, remove_markers = False, normalize = True,  nms_function = 'iou', activations = False):
 
 
         
@@ -285,7 +285,7 @@ class NEATVollNet(object):
         self.originalimage = imread(imagename).astype(self.dtype)
         self.ndim = len(self.originalimage.shape)
         self.normalize = normalize
-        
+        self.activations = activations
         self.savedir = savedir
         if self.savedir is not None:
            Path(self.savedir).mkdir(exist_ok=True)
@@ -299,6 +299,7 @@ class NEATVollNet(object):
         self.event_threshold = event_threshold
         self.event_confidence = event_confidence
         self.iou_classedboxes = {}
+        self.all_iou_classedboxes = {}
         self.model = self._build()
 
         self.marker_tree = marker_tree
@@ -570,12 +571,21 @@ class NEATVollNet(object):
 
         best_iou_classedboxes = {}
         self.iou_classedboxes = {}
+        
         for (event_name,event_label) in self.key_categories.items():
             if event_label == 0:
                #best_sorted_event_box = self.classedboxes[event_name][0]
                best_sorted_event_box = volume_dynamic_nms(self.classedboxes, event_name, self.iou_threshold, self.event_threshold, self.imagex, self.imagey, self.imagez, nms_function = self.nms_function )
 
                best_iou_classedboxes[event_name] = [best_sorted_event_box]
+               
+               if self.activations:
+                        if event_name in self.all_iou_classedboxes:
+                            boxes = self.all_iou_classedboxes[event_name]
+                            boxes.append(best_sorted_event_box)
+                            self.all_iou_classedboxes[event_name] = boxes 
+                        else:
+                            self.all_iou_classedboxes[event_name] = best_sorted_event_box    
 
         self.iou_classedboxes = best_iou_classedboxes
                
@@ -591,7 +601,13 @@ class NEATVollNet(object):
                best_sorted_event_box = volume_dynamic_nms(self.classedboxes, event_name, self.iou_threshold, self.event_threshold, self.imagex, self.imagey, self.imagez, nms_function = self.nms_function )
 
                best_iou_classedboxes[event_name] = [best_sorted_event_box]
-
+               if self.activations:
+                        if event_name in self.all_iou_classedboxes:
+                            boxes = self.all_iou_classedboxes[event_name]
+                            boxes.append(best_sorted_event_box)
+                            self.all_iou_classedboxes[event_name] = boxes 
+                        else:
+                            self.all_iou_classedboxes[event_name] = best_sorted_event_box
         self.iou_classedboxes = best_iou_classedboxes
 
 

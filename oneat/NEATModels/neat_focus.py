@@ -246,7 +246,7 @@ class NEATFocus(object):
     
         
         
-    def predict(self,imagename, savedir = None , n_tiles = (1,1), overlap_percent = 0.8, event_threshold = 0.5, iou_threshold = 0.0001, radius = 10, normalize = True):
+    def predict(self,imagename, savedir = None , n_tiles = (1,1), overlap_percent = 0.8, event_threshold = 0.5, iou_threshold = 0.0001, radius = 10, normalize = True, activations = False):
         
         self.imagename = imagename
         self.image = imread(imagename)
@@ -263,7 +263,9 @@ class NEATFocus(object):
         self.iou_threshold = iou_threshold
         self.event_threshold = event_threshold
         self.normalize = normalize
+        self.activations = activations
         self.iou_classedboxes = {}
+        self.all_iou_classedboxes = {}
         self.maskboxes = {}
         f = h5py.File(self.model_dir + self.model_name + '.h5', 'r+')
         data_p = f.attrs['training_config']
@@ -359,7 +361,13 @@ class NEATFocus(object):
                best_sorted_event_box, all_boxes = simpleaveragenms(sorted_event_box, scores, self.iou_threshold, self.event_threshold, event_name)
                all_best_iou_classedboxes[event_name] = [all_boxes]
                best_iou_classedboxes[event_name] = [best_sorted_event_box]
-               #print("nms",best_iou_classedboxes[event_name])
+               if self.activations:
+                        if event_name in self.all_iou_classedboxes:
+                            boxes = self.all_iou_classedboxes[event_name]
+                            boxes.append(best_sorted_event_box)
+                            self.all_iou_classedboxes[event_name] = boxes 
+                        else:
+                            self.all_iou_classedboxes[event_name] = best_sorted_event_box
         self.iou_classedboxes = best_iou_classedboxes      
         self.all_iou_classedboxes = all_best_iou_classedboxes
 
