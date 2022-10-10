@@ -149,7 +149,7 @@ class NEATTResNet(object):
         if self.multievent == False:
             self.last_activation = 'softmax'
             self.entropy = 'notbinary'
-        self.yololoss = static_yolo_loss(self.categories, self.gridx, self.gridy, self.nboxes, self.box_vector,
+        self.yolo_loss = static_yolo_loss(self.categories, self.gridx, self.gridy, self.nboxes, self.box_vector,
                                                         self.entropy, self.yolo_v0)
 
     @classmethod   
@@ -242,7 +242,7 @@ class NEATTResNet(object):
                                               last_activation=self.last_activation)
 
         sgd = tf.keras.optimizers.Adam(learning_rate=self.learning_rate)
-        self.Trainingmodel.compile(optimizer=sgd, loss=self.yololoss, metrics=['accuracy'])
+        self.Trainingmodel.compile(optimizer=sgd, loss=self.yolo_loss, metrics=['accuracy'])
         self.Trainingmodel.summary()
         plot_model(self.Trainingmodel, to_file = self.model_dir + self.model_name +'.png', 
         show_shapes = True, show_layer_names=True)
@@ -324,8 +324,7 @@ class NEATTResNet(object):
         self.originalimage = self.image
         self.center_oneat = center_oneat
         self.iou_classedboxes = {}
-        self.model = load_model(os.path.join(self.model_dir, self.model_name) + '.h5',
-                                custom_objects={'loss': self.yololoss, 'Concat': Concat})
+        self.model = self._build()
 
         self.marker_tree = marker_tree
         self.remove_markers = remove_markers
@@ -352,6 +351,12 @@ class NEATTResNet(object):
            self.default_pass_predict() 
            
 
+    def _build(self):
+        
+        Model = load_model(os.path.join(self.model_dir, self.model_name) + '.h5',
+                                custom_objects={'loss': self.yolo_loss, 'Concat': Concat})
+        return Model
+     
     def default_pass_predict(self):
         eventboxes = []
         classedboxes = {}    

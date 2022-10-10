@@ -299,8 +299,7 @@ class NEATVollNet(object):
         self.event_threshold = event_threshold
         self.event_confidence = event_confidence
         self.iou_classedboxes = {}
-        self.model = load_model(os.path.join(self.model_dir, self.model_name) + '.h5',
-                                custom_objects={'loss': self.yololoss, 'Concat': Concat})
+        self.model = self._build()
 
         self.marker_tree = marker_tree
         self.remove_markers = remove_markers
@@ -331,7 +330,13 @@ class NEATVollNet(object):
            self.default_pass_predict() 
 
    
-                 
+    def _build(self):
+        
+        Model =  load_model(os.path.join(self.model_dir, self.model_name) + '.h5',
+                                custom_objects={'loss': self.yololoss, 'Concat': Concat})  
+        
+        return Model          
+     
 
     def default_pass_predict(self):
         eventboxes = []

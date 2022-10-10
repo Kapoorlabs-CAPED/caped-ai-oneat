@@ -156,7 +156,7 @@ class NEATResNet(object):
                     self.last_activation = 'softmax'
                     self.entropy = 'notbinary'
 
-                self.yololoss = static_yolo_loss(self.categories, self.gridx, self.gridy, self.nboxes, self.box_vector,
+                self.yolo_loss = static_yolo_loss(self.categories, self.gridx, self.gridy, self.nboxes, self.box_vector,
                                                         self.entropy, self.yolo_v0)
 
         if self.class_only:
@@ -175,7 +175,7 @@ class NEATResNet(object):
                     self.last_activation = 'softmax'
                     self.entropy = 'notbinary'
 
-                self.yololoss = class_yolo_loss(self.categories, self.entropy)
+                self.yolo_loss = class_yolo_loss(self.categories, self.entropy)
 
 
     def loadData(self, sum_channels = False):
@@ -250,7 +250,7 @@ class NEATResNet(object):
                                               input_weights=self.model_weights)
 
         sgd = tf.keras.optimizers.Adam(learning_rate=self.learning_rate)
-        self.Trainingmodel.compile(optimizer=sgd, loss=self.yololoss, metrics=['accuracy'])
+        self.Trainingmodel.compile(optimizer=sgd, loss=self.yolo_loss, metrics=['accuracy'])
         self.Trainingmodel.summary()
         plot_model(self.Trainingmodel, to_file = self.model_dir + self.model_name +'.png', 
         show_shapes = True, show_layer_names=True)
@@ -299,8 +299,9 @@ class NEATResNet(object):
         data_p = data_p.decode().replace("learning_rate", "lr").encode()
         f.attrs['training_config'] = data_p
         f.close()
-        self.model = load_model(self.model_dir + self.model_name + '.h5',
-                                custom_objects={'loss': self.yolo_loss, 'Concat': Concat})
+        
+        self.model = self._build()
+        
 
         eventboxes = []
         classedboxes = {}
@@ -400,7 +401,13 @@ class NEATResNet(object):
                self.to_csv()
             eventboxes = []
             classedboxes = {}
-
+    
+    def _build(self):
+        
+        Model = load_model(self.model_dir + self.model_name + '.h5',
+                                custom_objects={'loss': self.yolo_loss, 'Concat': Concat})
+        
+        return Model
     def nms(self):
 
         best_iou_classedboxes = {}

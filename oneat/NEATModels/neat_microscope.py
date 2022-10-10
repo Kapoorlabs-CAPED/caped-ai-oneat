@@ -72,8 +72,7 @@ class NEATPredict(NEATLRNet):
         data_p = data_p.decode().replace("learning_rate", "lr").encode()
         f.attrs['training_config'] = data_p
         f.close()
-        self.model = load_model(self.model_dir + self.model_name + '.h5',
-                                custom_objects={'loss': self.yololoss, 'Concat': Concat})
+        self.model = self._build()
 
         # Z slice folder listener
         while 1:
@@ -235,6 +234,16 @@ class NEATPredict(NEATLRNet):
                              overlap_percent=self.overlap_percent, event_threshold=self.event_threshold, event_confidence = self.event_confidence,
                              iou_threshold=self.iou_threshold, projection_model=self.projection_model, delay_projection = self.delay_projection, 
                              fidelity = self.fidelity, jumpindex = self.jumpindex, normalize = self.normalize, optional_name = self.optional_name)
+
+
+
+    def _build(self):
+        
+        Model = load_model(self.model_dir + self.model_name + '.h5',
+                                custom_objects={'loss': self.yolo_loss, 'Concat': Concat})
+        
+        return Model
+
 
     def nms_microscope(self):
         

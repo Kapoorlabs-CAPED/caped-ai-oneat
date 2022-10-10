@@ -60,8 +60,7 @@ class NEATFocusPredict(NEATFocus):
         data_p = data_p.decode().replace("learning_rate", "lr").encode()
         f.attrs['training_config'] = data_p
         f.close()
-        self.model = load_model(self.model_dir + self.model_name + '.h5',
-                                custom_objects={'loss': self.yolo_loss, 'Concat': Concat})
+        self.model = self._build()
 
         # Z slice folder listener
         while 1:
@@ -170,6 +169,12 @@ class NEATFocusPredict(NEATFocus):
                              fileextension=self.fileextension, downsample=self.downsample,
                              nb_prediction=self.nb_prediction,  Z_n_tiles=self.Z_n_tiles,
                              overlap_percent=self.overlap_percent)
+
+    def _build(self):
+        
+        Model = load_model(self.model_dir + self.model_name + '.h5',
+                                custom_objects={'loss': self.yolo_loss, 'Concat': Concat})
+        return Model
 
     def nms(self):
 
