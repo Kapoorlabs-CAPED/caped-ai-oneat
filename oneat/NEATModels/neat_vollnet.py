@@ -562,7 +562,6 @@ class NEATVollNet(object):
                 self.classedboxes = classedboxes    
                 self.eventboxes =  eventboxes
                 self.iou_classedboxes = classedboxes
-                self.all_iou_classedboxes = classedboxes
                 if self.savedir is not None:
                    self.to_csv()
                 if self.activations:
@@ -586,7 +585,6 @@ class NEATVollNet(object):
                    
 
         self.iou_classedboxes = best_iou_classedboxes
-        self.all_iou_classedboxes = best_iou_classedboxes
                               
 
 
@@ -602,7 +600,6 @@ class NEATVollNet(object):
                best_iou_classedboxes[event_name] = [best_sorted_event_box]
                
         self.iou_classedboxes = best_iou_classedboxes
-        self.all_iou_classedboxes = best_iou_classedboxes
 
 
     def to_csv(self):
