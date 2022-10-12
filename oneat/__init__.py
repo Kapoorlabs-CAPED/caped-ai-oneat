@@ -1,7 +1,7 @@
 
 from ._version import __version__
 from csbdeep.utils.tf import keras_import
-from . import NEATVollNet, NEATLRNet, NEATTResNet, NEATResNet
+from oneat.NEATModels import NEATVollNet, NEATLRNet, NEATTResNet, NEATResNet
 
 from oneat.pretrained import register_model, register_aliases, clear_models_and_aliases
 

@@ -17,7 +17,6 @@ from tqdm import tqdm
 from oneat.NEATModels import nets
 from oneat.NEATModels.nets import Concat
 from oneat.NEATModels.loss import static_yolo_loss, class_yolo_loss
-from keras import backend as K
 import tensorflow as tf
 # from IPython.display import clear_output
 from pathlib import Path
