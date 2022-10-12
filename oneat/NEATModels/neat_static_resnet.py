@@ -104,10 +104,8 @@ class NEATResNet(object):
 
         if self.staticconfig == None:
 
-            try:
-                self.staticconfig = load_json(self.model_dir + os.path.splitext(self.model_name)[0] + '_Parameter.json')
-            except:
-                self.staticconfig = load_json(self.model_dir + self.model_name + '_Parameter.json')
+            self.staticconfig = load_json(self.model_dir + '/' + 'parameters.json')
+            
             self.npz_directory = self.staticconfig['npz_directory']
             self.npz_name = self.staticconfig['npz_name']
             self.npz_val_name = self.staticconfig['npz_val_name']
@@ -348,12 +346,13 @@ class NEATResNet(object):
                         classedboxes[event_name] = [current_event_box]
 
                 self.classedboxes = classedboxes
-                self.all_iou_classedboxes = classedboxes
                 self.eventboxes = eventboxes
 
                 self.nms()
                 if self.savedir is not None:
                    self.to_csv()
+                if self.activations:
+                    self.to_activations()   
                 eventboxes = []
                 classedboxes = {}
 
@@ -397,12 +396,13 @@ class NEATResNet(object):
                     classedboxes[event_name] = [current_event_box]
 
             self.classedboxes = classedboxes
-            self.all_iou_classedboxes = classedboxes
             self.eventboxes = eventboxes
             # self.iou_classedboxes = classedboxes
             self.nms()
             if self.savedir is not None:
                self.to_csv()
+            if self.activations: 
+                self.to_activations()   
             eventboxes = []
             classedboxes = {}
     
@@ -426,13 +426,7 @@ class NEATResNet(object):
              
 
                 best_iou_classedboxes[event_name] = [best_sorted_event_box]
-                if self.activations:
-                        if event_name in self.all_iou_classedboxes:
-                            boxes = self.all_iou_classedboxes[event_name]
-                            boxes.append(best_sorted_event_box)
-                            self.all_iou_classedboxes[event_name] = boxes 
-                        else:
-                            self.all_iou_classedboxes[event_name] = best_sorted_event_box
+                
         self.iou_classedboxes = best_iou_classedboxes
 
     def to_csv(self):
@@ -440,7 +434,9 @@ class NEATResNet(object):
         
         save_static_csv(self.imagename, self.key_categories, self.iou_classedboxes, self.savedir, self.downsamplefactor)
    
-
+    def to_activations(self):
+        
+        self.all_iou_classedboxes =  save_static(self.key_categories, self.iou_classedboxes, self.all_iou_classedboxes)
 
    
     def overlaptiles(self, sliceregion):

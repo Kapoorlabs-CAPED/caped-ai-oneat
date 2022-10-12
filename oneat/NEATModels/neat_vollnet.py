@@ -95,7 +95,7 @@ class NEATVollNet(object):
             self.stride = config.stride
         if self.config == None:
 
-            self.config = load_json(os.path.join(self.model_dir, self.model_name) + '_Parameter.json')
+            self.config = load_json(self.model_dir + '/' + 'parameters.json')
             
 
             self.npz_directory = self.config['npz_directory']

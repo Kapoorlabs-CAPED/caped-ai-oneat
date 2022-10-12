@@ -100,11 +100,7 @@ class NEATFocus(object):
                 self.stride = config.last_conv_factor
         if self.config == None:
                
-                try:
-                   self.config = load_json(self.model_dir + os.path.splitext(self.model_name)[0] + '_Parameter.json')
-                except:
-                   self.config = load_json(self.model_dir + self.model_name + '_Parameter.json')  
-                   
+                self.config = load_json(self.model_dir + '/' + 'parameters.json')
                 self.npz_directory = self.config['npz_directory']
                 self.npz_name = self.config['npz_name']
                 self.npz_val_name = self.config['npz_val_name']
