@@ -240,7 +240,7 @@ class NEATVollNet(object):
         lrate = callbacks.ReduceLROnPlateau(monitor='loss', factor=0.1, patience=4, verbose=1)
         hrate = callbacks.History()
         srate = callbacks.ModelCheckpoint(self.model_dir, monitor='loss', verbose=1,
-                                          save_best_only=False, save_weights_only=True, mode='auto', period=1)
+                                          save_best_only=False, save_weights_only=False, mode='auto', period=1)
         prate = plotters.PlotVolumeHistory(self.Trainingmodel, self.X_val, self.Y_val, self.key_categories, self.key_cord,
                                      self.gridx, self.gridy, self.gridz, plot=self.show, nboxes=self.nboxes)
 
