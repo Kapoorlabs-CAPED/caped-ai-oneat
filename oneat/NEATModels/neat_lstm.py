@@ -37,11 +37,10 @@ class NEATLRNet(object):
     
     model_dir : Directory location where trained model weights are to be read or written from
     
-    model_name : The h5 file of CNN + LSTM + Dense Neural Network to be used for training
     
     model_keras : The model as it appears as a Keras function
     
-    model_weights : If re-training model_weights = model_dir + model_name else None as default
+    model_weights : If re-training model_weights = model_dir else None as default
     
     lstm_hidden_units : Number of hidden uniots for LSTm layer, 64 by default
     
@@ -53,13 +52,12 @@ class NEATLRNet(object):
     
     """
 
-    def __init__(self, config, model_dir, model_name, catconfig, cordconfig):
+    def __init__(self, config, model_dir, catconfig, cordconfig):
 
         self.config = config
         self.catconfig = catconfig
         self.cordconfig = cordconfig
         self.model_dir = model_dir
-        self.model_name = model_name
         self.key_cord = self.cordconfig
         self.categories = len(self.catconfig)
         self.key_categories = self.catconfig
@@ -199,7 +197,7 @@ class NEATLRNet(object):
         Y_rest = self.Y[:, :, :, self.categories:]
  
 
-        model_weights = os.path.join(self.model_dir, self.model_name) 
+        model_weights = self.model_dir + '/' + 'weights.h5' 
         if os.path.exists(model_weights):
 
             self.model_weights = model_weights
@@ -240,13 +238,13 @@ class NEATLRNet(object):
         sgd = tf.keras.optimizers.Adam(learning_rate=self.learning_rate)
         self.Trainingmodel.compile(optimizer=sgd, loss=self.yolo_loss, metrics=['accuracy'])
         self.Trainingmodel.summary()
-        plot_model(self.Trainingmodel, to_file = self.model_dir + self.model_name +'.png', 
+        plot_model(self.Trainingmodel, to_file = self.model_dir + '/' +'model.png', 
         show_shapes = True, show_layer_names=True)
    
         # Keras callbacks
         lrate = callbacks.ReduceLROnPlateau(monitor='loss', factor=0.1, patience=4, verbose=1)
         hrate = callbacks.History()
-        srate = callbacks.ModelCheckpoint(self.model_dir + self.model_name, monitor='loss', verbose=1,
+        srate = callbacks.ModelCheckpoint(self.model_dir + '/', monitor='loss', verbose=1,
                                           save_best_only=False, save_weights_only=False, mode='auto', period=1)
         prate = plotters.PlotHistory(self.Trainingmodel, self.X_val, self.Y_val, self.key_categories, self.key_cord,
                                      self.gridx, self.gridy, plot=self.show, nboxes=self.nboxes)
@@ -256,11 +254,7 @@ class NEATLRNet(object):
                                epochs=self.epochs, validation_data=(self.X_val, self.Y_val), shuffle=True,
                                callbacks=[lrate, hrate, srate, prate])
 
-        # Removes the old model to be replaced with new model, if old one exists
-        if os.path.exists(os.path.join(self.model_dir, self.model_name) ):
-            os.remove(os.path.join(self.model_dir, self.model_name) )
-
-        self.Trainingmodel.save(os.path.join(self.model_dir, self.model_name) )
+        self.Trainingmodel.save(self.model_dir + '/'  )
 
     def get_markers(self, imagename, segdir, start_project_mid = 4, end_project_mid = 4,
      downsamplefactor = 1, dtype = 'uint16'):
@@ -348,7 +342,8 @@ class NEATLRNet(object):
         
     def _build(self):
         
-        Model =  load_model(os.path.join(self.model_dir, self.model_name) + '.h5',
+        model_weights = self.model_dir + '/' + 'weights.h5'
+        Model =  load_model(model_weights,
                                 custom_objects={'loss': self.yolo_loss, 'Concat': Concat})
         
         return Model

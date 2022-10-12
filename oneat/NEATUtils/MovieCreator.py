@@ -387,8 +387,6 @@ def Midog_to_oneat_simple(midog_folder, annotation_file,event_type_name_label, a
     with open(annotation_file) as f:
         data = json.load(f)
     
-        #categories = {cat["id"]: cat["name"] for cat in data["categories"]}
-        categories = {1: 'mitotic figure', 2: 'hard negative'}
         total_categories = len(event_type_name_label.keys())
         for row in data["images"]:
             file_name = row["file_name"]
@@ -515,7 +513,7 @@ tshift  = 0, normalizeimage = True, dtype = np.uint8):
                                                     #Categories + XYHW + Confidence 
                                                     for (key, t) in time.items():
                                                       
-                                                          MovieMaker(t, y[key], x[key], angle[key], image, segimage, 
+                                                          MovieMaker(t, y[key], x[key], image, segimage, 
                                                           crop_size, gridx, gridy, total_categories, trainlabel, 
                                                           name + event_name + str(count), save_dir, tshift, normalizeimage, dtype)
                                                           count = count + 1
@@ -565,16 +563,12 @@ tshift  = 0, normalizeimage = True, dtype = np.uint8):
                                                     z = dataset[dataset.keys()[1]][1:]
                                                     y = dataset[dataset.keys()[2]][1:]
                                                     x = dataset[dataset.keys()[3]][1:]
-                                                    try:
-                                                       angle = dataset[dataset.keys()[4]][1:]
-                                                    except:   
-                                                       angle = dataset[dataset.keys()[0]][1:] * 0 + 2                      
-
+                                                   
                                                                                   
                                                     #Categories + XYZHW + Confidence 
                                                     for (key, t) in time.items():
                                                           
-                                                          VolumeMaker(t, z[key], y[key], x[key], angle[key], image, segimage, 
+                                                          VolumeMaker(t, z[key], y[key], x[key],  image, segimage, 
                                                           crop_size, gridx, gridy,gridz, total_categories, trainlabel, 
                                                           name + event_name + str(count), save_dir, tshift, normalizeimage, dtype)
                                                           count = count + 1
@@ -584,7 +578,7 @@ tshift  = 0, normalizeimage = True, dtype = np.uint8):
                                  
 
                
-def VolumeMaker(time, z, y, x, angle, image, segimage, crop_size, gridx, gridy,gridz,  total_categories, trainlabel, name, save_dir, tshift,normalizeimage, dtype ):
+def VolumeMaker(time, z, y, x, image, segimage, crop_size, gridx, gridy,gridz,  total_categories, trainlabel, name, save_dir, tshift,normalizeimage, dtype ):
     
 
        sizex, sizey, sizez, size_tminus, size_tplus = crop_size
@@ -674,7 +668,7 @@ def VolumeMaker(time, z, y, x, angle, image, segimage, crop_size, gridx, gridy,g
 
 
             
-def MovieMaker(time, y, x, angle, image, segimage, crop_size, gridx, gridy,  total_categories, trainlabel,
+def MovieMaker(time, y, x, image, segimage, crop_size, gridx, gridy,  total_categories, trainlabel,
 name, save_dir, tshift, normalizeimage, dtype):
     
        sizex, sizey, size_tminus, size_tplus = crop_size

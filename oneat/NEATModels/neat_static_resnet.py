@@ -47,11 +47,10 @@ class NEATResNet(object):
     
     model_dir : Directory location where trained model weights are to be read or written from
     
-    model_name : The h5 file of CNN + LSTM + Dense Neural Network to be used for training
     
     model_keras : The model as it appears as a Keras function
     
-    model_weights : If re-training model_weights = model_dir + model_name else None as default
+    model_weights : If re-training model_weights = model_dir  else None as default
     
     lstm_hidden_units : Number of hidden uniots for LSTm layer, 64 by default
     
@@ -63,13 +62,12 @@ class NEATResNet(object):
     
     """
 
-    def __init__(self, staticconfig, model_dir, model_name, catconfig, cordconfig, class_only = False, train_lstm = False):
+    def __init__(self, staticconfig, model_dir, catconfig, cordconfig, class_only = False, train_lstm = False):
 
         self.staticconfig = staticconfig
         self.catconfig = catconfig
         self.cordconfig = cordconfig
         self.model_dir = model_dir
-        self.model_name = model_name
         self.class_only = class_only
         self.train_lstm = train_lstm
         self.key_cord = self.cordconfig
@@ -210,7 +208,7 @@ class NEATResNet(object):
         y_integers = np.argmax(Y_main, axis=-1)
         y_integers = y_integers[:, 0, 0]
 
-        model_weights = self.model_dir + self.model_name
+        model_weights = self.model_dir + '/' + 'weights.h5'
         if os.path.exists(model_weights):
 
             self.model_weights = model_weights
@@ -250,12 +248,12 @@ class NEATResNet(object):
         sgd = tf.keras.optimizers.Adam(learning_rate=self.learning_rate)
         self.Trainingmodel.compile(optimizer=sgd, loss=self.yolo_loss, metrics=['accuracy'])
         self.Trainingmodel.summary()
-        plot_model(self.Trainingmodel, to_file = self.model_dir + self.model_name +'.png', 
+        plot_model(self.Trainingmodel, to_file = self.model_dir + '/' +'model.png', 
         show_shapes = True, show_layer_names=True)
         # Keras callbacks
         lrate = callbacks.ReduceLROnPlateau(monitor='loss', factor=0.1, patience=4, verbose=1)
         hrate = callbacks.History()
-        srate = callbacks.ModelCheckpoint(self.model_dir + self.model_name, monitor='loss', verbose=1,
+        srate = callbacks.ModelCheckpoint(self.model_dir + '/', monitor='loss', verbose=1,
                                           save_best_only=False, save_weights_only=False, mode='auto', period=1)
         prate = plotters.PlotStaticHistory(self.Trainingmodel, self.X_val, self.Y_val, self.key_categories,
                                            self.key_cord, self.gridx, self.gridy, plot=self.show, nboxes=self.nboxes, class_only = self.class_only)
@@ -264,11 +262,9 @@ class NEATResNet(object):
         self.Trainingmodel.fit(self.X, self.Y, batch_size=self.batch_size, epochs=self.epochs,
                                validation_data=(self.X_val, self.Y_val), shuffle=True,
                                callbacks=[lrate, hrate, srate, prate])
-        # Removes the old model to be replaced with new model, if old one exists
-        if os.path.exists(self.model_dir + self.model_name):
-            os.remove(self.model_dir + self.model_name)
+    
 
-        self.Trainingmodel.save(self.model_dir + self.model_name)
+        self.Trainingmodel.save(self.model_dir + '/' )
 
     def predict(self, imagename, savedir = None, event_threshold = 0.5, event_confidence = 0.5, n_tiles=(1, 1), overlap_percent=0.8, iou_threshold=0.01,
                 height=None, width=None, RGB=False, fidelity = 1, downsamplefactor = 1, normalize = True, center_oneat = True, activations = False):
@@ -293,11 +289,7 @@ class NEATResNet(object):
         self.image = DownsampleData(self.image, self.downsamplefactor)
         
         self.normalize = normalize
-        f = h5py.File(self.model_dir + self.model_name + '.h5', 'r+')
-        data_p = f.attrs['training_config']
-        data_p = data_p.decode().replace("learning_rate", "lr").encode()
-        f.attrs['training_config'] = data_p
-        f.close()
+        
         
         self.model = self._build()
         
@@ -408,9 +400,10 @@ class NEATResNet(object):
     
     def _build(self):
         
-        Model = load_model(self.model_dir + self.model_name + '.h5',
-                                custom_objects={'loss': self.yolo_loss, 'Concat': Concat})
         
+        model_weights = self.model_dir + '/' + 'weights.h5'
+        Model =  load_model(model_weights,
+                                custom_objects={'loss': self.yolo_loss, 'Concat': Concat})  
         return Model
     def nms(self):
 

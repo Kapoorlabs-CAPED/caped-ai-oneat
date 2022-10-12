@@ -42,11 +42,10 @@ class NEATFocus(object):
     
     model_dir : Directory location where trained model weights are to be read or written from
     
-    model_name : The h5 file of CNN + LSTM + Dense Neural Network to be used for training
     
     model_keras : The model as it appears as a Keras function
     
-    model_weights : If re-training model_weights = model_dir + model_name else None as default
+    model_weights : If re-training model_weights = model_dir  else None as default
     
     
     epochs :  Number of training epochs, 55 by default
@@ -58,14 +57,13 @@ class NEATFocus(object):
     """
     
     
-    def __init__(self, config, model_dir, model_name, catconfig = None, cordconfig = None):
+    def __init__(self, config, model_dir, catconfig = None, cordconfig = None):
 
         
         self.config = config
         self.catconfig = catconfig
         self.cordconfig = cordconfig
         self.model_dir = model_dir
-        self.model_name = model_name 
         if self.config !=None:
                 self.npz_directory = config.npz_directory
                 self.npz_name = config.npz_name
@@ -191,7 +189,7 @@ class NEATFocus(object):
         
 
         
-        model_weights = self.model_dir + self.model_name
+        model_weights = self.model_dir + '/' + 'weights.h5'
         if os.path.exists(model_weights):
         
             self.model_weights = model_weights
@@ -223,20 +221,15 @@ class NEATFocus(object):
         #Keras callbacks
         lrate = callbacks.ReduceLROnPlateau(monitor='loss', factor=0.1, patience=4, verbose=1)
         hrate = callbacks.History()
-        srate = callbacks.ModelCheckpoint(self.model_dir + self.model_name, monitor='loss', verbose=1, save_best_only=False, save_weights_only=False, mode='auto', period=1)
+        srate = callbacks.ModelCheckpoint(self.model_dir + '/', monitor='loss', verbose=1, save_best_only=False, save_weights_only=False, mode='auto', period=1)
         prate = plotters.PlotHistory(self.Trainingmodel, self.X_val, self.Y_val, self.key_categories, self.key_cord, self.gridx, self.gridy, plot = self.show, nboxes = 1)
         
         
         #Train the model and save as a h5 file
         self.Trainingmodel.fit(self.X,self.Y, batch_size = self.batch_size, epochs = self.epochs, validation_data=(self.X_val, self.Y_val), shuffle = True, callbacks = [lrate,hrate,srate,prate])
-
-     
-        # Removes the old model to be replaced with new model, if old one exists
-        if os.path.exists(self.model_dir + self.model_name ):
-
-           os.remove(self.model_dir + self.model_name )
         
-        self.Trainingmodel.save(self.model_dir + self.model_name )
+        
+        self.Trainingmodel.save(self.model_dir + '/' )
         
         
     
@@ -263,11 +256,7 @@ class NEATFocus(object):
         self.iou_classedboxes = {}
         self.all_iou_classedboxes = {}
         self.maskboxes = {}
-        f = h5py.File(self.model_dir + self.model_name + '.h5', 'r+')
-        data_p = f.attrs['training_config']
-        data_p = data_p.decode().replace("learning_rate","lr").encode()
-        f.attrs['training_config'] = data_p
-        f.close()
+        
         self.model =  self._build()
          
         self.first_pass_predict()
@@ -275,7 +264,9 @@ class NEATFocus(object):
     
     def _build(self):
         
-        Model = load_model( self.model_dir + self.model_name + '.h5',  custom_objects={'loss':self.yolo_loss, 'Concat':Concat})
+        model_weights = self.model_dir + '/' + 'weights.h5'
+        Model =  load_model(model_weights,
+                                custom_objects={'loss': self.yolo_loss, 'Concat': Concat})
         
         return Model                
             
