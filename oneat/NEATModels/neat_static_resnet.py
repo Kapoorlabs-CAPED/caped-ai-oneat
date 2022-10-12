@@ -101,7 +101,7 @@ class NEATResNet(object):
 
         if self.staticconfig == None:
 
-            self.staticconfig = load_json(self.model_dir + '/' + 'parameters.json')
+            self.staticconfig = load_json(os.path.join(self.model_dir, 'parameters.json'))
             
             self.npz_directory = self.staticconfig['npz_directory']
             self.npz_name = self.staticconfig['npz_name']
@@ -207,7 +207,7 @@ class NEATResNet(object):
         y_integers = np.argmax(Y_main, axis=-1)
         y_integers = y_integers[:, 0, 0]
 
-        model_weights = self.model_dir + '/' + 'weights.h5'
+        model_weights = os.path.join(self.model_dir, 'weights.h5')
         if os.path.exists(model_weights):
 
             self.model_weights = model_weights
@@ -247,12 +247,12 @@ class NEATResNet(object):
         sgd = tf.keras.optimizers.Adam(learning_rate=self.learning_rate)
         self.Trainingmodel.compile(optimizer=sgd, loss=self.yolo_loss, metrics=['accuracy'])
         self.Trainingmodel.summary()
-        plot_model(self.Trainingmodel, to_file = self.model_dir + '/' +'model.png', 
+        plot_model(self.Trainingmodel, to_file = os.path.join(self.model_dir,'model.png'), 
         show_shapes = True, show_layer_names=True)
         # Keras callbacks
         lrate = callbacks.ReduceLROnPlateau(monitor='loss', factor=0.1, patience=4, verbose=1)
         hrate = callbacks.History()
-        srate = callbacks.ModelCheckpoint(self.model_dir + '/', monitor='loss', verbose=1,
+        srate = callbacks.ModelCheckpoint(self.model_dir, monitor='loss', verbose=1,
                                           save_best_only=False, save_weights_only=False, mode='auto', period=1)
         prate = plotters.PlotStaticHistory(self.Trainingmodel, self.X_val, self.Y_val, self.key_categories,
                                            self.key_cord, self.gridx, self.gridy, plot=self.show, nboxes=self.nboxes, class_only = self.class_only)
@@ -263,7 +263,7 @@ class NEATResNet(object):
                                callbacks=[lrate, hrate, srate, prate])
     
 
-        self.Trainingmodel.save(self.model_dir + '/' )
+        self.Trainingmodel.save(model_weights)
 
     def predict(self, imagename, savedir = None, event_threshold = 0.5, event_confidence = 0.5, n_tiles=(1, 1), overlap_percent=0.8, iou_threshold=0.01,
                 height=None, width=None, RGB=False, fidelity = 1, downsamplefactor = 1, normalize = True, center_oneat = True, activations = False):
@@ -400,7 +400,7 @@ class NEATResNet(object):
     def _build(self):
         
         
-        model_weights = self.model_dir + '/' + 'weights.h5'
+        model_weights = os.path.join(self.model_dir, 'weights.h5')
         Model =  load_model(model_weights,
                                 custom_objects={'loss': self.yolo_loss, 'Concat': Concat})  
         return Model

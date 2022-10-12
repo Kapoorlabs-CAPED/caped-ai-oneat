@@ -96,7 +96,7 @@ class NEATLRNet(object):
             self.stride = config.stride
         if self.config == None:
 
-            self.config = load_json(self.model_dir + '/' + 'parameters.json')
+            self.config = load_json(os.path.join(self.model_dir, 'parameters.json'))
             self.npz_directory = self.config['npz_directory']
             self.npz_name = self.config['npz_name']
             self.npz_val_name = self.config['npz_val_name']
@@ -197,7 +197,7 @@ class NEATLRNet(object):
         Y_rest = self.Y[:, :, :, self.categories:]
  
 
-        model_weights = self.model_dir + '/' + 'weights.h5' 
+        model_weights = os.path.join(self.model_dir , 'weights.h5') 
         if os.path.exists(model_weights):
 
             self.model_weights = model_weights
@@ -238,13 +238,13 @@ class NEATLRNet(object):
         sgd = tf.keras.optimizers.Adam(learning_rate=self.learning_rate)
         self.Trainingmodel.compile(optimizer=sgd, loss=self.yolo_loss, metrics=['accuracy'])
         self.Trainingmodel.summary()
-        plot_model(self.Trainingmodel, to_file = self.model_dir + '/' +'model.png', 
+        plot_model(self.Trainingmodel, to_file = os.path.join(self.model_dir ,'model.png'), 
         show_shapes = True, show_layer_names=True)
    
         # Keras callbacks
         lrate = callbacks.ReduceLROnPlateau(monitor='loss', factor=0.1, patience=4, verbose=1)
         hrate = callbacks.History()
-        srate = callbacks.ModelCheckpoint(self.model_dir + '/', monitor='loss', verbose=1,
+        srate = callbacks.ModelCheckpoint(self.model_dir, monitor='loss', verbose=1,
                                           save_best_only=False, save_weights_only=False, mode='auto', period=1)
         prate = plotters.PlotHistory(self.Trainingmodel, self.X_val, self.Y_val, self.key_categories, self.key_cord,
                                      self.gridx, self.gridy, plot=self.show, nboxes=self.nboxes)
@@ -254,7 +254,7 @@ class NEATLRNet(object):
                                epochs=self.epochs, validation_data=(self.X_val, self.Y_val), shuffle=True,
                                callbacks=[lrate, hrate, srate, prate])
 
-        self.Trainingmodel.save(self.model_dir + '/'  )
+        self.Trainingmodel.save(model_weights)
 
     def get_markers(self, imagename, segdir, start_project_mid = 4, end_project_mid = 4,
      downsamplefactor = 1, dtype = 'uint16'):
@@ -342,7 +342,7 @@ class NEATLRNet(object):
         
     def _build(self):
         
-        model_weights = self.model_dir + '/' + 'weights.h5'
+        model_weights = os.path.join(self.model_dir, 'weights.h5')
         Model =  load_model(model_weights,
                                 custom_objects={'loss': self.yolo_loss, 'Concat': Concat})
         
