@@ -30,9 +30,9 @@ EventBoxname = 'EventIDBox'
 
 class NEATFocusPredict(NEATFocus):
     
-    def __init__(self, config, model_dir, model_name, catconfig, cordconfig):
+    def __init__(self, config, model_dir,  catconfig, cordconfig):
 
-          super().__init__(config = config, model_dir = model_dir, model_name = model_name, catconfig = catconfig, cordconfig = cordconfig)
+          super().__init__(config = config, model_dir = model_dir, catconfig = catconfig, cordconfig = cordconfig)
 
 
 
@@ -55,11 +55,7 @@ class NEATFocusPredict(NEATFocus):
         self.overlap_percent = overlap_percent
         self.downsample = downsample
         self.normalize = normalize
-        f = h5py.File(self.model_dir + self.model_name + '.h5', 'r+')
-        data_p = f.attrs['training_config']
-        data_p = data_p.decode().replace("learning_rate", "lr").encode()
-        f.attrs['training_config'] = data_p
-        f.close()
+        
         self.model = self._build()
 
         # Z slice folder listener
@@ -172,7 +168,8 @@ class NEATFocusPredict(NEATFocus):
 
     def _build(self):
         
-        Model = load_model(self.model_dir + self.model_name + '.h5',
+        model_weights = self.model_dir + '/' + 'weights.h5'
+        Model =  load_model(model_weights,
                                 custom_objects={'loss': self.yolo_loss, 'Concat': Concat})
         return Model
 
