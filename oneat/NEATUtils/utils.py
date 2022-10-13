@@ -1209,7 +1209,6 @@ def save_volume(key_categories : dict, iou_classedboxes : dict, all_iou_classed_
                                boxes = boxes + oldboxes[0]
                                
                 all_iou_classed_boxes[event_name] = [boxes]
-    print('in',all_iou_classed_boxes )            
     return all_iou_classed_boxes            
                 
 def save_volume_csv(imagename, key_categories, iou_classedboxes, savedir, maskimage = None):
