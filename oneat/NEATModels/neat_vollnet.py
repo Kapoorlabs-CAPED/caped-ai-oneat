@@ -255,10 +255,8 @@ class NEATVollNet(object):
     The input image and seg image are numpy arrays that have to be read prior to being loaded in the function
     """
     def get_markers(self, 
-                    image : np.ndarray, 
                     segimage : np.ndarray):
 
-        self.image = image
         self.segimage = segimage
         print('Obtaining Markers')
         self.pad_width = (self.config['imagey'], self.config['imagex'])

@@ -256,7 +256,10 @@ class NEATLRNet(object):
 
         self.Trainingmodel.save(model_weights)
 
-    def get_markers(self, segimage, start_project_mid = 4, end_project_mid = 4,
+    def get_markers(self, 
+                    segimage, 
+                    start_project_mid = 4, 
+                    end_project_mid = 4,
       dtype = 'uint16'):
 
         self.pad_width = (self.config['imagey'], self.config['imagex'])

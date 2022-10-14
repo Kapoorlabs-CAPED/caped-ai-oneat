@@ -266,20 +266,23 @@ class NEATResNet(object):
         self.Trainingmodel.save(model_weights)
 
     def predict(self, 
-                image : np.ndarray, 
-                savedir : str = None, 
-                event_threshold : float = 0.5, 
-                event_confidence = 0.5, n_tiles=(1, 1), overlap_percent=0.8, iou_threshold=0.01,
-                height=None, width=None, RGB=False, fidelity = 1, normalize = True, center_oneat = True, activations = False):
+                image: np.ndarray, 
+                savedir: str = None, 
+                event_threshold: float = 0.5, 
+                event_confidence: float = 0.5, 
+                n_tiles: tuple = (1, 1), 
+                overlap_percent: float = 0.8,
+                iou_threshold: float = 0.01,
+                RGB: bool = False, 
+                fidelity: int = 1, 
+                normalize: bool = True, 
+                activations = False):
 
         self.image = imread(image)
        
         self.savedir = savedir
         self.n_tiles = n_tiles
-        self.center_oneat = center_oneat
         self.RGB = RGB
-        self.height = height
-        self.width = width
         self.fidelity = fidelity
         self.overlap_percent = overlap_percent
         self.iou_threshold = iou_threshold
@@ -320,7 +323,7 @@ class NEATResNet(object):
                             time_prediction = sum_time_prediction[i]
                             boxprediction = yoloprediction(ally[p], allx[p], time_prediction, self.stride, inputtime,
                                                            self.staticconfig, self.key_categories, self.key_cord,
-                                                           self.nboxes, 'detection', 'static', center_oneat = self.center_oneat)
+                                                           self.nboxes, 'detection', 'static')
 
                             if boxprediction is not None:
                                 eventboxes = eventboxes + boxprediction
@@ -369,7 +372,7 @@ class NEATResNet(object):
 
                         boxprediction = yoloprediction(ally[p], allx[p], time_prediction, self.stride, 0,
                                                            self.staticconfig, self.key_categories, self.key_cord,
-                                                           self.nboxes, 'detection', 'static', center_oneat = self.center_oneat)
+                                                           self.nboxes, 'detection', 'static')
                     
 
                         if boxprediction is not None:

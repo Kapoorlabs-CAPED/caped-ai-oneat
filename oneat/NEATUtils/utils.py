@@ -1297,7 +1297,7 @@ Prediction function for whole image/tile, output is Prediction vector for each i
 
 
 def yoloprediction(sy, sx, time_prediction, stride, inputtime, config, key_categories, key_cord, nboxes, mode,
-                   event_type, marker_tree=None, center_oneat = True):
+                   event_type, marker_tree=None):
     LocationBoxes = []
     j = 0
     k = 1
@@ -1310,7 +1310,7 @@ def yoloprediction(sy, sx, time_prediction, stride, inputtime, config, key_categ
         if k > time_prediction.shape[0]:
             break
         Classybox = predictionloop(j, k, sx, sy, nboxes, stride, time_prediction, config, key_categories, key_cord,
-                                   inputtime, mode, event_type, marker_tree = marker_tree, center_oneat = center_oneat)
+                                   inputtime, mode, event_type, marker_tree = marker_tree)
         # Append the box and the maximum likelehood detected class
         if Classybox is not None:
                 LocationBoxes.append(Classybox)
@@ -1499,7 +1499,7 @@ def focyoloprediction(sy, sx, z_prediction, stride, inputz, config, key_categori
 
 
 def predictionloop(j, k, sx, sy, nboxes, stride, time_prediction, config, key_categories, key_cord, inputtime, mode,
-                   event_type, marker_tree = None, center_oneat = True):
+                   event_type, marker_tree = None):
     total_classes = len(key_categories)
     total_coords = len(key_cord)
     y = (k - 1) * stride
