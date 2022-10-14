@@ -4,7 +4,6 @@
 Pipfile
 Pipfile.lock
 README.md
-pyproject.toml
 requirements.txt
 setup.py
 .idea/.gitignore
