@@ -251,32 +251,41 @@ class NEATVollNet(object):
 
 
         self.Trainingmodel.save(model_weights)
+    """
+    The input image and seg image are numpy arrays that have to be read prior to being loaded in the function
+    """
+    def get_markers(self, 
+                    image : np.ndarray, 
+                    segimage : np.ndarray):
 
-    def get_markers(self, imagename, segdir):
-
-        self.imagename = imagename
-        self.segdir = segdir
-        Name = os.path.basename(os.path.splitext(self.imagename)[0])
+        self.image = image
+        self.segimage = segimage
         print('Obtaining Markers')
         self.pad_width = (self.config['imagey'], self.config['imagex'])
-        self.segimage = imread(self.segdir + '/' + Name + '.tif')
         self.markers = GenerateVolumeMarkers(self.segimage, pad_width = self.pad_width)
         self.marker_tree = MakeForest(self.markers)
         self.segimage = None         
 
         return self.marker_tree
     
-    def predict(self, imagename,  savedir = None, n_tiles=(1, 1, 1), overlap_percent=0.8,
-                event_threshold=0.5, event_confidence = 0.5, iou_threshold=0.1,  dtype = np.uint8,
-                marker_tree = None, remove_markers = False, normalize = True,  nms_function = 'iou', activations = False):
-
-
+    def predict(self, 
+                image : np.ndarray,  
+                savedir : str = None, 
+                n_tiles : tuple = (1, 1, 1), 
+                overlap_percent : float =0.8,
+                event_threshold : float = 0.5, 
+                event_confidence : float = 0.5, 
+                iou_threshold : float = 0.1,  
+                dtype : np.dtype = np.uint8,
+                marker_tree : dict = None, 
+                remove_markers : bool = False, 
+                normalize : bool = True,  
+                nms_function : str = 'iou', 
+                activations : bool = False):
         
-        self.imagename = imagename
         self.dtype = dtype
-        self.Name = os.path.basename(os.path.splitext(self.imagename)[0])
         self.nms_function = nms_function 
-        self.originalimage = imread(imagename).astype(self.dtype)
+        self.originalimage = image.astype(self.dtype)
         self.ndim = len(self.originalimage.shape)
         self.normalize = normalize
         self.activations = activations
@@ -599,7 +608,7 @@ class NEATVollNet(object):
 
 
     def to_csv(self):
-             save_volume_csv(self.imagename, self.key_categories, self.iou_classedboxes, self.savedir)          
+             save_volume_csv( self.key_categories, self.iou_classedboxes, self.savedir)          
  
     def to_activations(self):
              self.all_iou_classedboxes =  save_volume( self.key_categories, self.iou_classedboxes, self.all_iou_classedboxes)

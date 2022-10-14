@@ -30,23 +30,7 @@ from scipy.ndimage import find_objects
 This method is used to convert Marker image to a list containing the XY indices for all time points
 """
 
-def DownsampleData(image, DownsampleFactor):
-                    
-                if DownsampleFactor!=1:  
-                    #print('Downsampling Image in XY by', DownsampleFactor)
-                    scale_percent = int(100/DownsampleFactor) # percent of original size
-                    width = int(image.shape[2] * scale_percent / 100)
-                    height = int(image.shape[1] * scale_percent / 100)
-                    dim = (width, height)
-                    smallimage = np.zeros([image.shape[0],  height,width])
-                    for i in range(0, image.shape[0]):
-                          # resize image
-                          smallimage[i,:] = zoom(image[i,:].astype('float32'), dim)         
-         
-                    return smallimage
-                else:
-                    
-                    return image
+
 def remove_big_objects(ar, max_size=6400, connectivity=1, in_place=False):
     out = ar.copy()
     ccs = out
@@ -355,10 +339,8 @@ def DensityCounter(MarkerImage, TrainshapeX, TrainshapeY):
 
                 labels = [prop.label for prop in waterproperties]
                 labels = np.asarray(labels)
-                # These regions should be downsampled
                 density.append(labels.shape[0])
                 location.append((int(y), int(x)))
-        # Create a list of TYX marker locations that should be downsampled
         AllDensity[str(i)] = [density, location]
 
     return AllDensity
@@ -1003,9 +985,24 @@ def simpleaveragenms(boxes, scores, nms_threshold, score_threshold, event_name, 
 
     return box, Averageboxes
 
+def save_static(key_categories : dict, iou_classedboxes : dict, all_iou_classed_boxes: dict):
+    
+    
+    for (event_name, event_label) in key_categories.items():
 
+            if event_label > 0:
+                
+                for (k, v) in  iou_classedboxes.items():
+                     if k == event_name:
+                          boxes = v[0] 
+                          if k in all_iou_classed_boxes.keys():
+                               oldboxes = all_iou_classed_boxes[k]
+                               boxes = boxes + oldboxes[0]
+                               
+                all_iou_classed_boxes[event_name] = [boxes]
+    return all_iou_classed_boxes 
 
-def save_static_csv(imagename, key_categories, iou_classedboxes, savedir, downsamplefactor, maskimage = None):
+def save_static_csv(key_categories : dict, iou_classedboxes : dict, savedir : str):
     
     
     for (event_name, event_label) in key_categories.items():
@@ -1022,39 +1019,28 @@ def save_static_csv(imagename, key_categories, iou_classedboxes, savedir, downsa
                 iou_current_event_boxes = sorted(iou_current_event_boxes, key=lambda x: x[event_name], reverse=True)
 
                 for iou_current_event_box in iou_current_event_boxes:
-                    xcenter = iou_current_event_box['xcenter'] * downsamplefactor
-                    ycenter = iou_current_event_box['ycenter'] * downsamplefactor
+                    xcenter = iou_current_event_box['xcenter'] 
+                    ycenter = iou_current_event_box['ycenter'] 
                     tcenter = iou_current_event_box['real_time_event']
                     confidence = iou_current_event_box['confidence']
                     score = iou_current_event_box[event_name]
                     radius = np.sqrt(
                         iou_current_event_box['height'] * iou_current_event_box['height'] + iou_current_event_box[
                             'width'] * iou_current_event_box['width']) // 2
-                    radius = radius * downsamplefactor
+                    radius = radius 
                     # Replace the detection with the nearest marker location
-                    if maskimage is not None:
-                        if maskimage[int(tcenter), int(ycenter), int(xcenter)] > 0:
-
-                            xlocations.append(xcenter)
-                            ylocations.append(ycenter)
-                            scores.append(score)
-                            confidences.append(confidence)
-                            tlocations.append(tcenter)
-                            radiuses.append(radius)
-                    else:
-                            xlocations.append(xcenter)
-                            ylocations.append(ycenter)
-                            scores.append(score)
-                            confidences.append(confidence)
-                            tlocations.append(tcenter)
-                            radiuses.append(radius)
+                    xlocations.append(xcenter)
+                    ylocations.append(ycenter)
+                    scores.append(score)
+                    confidences.append(confidence)
+                    tlocations.append(tcenter)
+                    radiuses.append(radius)
 
 
                 event_count = np.column_stack([tlocations, ylocations, xlocations, scores, radiuses, confidences])
                 event_count = sorted(event_count, key=lambda x: x[0], reverse=False)
                 event_data = []
-                csvname = savedir + "/" + event_name + "Location" + (
-                os.path.splitext(os.path.basename(imagename))[0])
+                csvname = savedir + "/" + event_name + "Location" 
                 writer = csv.writer(open(csvname + ".csv", "a", newline=''))
                 filesize = os.stat(csvname + ".csv").st_size
                 if filesize < 1:
@@ -1067,15 +1053,15 @@ def save_static_csv(imagename, key_categories, iou_classedboxes, savedir, downsa
                     
                
 
-def gold_nms(heatmap, classedboxes, event_name, downsamplefactor, iou_threshold, event_threshold, gridx, gridy, generate_map, nms_function):
+def gold_nms(heatmap, classedboxes, event_name,  iou_threshold, event_threshold, gridx, gridy, generate_map, nms_function):
 
                sorted_event_box = classedboxes[event_name][0]
                scores = [ sorted_event_box[i][event_name]  for i in range(len(sorted_event_box))]
                
                good_sorted_event_box = goldboxes(sorted_event_box, scores, iou_threshold, event_threshold,  gridx, gridy, nms_function = nms_function)
                for iou_current_event_box in sorted_event_box:
-                                                              xcenter = iou_current_event_box['xcenter']* downsamplefactor
-                                                              ycenter = iou_current_event_box['ycenter']* downsamplefactor
+                                                              xcenter = iou_current_event_box['xcenter']
+                                                              ycenter = iou_current_event_box['ycenter']
                                                               tcenter = iou_current_event_box['real_time_event']
                                                               score = iou_current_event_box[event_name]
                                                               
@@ -1099,7 +1085,7 @@ def volume_dynamic_nms(classedboxes, event_name, iou_threshold, event_threshold,
                
                return best_sorted_event_box
 
-def dynamic_nms(heatmap, classedboxes, event_name, downsamplefactor, iou_threshold, event_threshold, gridx, gridy, fidelity, generate_map = True, nms_function = 'iou'):
+def dynamic_nms(heatmap, classedboxes, event_name,  iou_threshold, event_threshold, gridx, gridy, fidelity, generate_map = True, nms_function = 'iou'):
                 
                sorted_event_box = classedboxes[event_name][0]
                scores = [ sorted_event_box[i][event_name]  for i in range(len(sorted_event_box))]
@@ -1107,8 +1093,8 @@ def dynamic_nms(heatmap, classedboxes, event_name, downsamplefactor, iou_thresho
                
                if generate_map:                                              
                                for iou_current_event_box in sorted_event_box:
-                                                          xcenter = iou_current_event_box['xcenter']* downsamplefactor
-                                                          ycenter = iou_current_event_box['ycenter']* downsamplefactor
+                                                          xcenter = iou_current_event_box['xcenter']
+                                                          ycenter = iou_current_event_box['ycenter']
                                                           tcenter = iou_current_event_box['real_time_event']
                                                           score = iou_current_event_box[event_name]
                                                       
@@ -1133,7 +1119,7 @@ def microscope_dynamic_nms( classedboxes, event_name, iou_threshold, event_thres
                
                return best_sorted_event_box
 
-def save_dynamic_csv(imagename, key_categories, iou_classedboxes, savedir, downsamplefactor,  z = 0, maskimage = None):
+def save_dynamic_csv(imagename, key_categories, iou_classedboxes, savedir,   z = 0, maskimage = None):
     
         for (event_name, event_label) in key_categories.items():
 
@@ -1149,33 +1135,23 @@ def save_dynamic_csv(imagename, key_categories, iou_classedboxes, savedir, downs
                 iou_current_event_boxes = iou_classedboxes[event_name][0]
                 iou_current_event_boxes = sorted(iou_current_event_boxes, key=lambda x: x[event_name], reverse=True)
                 for iou_current_event_box in iou_current_event_boxes:
-                    xcenter = iou_current_event_box['xcenter'] * downsamplefactor
-                    ycenter = iou_current_event_box['ycenter'] * downsamplefactor
+                    xcenter = iou_current_event_box['xcenter'] 
+                    ycenter = iou_current_event_box['ycenter'] 
                     tcenter = iou_current_event_box['real_time_event']
                     confidence = iou_current_event_box['confidence']
                     score = iou_current_event_box[event_name]
                     radius = np.sqrt(
                         iou_current_event_box['height'] * iou_current_event_box['height'] + iou_current_event_box[
                             'width'] * iou_current_event_box['width']) // 2
-                    radius = radius * downsamplefactor
+                    radius = radius
                     
-                    if maskimage is not None:
-                        if maskimage[int(tcenter), int(ycenter), int(xcenter)] > 0:
-                                xlocations.append(xcenter)
-                                ylocations.append(ycenter)
-                                scores.append(score)
-                                confidences.append(confidence)
-                                tlocations.append(tcenter)
-                                radiuses.append(radius)
-                                zlocations.append(z)
-                    else:
-                                xlocations.append(xcenter)
-                                ylocations.append(ycenter)
-                                scores.append(score)
-                                confidences.append(confidence)
-                                tlocations.append(tcenter)
-                                radiuses.append(radius)
-                                zlocations.append(z)        
+                    xlocations.append(xcenter)
+                    ylocations.append(ycenter)
+                    scores.append(score)
+                    confidences.append(confidence)
+                    tlocations.append(tcenter)
+                    radiuses.append(radius)
+                    zlocations.append(z)        
                 event_count = np.column_stack(
                             [tlocations, zlocations, ylocations, xlocations, scores, radiuses, confidences])
                 event_count = sorted(event_count, key=lambda x: x[0], reverse=False) 
@@ -1211,7 +1187,7 @@ def save_volume(key_categories : dict, iou_classedboxes : dict, all_iou_classed_
                 all_iou_classed_boxes[event_name] = [boxes]
     return all_iou_classed_boxes            
                 
-def save_volume_csv(imagename, key_categories, iou_classedboxes, savedir, maskimage = None):
+def save_volume_csv(key_categories, iou_classedboxes, savedir, maskimage = None):
     
         for (event_name, event_label) in key_categories.items():
 
@@ -1260,8 +1236,7 @@ def save_volume_csv(imagename, key_categories, iou_classedboxes, savedir, maskim
                             [tlocations, zlocations, ylocations, xlocations, scores, radiuses, confidences])
                 event_count = sorted(event_count, key=lambda x: x[0], reverse=False) 
                 event_data = []
-                csvname = savedir + "/" + event_name + "Location" + (
-                os.path.splitext(os.path.basename(imagename))[0])
+                csvname = savedir + "/" + event_name + "Location" 
                 
                 writer = csv.writer(open(csvname + ".csv", "a", newline=''))
                 filesize = os.stat(csvname + ".csv").st_size

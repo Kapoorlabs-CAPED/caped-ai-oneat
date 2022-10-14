@@ -9,8 +9,8 @@ Created on Sat May 23 15:13:01 2020
 from oneat.NEATUtils import plotters
 import numpy as np
 from oneat.NEATUtils import utils
-from oneat.NEATUtils.utils import load_json, yoloprediction, normalizeFloatZeroOne, \
- goodboxes, save_static_csv, DownsampleData
+from oneat.NEATUtils.utils import load_json, save_volume, yoloprediction, normalizeFloatZeroOne, \
+ goodboxes, save_static_csv
 from keras import callbacks
 import os
 from tqdm import tqdm
@@ -265,11 +265,14 @@ class NEATResNet(object):
 
         self.Trainingmodel.save(model_weights)
 
-    def predict(self, imagename, savedir = None, event_threshold = 0.5, event_confidence = 0.5, n_tiles=(1, 1), overlap_percent=0.8, iou_threshold=0.01,
-                height=None, width=None, RGB=False, fidelity = 1, downsamplefactor = 1, normalize = True, center_oneat = True, activations = False):
+    def predict(self, 
+                image : np.ndarray, 
+                savedir : str = None, 
+                event_threshold : float = 0.5, 
+                event_confidence = 0.5, n_tiles=(1, 1), overlap_percent=0.8, iou_threshold=0.01,
+                height=None, width=None, RGB=False, fidelity = 1, normalize = True, center_oneat = True, activations = False):
 
-        self.imagename = imagename
-        self.image = imread(imagename)
+        self.image = imread(image)
        
         self.savedir = savedir
         self.n_tiles = n_tiles
@@ -278,14 +281,12 @@ class NEATResNet(object):
         self.height = height
         self.width = width
         self.fidelity = fidelity
-        self.downsamplefactor = downsamplefactor
         self.overlap_percent = overlap_percent
         self.iou_threshold = iou_threshold
         self.event_threshold = event_threshold
         self.event_confidence = event_confidence
         self.originalimage = self.image
         self.activations = activations
-        self.image = DownsampleData(self.image, self.downsamplefactor)
         
         self.normalize = normalize
         
@@ -424,11 +425,11 @@ class NEATResNet(object):
     def to_csv(self):
 
         
-        save_static_csv(self.imagename, self.key_categories, self.iou_classedboxes, self.savedir, self.downsamplefactor)
+        save_static_csv(self.key_categories, self.iou_classedboxes, self.savedir)
    
     def to_activations(self):
         
-        self.all_iou_classedboxes =  save_static(self.key_categories, self.iou_classedboxes, self.all_iou_classedboxes)
+        self.all_iou_classedboxes =  save_volume(self.key_categories, self.iou_classedboxes, self.all_iou_classedboxes)
 
    
     def overlaptiles(self, sliceregion):

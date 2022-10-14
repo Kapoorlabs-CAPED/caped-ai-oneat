@@ -235,10 +235,17 @@ class NEATFocus(object):
     
         
         
-    def predict(self,imagename, savedir = None , n_tiles = (1,1), overlap_percent = 0.8, event_threshold = 0.5, iou_threshold = 0.0001, radius = 10, normalize = True, activations = False):
+    def predict(self,image: np, 
+                savedir : str = None , 
+                n_tiles : tuple = (1,1), 
+                overlap_percent : float = 0.8, 
+                event_threshold : float = 0.5, 
+                iou_threshold : float = 0.0001, 
+                radius : int = 10, 
+                normalize : bool = True, 
+                activations : bool = False):
         
-        self.imagename = imagename
-        self.image = imread(imagename)
+        self.image = image
         self.Colorimage = np.zeros([self.image.shape[0], self.image.shape[1], self.image.shape[2], 3], dtype = 'uint16')
         self.Maskimage = np.zeros([self.image.shape[0], self.image.shape[1], self.image.shape[2],3], dtype = 'float32')
         self.image_mask_c1 = np.zeros(self.image.shape, dtype = 'float32')

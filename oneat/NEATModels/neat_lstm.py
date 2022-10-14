@@ -1,7 +1,7 @@
 from oneat.NEATUtils import plotters
 import numpy as np
 from oneat.NEATUtils import utils
-from oneat.NEATUtils.utils import pad_timelapse,  MidSlicesSum, get_nearest,  load_json, yoloprediction, normalizeFloatZeroOne, GenerateMarkers, MakeTrees, DownsampleData,save_dynamic_csv, dynamic_nms, gold_nms
+from oneat.NEATUtils.utils import pad_timelapse,  MidSlicesSum, get_nearest,  load_json, yoloprediction, normalizeFloatZeroOne, GenerateMarkers, MakeTrees, save_dynamic_csv, dynamic_nms
 from keras import callbacks
 import os
 import sys
@@ -14,7 +14,7 @@ from oneat.pretrained import get_registered_models, get_model_details, get_model
 from pathlib import Path
 from keras.models import load_model
 from tensorflow.keras.utils import plot_model
-from tifffile import imread, imwrite
+from tifffile import imwrite
 
 Boxname = 'ImageIDBox'
 EventBoxname = 'EventIDBox'
@@ -256,16 +256,12 @@ class NEATLRNet(object):
 
         self.Trainingmodel.save(model_weights)
 
-    def get_markers(self, imagename, segdir, start_project_mid = 4, end_project_mid = 4,
-     downsamplefactor = 1, dtype = 'uint16'):
+    def get_markers(self, segimage, start_project_mid = 4, end_project_mid = 4,
+      dtype = 'uint16'):
 
-        self.imagename = imagename
-        self.segdir = segdir
-        Name = os.path.basename(os.path.splitext(self.imagename)[0])
         self.pad_width = (self.config['imagey'], self.config['imagex'])
-        self.downsamplefactor = downsamplefactor
         print('Obtaining Markers')
-        self.segimage = imread(self.segdir + '/' + Name + '.tif').astype(dtype)
+        self.segimage = segimage.astype(dtype)
         self.markers = GenerateMarkers(self.segimage, 
         start_project_mid = start_project_mid, end_project_mid = end_project_mid, pad_width = self.pad_width)
         self.marker_tree = MakeTrees(self.markers)
@@ -273,17 +269,15 @@ class NEATLRNet(object):
 
         return self.marker_tree
     
-    def predict(self, imagename,  savedir, n_tiles=(1, 1), overlap_percent=0.8, dtype = np.uint8,
-                event_threshold=0.5, event_confidence = 0.5, iou_threshold=0.1,  fidelity=1, downsamplefactor = 1, start_project_mid = 4, end_project_mid = 4,
+    def predict(self, image,  savedir, n_tiles=(1, 1), overlap_percent=0.8, dtype = np.uint8,
+                event_threshold=0.5, event_confidence = 0.5, iou_threshold=0.1,  fidelity=1,  start_project_mid = 4, end_project_mid = 4,
                 marker_tree = None, remove_markers = False, normalize = True, center_oneat = True, nms_function = 'iou', activations = False):
 
 
         
-        self.imagename = imagename
         self.dtype = dtype
-        self.Name = os.path.basename(os.path.splitext(self.imagename)[0])
         self.nms_function = nms_function 
-        self.image = imread(imagename).astype(self.dtype)
+        self.image = image.astype(self.dtype)
         self.start_project_mid = start_project_mid
         self.end_project_mid = end_project_mid
         self.ndim = len(self.image.shape)
@@ -309,7 +303,6 @@ class NEATLRNet(object):
         self.iou_threshold = iou_threshold
         self.event_threshold = event_threshold
         self.event_confidence = event_confidence
-        self.downsamplefactor = downsamplefactor
         self.originalimage = self.image
         self.center_oneat = center_oneat
         self.iou_classedboxes = {}
@@ -318,8 +311,7 @@ class NEATLRNet(object):
 
         self.marker_tree = marker_tree
         self.remove_markers = remove_markers
-        if self.remove_markers:
-             self.image = DownsampleData(self.image, self.downsamplefactor)
+       
         if self.normalize: 
             self.image = normalizeFloatZeroOne(self.image, 1, 99.8, dtype = self.dtype)
         if self.remove_markers == True:
@@ -353,10 +345,9 @@ class NEATLRNet(object):
         classedboxes = {}    
         count = 0
         if self.savedir is not None:
-           heatsavename = self.savedir+ "/"  + (os.path.splitext(os.path.basename(self.imagename))[0])+ '_Heat' 
+           heatsavename = self.savedir+ "/"  + '_Heat' 
 
         print('Detecting event locations')
-        self.image = DownsampleData(self.image, self.downsamplefactor)
         for inputtime in tqdm(range(0, self.image.shape[0])):
                     if inputtime < self.image.shape[0] - self.imaget and inputtime > int(self.imaget)//2:
                                 count = count + 1
@@ -476,17 +467,16 @@ class NEATLRNet(object):
                                         ycentermean, xcentermean = closest_location
                                         try:
                                             remove_candidates_list = remove_candidates[str(int(box['real_time_event']))]
-                                            if (ycentermean * self.downsamplefactor, xcentermean * self.downsamplefactor) not in remove_candidates_list:
-                                                    remove_candidates_list.append((ycentermean * self.downsamplefactor, xcentermean * self.downsamplefactor))
+                                            if (ycentermean , xcentermean) not in remove_candidates_list:
+                                                    remove_candidates_list.append((ycentermean, xcentermean))
                                                     remove_candidates[str(int(box['real_time_event']))] = remove_candidates_list
                                         except:
-                                            remove_candidates_list.append((ycentermean * self.downsamplefactor, xcentermean * self.downsamplefactor))
+                                            remove_candidates_list.append((ycentermean, xcentermean))
                                             remove_candidates[str(int(box['real_time_event']))]  = remove_candidates_list
 
                 eventboxes = []
                 classedboxes = {}                    
-            #Image back to the same co ordinate system
-        self.image = DownsampleData(self.image, int(1.0//self.downsamplefactor))
+           
        
         
 
@@ -499,7 +489,7 @@ class NEATLRNet(object):
         classedboxes = {}
         self.n_tiles = (1,1)
         if self.savedir is not None:
-            heatsavename = self.savedir+ "/"  + (os.path.splitext(os.path.basename(self.imagename))[0])+ '_Heat'
+            heatsavename = self.savedir+ "/" + '_Heat'
         
   
         for inputtime in tqdm(range(int(self.imaget)//2, self.image.shape[0])):
@@ -512,20 +502,20 @@ class NEATLRNet(object):
                         tree, location = self.marker_tree[str(int(inputtime))]
                         for i in range(len(location)):
                             
-                            crop_xminus = location[i][1]  - int(self.imagex/2) * self.downsamplefactor 
-                            crop_xplus = location[i][1]  + int(self.imagex/2) * self.downsamplefactor 
+                            crop_xminus = location[i][1]  - int(self.imagex/2) 
+                            crop_xplus = location[i][1]  + int(self.imagex/2) 
 
-                            crop_yminus = location[i][0]  - int(self.imagey/2) * self.downsamplefactor 
-                            crop_yplus = location[i][0]   + int(self.imagey/2) * self.downsamplefactor 
+                            crop_yminus = location[i][0]  - int(self.imagey/2) 
+                            crop_yplus = location[i][0]   + int(self.imagey/2) 
                             region =(slice(0,smallimage.shape[0]),slice(int(crop_yminus), int(crop_yplus)),
                                 slice(int(crop_xminus), int(crop_xplus)))
                             
                             crop_image = smallimage[region] 
                             
-                            if crop_image.shape[0] >= self.imaget and  crop_image.shape[1] >= self.imagey * self.downsamplefactor and crop_image.shape[2] >= self.imagex * self.downsamplefactor:                                                
+                            if crop_image.shape[0] >= self.imaget and  crop_image.shape[1] >= self.imagey and crop_image.shape[2] >= self.imagex:                                                
                                         #Now apply the prediction for counting real events
                                     
-                                        crop_image = DownsampleData(crop_image, self.downsamplefactor)
+                                        
                                         ycenter = location[i][0]
                                         xcenter = location[i][1]
                                         
@@ -544,8 +534,8 @@ class NEATLRNet(object):
                                                         boxprediction[0]['real_time_event'] = inputtime
                                                         boxprediction[0]['xcenter'] = xcenter - self.pad_width[1]//2
                                                         boxprediction[0]['ycenter'] = ycenter - self.pad_width[0]//2
-                                                        boxprediction[0]['xstart'] = boxprediction[0]['xcenter']   - int(self.imagex/2) * self.downsamplefactor
-                                                        boxprediction[0]['ystart'] = boxprediction[0]['ycenter']   - int(self.imagey/2) * self.downsamplefactor  
+                                                        boxprediction[0]['xstart'] = boxprediction[0]['xcenter']   - int(self.imagex/2)
+                                                        boxprediction[0]['ystart'] = boxprediction[0]['ycenter']   - int(self.imagey/2)  
                                                         eventboxes = eventboxes + boxprediction
                                                 
                                            
@@ -581,7 +571,7 @@ class NEATLRNet(object):
         for (event_name,event_label) in self.key_categories.items():
             if event_label == 0:
                #best_sorted_event_box = self.classedboxes[event_name][0]
-               best_sorted_event_box = dynamic_nms(self.heatmap, self.classedboxes, event_name,  self.downsamplefactor, self.iou_threshold, self.event_threshold, self.imagex, self.imagey, self.fidelity, generate_map = self.generate_maps, nms_function = self.nms_function )
+               best_sorted_event_box = dynamic_nms(self.heatmap, self.classedboxes, event_name, self.iou_threshold, self.event_threshold, self.imagex, self.imagey, self.fidelity, generate_map = self.generate_maps, nms_function = self.nms_function )
 
                best_iou_classedboxes[event_name] = [best_sorted_event_box]
                if self.activations:
@@ -603,10 +593,10 @@ class NEATLRNet(object):
             if event_label > 0:
                #best_sorted_event_box = self.classedboxes[event_name][0]
                if self.remove_markers is not None:
-                   best_sorted_event_box = dynamic_nms(self.heatmap,self.classedboxes, event_name,  1, self.iou_threshold, self.event_threshold, self.imagex, self.imagey, self.fidelity,generate_map = self.generate_maps, nms_function = self.nms_function )
+                   best_sorted_event_box = dynamic_nms(self.heatmap,self.classedboxes, event_name,  self.iou_threshold, self.event_threshold, self.imagex, self.imagey, self.fidelity,generate_map = self.generate_maps, nms_function = self.nms_function )
 
                if self.remove_markers is None:
-                   best_sorted_event_box = dynamic_nms(self.heatmap,self.classedboxes, event_name,  self.downsamplefactor, self.iou_threshold, self.event_threshold, self.imagex, self.imagey, self.fidelity,generate_map = self.generate_maps, nms_function = self.nms_function )
+                   best_sorted_event_box = dynamic_nms(self.heatmap,self.classedboxes, event_name,  self.iou_threshold, self.event_threshold, self.imagex, self.imagey, self.fidelity,generate_map = self.generate_maps, nms_function = self.nms_function )
 
                best_iou_classedboxes[event_name] = [best_sorted_event_box]
                if self.activations:
@@ -622,9 +612,9 @@ class NEATLRNet(object):
 
     def to_csv(self):
          if self.remove_markers is not None:
-            save_dynamic_csv(self.imagename, self.key_categories, self.iou_classedboxes, self.savedir, 1,  z = self.z)        
+            save_dynamic_csv(self.key_categories, self.iou_classedboxes, self.savedir, z = self.z)        
          if self.remove_markers is None:
-            save_dynamic_csv(self.imagename, self.key_categories, self.iou_classedboxes, self.savedir, self.downsamplefactor,  z = self.z)          
+            save_dynamic_csv(self.key_categories, self.iou_classedboxes, self.savedir, z = self.z)          
   
 
     
