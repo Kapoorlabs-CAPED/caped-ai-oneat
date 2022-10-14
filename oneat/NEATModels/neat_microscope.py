@@ -32,7 +32,7 @@ class NEATPredict(NEATLRNet):
 
 
     def predict_microscope(self, imagedir, Z_imagedir,  start = 0,
-                Z_start = 0, downsample=1, roi_start = 0, roi_end = 1, movie_name_list = {}, movie_input = {}, Z_movie_name_list = [], Z_movie_input = [],
+                Z_start = 0,  roi_start = 0, roi_end = 1, movie_name_list = {}, movie_input = {}, Z_movie_name_list = [], Z_movie_input = [],
                 fileextension='*TIF', nb_prediction=3, n_tiles=(1, 1), Z_n_tiles=(1, 2, 2),
                 overlap_percent=0.6, event_threshold = 0.5, event_confidence = 0.5, iou_threshold=0.01, projection_model=None, delay_projection=4,
                 fidelity=4, jumpindex = 1, normalize = True,  optional_name = None, center_oneat = True, nms_function = 'iou'):
@@ -64,7 +64,6 @@ class NEATPredict(NEATLRNet):
         self.iou_threshold = iou_threshold
         self.event_threshold = event_threshold
         self.event_confidence = event_confidence
-        self.downsample = downsample
         self.normalize = normalize
         self.center_oneat = center_oneat
         
@@ -152,20 +151,7 @@ class NEATPredict(NEATLRNet):
 
                 sizey = current_movies.shape[1]
                 sizex = current_movies.shape[2]
-                if self.downsample !=1:
-                    scale_percent = 100/self.downsample
-                    width = int(sizey * scale_percent / 100)
-                    height = int(sizex * scale_percent / 100)
-                    dim = (width, height)
-                    sizex = height
-                    sizey = width
-
-                    current_movies_down = np.zeros([current_movies.shape[0], sizey, sizex])
-                    # resize image
-                    for j in range(current_movies.shape[0]):
-                        current_movies_down[j, :] = zoom(current_movies[j, :], dim)
-                else:
-                    current_movies_down = current_movies
+                current_movies_down = current_movies
                 # print(current_movies_down.shape)
                 print('Predicting on Movies:', self.movie_input_list[self.start:self.start + self.size_tminus + 1])
                 inputtime = self.start + self.size_tminus
@@ -222,7 +208,7 @@ class NEATPredict(NEATLRNet):
               
                 self.predict_microscope(self.imagedir, self.Z_imagedir,
                               start = self.start, Z_start = self.Z_start,
-                             fileextension=self.fileextension, downsample=self.downsample,
+                             fileextension=self.fileextension, 
                              roi_start = self.roi_start, roi_end = self.roi_end,
                              movie_name_list = self.movie_name_list, movie_input = self.movie_input,
                              Z_movie_name_list = self.Z_movie_name_list, Z_movie_input = self.Z_movie_input,
