@@ -15,7 +15,6 @@ import tensorflow as tf
 from keras import optimizers
 from pathlib import Path
 from keras.models import load_model
-from tifffile import imread, imwrite
 import csv
 from scipy.optimize import curve_fit
 import matplotlib.pyplot  as plt
@@ -235,7 +234,7 @@ class NEATFocus(object):
     
         
         
-    def predict(self,image: np, 
+    def predict(self,image: np.ndarray, 
                 savedir : str = None , 
                 n_tiles : tuple = (1,1), 
                 overlap_percent : float = 0.8, 
@@ -281,7 +280,7 @@ class NEATFocus(object):
 
         eventboxes = []
         classedboxes = {}    
-        print('Detecting focus planes in', os.path.basename(os.path.splitext(self.imagename)[0]))
+        print('Detecting focus planes')
         if self.normalize:
            self.image = normalizeFloatZeroOne(self.image,1,99.8)
 
@@ -390,7 +389,7 @@ class NEATFocus(object):
                                             event_count = np.column_stack([zlocations,scores, max_scores]) 
                                             event_count = sorted(event_count, key = lambda x:x[0], reverse = False)
                                             event_data = []
-                                            csvname = self.savedir + "/" + (os.path.splitext(os.path.basename(self.imagename))[0])  + event_name  +  "_FocusQuality"
+                                            csvname = self.savedir + "/" + event_name  +  "_FocusQuality"
                                             writer = csv.writer(open(csvname  +".csv", "a"))
                                             filesize = os.stat(csvname + ".csv").st_size
                                             if filesize < 1:
@@ -413,7 +412,7 @@ class NEATFocus(object):
 
 
                                          if event_label > 0:         
-                                              readcsvname = self.savedir + "/" + (os.path.splitext(os.path.basename(self.imagename))[0])  + event_name  +  "_FocusQuality"
+                                              readcsvname = self.savedir + "/" + event_name  +  "_FocusQuality"
                                               self.dataset   = pd.read_csv(readcsvname, delimiter = ',')
                                               self.dataset_index = self.dataset.index
             
@@ -422,7 +421,7 @@ class NEATFocus(object):
                                               score = self.dataset[self.dataset.keys()[1]][1:]
                                               
                                               H, A, mu0, sigma = gauss_fit(np.array(Z), np.array(score))
-                                              csvname = self.savedir+ "/" + (os.path.splitext(os.path.basename(self.imagename))[0])  + event_name  +  "_GaussFitFocusQuality"
+                                              csvname = self.savedir+ "/"   + event_name  +  "_GaussFitFocusQuality"
                                               writer = csv.writer(open(csvname  +".csv", "a"))
                                               filesize = os.stat(csvname + ".csv").st_size
                                               if filesize < 1:
@@ -433,13 +432,13 @@ class NEATFocus(object):
     def print_planes(self):
         for (event_name,event_label) in self.key_categories.items():
              if event_label > 0:
-                     csvfname =  self.savedir + "/" + (os.path.splitext(os.path.basename(self.imagename))[0])  + event_name  +  "_FocusQuality" + ".csv"
+                     csvfname =  self.savedir + "/"  + event_name  +  "_FocusQuality" + ".csv"
                      dataset = pd.read_csv(csvfname, skiprows = 0)
                      z = dataset[dataset.keys()[0]][1:]
                      score = dataset[dataset.keys()[1]][1:]
                      try: 
                          maxz = z[np.argmax(score)] + 2
-                         print('Best Zs'+ (os.path.splitext(os.path.basename(self.imagename))[0]) + 'for'+ event_name + 'at' +  str(maxz))
+                         print('Best Zs'+ 'for'+ event_name + 'at' +  str(maxz))
                      except:
 
                            pass
@@ -701,17 +700,7 @@ def normalizeZeroOne(x):
     return x
 
 
-def doubleplot(imageA, imageB, titleA, titleB):
-    fig, axes = plt.subplots(1, 2, figsize=(15, 6))
-    ax = axes.ravel()
-    ax[0].imshow(imageA, cmap=cm.Spectral)
-    ax[0].set_title(titleA)
 
-    ax[1].imshow(imageB, cmap=cm.Spectral)
-    ax[1].set_title(titleB)
-
-    plt.tight_layout()
-    plt.show()
     
 def gauss(x, H, A, x0, sigma):
     return H + A * np.exp(-(x - x0) ** 2 / (2 * sigma ** 2))

@@ -269,9 +269,24 @@ class NEATLRNet(object):
 
         return self.marker_tree
     
-    def predict(self, image,  savedir, n_tiles=(1, 1), overlap_percent=0.8, dtype = np.uint8,
-                event_threshold=0.5, event_confidence = 0.5, iou_threshold=0.1,  fidelity=1,  start_project_mid = 4, end_project_mid = 4,
-                marker_tree = None, remove_markers = False, normalize = True, center_oneat = True, nms_function = 'iou', activations = False):
+    def predict(self, 
+                image : np.ndarray,  
+                savedir : str, 
+                n_tiles : tuple = (1, 1), 
+                overlap_percent : float =0.8, 
+                dtype : np.dtype = np.uint8,
+                event_threshold : float = 0.5, 
+                event_confidence: float = 0.5, 
+                iou_threshold: float = 0.1,  
+                fidelity: int = 1,  
+                start_project_mid: int = 4, 
+                end_project_mid: int = 4,
+                marker_tree: dict = None, 
+                remove_markers: bool = False, 
+                normalize: bool = True, 
+                center_oneat: bool = True, 
+                nms_function: str = 'iou', 
+                activations: bool = False):
 
 
         

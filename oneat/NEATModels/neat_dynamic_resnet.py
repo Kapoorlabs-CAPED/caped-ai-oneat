@@ -259,34 +259,45 @@ class NEATTResNet(object):
 
         self.Trainingmodel.save(model_weights)
 
-    def get_markers(self, imagename, segdir, start_project_mid = 4, end_project_mid = 4,
+    def get_markers(self, segimage, start_project_mid = 4, end_project_mid = 4,
      downsamplefactor = 1, dtype = 'uint16'):
 
-        self.imagename = imagename
-        self.segdir = segdir
-        Name = os.path.basename(os.path.splitext(self.imagename)[0])
+        self.segimage = segimage
         self.pad_width = (self.config['imagey'], self.config['imagex'])
         self.downsamplefactor = downsamplefactor
         print('Obtaining Markers')
-        self.segimage = imread(self.segdir + '/' + Name + '.tif').astype(dtype)
+        self.segimage = segimage.astype(dtype)
         self.markers = GenerateMarkers(self.segimage, 
         start_project_mid = start_project_mid, end_project_mid = end_project_mid, pad_width = self.pad_width)
         self.marker_tree = MakeTrees(self.markers)
-        self.segimage = None         
 
         return self.marker_tree
     
-    def predict(self, imagename,  savedir = None, n_tiles=(1, 1), overlap_percent=0.8, dtype = np.uint8,
-                event_threshold=0.5, event_confidence = 0.5, iou_threshold=0.1,  fidelity=1, downsamplefactor = 1, start_project_mid = 4, end_project_mid = 4,
-                erosion_iterations = 1,  marker_tree = None, remove_markers = False, normalize = True, center_oneat = True, nms_function = 'iou', activations = False ):
+    def predict(self, 
+                image: np.ndarray,  
+                savedir: str = None, 
+                n_tiles: tuple =(1, 1), 
+                overlap_percent: float =0.8, 
+                dtype: np.dtype = np.uint8,
+                event_threshold: float = 0.5, 
+                event_confidence: float = 0.5, 
+                iou_threshold: float = 0.1,  
+                fidelity: int = 1, 
+                start_project_mid: int = 4, 
+                end_project_mid: int = 4,
+                erosion_iterations: int = 1,  
+                marker_tree: dict = None, 
+                remove_markers: bool = False, 
+                normalize: bool = True, 
+                center_oneat: bool = True, 
+                nms_function: str = 'iou', 
+                activations: bool = False ):
 
 
         
-        self.imagename = imagename
         self.dtype = dtype
-        self.Name = os.path.basename(os.path.splitext(self.imagename)[0])
         self.nms_function = nms_function 
-        self.image = imread(imagename).astype(self.dtype)
+        self.image = image.astype(self.dtype)
         self.start_project_mid = start_project_mid
         self.end_project_mid = end_project_mid
         self.ndim = len(self.image.shape)
@@ -358,7 +369,7 @@ class NEATTResNet(object):
         classedboxes = {}    
         count = 0
         if self.savedir is not None:
-           heatsavename = self.savedir + "/"  + (os.path.splitext(os.path.basename(self.imagename))[0])+ '_Heat' 
+           heatsavename = self.savedir + "/" +'_Heat' 
 
         print('Detecting event locations')
         self.image = DownsampleData(self.image, self.downsamplefactor)
@@ -503,7 +514,7 @@ class NEATTResNet(object):
         classedboxes = {}
         self.n_tiles = (1,1)
         if self.savedir is not None:
-           heatsavename = self.savedir+ "/"  + (os.path.splitext(os.path.basename(self.imagename))[0])+ '_Heat'
+           heatsavename = self.savedir+ "/"  + '_Heat'
         
   
         for inputtime in tqdm(range(int(self.imaget)//2, self.image.shape[0])):
@@ -620,9 +631,9 @@ class NEATTResNet(object):
 
     def to_csv(self):
                 if self.remove_markers is not None:
-                    save_dynamic_csv(self.imagename, self.key_categories, self.iou_classedboxes, self.savedir, 1,  z = self.z)        
+                    save_dynamic_csv(self.key_categories, self.iou_classedboxes, self.savedir, z = self.z)        
                 if self.remove_markers is None:
-                    save_dynamic_csv(self.imagename, self.key_categories, self.iou_classedboxes, self.savedir, self.downsamplefactor,  z = self.z)          
+                    save_dynamic_csv(self.key_categories, self.iou_classedboxes, self.savedir, z = self.z)          
         
 
     

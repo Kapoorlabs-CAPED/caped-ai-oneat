@@ -36,9 +36,17 @@ class NEATFocusPredict(NEATFocus):
 
 
 
-    def predict(self, imagedir, Z_imagedir, Z_movie_name_list, Z_movie_input, start,
-                Z_start, downsample=False, fileextension='*TIF', nb_prediction=3, Z_n_tiles=(1, 2, 2),
-                overlap_percent=0.6, normalize = True):
+    def predict(self, 
+                imagedir: str, 
+                Z_imagedir: str, 
+                Z_movie_name_list: list, 
+                Z_movie_input: list, 
+                start: int,
+                fileextension: str='*TIF', 
+                nb_prediction: int = 3, 
+                Z_n_tiles: tuple = (1, 2, 2),
+                overlap_percent: float = 0.6, 
+                normalize: bool = True):
 
         self.imagedir = imagedir
         self.basedirResults = self.imagedir + '/' + "live_results"
@@ -48,12 +56,10 @@ class NEATFocusPredict(NEATFocus):
         self.Z_movie_input = Z_movie_input
         self.Z_imagedir = Z_imagedir
         self.start = start
-        self.Z_start = Z_start
         self.nb_prediction = nb_prediction
         self.fileextension = fileextension
         self.Z_n_tiles = Z_n_tiles
         self.overlap_percent = overlap_percent
-        self.downsample = downsample
         self.normalize = normalize
         
         self.model = self._build()
@@ -84,21 +90,7 @@ class NEATFocusPredict(NEATFocus):
             if total_movies > self.start:
                 current_movies = imread(self.Z_movie_input_list[self.start:self.start + 1])
 
-                sizey = current_movies.shape[0]
-                sizex = current_movies.shape[1]
-                if self.downsample:
-                    scale_percent = 50
-                    width = int(sizey * scale_percent / 100)
-                    height = int(sizex * scale_percent / 100)
-                    dim = (width, height)
-                    sizex = height
-                    sizey = width
-
-                    current_movies_down = np.zeros([sizey, sizex])
-                    # resize image
-                    current_movies_down = zoom.resize(current_movies, dim)
-                else:
-                    current_movies_down = current_movies
+                current_movies_down = current_movies
                 # print(current_movies_down.shape)
                 print('Predicting on Movie:', self.Z_movie_input_list[self.start:self.start + 1])
                 inputtime = self.start
@@ -112,9 +104,6 @@ class NEATFocusPredict(NEATFocus):
 
                 print('Doing ONEAT prediction')
                 start_time = time.time()
-
-
-
                 # Iterate over tiles
 
                 for inputz in tqdm(range(0, self.image.shape[0])):
@@ -161,8 +150,8 @@ class NEATFocusPredict(NEATFocus):
                 self.genmap()
                 self.start = self.start + 1
                 self.predict(self.imagedir,  self.Z_imagedir,
-                             self.Z_movie_name_list, self.Z_movie_input, self.start, Z_start,
-                             fileextension=self.fileextension, downsample=self.downsample,
+                             self.Z_movie_name_list, self.Z_movie_input, 
+                             fileextension=self.fileextension,
                              nb_prediction=self.nb_prediction,  Z_n_tiles=self.Z_n_tiles,
                              overlap_percent=self.overlap_percent)
 
@@ -239,7 +228,7 @@ class NEATFocusPredict(NEATFocus):
                                             event_count = np.column_stack([zlocations,scores, max_scores]) 
                                             event_count = sorted(event_count, key = lambda x:x[0], reverse = False)
                                             event_data = []
-                                            csvname = self.basedirResults + "/" + (os.path.splitext(os.path.basename(self.imagename))[0])  + event_name  +  "_FocusQuality"
+                                            csvname = self.basedirResults + "/" + event_name  +  "_FocusQuality"
                                             writer = csv.writer(open(csvname  +".csv", "a"))
                                             filesize = os.stat(csvname + ".csv").st_size
                                             if filesize < 1:
@@ -262,7 +251,7 @@ class NEATFocusPredict(NEATFocus):
 
 
                                          if event_label > 0:         
-                                              readcsvname = self.basedirResults + "/" + (os.path.splitext(os.path.basename(self.imagename))[0])  + event_name  +  "_FocusQuality"
+                                              readcsvname = self.basedirResults + "/" + event_name  +  "_FocusQuality"
                                               self.dataset   = pd.read_csv(readcsvname, delimiter = ',')
                                               self.dataset_index = self.dataset.index
             
@@ -271,7 +260,7 @@ class NEATFocusPredict(NEATFocus):
                                               score = self.dataset[self.dataset.keys()[1]][1:]
                                               
                                               H, A, mu0, sigma = gauss_fit(np.array(Z), np.array(score))
-                                              csvname = self.basedirResults + "/" + (os.path.splitext(os.path.basename(self.imagename))[0])  + event_name  +  "_GaussFitFocusQuality"
+                                              csvname = self.basedirResults + "/" + event_name  +  "_GaussFitFocusQuality"
                                               writer = csv.writer(open(csvname  +".csv", "a"))
                                               filesize = os.stat(csvname + ".csv").st_size
                                               if filesize < 1:
@@ -287,7 +276,7 @@ class NEATFocusPredict(NEATFocus):
     def print_planes(self):
         for (event_name,event_label) in self.key_categories.items():
              if event_label > 0:
-                     csvfname =  self.basedirResults + "/" + (os.path.splitext(os.path.basename(self.imagename))[0])  + event_name  +  "_FocusQuality" + ".csv"
+                     csvfname =  self.basedirResults + "/" + event_name  +  "_FocusQuality" + ".csv"
                      dataset = pd.read_csv(csvfname, skiprows = 0)
                      z = dataset[dataset.keys()[0]][1:]
                      score = dataset[dataset.keys()[1]][1:]
@@ -298,7 +287,7 @@ class NEATFocusPredict(NEATFocus):
                          maxz = z[np.argmax(score)] + 2
                        
 
-                         print('Best Zs'+ (os.path.splitext(os.path.basename(self.imagename))[0]) + 'for'+ event_name + 'at' +  str(maxz))
+                         print('Best Zs' + 'for'+ event_name + 'at' +  str(maxz))
                      except:
 
                            pass

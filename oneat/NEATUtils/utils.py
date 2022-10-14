@@ -1119,7 +1119,7 @@ def microscope_dynamic_nms( classedboxes, event_name, iou_threshold, event_thres
                
                return best_sorted_event_box
 
-def save_dynamic_csv(imagename, key_categories, iou_classedboxes, savedir,   z = 0, maskimage = None):
+def save_dynamic_csv( key_categories, iou_classedboxes, savedir, z = 0):
     
         for (event_name, event_label) in key_categories.items():
 
@@ -1156,8 +1156,7 @@ def save_dynamic_csv(imagename, key_categories, iou_classedboxes, savedir,   z =
                             [tlocations, zlocations, ylocations, xlocations, scores, radiuses, confidences])
                 event_count = sorted(event_count, key=lambda x: x[0], reverse=False) 
                 event_data = []
-                csvname = savedir + "/" + event_name + "Location" + (
-                os.path.splitext(os.path.basename(imagename))[0])
+                csvname = savedir + "/" + event_name + "Location" 
                 
                 writer = csv.writer(open(csvname + ".csv", "a", newline=''))
                 filesize = os.stat(csvname + ".csv").st_size
