@@ -106,6 +106,7 @@ class OneatVisualization:
                          zlocations.append(0)
                      ylocations.append(float(location[1]))
                      xlocations.append(float(location[2]))
+                     
                      scores.append(float(sizescore[1])) 
                      radiuses.append(float(sizescore[0]))
                      confidences.append(float(sizescore[2]))
@@ -314,14 +315,20 @@ class OneatVisualization:
             
                 self.event_name = csv_event_name                         
                 self.dataset   = pd.read_csv(csvname, delimiter = ',')
+                nrows = len(self.dataset.index)
                 for index, row in self.dataset.iterrows():
                     tcenter = int(row[0])
                     zcenter = row[1]
                     ycenter = row[2]
                     xcenter = row[3]
-                    score = row[4]
-                    size = row[5]
-                    confidence = row[6]
+                    if nrows > 4:
+                        score = row[4]
+                        size = row[5]
+                        confidence = row[6]
+                    else:
+                        score = 1.0
+                        size = 10
+                        confidence = 1.0    
                     self.dataset_index =  self.dataset.index
                     if score > event_threshold:
                                     self.event_locations.append([int(tcenter), int(ycenter), int(xcenter)])   
