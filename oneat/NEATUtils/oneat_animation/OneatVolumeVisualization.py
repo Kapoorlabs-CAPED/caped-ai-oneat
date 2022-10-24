@@ -72,13 +72,9 @@ class OneatVolumeVisualization:
             if int(forwardtime) in self.event_locations_dict.keys():
                 forward_event_locations = self.event_locations_dict[int(forwardtime)]
                 for location in forward_event_locations:
-                   print('prelocation', location)
                    if (int(forwardtime), int(location[0]), int(location[1]), int(location[2])) in self.event_locations_size_dict:   
-                        print(self.event_locations_size_dict[int(forwardtime), int(location[0]), int(location[1]), int(location[2])])
                         forwardsize, forwardscore, forwardconfidence = self.event_locations_size_dict[int(forwardtime), int(location[0]), int(location[1]), int(location[2])]
-                        print('location', location)
                         distance, nearest_location = tree.query(location)
-                        print('nearest location', nearest_location)
                         nearest_location = int(event_locations[nearest_location][0]), int(event_locations[nearest_location][1]), int(event_locations[nearest_location][2])
 
                         if distance <= nms_space:
@@ -145,7 +141,7 @@ class OneatVolumeVisualization:
                                     
                                     if  any(name in layer.name for name in name_remove):
                                             self.viewer.layers.remove(layer) 
-                self.viewer.add_points(self.event_locations_clean, properties=point_properties,  name = 'Clean Detections', face_color = [0]*4, edge_color = "green") 
+                self.viewer.add_points(self.event_locations_clean, properties = point_properties, symbol = 'square', blending = 'translucent_no_depth', name = 'Clean Detections', face_color = [0]*4, edge_color = "green") 
                 
                                     
                 
