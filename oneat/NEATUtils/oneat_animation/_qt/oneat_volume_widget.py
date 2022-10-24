@@ -1,7 +1,7 @@
 from qtpy.QtWidgets import QWidget, QLabel, QVBoxLayout, QLineEdit, QPushButton
 from .OneatFrameWidget import OneatFrameWidget
 import os
-import napari
+from napari import Viewer
 from dask.array.image import imread as daskread
 from tifffile import imread,  imwrite
 from ..OneatVolumeVisualization import OneatVolumeVisualization
@@ -25,17 +25,17 @@ class OneatVolumeWidget(QWidget):
 
     def __init__(
         self,
-        viewer: 'napari.viewer.Viewer',
+        viewer: Viewer,
         csvdir: str,
         savedir: str,
         savename: str,
         key_categories : dict,
-        use_dask = False,
-        segimagedir = None,
-        heatimagedir = None,
-        heatname = '_Heat',
-        event_count_plot = 'Plot selected event count',
-        parent=None,
+        use_dask: bool = False,
+        segimagedir: str = None,
+        heatimagedir: str = None,
+        heatname: str = '_Heat',
+        event_count_plot: str = 'Plot selected event count',
+        parent = None,
     ):
         super().__init__(parent=parent)
 
@@ -46,14 +46,13 @@ class OneatVolumeWidget(QWidget):
         
         self.frameWidget = OneatFrameWidget(parent=self)
         self._layout.addWidget(self.frameWidget)
-        self._layout.addStretch(1)
 
         animation = AnimationWidget(viewer)
         self.start_prob = self.frameWidget.startprobSpinBox.value()
         self.nms_space = self.frameWidget.nmsspaceSpinBox.value()
 
         self._layout.addWidget(animation)
-        self.oneatvisualization = OneatVolumeVisualization(viewer ,key_categories, csvdir, savedir, savename, self.frameWidget.ax, self.frameWidget.figure)
+        self.oneatvisualization = OneatVolumeVisualization(viewer,key_categories, csvdir, savedir, savename, self.frameWidget.ax, self.frameWidget.figure)
        
         self.heatmapsteps = self.frameWidget.heatstepsSpinBox.value()
         self.event_threshold = float(self.frameWidget.label.text())

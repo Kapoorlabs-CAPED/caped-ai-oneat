@@ -2,7 +2,7 @@ from poplib import POP3_SSL_PORT
 import pandas as pd
 import numpy as np
 import os
-import napari
+from napari import Viewer, layers
 from scipy import spatial
 from skimage import measure
 from dask.array.image import imread as daskread
@@ -12,8 +12,13 @@ import csv
 from scipy.ndimage import zoom
 class OneatVisualization:
 
-    def __init__(self, viewer: napari.Viewer,key_categories, csvdir,
-     savedir, savename, ax, figure):
+    def __init__(self, viewer: Viewer,
+                 key_categories: dict, 
+                 csvdir: str,
+                 savedir: str, 
+                 savename: str, 
+                 ax, 
+                 figure):
 
         self.viewer = viewer
         self.csvdir = csvdir
@@ -178,9 +183,9 @@ class OneatVisualization:
         if self.dataset is not None:                             
                
                 for layer in list(self.viewer.layers):
-                    if isinstance(layer, napari.layers.Image):
+                    if isinstance(layer, layers.Image):
                             self.image = layer.data
-                    if isinstance(layer, napari.layers.Labels):
+                    if isinstance(layer, layers.Labels):
                             self.seg_image = layer.data    
 
 
@@ -368,7 +373,7 @@ class OneatVisualization:
                         
                 if segimagedir is not None:
                         for layer in list(self.viewer.layers):
-                            if isinstance(layer, napari.layers.Labels):
+                            if isinstance(layer, layers.Labels):
                                     self.seg_image = layer.data
 
                                     location_image, self.cell_count = LocationMap(self.event_locations_dict, self.seg_image, use_dask, heatmapsteps)     

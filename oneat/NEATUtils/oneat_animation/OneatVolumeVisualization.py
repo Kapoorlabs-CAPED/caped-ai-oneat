@@ -2,15 +2,22 @@ from poplib import POP3_SSL_PORT
 import pandas as pd
 import numpy as np
 import os
-import napari
+from napari import Viewer, layers
+from scipy import spatial
 from skimage import measure
 from dask.array.image import imread as daskread
 from tifffile import imread
 from skimage import morphology
 class OneatVolumeVisualization:
 
-    def __init__(self, viewer: napari.Viewer,key_categories, csvdir,
-     savedir, savename, ax, figure):
+    def __init__(self, 
+                 viewer: Viewer,
+                 key_categories: dict, 
+                 csvdir: str,
+                 savedir: str, 
+                 savename: str, 
+                 ax, 
+                 figure):
 
         self.viewer = viewer
         self.csvdir = csvdir
@@ -64,9 +71,9 @@ class OneatVolumeVisualization:
         if self.dataset is not None:                             
                
                 for layer in list(self.viewer.layers):
-                    if isinstance(layer, napari.layers.Image):
+                    if isinstance(layer, layers.Image):
                             self.image = layer.data
-                    if isinstance(layer, napari.layers.Labels):
+                    if isinstance(layer, layers.Labels):
                             self.seg_image = layer.data    
 
 
@@ -209,10 +216,49 @@ class OneatVolumeVisualization:
                 if len(self.score_locations) > 0:                             
                         self.viewer.add_points(self.event_locations,  properties = point_properties, symbol = 'square', blending = 'translucent_no_depth', name = 'Detections' + event_name, face_color = [0]*4, edge_color = "red") 
                         
-               
+                if segimagedir is not None:
+                        for layer in list(self.viewer.layers):
+                            if isinstance(layer, layers.Labels):
+                                    self.seg_image = layer.data
+
+                                    location_image, self.cell_count = LocationMap(self.event_locations_dict, self.seg_image, use_dask, heatmapsteps)     
+                                    self.viewer.add_labels(location_image.astype('uint16'), name= 'Location Map' + imagename )
+                                     
 
                                        
+def LocationMap(event_locations_dict, seg_image, heatmapsteps):
+       cell_count = {} 
+       location_image = np.zeros(seg_image.shape)
+       j = 0
+       for i in range(seg_image.shape[0]):
+            current_seg_image = seg_image[i,:]
+            waterproperties = measure.regionprops(current_seg_image)
+            indices = [prop.centroid for prop in waterproperties]
+            cell_count[int(i)] = len(indices)        
 
+            if int(i) in event_locations_dict.keys():
+                currentindices = event_locations_dict[int(i)]
+                    
+                
+                if len(indices) > 0:
+                    tree = spatial.cKDTree(indices)
+                    if len(currentindices) > 0:
+                        for j in range(0, len(currentindices)):
+                            index = currentindices[j] 
+                            closest_marker_index = tree.query(index)
+                            current_seg_label = current_seg_image[int(indices[closest_marker_index[1]][0]), int(
+                            indices[closest_marker_index[1]][1]),int(
+                            indices[closest_marker_index[1]][2]) ]
+                            if current_seg_label > 0:
+                                all_pixels = np.where(current_seg_image == current_seg_label)
+                                all_pixels = np.asarray(all_pixels)
+                                for k in range(all_pixels.shape[1]):
+                                    location_image[i,all_pixels[0,k], all_pixels[1,k], all_pixels[2,k]] = 1
+            
+       location_image = average_heat_map(location_image, heatmapsteps)
+
+
+       return location_image, cell_count
 
 
 def average_heat_map(image, sliding_window):

@@ -30,16 +30,16 @@ class OneatWidget(QWidget):
         savedir: str,
         savename: str,
         key_categories : dict,
-        use_dask = False,
-        segimagedir = None,
-        heatimagedir = None,
-        heatname = '_Heat',
-        start_project_mid = 0, 
-        end_project_mid = 1,
-        event_count_plot = 'Plot selected event count',
-        cell_count_plot = 'Plot cell count',
-        event_norm_count_plot = 'Plot selected normalized event count',
-        parent=None,
+        use_dask: bool = False,
+        segimagedir: str = None,
+        heatimagedir: str = None,
+        heatname: str = '_Heat',
+        start_project_mid: int = 0, 
+        end_project_mid: int = 1,
+        event_count_plot: str = 'Plot selected event count',
+        cell_count_plot: str = 'Plot cell count',
+        event_norm_count_plot: str = 'Plot selected normalized event count',
+        parent = None,
     ):
         super().__init__(parent=parent)
 
@@ -50,14 +50,13 @@ class OneatWidget(QWidget):
         
         self.frameWidget = OneatFrameWidget(parent=self)
         self._layout.addWidget(self.frameWidget)
-        self._layout.addStretch(1)
 
         animation = AnimationWidget(viewer)
         self.start_prob = self.frameWidget.startprobSpinBox.value()
         self.nms_space = self.frameWidget.nmsspaceSpinBox.value()
 
         self._layout.addWidget(animation)
-        self.oneatvisualization = OneatVisualization(viewer ,key_categories, csvdir, savedir, savename, self.frameWidget.ax, self.frameWidget.figure)
+        self.oneatvisualization = OneatVisualization(viewer,key_categories, csvdir, savedir, savename, self.frameWidget.ax, self.frameWidget.figure)
        
         self.heatmapsteps = self.frameWidget.heatstepsSpinBox.value()
         self.event_threshold = float(self.frameWidget.label.text())
