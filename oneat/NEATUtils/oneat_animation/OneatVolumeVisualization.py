@@ -317,25 +317,24 @@ class OneatVolumeVisualization:
                     score = row[4]
                     size = row[5]
                     confidence = row[6]
-                
-                self.dataset_index =  self.dataset.index
-                if score > event_threshold:
-                                self.event_locations.append([int(tcenter),int(zcenter), int(ycenter), int(xcenter)])   
+                    self.dataset_index =  self.dataset.index
+                    if score > event_threshold:
+                                    self.event_locations.append([int(tcenter),int(zcenter), int(ycenter), int(xcenter)])   
 
-                                if int(tcenter) in self.event_locations_dict.keys():
-                                    current_list = self.event_locations_dict[int(tcenter)]
-                                    current_list.append([int(zcenter),int(ycenter), int(xcenter)])
-                                    self.event_locations_dict[int(tcenter)] = current_list 
-                                    self.event_locations_size_dict[(int(tcenter), int(zcenter), int(ycenter), int(xcenter))] = [size, score, confidence]
-                                else:
-                                    current_list = []
-                                    current_list.append([int(zcenter),int(ycenter), int(xcenter)])
-                                    self.event_locations_dict[int(tcenter)] = current_list    
-                                    self.event_locations_size_dict[int(tcenter),int(zcenter), int(ycenter), int(xcenter)] = [size, score, confidence]
+                                    if int(tcenter) in self.event_locations_dict.keys():
+                                        current_list = self.event_locations_dict[int(tcenter)]
+                                        current_list.append([int(zcenter),int(ycenter), int(xcenter)])
+                                        self.event_locations_dict[int(tcenter)] = current_list 
+                                        self.event_locations_size_dict[(int(tcenter), int(zcenter), int(ycenter), int(xcenter))] = [size, score, confidence]
+                                    else:
+                                        current_list = []
+                                        current_list.append([int(zcenter),int(ycenter), int(xcenter)])
+                                        self.event_locations_dict[int(tcenter)] = current_list    
+                                        self.event_locations_size_dict[int(tcenter),int(zcenter), int(ycenter), int(xcenter)] = [size, score, confidence]
 
-                                self.size_locations.append(size)
-                                self.score_locations.append(score)
-                                self.confidence_locations.append(confidence)
+                                    self.size_locations.append(size)
+                                    self.score_locations.append(score)
+                                    self.confidence_locations.append(confidence)
                 point_properties = {'score' : np.array(self.score_locations), 'confidence' : np.array(self.confidence_locations),
                 'size' : np.array(self.size_locations)}    
              
