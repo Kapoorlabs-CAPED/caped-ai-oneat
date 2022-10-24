@@ -300,6 +300,7 @@ class OneatVolumeVisualization:
                 self.event_name = csv_event_name                         
                 self.dataset   = pd.read_csv(csvname, delimiter = ',')
                 nrows = len(self.dataset.index)
+                print('rr',nrows)
                 for index, row in self.dataset.iterrows():
                     tcenter = int(row[0])
                     zcenter = row[1]
