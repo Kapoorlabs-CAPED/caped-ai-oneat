@@ -75,7 +75,7 @@ class OneatVolumeVisualization:
                    print('prelocation', location)
                    if (int(forwardtime), int(location[0]), int(location[1]), int(location[2])) in self.event_locations_size_dict:   
                         print(self.event_locations_size_dict[int(forwardtime), int(location[0]), int(location[1]), int(location[2])])
-                        forwardsize, forwardscore = self.event_locations_size_dict[int(forwardtime), int(location[0]), int(location[1]), int(location[2])]
+                        forwardsize, forwardscore, forwardconfidence = self.event_locations_size_dict[int(forwardtime), int(location[0]), int(location[1]), int(location[2])]
                         print('location', location)
                         distance, nearest_location = tree.query(location)
                         print('nearest location', nearest_location)
@@ -83,7 +83,7 @@ class OneatVolumeVisualization:
 
                         if distance <= nms_space:
                                     if (int(currenttime), int(nearest_location[0]), int(nearest_location[1]), int(nearest_location[2])) in self.event_locations_size_dict:
-                                        currentsize, currentscore = self.event_locations_size_dict[int(currenttime), int(nearest_location[0]), int(nearest_location[1]), int(nearest_location[2])]
+                                        currentsize, currentscore, currentconfidence = self.event_locations_size_dict[int(currenttime), int(nearest_location[0]), int(nearest_location[1]), int(nearest_location[2])]
                                         if  currentscore >= forwardscore:
                                             self.event_locations_size_dict.pop((int(forwardtime), int(location[0]), int(location[1]), int(location[2])))
                                             
