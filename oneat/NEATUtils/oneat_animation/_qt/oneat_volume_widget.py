@@ -35,6 +35,8 @@ class OneatVolumeWidget(QWidget):
         heatimagedir: str = None,
         heatname: str = '_Heat',
         event_count_plot: str = 'Plot selected event count',
+        cell_count_plot: str = 'Plot cell count',
+        event_norm_count_plot: str = 'Plot selected normalized event count',
         parent = None,
     ):
         super().__init__(parent=parent)
@@ -75,18 +77,18 @@ class OneatVolumeWidget(QWidget):
         self._capture_csv_callback(segimagedir,  use_dask ))
  
         self.frameWidget.plotidbox.currentIndexChanged.connect(lambda eventid = self.frameWidget.imageidbox :
-        self._capture_plot_callback(segimagedir,event_count_plot))
+        self._capture_plot_callback(segimagedir,event_count_plot, cell_count_plot, event_norm_count_plot))
 
         self.frameWidget.recomputeButton.clicked.connect(lambda eventid = self.frameWidget.recomputeButton :
         self._start_callbacks(segimagedir, use_dask, 
-    event_count_plot))
+    event_count_plot, cell_count_plot, event_norm_count_plot))
 
        
     def _start_callbacks(self,segimagedir, use_dask, 
-    event_count_plot ):
+    event_count_plot, cell_count_plot, event_norm_count_plot ):
 
            self._capture_csv_callback(segimagedir, use_dask)
-           self._capture_plot_callback(segimagedir,event_count_plot)
+           self._capture_plot_callback(segimagedir,event_count_plot, cell_count_plot, event_norm_count_plot)
 
     def update_start_prob(self, event):
         """update state of 'heatmapsteps' at current key-frame to reflect GUI state"""
@@ -124,8 +126,8 @@ class OneatVolumeWidget(QWidget):
          self.oneatvisualization.show_image(get_image_text, imagename, segimagedir, heatmapimagedir, heatname,
           use_dask)
    
-    def _capture_plot_callback(self, segimagedir,event_count_plot):
+    def _capture_plot_callback(self, segimagedir,event_count_plot, cell_count_plot, event_norm_count_plot):
 
          plot_event_name = self.frameWidget.plotidbox.currentText()
-         self.oneatvisualization.show_plot( plot_event_name,event_count_plot,
+         self.oneatvisualization.show_plot( plot_event_name,event_count_plot, cell_count_plot, event_norm_count_plot,
            segimagedir, self.event_threshold)

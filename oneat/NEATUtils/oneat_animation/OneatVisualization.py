@@ -11,6 +11,7 @@ from skimage import morphology
 import csv
 from ..utils import location_map
 from scipy.ndimage import zoom
+from pathlib import Path
 class OneatVisualization:
 
     def __init__(self, viewer: Viewer,
@@ -118,8 +119,7 @@ class OneatVisualization:
                 event_count = sorted(event_count, key=lambda x: x[0], reverse=False)
                 
                 event_data = []
-                csvname = self.savedir + "/" + 'Clean' +  self.event_name + "Location" + (
-                os.path.splitext(os.path.basename(self.imagename))[0])
+                csvname = self.savedir + "/" + 'Clean' +  self.event_name + "Location" 
                 if(os.path.exists(csvname + ".csv")):
                             os.remove(csvname + ".csv")
                 writer = csv.writer(open(csvname + ".csv", "a", newline=''))
@@ -219,7 +219,7 @@ class OneatVisualization:
                                 self.figure.canvas.draw()
                                 self.figure.canvas.flush_events()
                                 
-                                self.figure.savefig(self.savedir  + self.event_name + self.event_count_plot + (os.path.splitext(os.path.basename(self.imagename))[0]  + '.png'), dpi = 300)
+                                self.figure.savefig(self.savedir  + self.event_name + self.event_count_plot  + '.png', dpi = 300)
 
                         if self.plot_event_name == self.event_norm_count_plot and len(normeventlist) > 0:    
                                 self.ax.plot(timelist, normeventlist, '-r')
@@ -230,7 +230,7 @@ class OneatVisualization:
                                 self.figure.canvas.draw()
                                 self.figure.canvas.flush_events()
                                 
-                                self.figure.savefig(self.savedir  + self.event_name + self.event_norm_count_plot + (os.path.splitext(os.path.basename(self.imagename))[0]  + '.png'), dpi = 300)
+                                self.figure.savefig(self.savedir  + self.event_name + self.event_norm_count_plot  + '.png', dpi = 300)
 
                         if self.plot_event_name == self.cell_count_plot and len(celllist) > 0:    
                                 self.ax.plot(timelist, celllist, '-r')
@@ -239,7 +239,7 @@ class OneatVisualization:
                                 self.ax.set_ylabel("Total Cell Counts")
                                 self.figure.canvas.draw()
                                 self.figure.canvas.flush_events()
-                                self.figure.savefig(self.savedir  + self.cell_count_plot + (os.path.splitext(os.path.basename(self.imagename))[0]  + '.png'), dpi = 300)        
+                                self.figure.savefig(self.savedir  + self.cell_count_plot  + '.png', dpi = 300)        
 
 
     def show_image(self, 
@@ -320,7 +320,7 @@ class OneatVisualization:
         for (event_name,event_label) in self.key_categories.items():
                     if event_label > 0 and csv_event_name == event_name:
                             self.event_label = event_label     
-                            csvname = self.csvdir + "/" + event_name + "Location" + (os.path.splitext(os.path.basename(imagename))[0] + '.csv')
+                            csvname = list(Path(self.csvdir).glob('*.csv'))[0]
         if csvname is not None:    
             
                 self.event_name = csv_event_name                         
