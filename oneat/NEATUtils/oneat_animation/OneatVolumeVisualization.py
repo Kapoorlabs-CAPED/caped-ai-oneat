@@ -186,13 +186,16 @@ class OneatVolumeVisualization:
 
                 if self.image is not None:    
                         currentT   = np.round(self.dataset["T"]).astype('int')
-                        currentsize = self.dataset["Score"]
+                        try:
+                           currentscore = self.dataset["Score"]
+                        except:
+                            currentscore = 1.0   
                             
                         for i in range(0, self.image.shape[0]):
                             
                             condition = currentT == i
                             condition_indices = self.dataset_index[condition]
-                            conditionScore = currentsize[condition_indices]
+                            conditionScore = currentscore[condition_indices]
                             score_condition = conditionScore > event_threshold
                             countT = len(conditionScore[score_condition])
                             timelist.append(i)
