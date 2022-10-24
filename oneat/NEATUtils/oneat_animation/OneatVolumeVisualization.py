@@ -159,6 +159,7 @@ class OneatVolumeVisualization:
         self.score_locations = []
         self.event_locations = []
         self.confidence_locations = []
+        
         for layer in list(self.viewer.layers):
                     if 'Detections'  in layer.name or layer.name in 'Detections' :
                             self.viewer.layers.remove(layer)   
@@ -170,37 +171,17 @@ class OneatVolumeVisualization:
             
                 self.event_name = csv_event_name                         
                 self.dataset   = pd.read_csv(csvname, delimiter = ',')
+                for index, row in self.dataset.iterrows():
+                    tcenter = int(row[0])
+                    zcenter = row[1]
+                    ycenter = row[2]
+                    xcenter = row[3]
+                    score = row[4]
+                    size = row[5]
+                    confidence = row[6]
+                
                 self.dataset_index =  self.dataset.index
-                self.ax.cla()
-                #Data is written as T, Y, X, Score, Size, Confidence
-                T =  self.dataset[ self.dataset.keys()[0]][0:]
-                Z =  self.dataset[ self.dataset.keys()[1]][0:]
-                Y = self.dataset[self.dataset.keys()[2]][0:]
-                X = self.dataset[self.dataset.keys()[3]][0:]
-                Score = self.dataset[self.dataset.keys()[4]][0:]
-                Size = self.dataset[self.dataset.keys()[5]][0:]
-                Confidence = self.dataset[self.dataset.keys()[6]][0:]
-                listtime = T.tolist()
-                listz = Z.tolist()
-                listy = Y.tolist()
-                listx = X.tolist()
-                listsize = Size.tolist()
-                
-                
-                listscore = Score.tolist()
-                listconfidence = Confidence.tolist()
-                
-            
-                for i in (range(len(listtime))):
-                        
-                        tcenter = int(listtime[i])
-                        zcenter = listz[i]
-                        ycenter = listy[i]
-                        xcenter = listx[i]
-                        size = listsize[i]
-                        score = listscore[i]
-                        confidence = listconfidence[i]   
-                        if score > event_threshold:
+                if score > event_threshold:
                                 self.event_locations.append([int(tcenter),int(zcenter), int(ycenter), int(xcenter)])   
 
                                 if int(tcenter) in self.event_locations_dict.keys():
