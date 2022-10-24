@@ -62,6 +62,8 @@ class OneatVolumeWidget(QWidget):
 
         self.frameWidget.plotidbox.addItem('Select a type of plot')
         self.frameWidget.plotidbox.addItem(event_count_plot)
+        self.frameWidget.plotidbox.addItem(cell_count_plot)
+        self.frameWidget.plotidbox.addItem(event_norm_count_plot)
         self.frameWidget.heatstepsSpinBox.valueChanged.connect(self.update_heat_steps)
         self.frameWidget.startprobSpinBox.valueChanged.connect(self.update_start_prob)
         self.frameWidget.nmsspaceSpinBox.valueChanged.connect(self.update_nms_space)
