@@ -72,6 +72,7 @@ class OneatVolumeVisualization:
             if int(forwardtime) in self.event_locations_dict.keys():
                 forward_event_locations = self.event_locations_dict[int(forwardtime)]
                 for location in forward_event_locations:
+                   print('prelocation', location)
                    if (int(forwardtime), int(location[0]), int(location[1]), int(location[2])) in self.event_locations_size_dict:   
                         forwardsize, forwardscore = self.event_locations_size_dict[int(forwardtime), int(location[0]), int(location[1]), int(location[2])]
                         print('location', location)
