@@ -4,7 +4,6 @@ from cmath import sqrt
 import numpy as np
 import collections
 import json
-from scipy.ndimage import zoom
 from scipy import spatial
 from skimage import measure
 from pathlib import Path
@@ -17,8 +16,6 @@ from skimage.util import invert as invertimage
 from skimage.measure import label
 from skimage.morphology import  dilation, square, binary_dilation, disk
 from skimage import morphology
-from skimage.segmentation import watershed
-
 from scipy.ndimage import binary_fill_holes
 from scipy.ndimage import find_objects
 """
@@ -29,7 +26,63 @@ from scipy.ndimage import find_objects
 """
 This method is used to convert Marker image to a list containing the XY indices for all time points
 """
+def location_map(event_locations_dict: dict, 
+                 seg_image: np.ndarray, 
+                 heatmapsteps: int,
+                 display_3d: bool = True):
+       cell_count = {} 
+       location_image = np.zeros(seg_image.shape)
+       j = 0
+       for i in range(seg_image.shape[0]):
+            current_seg_image = seg_image[i,:]
+            waterproperties = measure.regionprops(current_seg_image)
+            indices = [prop.centroid for prop in waterproperties]
+            cell_count[int(i)] = len(indices)        
 
+            if int(i) in event_locations_dict.keys():
+                currentindices = event_locations_dict[int(i)]
+                    
+                
+                if len(indices) > 0:
+                    tree = spatial.cKDTree(indices)
+                    if len(currentindices) > 0:
+                        for j in range(0, len(currentindices)):
+                            index = currentindices[j] 
+                            closest_marker_index = tree.query(index)
+                            if display_3d:
+                              current_seg_label = current_seg_image[int(indices[closest_marker_index[1]][0]), int(
+                              indices[closest_marker_index[1]][1]),int(
+                              indices[closest_marker_index[1]][2]) ]
+                            else:
+                              current_seg_label = current_seg_image[int(indices[closest_marker_index[1]][0]), int(
+                              indices[closest_marker_index[1]][1])]    
+                            if current_seg_label > 0:
+                                all_pixels = np.where(current_seg_image == current_seg_label)
+                                all_pixels = np.asarray(all_pixels)
+                                if display_3d:
+                                    for k in range(all_pixels.shape[1]):
+                                        location_image[i,all_pixels[0,k], all_pixels[1,k], all_pixels[2,k]] = 1
+                                else:
+                                    for k in range(all_pixels.shape[1]):
+                                        location_image[i,all_pixels[0,k], all_pixels[1,k]] =  1       
+            
+       location_image = average_heat_map(location_image, heatmapsteps)
+
+
+       return location_image, cell_count
+   
+def average_heat_map(image, sliding_window):
+
+    j = 0
+    for i in range(image.shape[0]):
+        
+              j = j + 1
+              if i > 0:
+                image[i,:] = np.add(image[i,:] , image[i - 1,:])
+              if j == sliding_window:
+                  image[i,:] = np.subtract(image[i,:] , image[i - 1,:])
+                  j = 0
+    return image
 
 def remove_big_objects(ar, max_size=6400, connectivity=1, in_place=False):
     out = ar.copy()
@@ -180,6 +233,8 @@ def load_training_data(directory, filename, axes=None, verbose=True):
 def _raise(e):
     raise e
 
+
+   
 
 # https://docs.python.org/3/library/itertools.html#itertools-recipes
 def consume(iterator):

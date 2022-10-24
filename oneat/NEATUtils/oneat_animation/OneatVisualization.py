@@ -9,6 +9,7 @@ from dask.array.image import imread as daskread
 from tifffile import imread,  imwrite
 from skimage import morphology
 import csv
+from ..utils import location_map
 from scipy.ndimage import zoom
 class OneatVisualization:
 
@@ -53,7 +54,7 @@ class OneatVisualization:
         self.originalimage = None
         
     # To prevent early detectin of events
-    def cluster_points(self, nms_space,  use_dask = False, heatmapsteps = 0):
+    def cluster_points(self, nms_space):
 
      print('before',len(self.event_locations_size_dict))
     
@@ -83,9 +84,9 @@ class OneatVisualization:
                                             self.event_locations_size_dict.pop((int(currenttime), int(nearest_location[0]), int(nearest_location[1])))   
                                                     
      print('after',len(self.event_locations_size_dict))
-     self.show_clean_csv(use_dask, heatmapsteps)                        
+     self.show_clean_csv()                        
 
-    def show_clean_csv(self,use_dask = False, heatmapsteps = 0):
+    def show_clean_csv(self):
                 self.cleaneventlist = []
                 self.cleantimelist = [] 
                 self.event_locations_clean.clear()              
@@ -97,7 +98,6 @@ class OneatVisualization:
                 scores = []
                 radiuses = []
                 confidences = []
-                angles = []
                 for location, sizescore in self.event_locations_size_dict.items():
                      tlocations.append(float(location[0]))
                      if len(self.originalimage.shape) == 4:
@@ -108,14 +108,13 @@ class OneatVisualization:
                      xlocations.append(float(location[2]))
                      scores.append(float(sizescore[1])) 
                      radiuses.append(float(sizescore[0]))
-                     confidences.append(1)
-                     angles.append(2)
+                     confidences.append(float(sizescore[2]))
                 for location  in dict_locations:
                      self.event_locations_clean.append(location)
                           
 
                 event_count = np.column_stack(
-                            [tlocations, zlocations, ylocations, xlocations, scores, radiuses, confidences, angles])
+                            [tlocations, zlocations, ylocations, xlocations, scores, radiuses, confidences])
                 event_count = sorted(event_count, key=lambda x: x[0], reverse=False)
                 
                 event_data = []
@@ -127,7 +126,7 @@ class OneatVisualization:
                 filesize = os.stat(csvname + ".csv").st_size
 
                 if filesize < 1:
-                            writer.writerow(['T', 'Z', 'Y', 'X', 'Score', 'Size', 'Confidence', 'Angle'])
+                            writer.writerow(['T', 'Z', 'Y', 'X', 'Score', 'Size', 'Confidence'])
                 for line in event_count:
                             if line not in event_data:
                                 event_data.append(line)
@@ -343,12 +342,12 @@ class OneatVisualization:
                                     current_list = self.event_locations_dict[int(tcenter)]
                                     current_list.append([int(ycenter), int(xcenter)])
                                     self.event_locations_dict[int(tcenter)] = current_list 
-                                    self.event_locations_size_dict[(int(tcenter), int(ycenter), int(xcenter))] = [size, score]
+                                    self.event_locations_size_dict[(int(tcenter), int(ycenter), int(xcenter))] = [size, score, confidence]
                                 else:
                                     current_list = []
                                     current_list.append([int(ycenter), int(xcenter)])
                                     self.event_locations_dict[int(tcenter)] = current_list    
-                                    self.event_locations_size_dict[int(tcenter), int(ycenter), int(xcenter)] = [size, score]
+                                    self.event_locations_size_dict[int(tcenter), int(ycenter), int(xcenter)] = [size, score, confidence]
 
                                 self.size_locations.append(size)
                                 self.score_locations.append(score)
@@ -376,65 +375,16 @@ class OneatVisualization:
                             if isinstance(layer, layers.Labels):
                                     self.seg_image = layer.data
 
-                                    location_image, self.cell_count = LocationMap(self.event_locations_dict, self.seg_image, use_dask, heatmapsteps)     
+                                    location_image, self.cell_count = location_map(self.event_locations_dict, self.seg_image, heatmapsteps, display_3d = False)     
                                     self.viewer.add_labels(location_image.astype('uint16'), name= 'Location Map' + imagename )
                                     
             
 
-                self.cluster_points(nms_space,use_dask, heatmapsteps)
+                self.cluster_points(nms_space)
 
                                        
 
 
-def LocationMap(event_locations_dict, seg_image, use_dask, heatmapsteps):
-       cell_count = {} 
-       location_image = np.zeros(seg_image.shape)
-       j = 0
-       for i in range(seg_image.shape[0]):
-            if use_dask:
-                    current_seg_image = seg_image[i,:].compute()
-            else:
-                    current_seg_image = seg_image[i,:]
-            waterproperties = measure.regionprops(current_seg_image)
-            indices = [prop.centroid for prop in waterproperties]
-            cell_count[int(i)] = len(indices)        
-
-            if int(i) in event_locations_dict.keys():
-                currentindices = event_locations_dict[int(i)]
-                    
-                
-                if len(indices) > 0:
-                    tree = spatial.cKDTree(indices)
-                    if len(currentindices) > 0:
-                        for j in range(0, len(currentindices)):
-                            index = currentindices[j] 
-                            closest_marker_index = tree.query(index)
-                            current_seg_label = current_seg_image[int(indices[closest_marker_index[1]][0]), int(
-                            indices[closest_marker_index[1]][1])]
-                            if current_seg_label > 0:
-                                all_pixels = np.where(current_seg_image == current_seg_label)
-                                all_pixels = np.asarray(all_pixels)
-                                for k in range(all_pixels.shape[1]):
-                                    location_image[i,all_pixels[0,k], all_pixels[1,k]] = 1
-            
-       location_image = average_heat_map(location_image, heatmapsteps)
-
-
-       return location_image, cell_count
-
-
-def average_heat_map(image, sliding_window):
-
-    j = 0
-    for i in range(image.shape[0]):
-        
-              j = j + 1
-              if i > 0:
-                image[i,:] = np.add(image[i,:] , image[i - 1,:])
-              if j == sliding_window:
-                  image[i,:] = np.subtract(image[i,:] , image[i - 1,:])
-                  j = 0
-    return image          
 
 def MidSlices(Image, start_project_mid, end_project_mid, use_dask, axis = 1):
     

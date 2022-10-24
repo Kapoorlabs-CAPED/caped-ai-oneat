@@ -8,6 +8,8 @@ from skimage import measure
 from dask.array.image import imread as daskread
 from tifffile import imread
 from skimage import morphology
+import csv
+from ..utils import location_map
 class OneatVolumeVisualization:
 
     def __init__(self, 
@@ -53,7 +55,110 @@ class OneatVolumeVisualization:
         
    
                 
-               
+    # To prevent early detectin of events
+    def cluster_points(self, nms_space):
+
+     print('before',len(self.event_locations_size_dict))
+    
+
+     for (k,v) in self.event_locations_dict.items():
+         currenttime = k
+         event_locations = v
+       
+         if len(event_locations) > 0:
+            tree = spatial.cKDTree(event_locations)
+            forwardtime = currenttime + 1
+            if int(forwardtime) in self.event_locations_dict.keys():
+                forward_event_locations = self.event_locations_dict[int(forwardtime)]
+                for location in forward_event_locations:
+                   if (int(forwardtime), int(location[0]), int(location[1]), int(location[2])) in self.event_locations_size_dict:   
+                        forwardsize, forwardscore = self.event_locations_size_dict[int(forwardtime), int(location[0]), int(location[1]), int(location[2])]
+                        distance, nearest_location = tree.query(location)
+                        nearest_location = int(event_locations[nearest_location][0]), int(event_locations[nearest_location][1]), int(event_locations[nearest_location][2])
+
+                        if distance <= nms_space:
+                                    if (int(currenttime), int(nearest_location[0]), int(nearest_location[1]), int(nearest_location[2])) in self.event_locations_size_dict:
+                                        currentsize, currentscore = self.event_locations_size_dict[int(currenttime), int(nearest_location[0]), int(nearest_location[1]), int(nearest_location[2])]
+                                        if  currentscore >= forwardscore:
+                                            self.event_locations_size_dict.pop((int(forwardtime), int(location[0]), int(location[1]), int(location[2])))
+                                            
+                                        if currentscore < forwardscore:
+                                            self.event_locations_size_dict.pop((int(currenttime), int(nearest_location[0]), int(nearest_location[1]), int(nearest_location[2])))   
+                                                    
+     print('after',len(self.event_locations_size_dict))
+     self.show_clean_csv()                        
+
+    def show_clean_csv(self):
+                self.cleaneventlist = []
+                self.cleantimelist = [] 
+                self.event_locations_clean.clear()              
+                dict_locations = self.event_locations_size_dict.keys()
+                tlocations = []
+                zlocations = []   
+                ylocations = []
+                xlocations = []
+                scores = []
+                radiuses = []
+                confidences = []
+                for location, sizescore in self.event_locations_size_dict.items():
+                     tlocations.append(float(location[0]))
+                     zlocations.append(float(location[1]))
+                     ylocations.append(float(location[2]))
+                     xlocations.append(float(location[3]))
+                      
+                     radiuses.append(float(sizescore[0]))
+                     scores.append(float(sizescore[1]))
+                     confidences.append(float(sizescore[2]))
+                for location  in dict_locations:
+                     self.event_locations_clean.append(location)
+                          
+
+                event_count = np.column_stack(
+                            [tlocations, zlocations, ylocations, xlocations, scores, radiuses, confidences])
+                event_count = sorted(event_count, key=lambda x: x[0], reverse=False)
+                
+                event_data = []
+                csvname = self.savedir + "/" + 'Clean' +  self.event_name + "Location" + (
+                os.path.splitext(os.path.basename(self.imagename))[0])
+                if(os.path.exists(csvname + ".csv")):
+                            os.remove(csvname + ".csv")
+                writer = csv.writer(open(csvname + ".csv", "a", newline=''))
+                filesize = os.stat(csvname + ".csv").st_size
+
+                if filesize < 1:
+                            writer.writerow(['T', 'Z', 'Y', 'X', 'Score', 'Size', 'Confidence'])
+                for line in event_count:
+                            if line not in event_data:
+                                event_data.append(line)
+                            writer.writerows(event_data)
+                            event_data = []     
+                name_remove = ('Clean Detections','Clean Location Map')
+                
+                point_properties = {'score' : scores, 'confidence' : confidences,
+                'size' : radiuses}    
+              
+                for layer in list(self.viewer.layers):
+                                    
+                                    if  any(name in layer.name for name in name_remove):
+                                            self.viewer.layers.remove(layer) 
+                self.viewer.add_points(self.event_locations_clean, properties=point_properties,  name = 'Clean Detections', face_color = [0]*4, edge_color = "green") 
+                
+                                    
+                
+                df = pd.DataFrame (self.event_locations_clean, columns = ['T', 'Z', 'Y', 'X'])
+                T_pred = df[df.keys()[0]][0:]
+                listtime_pred = T_pred.tolist()
+                
+                for j in range(self.image.shape[0]):
+                    cleanlist = [] 
+                    for i in range(len(listtime_pred)):
+                      
+                        if j == listtime_pred[i]:
+                            cleanlist.append(listtime_pred[i])
+                            
+                    countT = len(cleanlist)
+                    self.cleantimelist.append(j)
+                    self.cleaneventlist.append(countT)           
 
     def show_plot(self,  plot_event_name, event_count_plot, 
       segimagedir = None, event_threshold = 0 ):
@@ -195,12 +300,12 @@ class OneatVolumeVisualization:
                                     current_list = self.event_locations_dict[int(tcenter)]
                                     current_list.append([int(zcenter),int(ycenter), int(xcenter)])
                                     self.event_locations_dict[int(tcenter)] = current_list 
-                                    self.event_locations_size_dict[(int(tcenter), int(zcenter), int(ycenter), int(xcenter))] = [size, score]
+                                    self.event_locations_size_dict[(int(tcenter), int(zcenter), int(ycenter), int(xcenter))] = [size, score, confidence]
                                 else:
                                     current_list = []
                                     current_list.append([int(zcenter),int(ycenter), int(xcenter)])
                                     self.event_locations_dict[int(tcenter)] = current_list    
-                                    self.event_locations_size_dict[int(tcenter),int(zcenter), int(ycenter), int(xcenter)] = [size, score]
+                                    self.event_locations_size_dict[int(tcenter),int(zcenter), int(ycenter), int(xcenter)] = [size, score, confidence]
 
                                 self.size_locations.append(size)
                                 self.score_locations.append(score)
@@ -221,64 +326,11 @@ class OneatVolumeVisualization:
                             if isinstance(layer, layers.Labels):
                                     self.seg_image = layer.data
 
-                                    location_image, self.cell_count = LocationMap(self.event_locations_dict, self.seg_image, use_dask, heatmapsteps)     
+                                    location_image, self.cell_count = location_map(self.event_locations_dict, self.seg_image, heatmapsteps, display_3d = True)     
                                     self.viewer.add_labels(location_image.astype('uint16'), name= 'Location Map' + imagename )
                                      
-
+                self.cluster_points(nms_space)
                                        
-def LocationMap(event_locations_dict, seg_image, heatmapsteps):
-       cell_count = {} 
-       location_image = np.zeros(seg_image.shape)
-       j = 0
-       for i in range(seg_image.shape[0]):
-            current_seg_image = seg_image[i,:]
-            waterproperties = measure.regionprops(current_seg_image)
-            indices = [prop.centroid for prop in waterproperties]
-            cell_count[int(i)] = len(indices)        
-
-            if int(i) in event_locations_dict.keys():
-                currentindices = event_locations_dict[int(i)]
-                    
-                
-                if len(indices) > 0:
-                    tree = spatial.cKDTree(indices)
-                    if len(currentindices) > 0:
-                        for j in range(0, len(currentindices)):
-                            index = currentindices[j] 
-                            closest_marker_index = tree.query(index)
-                            current_seg_label = current_seg_image[int(indices[closest_marker_index[1]][0]), int(
-                            indices[closest_marker_index[1]][1]),int(
-                            indices[closest_marker_index[1]][2]) ]
-                            if current_seg_label > 0:
-                                all_pixels = np.where(current_seg_image == current_seg_label)
-                                all_pixels = np.asarray(all_pixels)
-                                for k in range(all_pixels.shape[1]):
-                                    location_image[i,all_pixels[0,k], all_pixels[1,k], all_pixels[2,k]] = 1
-            
-       location_image = average_heat_map(location_image, heatmapsteps)
-
-
-       return location_image, cell_count
-
-
-def average_heat_map(image, sliding_window):
-
-    j = 0
-    for i in range(image.shape[0]):
-        
-              j = j + 1
-              if i > 0:
-                image[i,:] = np.add(image[i,:] , image[i - 1,:])
-              if j == sliding_window:
-                  image[i,:] = np.subtract(image[i,:] , image[i - 1,:])
-                  j = 0
-    return image          
-
-                    
-                    
-           
-                                
- 
 def TimedDistance(pointA, pointB):
 
     
