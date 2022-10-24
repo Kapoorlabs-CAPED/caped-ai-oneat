@@ -23,7 +23,6 @@ from oneat.NEATUtils.oneat_animation.OneatVisualization import MidSlices
 from oneat.NEATUtils.oneat_animation._qt import OneatWidget, OneatVolumeWidget
 
 
-default_reader = 'tifffile'
 
 
 class NEATViz(object):
@@ -32,7 +31,6 @@ class NEATViz(object):
                         csvdir,
                         savedir, 
                         categories_json, 
-                        imagereader = default_reader , 
                         heatmapimagedir = None, 
                         segimagedir = None, 
                         heatname = '_Heat', 
@@ -68,11 +66,7 @@ class NEATViz(object):
                self.end_project_mid = end_project_mid
                self.fileextension = fileextension
                self.blur_radius = blur_radius
-               self.imagereader = imagereader
-               if self.imagereader == default_reader:
-                   self.use_dask = False
-               else:
-                   self.use_dask = True    
+                  
                Path(self.savedir).mkdir(exist_ok=True)
                Path(self.csvdir).mkdir(exist_ok=True)
                self.viewer = napari.Viewer()
@@ -116,7 +110,7 @@ class NEATViz(object):
         def showNapari(self):
                  
                  self.oneat_widget = OneatWidget(self.viewer, self.csvdir, self.savedir, 'Name', 
-                 self.key_categories, use_dask = self.use_dask, segimagedir = self.segimagedir,
+                 self.key_categories,  segimagedir = self.segimagedir,
                  heatimagedir = self.heatmapimagedir, heatname = self.heatname, 
                  start_project_mid = self.start_project_mid,
                  end_project_mid = self.end_project_mid )
@@ -143,7 +137,7 @@ class NEATViz(object):
         def showVolumeNapari(self):
                  
                  self.oneat_widget = OneatVolumeWidget(self.viewer, self.csvdir, self.savedir, 'Name', 
-                 self.key_categories, use_dask = self.use_dask, segimagedir = self.segimagedir,
+                 self.key_categories,  segimagedir = self.segimagedir,
                  heatimagedir = self.heatmapimagedir, heatname = self.heatname)
                  Raw_path = os.path.join(self.imagedir, self.fileextension)
                  X = glob.glob(Raw_path)

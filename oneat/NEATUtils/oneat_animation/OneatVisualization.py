@@ -5,7 +5,6 @@ import os
 from napari import Viewer, layers
 from scipy import spatial
 from skimage import measure
-from dask.array.image import imread as daskread
 from tifffile import imread,  imwrite
 from skimage import morphology
 import csv

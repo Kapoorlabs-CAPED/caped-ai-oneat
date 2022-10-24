@@ -2,7 +2,6 @@ from qtpy.QtWidgets import QWidget, QLabel, QVBoxLayout, QLineEdit, QPushButton
 from .OneatFrameWidget import OneatFrameWidget
 import os
 from napari import Viewer
-from dask.array.image import imread as daskread
 from tifffile import imread,  imwrite
 from ..OneatVolumeVisualization import OneatVolumeVisualization
 from napari_animation._qt import AnimationWidget

@@ -6,7 +6,6 @@ from napari import Viewer, layers
 from scipy import spatial
 from skimage import measure
 from pathlib import Path
-from dask.array.image import imread as daskread
 from tifffile import imread
 from skimage import morphology
 import csv
