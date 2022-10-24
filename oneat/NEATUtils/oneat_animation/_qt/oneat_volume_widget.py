@@ -30,7 +30,6 @@ class OneatVolumeWidget(QWidget):
         savedir: str,
         savename: str,
         key_categories : dict,
-        use_dask: bool = False,
         segimagedir: str = None,
         heatimagedir: str = None,
         heatname: str = '_Heat',
@@ -73,23 +72,23 @@ class OneatVolumeWidget(QWidget):
 
         
         self.frameWidget.imageidbox.currentIndexChanged.connect(lambda eventid = self.frameWidget.imageidbox :
-        self._capture_image_callback(segimagedir, heatimagedir, heatname,  use_dask ))
+        self._capture_image_callback(segimagedir, heatimagedir, heatname ))
 
         self.frameWidget.eventidbox.currentIndexChanged.connect(lambda eventid = self.frameWidget.eventidbox :
-        self._capture_csv_callback(segimagedir,  use_dask ))
+        self._capture_csv_callback(segimagedir ))
  
         self.frameWidget.plotidbox.currentIndexChanged.connect(lambda eventid = self.frameWidget.imageidbox :
         self._capture_plot_callback(segimagedir,event_count_plot, cell_count_plot, event_norm_count_plot))
 
         self.frameWidget.recomputeButton.clicked.connect(lambda eventid = self.frameWidget.recomputeButton :
-        self._start_callbacks(segimagedir, use_dask, 
+        self._start_callbacks(segimagedir, 
     event_count_plot, cell_count_plot, event_norm_count_plot))
 
        
-    def _start_callbacks(self,segimagedir, use_dask, 
+    def _start_callbacks(self,segimagedir, 
     event_count_plot, cell_count_plot, event_norm_count_plot ):
 
-           self._capture_csv_callback(segimagedir, use_dask)
+           self._capture_csv_callback(segimagedir)
            self._capture_plot_callback(segimagedir,event_count_plot, cell_count_plot, event_norm_count_plot)
 
     def update_start_prob(self, event):
@@ -112,21 +111,20 @@ class OneatVolumeWidget(QWidget):
         self.frameWidget.label.setText(str(real_value))
         self.event_threshold = float(real_value)
 
-    def _capture_csv_callback(self, segimagedir, use_dask):
+    def _capture_csv_callback(self, segimagedir):
         
          get_image_text = self.frameWidget.imageidbox.currentText()
          csv_event_name = self.frameWidget.eventidbox.currentText()
          imagename = os.path.basename(os.path.splitext(get_image_text)[0])
          self.oneatvisualization.show_csv(imagename, csv_event_name, segimagedir = segimagedir, event_threshold = self.event_threshold, 
-         use_dask = use_dask, heatmapsteps = self.heatmapsteps, nms_space = self.nms_space)
+         heatmapsteps = self.heatmapsteps, nms_space = self.nms_space)
                  
 
-    def _capture_image_callback(self, segimagedir, heatmapimagedir, heatname, use_dask):
+    def _capture_image_callback(self, segimagedir, heatmapimagedir, heatname):
 
          get_image_text = self.frameWidget.imageidbox.currentText()
          imagename = os.path.basename(os.path.splitext(get_image_text)[0])
-         self.oneatvisualization.show_image(get_image_text, imagename, segimagedir, heatmapimagedir, heatname,
-          use_dask)
+         self.oneatvisualization.show_image(get_image_text, imagename, segimagedir, heatmapimagedir, heatname)
    
     def _capture_plot_callback(self, segimagedir,event_count_plot, cell_count_plot, event_norm_count_plot):
 

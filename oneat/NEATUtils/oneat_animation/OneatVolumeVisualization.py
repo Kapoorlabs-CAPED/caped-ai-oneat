@@ -244,33 +244,23 @@ class OneatVolumeVisualization:
                 imagename, 
                 segimagedir = None, 
                 heatmapimagedir = None, 
-                heatname = '_Heat', 
-                use_dask = False):
+                heatname = '_Heat'):
         self.imagename = imagename
         name_remove = ('Image', 'SegImage')
         for layer in list(self.viewer.layers):
                                          if  any(name in layer.name for name in name_remove):
                                                     self.viewer.layers.remove(layer)
         try:                                            
-            if use_dask:                                      
-                self.image = daskread(image_toread)[0]
-            else:
-                self.image = imread(image_toread)    
+            self.image = imread(image_toread)    
             
             if heatmapimagedir is not None:
                     try:
-                        if use_dask: 
-                            heat_image = daskread(heatmapimagedir + imagename + heatname + '.tif')[0]
-                        else:
-                            heat_image = imread(heatmapimagedir + imagename + heatname + '.tif')
+                        heat_image = imread(heatmapimagedir + imagename + heatname + '.tif')
                     except:
                         heat_image = None   
             
             if  segimagedir is not None:
-                    if use_dask:
-                        self.seg_image = daskread(segimagedir + imagename + '.tif')[0]
-                    else:
-                        self.seg_image = imread(segimagedir + imagename + '.tif')    
+                    self.seg_image = imread(segimagedir + imagename + '.tif')    
 
                       
                     
@@ -289,7 +279,7 @@ class OneatVolumeVisualization:
         except:
              pass            
 
-    def show_csv(self, imagename, csv_event_name, segimagedir = None, event_threshold = 0, use_dask = False, heatmapsteps = 0, nms_space = 0):
+    def show_csv(self, imagename, csv_event_name, segimagedir = None, event_threshold = 0,  heatmapsteps = 0, nms_space = 0):
         
         csvname = None
         self.event_locations_size_dict.clear()

@@ -249,37 +249,27 @@ class OneatVisualization:
                 heatmapimagedir = None, 
                 heatname = '_Heat', 
                 start_project_mid = 0, 
-                end_project_mid = 0, 
-                use_dask = False):
+                end_project_mid = 0):
         self.imagename = imagename
         name_remove = ('Image', 'SegImage')
         for layer in list(self.viewer.layers):
                                          if  any(name in layer.name for name in name_remove):
                                                     self.viewer.layers.remove(layer)
         try:                                            
-            if use_dask:                                      
-                self.image = daskread(image_toread)[0]
-            else:
-                self.image = imread(image_toread)    
+            self.image = imread(image_toread)    
             
             if heatmapimagedir is not None:
                     try:
-                        if use_dask: 
-                            heat_image = daskread(heatmapimagedir + imagename + heatname + '.tif')[0]
-                        else:
-                            heat_image = imread(heatmapimagedir + imagename + heatname + '.tif')
+                        heat_image = imread(heatmapimagedir + imagename + heatname + '.tif')
                     except:
                         heat_image = None   
             
             if  segimagedir is not None:
-                    if use_dask:
-                        self.seg_image = daskread(segimagedir + imagename + '.tif')[0]
-                    else:
-                        self.seg_image = imread(segimagedir + imagename + '.tif')    
+                    self.seg_image = imread(segimagedir + imagename + '.tif')    
 
                     if start_project_mid is not None or end_project_mid is not None:      
                        if len(self.seg_image.shape) == 4:
-                          self.seg_image =  MidSlices(self.seg_image, start_project_mid, end_project_mid, use_dask, axis = 1)
+                          self.seg_image =  MidSlices(self.seg_image, start_project_mid, end_project_mid, axis = 1)
 
 
                     
@@ -290,7 +280,7 @@ class OneatVisualization:
             if len(self.image.shape) == 4:
                 self.originalimage = self.image
                 if start_project_mid is not None or end_project_mid is not None:
-                   self.image =  MidSlices(self.image, start_project_mid, end_project_mid, use_dask, axis = 1)
+                   self.image =  MidSlices(self.image, start_project_mid, end_project_mid, axis = 1)
                
                        
             else:
@@ -305,7 +295,7 @@ class OneatVisualization:
         except:
              pass            
 
-    def show_csv(self, imagename, csv_event_name, segimagedir = None, event_threshold = 0, use_dask = False, heatmapsteps = 0, nms_space = 0):
+    def show_csv(self, imagename, csv_event_name, segimagedir = None, event_threshold = 0, heatmapsteps = 0, nms_space = 0):
         
         csvname = None
         self.event_locations_size_dict.clear()
@@ -385,12 +375,9 @@ class OneatVisualization:
 
 
 
-def MidSlices(Image, start_project_mid, end_project_mid, use_dask, axis = 1):
+def MidSlices(Image, start_project_mid, end_project_mid,  axis = 1):
     
-    if use_dask:
-       SmallImage = Image.compute().take(indices = range(Image.shape[axis]//2 - start_project_mid, Image.shape[axis]//2 + end_project_mid), axis = axis)
-    else:
-       SmallImage = Image.take(indices = range(Image.shape[axis]//2 - start_project_mid, Image.shape[axis]//2 + end_project_mid), axis = axis)    
+    SmallImage = Image.take(indices = range(Image.shape[axis]//2 - start_project_mid, Image.shape[axis]//2 + end_project_mid), axis = axis)    
     MaxProject = np.amax(SmallImage, axis = axis)
         
     return MaxProject       
