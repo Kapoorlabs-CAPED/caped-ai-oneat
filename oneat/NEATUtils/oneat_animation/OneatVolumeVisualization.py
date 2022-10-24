@@ -189,7 +189,7 @@ class OneatVolumeVisualization:
                         try:
                            currentscore = self.dataset["Score"]
                         except:
-                            currentscore = self.dataset["T"] * 0 + 1.0   
+                            currentscore = np.zeros_like(len(self.dataset.index))   
                             
                         for i in range(0, self.image.shape[0]):
                             
