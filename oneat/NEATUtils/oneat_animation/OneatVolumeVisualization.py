@@ -129,6 +129,7 @@ class OneatVolumeVisualization:
                             writer.writerow(['T', 'Z', 'Y', 'X', 'Score', 'Size', 'Confidence'])
                 for line in event_count:
                             if line not in event_data:
+                                print(f'line', line)
                                 event_data.append(line)
                             writer.writerows(event_data)
                             event_data = []     

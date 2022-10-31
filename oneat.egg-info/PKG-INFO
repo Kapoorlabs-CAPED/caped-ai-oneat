@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: oneat
-Version: 4.7.1
+Version: 4.7.2
 Summary: Static and Dynamic classification tool.
 Home-page: https://github.com/Kapoorlabs-CAPED/CAPED-AI-oneat/
 Author: Varun Kapoor
@@ -73,11 +73,8 @@ oneat comes with different options to combine segmentation with classification o
 
 | Example Dataset   | DataSet | Trained Model | Notebook Code |
 | --- |--- | --- |--- |
-| <img src="https://github.com/Kapoorlabs-CAPED/CAPED-AI-oneat/blob/main/images/Xenopus_example.jpg"  title="Xenopus nuclei in 3D/4D" width="200">| [Example timelapse](https://zenodo.org/record/6484966/files/C1-for_oneat_prediction.tif)| [Oneat model](https://zenodo.org/record/6484966/files/Cellsplitdetectorxenopus.h5) |  [Napari notebook](https://github.com/Kapoorlabs-CAPED/CAPED-AI-oneat/blob/main/Demo/Mitosis_xenopus_withoutsegmentation.ipynb)|
+| <img src="https://github.com/Kapoorlabs-CAPED/CAPED-AI-oneat/blob/main/images/Xenopus_example.jpg"  title="Xenopus nuclei in 3D/4D" width="200">| [Example timelapse](https://zenodo.org/record/6484966/files/C1-for_oneat_prediction.tif)| [Oneat model]() |  [Napari notebook]()|
 |   |   |  | | 
-| <img src="https://github.com/Kapoorlabs-CAPED/CAPED-AI-oneat/blob/main/images/ch_2_crop.png"  title="Brightfield" width="200">| [Example timelapse](https://zenodo.org/record/6371249/files/20210904_TL2%20-%20R05-C03-F0_ch_2.tif)| [Oneat model](https://zenodo.org/record/6481021) | [Napari notebook](https://github.com/Kapoorlabs-CAPED/CAPED-AI-oneat/blob/main/Demo/Mitosis_hela_cells_brightfield.ipynb)|
-|   |   |  | | 
-| <img src="https://github.com/Kapoorlabs-CAPED/CAPED-AI-oneat/blob/main/images/ch_1_crop.png"  title="High DPC" width="200">| [Example timelapse](https://zenodo.org/record/6480142/files/20210904_TL2%20-%20R05-C03-F0_ch_2.tif)| [Oneat model](https://zenodo.org/record/6483483/files/Cellsplitdetectorhdpc.h5) | [Napari notebook](https://github.com/Kapoorlabs-CAPED/CAPED-AI-oneat/blob/main/Demo/Mitosis_hela_cells_high_digitalphasecontrast.ipynb)|
 ## Troubleshooting & Support
 
 - The [image.sc forum](https://forum.image.sc/tag/oneat) is the best place to start getting help and support. Make sure to use the tag `oneat`, since we are monitoring all questions with this tag.

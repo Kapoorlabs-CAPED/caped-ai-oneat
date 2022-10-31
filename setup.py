@@ -39,6 +39,8 @@ setup(
         "graphviz",
         "oneat-augmentations",
         "hydra-core",
+        "caped-ai-metrics",
+        "seaborn"
        
     ],
     packages=setuptools.find_packages(),
