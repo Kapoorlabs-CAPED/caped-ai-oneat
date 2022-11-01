@@ -52,7 +52,7 @@ class NEATTResNet(object):
     
     """
 
-    def __init__(self, config, model_dir, catconfig, cordconfig):
+    def __init__(self, config: dict , model_dir: str, catconfig: dict, cordconfig: dict):
 
         self.config = config
         self.catconfig = catconfig

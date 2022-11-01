@@ -615,7 +615,7 @@ class NEATVollNet(object):
     def to_activations(self):
              self.all_iou_classedboxes =  save_volume( self.key_categories, self.iou_classedboxes, self.all_iou_classedboxes)
 
-    def overlaptiles(self, sliceregion):
+    def overlaptiles(self, sliceregion: np.ndarray ):
 
         if self.n_tiles == (1, 1, 1):
             patch = []

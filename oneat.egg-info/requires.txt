@@ -14,3 +14,5 @@ pydot
 graphviz
 oneat-augmentations
 hydra-core
+caped-ai-metrics
+seaborn

@@ -1241,7 +1241,7 @@ def save_volume(key_categories : dict, iou_classedboxes : dict, all_iou_classed_
                 all_iou_classed_boxes[event_name] = [boxes]
     return all_iou_classed_boxes            
                 
-def save_volume_csv(key_categories, iou_classedboxes, savedir, maskimage = None):
+def save_volume_csv(key_categories : dict, iou_classedboxes: dict, savedir : str):
     
         for (event_name, event_label) in key_categories.items():
 
@@ -1267,30 +1267,19 @@ def save_volume_csv(key_categories, iou_classedboxes, savedir, maskimage = None)
                         iou_current_event_box['height'] * iou_current_event_box['height'] + iou_current_event_box[
                             'width'] * iou_current_event_box['width'] +  iou_current_event_box['depth'] * iou_current_event_box['depth'] ) // 3
                     
-                    if maskimage is not None:
-                        if maskimage[int(tcenter), int(ycenter), int(xcenter)] > 0:
-                                xlocations.append(xcenter)
-                                ylocations.append(ycenter)
-                                zlocations.append(zcenter)
-                                scores.append(score)
-                                confidences.append(confidence)
-                                tlocations.append(tcenter)
-                                radiuses.append(radius)
-                                
-                    else:
-                                xlocations.append(xcenter)
-                                ylocations.append(ycenter)
-                                zlocations.append(zcenter)
-                                scores.append(score)
-                                confidences.append(confidence)
-                                tlocations.append(tcenter)
-                                radiuses.append(radius)
+                    xlocations.append(xcenter)
+                    ylocations.append(ycenter)
+                    zlocations.append(zcenter)
+                    scores.append(score)
+                    confidences.append(confidence)
+                    tlocations.append(tcenter)
+                    radiuses.append(radius)
                                         
                 event_count = np.column_stack(
                             [tlocations, zlocations, ylocations, xlocations, scores, radiuses, confidences])
                 event_count = sorted(event_count, key=lambda x: x[0], reverse=False) 
                 event_data = []
-                csvname = savedir + "/" + event_name + "Location" 
+                csvname = savedir + "/" + f'pred_{event_name}_locations' 
                 
                 writer = csv.writer(open(csvname + ".csv", "a", newline=''))
                 filesize = os.stat(csvname + ".csv").st_size
