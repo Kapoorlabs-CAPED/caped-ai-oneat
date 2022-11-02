@@ -1,67 +1,63 @@
 # oneat
 
-oneat = Open Network for Event as Action Topologies
-
-[![PyPI version](https://img.shields.io/pypi/v/oneat.svg)](https://pypi.org/project/oneat)
-
-
-This project provides static and action classification networks for LSTM/CNN based networks to recoganize cell events such as division, apoptosis, cell rearrangement for various imaging modalities.
-
+[![License BSD-3](https://img.shields.io/pypi/l/oneat.svg?color=green)](https://github.com/Kapoorlabs-CAPED/oneat/raw/main/LICENSE)
+[![PyPI](https://img.shields.io/pypi/v/oneat.svg?color=green)](https://pypi.org/project/oneat)
+[![Python Version](https://img.shields.io/pypi/pyversions/oneat.svg?color=green)](https://python.org)
+[![tests](https://github.com/Kapoorlabs-CAPED/oneat/workflows/tests/badge.svg)](https://github.com/Kapoorlabs-CAPED/oneat/actions)
+[![codecov](https://codecov.io/gh/Kapoorlabs-CAPED/oneat/branch/main/graph/badge.svg)](https://codecov.io/gh/Kapoorlabs-CAPED/oneat)
 
 
-## Installation & Usage
+Action classification for TZYX shaped images, Static classification for TYX shaped images
+
+----------------------------------
+
+This [caped] package was generated with [Cookiecutter] using [@caped]'s [cookiecutter-template] template.
+
+
 
 ## Installation
-This package can be installed by 
+
+You can install `oneat` via [pip]:
+
+    pip install oneat
 
 
-`pip install --user oneat`
 
-If you are building this from the source, clone the repository and install via
+To install latest development version :
 
-```bash
-git clone https://github.com/Kapoorlabs-caped/caped-ai-oneat/
-
-cd caped-ai-oneat
-
-pip install --user -e .
-
-# or, to install in editable mode AND grab all of the developer tools
-# (this is required if you want to contribute code back to NapaTrackMater)
-pip install --user -r requirements.txt
-```
+    pip install git+https://github.com/Kapoorlabs-CAPED/oneat.git
 
 
-### Pipenv install
+## Contributing
 
-Pipenv allows you to install dependencies in a virtual environment.
+Contributions are very welcome. Tests can be run with [tox], please ensure
+the coverage at least stays the same before you submit a pull request.
 
-```bash
-# install pipenv if you don't already have it installed
-pip install --user pipenv
+## License
 
-# clone the repository and sync the dependencies
-git clone https://github.com/Kapoorlabs-caped/caped-ai-oneat/
-cd caped-ai-oneat
-pipenv sync
+Distributed under the terms of the [BSD-3] license,
+"oneat" is free and open source software
 
-# make the current package available
-pipenv run python setup.py develop
+## Issues
 
-# you can run the example notebooks by starting the jupyter notebook inside the virtual env
-pipenv run jupyter notebook
-```
+If you encounter any problems, please [file an issue] along with a detailed description.
 
-## Examples
 
-oneat comes with different options to combine segmentation with classification or to just use classification independently of any segmentation during the model prediction step. We summarize this in the table below:
+[pip]: https://pypi.org/project/pip/
+[caped]: https://github.com/Kapoorlabs-CAPED
+[Cookiecutter]: https://github.com/audreyr/cookiecutter
+[@caped]: https://github.com/Kapoorlabs-CAPED
+[MIT]: http://opensource.org/licenses/MIT
+[BSD-3]: http://opensource.org/licenses/BSD-3-Clause
+[GNU GPL v3.0]: http://www.gnu.org/licenses/gpl-3.0.txt
+[GNU LGPL v3.0]: http://www.gnu.org/licenses/lgpl-3.0.txt
+[Apache Software License 2.0]: http://www.apache.org/licenses/LICENSE-2.0
+[Mozilla Public License 2.0]: https://www.mozilla.org/media/MPL/2.0/index.txt
+[cookiecutter-template]: https://github.com/Kapoorlabs-CAPED/cookiecutter-template
 
-| Example Dataset   | DataSet | Trained Model | Notebook Code |
-| --- |--- | --- |--- |
-| <img src="https://github.com/Kapoorlabs-CAPED/CAPED-AI-oneat/blob/main/images/Xenopus_example.jpg"  title="Xenopus nuclei in 3D/4D" width="200">| [Example timelapse](https://zenodo.org/record/6484966/files/C1-for_oneat_prediction.tif)| [Oneat model]() |  [Napari notebook]()|
-|   |   |  | | 
-## Troubleshooting & Support
+[file an issue]: https://github.com/Kapoorlabs-CAPED/oneat/issues
 
-- The [image.sc forum](https://forum.image.sc/tag/oneat) is the best place to start getting help and support. Make sure to use the tag `oneat`, since we are monitoring all questions with this tag.
-- If you have technical questions or found a bug, feel free to [open an issue](https://github.com/Kapoorlabs-CAPED/CAPED-AI-oneat/issues).
-
+[caped]: https://github.com/Kapoorlabs-CAPED/
+[tox]: https://tox.readthedocs.io/en/latest/
+[pip]: https://pypi.org/project/pip/
+[PyPI]: https://pypi.org/
