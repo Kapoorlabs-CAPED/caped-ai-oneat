@@ -351,6 +351,8 @@ def DenseVollNet(
     last_activation="softmax",
 ):
 
+    last_conv_factor = 2 ** (stage_number - 1) 
+    print(input_shape, input_shape[0], input_shape[1], input_shape[2], input_shape[3])
     img_input = layers.Input(shape=(None, None, None, input_shape[3]))
     bn_axis = -1
     num_filters_in = startfilter
@@ -358,9 +360,8 @@ def DenseVollNet(
         inputs=img_input,
         num_filters=num_filters_in,
         kernel_size=start_kernel,
-        strides = 2)
+        strides = 1)
     # Start model definition.
-    last_conv_factor = 2 ** (stage_number - 1)
     
     x = dense_block(x, depth[0], name="conv2")
     x = transition_block(x, 0.5, name="pool2")
@@ -385,7 +386,6 @@ def DenseVollNet(
     x = Activation("relu")(x)
     input_cat = Lambda(lambda x: x[:, :, :, :, 0:categories])(x)
     input_box = Lambda(lambda x: x[:, :, :, :, categories:])(x)
-
     output_cat = (
         Conv3D(
             categories,
@@ -417,9 +417,7 @@ def DenseVollNet(
 
     block = Concat(-1)
     outputs = block([output_cat, output_box])
-
     inputs = img_input
-
     # Create model.
     model = models.Model(inputs, outputs)
 
