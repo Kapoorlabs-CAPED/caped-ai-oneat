@@ -488,7 +488,7 @@ class PlotVolumeHistory(keras.callbacks.Callback):
 
         self.logs = []
 
-    def on_epoch_end(self, logs={}):
+    def on_epoch_end(self,epoch,logs={}):
 
         self.logs.append(logs)
         self.x.append(self.i)
