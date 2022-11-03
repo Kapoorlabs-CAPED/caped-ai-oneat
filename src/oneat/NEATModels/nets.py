@@ -358,8 +358,7 @@ def DenseVollNet(
         inputs=img_input,
         num_filters=num_filters_in,
         kernel_size=start_kernel,
-        strides = 2,
-        pool_size = 3)
+        strides = 2)
     # Start model definition.
     last_conv_factor = 2 ** (stage_number - 1)
     
