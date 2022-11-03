@@ -519,9 +519,6 @@ class PlotVolumeHistory(keras.callbacks.Callback):
             self.Y,
             self.key_categories,
             self.key_cord,
-            self.gridx,
-            self.gridy,
-            self.gridz,
             plot=self.plot,
             nboxes=self.nboxes,
         )
@@ -749,8 +746,6 @@ class PlotStaticHistory(keras.callbacks.Callback):
             self.Y,
             self.key_categories,
             self.key_cord,
-            self.gridx,
-            self.gridy,
             plot=self.plot,
             nboxes=self.nboxes,
             class_only=self.class_only,
