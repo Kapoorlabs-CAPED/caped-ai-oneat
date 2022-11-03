@@ -17,7 +17,7 @@ from keras.models import load_model
 from tensorflow.keras.utils import plot_model
 from tifffile import imread
 from tqdm import tqdm
-
+import datetime
 from oneat.NEATModels import nets
 from oneat.NEATModels.loss import class_yolo_loss, static_yolo_loss
 from oneat.NEATModels.nets import Concat
@@ -341,7 +341,8 @@ class NEATResNet:
             nboxes=self.nboxes,
             class_only=self.class_only,
         )
-
+        log_dir = "logs/fit/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+        tensorboard_callback = callbacks.TensorBoard(log_dir=log_dir, histogram_freq=1)
         # Train the model and save as a h5 file
         self.Trainingmodel.fit(
             self.X,

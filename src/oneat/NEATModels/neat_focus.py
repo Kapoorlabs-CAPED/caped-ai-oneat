@@ -9,7 +9,7 @@ from keras import callbacks, optimizers
 from keras.models import load_model
 from scipy.optimize import curve_fit
 from tqdm import tqdm
-
+import datetime
 from oneat.NEATModels import nets
 from oneat.NEATModels.loss import dynamic_yolo_loss
 from oneat.NEATModels.nets import Concat
@@ -283,7 +283,8 @@ class NEATFocus:
             plot=self.show,
             nboxes=1,
         )
-
+        log_dir = "logs/fit/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+        tensorboard_callback = callbacks.TensorBoard(log_dir=log_dir, histogram_freq=1)
         # Train the model and save as a h5 file
         self.Trainingmodel.fit(
             self.X,
