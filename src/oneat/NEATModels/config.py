@@ -25,6 +25,10 @@ class lstm_config(argparse.Namespace):
         size_tplus=0,
         nboxes=1,
         depth=29,
+        depth_dense_0 = 6,
+        depth_dense_1 = 12,
+        depth_dense_2 = 24,
+        depth_dense_3 = 16,
         start_kernel=3,
         mid_kernel=3,
         startfilter=48,
@@ -55,6 +59,10 @@ class lstm_config(argparse.Namespace):
         self.categories = len(self.key_categories)
         self.box_vector = len(self.key_cord)
         self.depth = depth
+        self.depth_dense_0 = depth_dense_0
+        self.depth_dense_1 = depth_dense_1
+        self.depth_dense_2 = depth_dense_2
+        self.depth_dense_3 = depth_dense_3
         self.start_kernel = start_kernel
         self.mid_kernel = mid_kernel
         self.startfilter = startfilter
@@ -92,6 +100,10 @@ class lstm_config(argparse.Namespace):
             "size_tplus": self.size_tplus,
             "stride": self.stride,
             "depth": self.depth,
+            "depth_dense_0": self.depth_dense_0,
+            "depth_dense_1": self.depth_dense_1,
+            "depth_dense_2": self.depth_dense_2,
+            "depth_dense_3": self.depth_dense_3,
             "categories": self.categories,
             "box_vector": self.box_vector,
             "start_kernel": self.start_kernel,
@@ -139,6 +151,10 @@ class lstm_config(argparse.Namespace):
         ok["yolo_v1"] = isinstance(self.yolo_v1, bool)
         ok["yolo_v2"] = isinstance(self.yolo_v2, bool)
         ok["depth"] = _is_int(self.depth, 1)
+        ok["depth_dense_0"] = _is_int(self.depth_dense_0, 1)
+        ok["depth_dense_1"] = _is_int(self.depth_dense_1, 1)
+        ok["depth_dense_2"] = _is_int(self.depth_dense_2, 1)
+        ok["depth_dense_3"] = _is_int(self.depth_dense_3, 1)
         ok["stride"] = _is_int(self.stride, 1)
         ok["start_kernel"] = _is_int(self.start_kernel, 1)
         ok["mid_kernel"] = _is_int(self.mid_kernel, 1)
@@ -185,6 +201,10 @@ class volume_config(argparse.Namespace):
         size_tplus=1,
         nboxes=1,
         depth=29,
+        depth_dense_0 = 6,
+        depth_dense_1 = 12,
+        depth_dense_2 = 24,
+        depth_dense_3 = 16,
         start_kernel=3,
         mid_kernel=3,
         startfilter=48,
@@ -213,6 +233,10 @@ class volume_config(argparse.Namespace):
         self.categories = len(self.key_categories)
         self.box_vector = len(self.key_cord)
         self.depth = depth
+        self.depth_dense_0 = depth_dense_0
+        self.depth_dense_1 = depth_dense_1
+        self.depth_dense_2 = depth_dense_2
+        self.depth_dense_3 = depth_dense_3
         self.start_kernel = start_kernel
         self.mid_kernel = mid_kernel
         self.startfilter = startfilter
@@ -251,6 +275,10 @@ class volume_config(argparse.Namespace):
             "size_tplus": self.size_tplus,
             "stride": self.stride,
             "depth": self.depth,
+            "depth_dense_0": self.depth_dense_0,
+            "depth_dense_1": self.depth_dense_1,
+            "depth_dense_2": self.depth_dense_2,
+            "depth_dense_3": self.depth_dense_3,
             "categories": self.categories,
             "box_vector": self.box_vector,
             "start_kernel": self.start_kernel,
@@ -297,6 +325,10 @@ class volume_config(argparse.Namespace):
         ok["yolo_v2"] = isinstance(self.yolo_v2, bool)
         ok["pure_lstm"] = isinstance(self.pure_lstm, bool)
         ok["depth"] = _is_int(self.depth, 1)
+        ok["depth_dense_0"] = _is_int(self.depth_dense_0, 1)
+        ok["depth_dense_1"] = _is_int(self.depth_dense_1, 1)
+        ok["depth_dense_2"] = _is_int(self.depth_dense_2, 1)
+        ok["depth_dense_3"] = _is_int(self.depth_dense_3, 1)
         ok["stride"] = _is_int(self.stride, 1)
         ok["start_kernel"] = _is_int(self.start_kernel, 1)
         ok["mid_kernel"] = _is_int(self.mid_kernel, 1)
