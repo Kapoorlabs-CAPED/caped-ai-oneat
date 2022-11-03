@@ -5,6 +5,7 @@ from .neat_lstm import NEATLRNet
 from .neat_microscope import NEATPredict
 from .neat_static_resnet import NEATResNet
 from .neat_vollnet import NEATVollNet
+from .neat_densevollnet import NEATDenseVollNet
 from .nets import Concat
 
 # imports
@@ -14,6 +15,7 @@ __all__ = (
     "NEATLRNet",
     "NEATTResNet",
     "NEATVollNet",
+    "NEATDenseVollNet",
     "NEATFocus",
     "NEATFocusPredict",
     "NEATPredict",
