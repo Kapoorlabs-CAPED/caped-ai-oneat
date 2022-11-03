@@ -84,7 +84,10 @@ class NEATDenseVollNet:
             self.key_cord = config.key_cord
             self.box_vector = len(config.key_cord)
             self.categories = len(config.key_categories)
-            self.depth = config.depth
+            self.depth_dense_0 = config.depth_dense_0
+            self.depth_dense_1 = config.depth_dense_1
+            self.depth_dense_2 = config.depth_dense_2
+            self.depth_dense_3 = config.depth_dense_3
             self.start_kernel = config.start_kernel
             self.mid_kernel = config.mid_kernel
             self.learning_rate = config.learning_rate
@@ -121,6 +124,10 @@ class NEATDenseVollNet:
             self.show = self.config["show"]
 
             self.depth = self.config["depth"]
+            self.depth_dense_0 = self.config["depth_dense_0"]
+            self.depth_dense_1 = self.config["depth_dense_1"]
+            self.depth_dense_2 = self.config["depth_dense_2"]
+            self.depth_dense_3 = self.config["depth_dense_3"]
             self.start_kernel = self.config["start_kernel"]
             self.mid_kernel = self.config["mid_kernel"]
             self.learning_rate = self.config["learning_rate"]
@@ -155,7 +162,7 @@ class NEATDenseVollNet:
         self.Trainingmodel = None
         self.Xoriginal = None
         self.Xoriginal_val = None
-
+        self.depth = [self.depth_dense_0,self.depth_dense_1,self.depth_dense_2,self.depth_dense_3]
         self.model_keras = nets.DenseVollNet
 
         if self.multievent:
