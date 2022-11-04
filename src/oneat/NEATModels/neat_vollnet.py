@@ -6,7 +6,6 @@ import numpy as np
 import tensorflow as tf
 from keras import callbacks
 from keras.models import load_model
-from tensorflow.keras.utils import plot_model
 from tqdm import tqdm
 import datetime
 from oneat.NEATModels import nets
@@ -329,12 +328,7 @@ class NEATVollNet:
             optimizer=sgd, loss=self.yolo_loss, metrics=["accuracy"]
         )
         self.Trainingmodel.summary()
-        plot_model(
-            self.Trainingmodel,
-            to_file=os.path.join(self.model_dir, "model.png"),
-            show_shapes=True,
-            show_layer_names=True,
-        )
+       
 
         # Keras callbacks
         lrate = callbacks.ReduceLROnPlateau(
