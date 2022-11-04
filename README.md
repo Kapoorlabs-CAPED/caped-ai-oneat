@@ -76,10 +76,12 @@ Using a [custom training data creating script](https://github.com/Kapoorlabs-CAP
 
 ### ResNet and DenseNet based VollNet and DenseVollNet architectures
 
-After the training data is saved as an npz file, the training can be done using a Resnet or a Densenet architecture based network. We see a better performance using    architecture. See the [Resnet implementation](https://github.com/Kapoorlabs-CAPED/caped-ai-oneat/blob/b776d98ef76fe77f17f353d045a8cf17c2f86e50/src/oneat/NEATModels/nets.py#L201-L336), see the [Densnet implementation](https://github.com/Kapoorlabs-CAPED/caped-ai-oneat/blob/b776d98ef76fe77f17f353d045a8cf17c2f86e50/src/oneat/NEATModels/nets.py#L340-L430). We have fully convolutional implementation of both these architectures, hence the training can be done on the data of our chosen size and shape but at the prediction stage we benifit from convolutionalization of the sliding window operation where the network finds the location of the mitotic cells using the indices that the prediction function provides to map the predictions to their proper spatial and temporal locations in the input data of arbitrary size/shape.
+After the training data is saved as an npz file, the training can be done using a Resnet or a Densenet architecture based network. We see a better performance using    architecture. See the [Resnet implementation](https://github.com/Kapoorlabs-CAPED/caped-ai-oneat/blob/b776d98ef76fe77f17f353d045a8cf17c2f86e50/src/oneat/NEATModels/nets.py#L201-L336), see the [Densnet implementation](https://github.com/Kapoorlabs-CAPED/caped-ai-oneat/blob/b776d98ef76fe77f17f353d045a8cf17c2f86e50/src/oneat/NEATModels/nets.py#L340-L430). 
+
+We have fully convolutional implementation of both these architectures, hence the training can be done on the data of our chosen size and shape but at the prediction stage we benifit from convolutionalization of the sliding window operation where the network finds the location of the mitotic cells using the indices that the prediction function provides to map the predictions to their proper spatial and temporal locations in the input data of arbitrary size/shape.
 
 ### Program to train the model on a GPU based machine
-
+Using [this script](https://github.com/Kapoorlabs-CAPED/Mari_Scripts_Server/blob/main/train_xenopus_oneat.py) and setting the training parameters in the configuration file we train the model with the chosen hyperparameters.
 
 ### Visualizing training loss and accuracy with Tensorboard
 
