@@ -372,7 +372,7 @@ class NEATVollNet:
             epochs=self.epochs,
             validation_data=(self.X_val, self.Y_val),
             shuffle=True,
-            callbacks=[lrate, hrate, srate, prate],
+            callbacks=[lrate, hrate, srate, prate, tensorboard_callback],
         )
 
         self.Trainingmodel.save(model_weights)
