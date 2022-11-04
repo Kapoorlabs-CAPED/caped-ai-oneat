@@ -346,14 +346,14 @@ def DenseVollNet(
     start_kernel=7,
     mid_kernel=3,
     startfilter=32,
-    stage_number = 3,
+    stage_number = 4,
     input_weights=None,
     last_activation="softmax",
 ):
 
     last_conv_factor = 2 ** (stage_number - 1) 
     print(input_shape, input_shape[0], input_shape[1], input_shape[2], input_shape[3])
-    img_input = layers.Input(shape=(None, None, None, input_shape[3]))
+    img_input = layers.Input(shape=(input_shape[0], input_shape[1], input_shape[2], input_shape[3]))
     bn_axis = -1
     num_filters_in = startfilter
     x = densenet_3D_layer( 
@@ -370,7 +370,9 @@ def DenseVollNet(
     x = transition_block(x, 0.5, name="pool3")
     
     x = dense_block(x, depth[2], name="conv4")
+    x = transition_block(x, 0.5, name="pool4")
     
+    x = dense_block(x, depth[3], name="conv5")
 
     x = layers.BatchNormalization(axis=bn_axis, epsilon=1.001e-5, name="bn")(x)
     x = layers.Activation("relu", name="relu")(x)
@@ -390,7 +392,7 @@ def DenseVollNet(
         Conv3D(
             categories,
             (
-                round(input_shape[0] / last_conv_factor),
+                round(input_shape[0] ),
                 round(input_shape[1] / last_conv_factor),
                 round(input_shape[2] / last_conv_factor),
             ),
@@ -404,7 +406,7 @@ def DenseVollNet(
         Conv3D(
             nboxes * (box_vector),
             (
-                round(input_shape[0] / last_conv_factor),
+                round(input_shape[0] ),
                 round(input_shape[1] / last_conv_factor),
                 round(input_shape[2] / last_conv_factor),
             ),
@@ -1329,7 +1331,6 @@ def resnet_layer_1D(
         x = conv(x)
     return x
 
-
 def dense_block(x, blocks, name):
     """A dense block.
     Args:
@@ -1364,7 +1365,7 @@ def transition_block(x, reduction, name):
         use_bias=False, padding = 'same',
         name=name + "_conv"
     )(x)
-    x = layers.AveragePooling3D(2, strides=2, name=name + "_pool", padding = 'same')(x)
+    x = layers.AveragePooling3D(2, strides= (1,2,2), name=name + "_pool", padding = 'same')(x)
     return x
 
 
@@ -1422,98 +1423,6 @@ def densenet_3D_layer(
     
     return x
 
-
-def dense_block(x, blocks, name):
-    """A dense block.
-    Args:
-      x: input tensor.
-      blocks: integer, the number of building blocks.
-      name: string, block label.
-    Returns:
-      Output tensor for the block.
-    """
-    for i in range(blocks):
-        x = dense_conv_block(x, 32, name=name + "_block" + str(i + 1))
-    return x
-
-
-def transition_block(x, reduction, name):
-    """A transition block.
-    Args:
-      x: input tensor.
-      reduction: float, compression rate at transition layers.
-      name: string, block label.
-    Returns:
-      output tensor for the block.
-    """
-    bn_axis = -1 
-    x = layers.BatchNormalization(
-        axis=bn_axis, epsilon=1.001e-5, name=name + "_bn"
-    )(x)
-    x = layers.Activation("relu", name=name + "_relu")(x)
-    x = layers.Conv3D(
-        int(backend.int_shape(x)[bn_axis] * reduction),
-        1,
-        use_bias=False, padding = 'same',
-        name=name + "_conv"
-    )(x)
-    x = layers.AveragePooling3D(2, strides=2, name=name + "_pool", padding = 'same')(x)
-    return x
-
-
-def dense_conv_block(x, growth_rate, name):
-    """A building block for a dense block.
-    Args:
-      x: input tensor.
-      growth_rate: float, growth rate at dense layers.
-      name: string, block label.
-    Returns:
-      Output tensor for the block.
-    """
-    bn_axis = -1 
-    x1 = layers.BatchNormalization(
-        axis=bn_axis, epsilon=1.001e-5, name=name + "_0_bn"
-    )(x)
-    x1 = layers.Activation("relu", name=name + "_0_relu")(x1)
-    x1 = layers.Conv3D(
-        4 * growth_rate, 1, use_bias=False, name=name + "_1_conv", padding = 'same'
-    )(x1)
-    x1 = layers.BatchNormalization(
-        axis=bn_axis, epsilon=1.001e-5, name=name + "_1_bn"
-    )(x1)
-    x1 = layers.Activation("relu", name=name + "_1_relu")(x1)
-    x1 = layers.Conv3D(
-        growth_rate, 3, use_bias=False, name=name + "_2_conv",padding = 'same'
-    )(x1)
-    x = layers.Concatenate(axis=bn_axis, name=name + "_concat")([x, x1])
-    return x
-
-
-
-def densenet_3D_layer(
-    inputs,
-    num_filters = 64,
-    kernel_size = 3,
-    strides = 1,
-    activation='relu',
-   
-):
-    
-    x = inputs
-    x = layers.Conv3D(
-        num_filters,
-        kernel_size=kernel_size,
-        strides=strides,
-        padding="same",
-        kernel_initializer="he_normal",
-        kernel_regularizer=regularizers.l2(1e-4),
-    )(inputs)
-    x = layers.BatchNormalization(
-        axis= -1, epsilon=1.001e-5, name="conv1/bn"
-    )(x)
-    x = layers.Activation(activation, name="conv1activation")(x)
-    
-    return x
 
 
 
