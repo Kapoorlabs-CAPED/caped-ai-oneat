@@ -65,6 +65,10 @@ If you encounter any problems, please [file an issue] along with a detailed desc
 
 ## Algorithm for finding mitotic cells in TZYX datasets
 
+
+### Program structure
+
+We use hydra library to separate the parameters of the code from the actual file that contains the runnable code. We do so to minimize the interaction with the actual script/file/interactive code where the users do not have to change any lines to specify the paths/filenames/parameters. The [configuration file to modify the parameters](https://github.com/Kapoorlabs-CAPED/Mari_Scripts_Server/blob/main/conf/config_oneat.yaml). The params_train contains the training parameters for the hyperparameters of the network, these parameters are set once and for all and are not learned during the training process, hence the name hyperparameters. The params_predict contains the parameters needed for model prediction such as the number of tiles, event threshold and confidence to veto the events below the threshold. The trainclass contains the training class used by oneat and is input as a string. For VollNet (Resnet based) the training class is NEATVollNet, for DenseVollNet (Densenet based) the training class is DenseVollNet. The defaults provides the filename and the paths, depending on where the data is you only have to select the path file which is supplied for local paths/ovh server paths/aws paths. 
 ### The training data
 
 ### Program to create the training data
@@ -77,4 +81,4 @@ If you encounter any problems, please [file an issue] along with a detailed desc
 
 ### Visualizing training loss and accuracy with Tensorboard
 
-Oneat supports visualization of the training loss, accuracy and other training metrics using tensorboard. Tensorboard can be started from the same directory from where you launched the training script/interactive program for training. Inside that folder you will find an [outputs] directory, inisde it is a timestamed directory of logs for the tensorboard, for example the directory is named 08-21-02/ then launch tensorboard with the following command from inside the outputs directory: 'tensorboard --logdir 08-21-02/'
+Oneat supports visualization of the training loss, accuracy and other training metrics using tensorboard. Tensorboard can be started from the same directory from where you launched the training script/interactive program for training. Inside that folder you will find an **outputs** directory, inside it is a timestamped directory of logs for the tensorboard, for example the directory is named 08-21-02/ then launch tensorboard with the following command from inside the outputs directory: `tensorboard --logdir 08-21-02/`. Tensorboard will print a localhost url to copy and paste in the browser for example `http://localhost:6007/`, clicking on the menu item of scalars shows the loss and accuracy plots for the training epochs. You can refresh the page to update the curves if it does not happen automatically.
