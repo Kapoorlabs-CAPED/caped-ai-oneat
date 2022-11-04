@@ -353,7 +353,7 @@ def DenseVollNet(
 
     last_conv_factor = 2 ** (stage_number - 1) 
     print(input_shape, input_shape[0], input_shape[1], input_shape[2], input_shape[3])
-    img_input = layers.Input(shape=(input_shape[0], input_shape[1], input_shape[2], input_shape[3]))
+    img_input = layers.Input(shape=(None, None, None, input_shape[3]))
     bn_axis = -1
     num_filters_in = startfilter
     x = densenet_3D_layer( 
