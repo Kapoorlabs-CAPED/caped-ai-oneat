@@ -52,7 +52,7 @@ If you encounter any problems, please [file an issue] along with a detailed desc
 
 [tox]: https://tox.readthedocs.io/en/latest/
 
-## Algorithm for finding mitotic cells in TZYX datasets
+## Algorithm and Code for finding mitotic cells in TZYX datasets
 
 ### Program structure
 
@@ -60,7 +60,7 @@ We use hydra library to separate the parameters of the code from the actual file
 
 The params_train contains the training parameters for the hyperparameters of the network, these parameters are set once and for all and are not learned during the training process, hence the name hyperparameters.
 
-The params_predict contains the parameters needed for model prediction such as the number of tiles, event threshold and confidence to veto the events below the threshold. 
+The params_predict contains the parameters needed for model prediction such as the number of tiles, event threshold and confidence to veto the events below the threshold.
 
 The trainclass contains the training class used by oneat and is input as a string. For VollNet (Resnet based) the training class is NEATVollNet, for DenseVollNet (Densenet based) the training class is DenseVollNet.
 
@@ -68,7 +68,7 @@ The defaults provides the filename and the paths, depending on where the data is
 
 ### The training data
 
-The training data for 3D + time dataset was made by clicking on the location in ZYX of the mitotic (blue points layer) and non-mitotic cell (red points layer) using an interactive [Napari widget](https://github.com/Kapoorlabs-CAPED/Mari_Scripts_Server/blob/main/volume_click_maker.py). 
+The training data for 3D + time dataset was made by clicking on the location in ZYX of the mitotic (blue points layer) and non-mitotic cell (red points layer) using an interactive [Napari widget](https://github.com/Kapoorlabs-CAPED/Mari_Scripts_Server/blob/main/volume_click_maker.py).
 
 We also have the segmentation image for the raw data that we use to create the clicks and we use the segmentation labels at the click location to refine the location of the clicked cell, get it's height, width and depth that we use to create the training label.
 
@@ -76,17 +76,26 @@ Using a [custom training data creating script](https://github.com/Kapoorlabs-CAP
 
 ### ResNet and DenseNet based VollNet and DenseVollNet architectures
 
-After the training data is saved as an npz file, the training can be done using a Resnet or a Densenet architecture based network. We see a better performance using    architecture. See the [Resnet implementation](https://github.com/Kapoorlabs-CAPED/caped-ai-oneat/blob/b776d98ef76fe77f17f353d045a8cf17c2f86e50/src/oneat/NEATModels/nets.py#L201-L336), see the [Densnet implementation](https://github.com/Kapoorlabs-CAPED/caped-ai-oneat/blob/b776d98ef76fe77f17f353d045a8cf17c2f86e50/src/oneat/NEATModels/nets.py#L340-L430). 
+After the training data is saved as an npz file, the training can be done using a Resnet or a Densenet architecture based network. We see a better performance using    architecture. See the [Resnet implementation](https://github.com/Kapoorlabs-CAPED/caped-ai-oneat/blob/b776d98ef76fe77f17f353d045a8cf17c2f86e50/src/oneat/NEATModels/nets.py#L201-L336), see the [Densnet implementation](https://github.com/Kapoorlabs-CAPED/caped-ai-oneat/blob/b776d98ef76fe77f17f353d045a8cf17c2f86e50/src/oneat/NEATModels/nets.py#L340-L430).
 
 We have fully convolutional implementation of both these architectures, hence the training can be done on the data of our chosen size and shape but at the prediction stage we benifit from convolutionalization of the sliding window operation where the network finds the location of the mitotic cells using the indices that the prediction function provides to map the predictions to their proper spatial and temporal locations in the input data of arbitrary size/shape.
 
 ### Program to train the model on a GPU based machine
+
 Using [this script](https://github.com/Kapoorlabs-CAPED/Mari_Scripts_Server/blob/main/train_xenopus_oneat.py) and setting the training parameters in the configuration file we train the model with the chosen hyperparameters.
 
 ### Visualizing training loss and accuracy with Tensorboard
 
-Oneat supports visualization of the training loss, accuracy and other training metrics using tensorboard. 
+Oneat supports visualization of the training loss, accuracy and other training metrics using tensorboard.
 
-Tensorboard can be started from the same directory from where you launched the training script/interactive program for training. Inside that folder you will find an **outputs** directory, inside it is a timestamped directory of logs for the tensorboard, for example the directory is named 08-21-02/ then launch tensorboard with the following command from inside the outputs directory: `tensorboard --logdir 08-21-02/`. 
+Tensorboard can be started from the same directory from where you launched the training script/interactive program for training. Inside that folder you will find an **outputs** directory, inside it is a timestamped directory of logs for the tensorboard, for example the directory is named 08-21-02/ then launch tensorboard with the following command from inside the outputs directory: `tensorboard --logdir 08-21-02/`.
 
 Tensorboard will print a localhost url to copy and paste in the browser for example `http://localhost:6007/`, clicking on the menu item of scalars shows the loss and accuracy plots for the training epochs. You can refresh the page to update the curves if it does not happen automatically.
+
+### Model Evaluation and Prediction
+
+Once the model has been trained, we can evaluate the performance of the model with metrics. The metrics measure the model performance on ground truth data which consists of the raw ground truth image, its corresponding segmentation image and the csv file containing the ground truth locations of the mitotic cells as TZYX columns.
+
+For evaluating the model performance we have to run the model prediction on the ground truth raw image using its segmentation image in [this script](https://github.com/Kapoorlabs-CAPED/Mari_Scripts_Server/blob/main/predict_xenopus_oneat_volume.py). The prediction program generates a csv file containing the location of mitotic cells and also the probability, confidence scores and radius of the cell to create bounding boxes around the cell location.
+
+Using the ground truth and the predictions csv file we compute the tru positive, false positive and false negative rate of detection using [this script](https://github.com/Kapoorlabs-CAPED/Mari_Scripts_Server/blob/main/prediction_metrics.py).
