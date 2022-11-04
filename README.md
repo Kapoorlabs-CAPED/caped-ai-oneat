@@ -61,3 +61,20 @@ If you encounter any problems, please [file an issue] along with a detailed desc
 [tox]: https://tox.readthedocs.io/en/latest/
 [pip]: https://pypi.org/project/pip/
 [PyPI]: https://pypi.org/
+
+
+## Algorithm for finding mitotic cells in TZYX datasets
+
+### The training data
+
+### Program to create the training data
+
+### ResNet and DenseNet based VollNet and DenseVollNet architectures
+
+
+### Program to train the model on a GPU based machine
+
+
+### Visualizing training loss and accuracy with Tensorboard
+
+Oneat supports visualization of the training loss, accuracy and other training metrics using tensorboard. Tensorboard can be started from the same directory from where you launched the training script/interactive program for training. Inside that folder you will find an [outputs] directory, inisde it is a timestamed directory of logs for the tensorboard, for example the directory is named 08-21-02/ then launch tensorboard with the following command from inside the outputs directory: 'tensorboard --logdir 08-21-02/'
