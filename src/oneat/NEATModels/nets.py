@@ -298,7 +298,7 @@ def VollNet(
             (
                 round(input_shape[0] / last_conv_factor),
                 round(input_shape[1] / last_conv_factor),
-                round(input_shape[2] / last_conv_factor),
+                round(input_shape[2] ),
             ),
             activation=last_activation,
             kernel_regularizer=regularizers.l2(reg_weight),
@@ -312,7 +312,7 @@ def VollNet(
             (
                 round(input_shape[0] / last_conv_factor),
                 round(input_shape[1] / last_conv_factor),
-                round(input_shape[2] / last_conv_factor),
+                round(input_shape[2] ),
             ),
             activation="sigmoid",
             kernel_regularizer=regularizers.l2(reg_weight),
