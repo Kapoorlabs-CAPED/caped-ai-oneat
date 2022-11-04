@@ -27,7 +27,6 @@ To install latest development version :
 
     pip install git+https://github.com/Kapoorlabs-CAPED/oneat.git
 
-
 ## Contributing
 
 Contributions are very welcome. Tests can be run with [tox], please ensure
@@ -42,54 +41,42 @@ Distributed under the terms of the [BSD-3] license,
 
 If you encounter any problems, please [file an issue] along with a detailed description.
 
-
 [pip]: https://pypi.org/project/pip/
 [caped]: https://github.com/Kapoorlabs-CAPED
 [Cookiecutter]: https://github.com/audreyr/cookiecutter
 [@caped]: https://github.com/Kapoorlabs-CAPED
-[MIT]: http://opensource.org/licenses/MIT
 [BSD-3]: http://opensource.org/licenses/BSD-3-Clause
-[GNU GPL v3.0]: http://www.gnu.org/licenses/gpl-3.0.txt
-[GNU LGPL v3.0]: http://www.gnu.org/licenses/lgpl-3.0.txt
-[Apache Software License 2.0]: http://www.apache.org/licenses/LICENSE-2.0
-[Mozilla Public License 2.0]: https://www.mozilla.org/media/MPL/2.0/index.txt
 [cookiecutter-template]: https://github.com/Kapoorlabs-CAPED/cookiecutter-template
 
 [file an issue]: https://github.com/Kapoorlabs-CAPED/oneat/issues
 
-[caped]: https://github.com/Kapoorlabs-CAPED/
 [tox]: https://tox.readthedocs.io/en/latest/
-[pip]: https://pypi.org/project/pip/
-[PyPI]: https://pypi.org/
-
 
 ## Algorithm for finding mitotic cells in TZYX datasets
 
-
 ### Program structure
 
-We use hydra library to separate the parameters of the code from the actual file that contains the runnable code. We do so to minimize the interaction with the actual script/file/interactive code where the users do not have to change any lines to specify the paths/filenames/parameters. The [configuration file to modify the parameters](https://github.com/Kapoorlabs-CAPED/Mari_Scripts_Server/blob/main/conf/config_oneat.yaml). 
+We use hydra library to separate the parameters of the code from the actual file that contains the runnable code. We do so to minimize the interaction with the actual script/file/interactive code where the users do not have to change any lines to specify the paths/filenames/parameters. The [configuration file to modify the parameters](https://github.com/Kapoorlabs-CAPED/Mari_Scripts_Server/blob/main/conf/config_oneat.yaml).
 
-
-The params_train contains the training parameters for the hyperparameters of the network, these parameters are set once and for all and are not learned during the training process, hence the name hyperparameters. 
+The params_train contains the training parameters for the hyperparameters of the network, these parameters are set once and for all and are not learned during the training process, hence the name hyperparameters.
 
 The params_predict contains the parameters needed for model prediction such as the number of tiles, event threshold and confidence to veto the events below the threshold. 
 
-The trainclass contains the training class used by oneat and is input as a string. For VollNet (Resnet based) the training class is NEATVollNet, for DenseVollNet (Densenet based) the training class is DenseVollNet. 
+The trainclass contains the training class used by oneat and is input as a string. For VollNet (Resnet based) the training class is NEATVollNet, for DenseVollNet (Densenet based) the training class is DenseVollNet.
 
 The defaults provides the filename and the paths, depending on where the data is you only have to select the path file which is supplied for local paths/ovh server paths/aws paths. This maybe a bit of gymnastics in the beginning but once the paths, files are set only parameters need to be changed during regular usage of the scripts and interactive programs.
+
 ### The training data
 
 The training data for 3D + time dataset was made by clicking on the location in ZYX of the mitotic (blue points layer) and non-mitotic cell (red points layer) using an interactive [Napari widget](https://github.com/Kapoorlabs-CAPED/Mari_Scripts_Server/blob/main/volume_click_maker.py). 
 
-We also have the segmentation image for the raw data that we use to create the clicks and we use the segmentation labels at the click location to refine the location of the clicked cell, get it's height, width and depth that we use to create the training label. 
+We also have the segmentation image for the raw data that we use to create the clicks and we use the segmentation labels at the click location to refine the location of the clicked cell, get it's height, width and depth that we use to create the training label.
 
 Using a [custom training data creating script](https://github.com/Kapoorlabs-CAPED/Mari_Scripts_Server/blob/main/create_volumetric_training_patches.py) The training data consists of 1 timeframe before and after the division/mitosis splitting of the cell, 4 Z planes before and 4 Z planes after the click Z location and 32 pixels in XY around the click location in X and Y. In this fashion the non-mitotic and mitotic cells are always in the center, spatially and temporally making the task of learning easier. The shape of the training data TZYX hence is (3,8,64,64) and the training label consists of class label + 0.5,0.5,0.5,0.5,Height,Width,Depth,confidence. The 0.5 signifies the spatial and temporal centering of the cell. 
 
-### Program to create the training data
-
 ### ResNet and DenseNet based VollNet and DenseVollNet architectures
 
+After the training data is saved as an npz file, the training can be done using a Resnet or a Densenet architecture based network. We see a better performance using    architecture. See the [Resnet implementation](https://github.com/Kapoorlabs-CAPED/caped-ai-oneat/blob/b776d98ef76fe77f17f353d045a8cf17c2f86e50/src/oneat/NEATModels/nets.py#L201-L336), see the [Densnet implementation](https://github.com/Kapoorlabs-CAPED/caped-ai-oneat/blob/b776d98ef76fe77f17f353d045a8cf17c2f86e50/src/oneat/NEATModels/nets.py#L340-L430). We have fully convolutional implementation of both these architectures, hence the training can be done on the data of our chosen size and shape but at the prediction stage we benifit from convolutionalization of the sliding window operation where the network finds the location of the mitotic cells using the indices that the prediction function provides to map the predictions to their proper spatial and temporal locations in the input data of arbitrary size/shape.
 
 ### Program to train the model on a GPU based machine
 
