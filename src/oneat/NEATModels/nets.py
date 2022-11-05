@@ -8,6 +8,7 @@ from keras.layers import (
     Conv3D,
     ConvLSTM1D,
     ConvLSTM2D,
+    concatenate
 )
 from keras.layers.core import Lambda
 
@@ -65,7 +66,7 @@ def LRNet(
     last_conv_factor = 2 ** (stage_number - 1)
     return_sequences = True
     # v2 performs Conv2D with BN-ReLU on input before splitting into 2 paths
-    x = resnet_3d_lstm_layer(
+    x = _resnet_3d_lstm_layer(
         inputs=img_input,
         num_filters=num_filters_in,
         return_sequences=return_sequences,
@@ -90,8 +91,7 @@ def LRNet(
                 if res_block == 0:  # not first layer and not first stage
                     strides = 2  # downsample
 
-            # bottleneck residual unit
-            y = resnet_3d_lstm_layer(
+            y = _resnet_3d_lstm_layer(
                 inputs=x,
                 num_filters=num_filters_in,
                 kernel_size=1,
@@ -101,14 +101,14 @@ def LRNet(
                 batch_normalization=batch_normalization,
                 conv_first=False,
             )
-            y = resnet_3d_lstm_layer(
+            y = _resnet_3d_lstm_layer(
                 inputs=y,
                 num_filters=num_filters_in,
                 kernel_size=mid_kernel,
                 return_sequences=return_sequences,
                 conv_first=False,
             )
-            y = resnet_3d_lstm_layer(
+            y = _resnet_3d_lstm_layer(
                 inputs=y,
                 num_filters=num_filters_out,
                 kernel_size=1,
@@ -120,7 +120,7 @@ def LRNet(
                 # linear projection residual shortcut connection to match
                 # changed dims
 
-                x = resnet_3d_lstm_layer(
+                x = _resnet_3d_lstm_layer(
                     inputs=x,
                     num_filters=num_filters_out,
                     kernel_size=1,
@@ -135,7 +135,7 @@ def LRNet(
 
     # Add classifier on top.
     # v2 has BN-ReLU before Pooling
-    x = resnet_3d_lstm_layer(
+    x = _resnet_3d_lstm_layer(
         inputs=x,
         num_filters=num_filters_out,
         kernel_size=mid_kernel,
@@ -243,7 +243,6 @@ def VollNet(
                 if res_block == 0:  # not first layer and not first stage
                     strides = 2  # downsample
 
-            # bottleneck residual unit
             y = resnet_3D_layer(
                 inputs=x,
                 num_filters=num_filters_in,
@@ -335,99 +334,212 @@ def VollNet(
 
     return model
 
-
-
 def DenseVollNet(
-    input_shape,
-    categories,
-    box_vector,
-    nboxes=1,
-    depth=[6, 12, 24, 16],
-    start_kernel=7,
-    mid_kernel=3,
-    startfilter=32,
-    stage_number = 4,
-    input_weights=None,
-    last_activation="softmax",
+                input_shape,
+                categories,
+                box_vector,
+                nboxes=1,
+                start_kernel=7,
+                mid_kernel=3,
+                startfilter=32,
+                stage_number = 3,
+                input_weights=None,
+                last_activation="softmax",
+                depth=40,
+                growth_rate=12,
+                nb_filter=-1,
+                nb_layers_per_block=-1,
+                reduction = 0.5,
+                weight_decay=1e-4
 ):
+    
+    
+        # layers in each dense block
+        if type(nb_layers_per_block) is list or type(nb_layers_per_block) is tuple:
+            nb_layers = list(nb_layers_per_block)  # Convert tuple to list
 
-    last_conv_factor = 2 ** (stage_number - 1) 
-    print(input_shape, input_shape[0], input_shape[1], input_shape[2], input_shape[3])
-    img_input = layers.Input(shape=(None, None, None, input_shape[3]))
-    bn_axis = -1
-    num_filters_in = startfilter
-    x = densenet_3D_layer( 
-        inputs=img_input,
-        num_filters=num_filters_in,
-        kernel_size=start_kernel,
-        strides = 1)
-    # Start model definition.
-    
-    x = dense_block(x, depth[0], name="conv2")
-    x = transition_block(x, 0.5, name="pool2")
-    
-    x = dense_block(x, depth[1], name="conv3")
-    x = transition_block(x, 0.5, name="pool3")
-    
-    x = dense_block(x, depth[2], name="conv4")
-    x = transition_block(x, 0.5, name="pool4")
-    
-    x = dense_block(x, depth[3], name="conv5")
+            if len(nb_layers) != stage_number:
+                raise ValueError('If `stage_number` is a list, its length must match '
+                                 'the number of layers provided by `nb_layers`.')
 
-    x = layers.BatchNormalization(axis=bn_axis, epsilon=1.001e-5, name="bn")(x)
-    x = layers.Activation("relu", name="relu")(x)
-    x = (
-        Conv3D(
-            categories + nboxes * box_vector,
-            kernel_size=mid_kernel,
-            kernel_regularizer=regularizers.l2(reg_weight),
-            padding="same",
-        )
+            final_nb_layer = nb_layers[-1]
+            nb_layers = nb_layers[:-1]
+        else:
+            if nb_layers_per_block == -1:
+                assert (depth - 4) % 3 == 0, ('Depth must be 3 N + 4 '
+                                              'if nb_layers_per_block == -1')
+                count = int((depth - 4) / 3)
+
+               
+
+                nb_layers = [count for _ in range(stage_number)]
+                final_nb_layer = count
+            else:
+                final_nb_layer = nb_layers_per_block
+                nb_layers = [nb_layers_per_block] * stage_number
+    
+            if nb_filter <= 0:
+                nb_filter = 2 * growth_rate
+        last_conv_factor = 2 ** (stage_number - 1) 
+        print(input_shape, input_shape[0], input_shape[1], input_shape[2], input_shape[3])
+        img_input = layers.Input(shape=(None, None, None, input_shape[3]))
+        bn_axis = -1
+        num_filters_in = startfilter
+        
+        x = densenet_3D_layer( 
+            inputs=img_input,
+            num_filters=num_filters_in,
+            kernel_size=start_kernel,
+            strides = 1)
+        
+         # Add dense blocks
+        for block_idx in range(stage_number - 1):
+            x, nb_filter = __dense_block(x, nb_layers[block_idx], nb_filter,
+                                         growth_rate, kernel_size = mid_kernel,
+                                         weight_decay=weight_decay,
+                                         block_prefix='dense_%i' % block_idx)
+            # add transition_block
+            x = __transition_block(x, nb_filter, reduction=reduction,
+                                   weight_decay=weight_decay,
+                                   block_prefix='tr_%i' % block_idx)
+            nb_filter = int(nb_filter * reduction)
+
+        # The last dense_block does not have a transition_block
+        x, nb_filter = __dense_block(x, final_nb_layer, nb_filter, growth_rate, kernel_size = mid_kernel,
+                                     weight_decay=weight_decay,
+                                     block_prefix='dense_%i' % (stage_number - 1))
+
+        x = BatchNormalization(axis=bn_axis, epsilon=1.1e-5, name='final_bn')(x)
+        x = Activation('relu')(x)
+        
+        input_cat = Lambda(lambda x: x[:, :, :, :, 0:categories])(x)
+        input_box = Lambda(lambda x: x[:, :, :, :, categories:])(x)
+        output_cat = (
+            Conv3D(
+                categories,
+                (
+                    round(input_shape[0]/ last_conv_factor ),
+                    round(input_shape[1] / last_conv_factor),
+                    round(input_shape[2] / last_conv_factor),
+                ),
+                activation=last_activation,
+                kernel_regularizer=regularizers.l2(reg_weight),
+                padding="valid",
+                name="yolo",
+            )
+        )(input_cat)
+        output_box = (
+            Conv3D(
+                nboxes * (box_vector),
+                (
+                    round(input_shape[0] / last_conv_factor),
+                    round(input_shape[1] / last_conv_factor),
+                    round(input_shape[2] / last_conv_factor),
+                ),
+                activation="sigmoid",
+                kernel_regularizer=regularizers.l2(reg_weight),
+                padding="valid",
+                name="secyolo",
+            )
+        )(input_box)
+
+        block = Concat(-1)
+        outputs = block([output_cat, output_box])
+        inputs = img_input
+        # Create model.
+        model = models.Model(inputs, outputs)
+
+        if input_weights is not None:
+
+            model.load_weights(input_weights, by_name=True)
+
+        return model
+        
+def __dense_block(x, nb_layers, nb_filter, growth_rate, kernel_size = 3,
+                  weight_decay=1e-4, grow_nb_filters=True,
+                  return_concat_list=False, block_prefix=None):
+
+        concat_axis =  -1
+
+        x_list = [x]
+
+        for i in range(nb_layers):
+            cb = __conv_block(x, growth_rate,kernel_size, weight_decay,
+                              block_prefix=name_or_none(block_prefix, '_%i' % i))
+            x_list.append(cb)
+            block = Concat(concat_axis, name = 'concat_' + name_or_none(block_prefix, '_%i' % i) )
+            x = block([x, cb])
+
+            if grow_nb_filters:
+                nb_filter += growth_rate
+
+        if return_concat_list:
+            return x, nb_filter, x_list
+        else:
+            return x, nb_filter
+
+
+def __conv_block(ip, nb_filter,  kernel_size = 3,
+                  block_prefix=None):
+   
+    concat_axis =  -1
+
+    x = BatchNormalization(axis=concat_axis, epsilon=1.1e-5,
+                               name=name_or_none(block_prefix, '_bn'))(ip)
+    x = Activation('relu')(x)
+
+
+    x = Conv3D(nb_filter, kernel_size, kernel_initializer='he_normal', padding='same',
+                   use_bias=False, name=name_or_none(block_prefix, '_Conv3D'))(x)
+       
+
+    return x
+
+def __transition_block(ip, nb_filter, reduction=0.5, weight_decay=1e-4,
+                       block_prefix=None):
+    
+        concat_axis = -1
+
+        x = BatchNormalization(axis=concat_axis, epsilon=1.1e-5,
+                               name=name_or_none(block_prefix, '_bn'))(ip)
+        x = Activation('relu')(x)
+        x = Conv3D(int(nb_filter * reduction), (1, 1, 1), kernel_initializer='he_normal',
+                   padding='same', use_bias=False, kernel_regularizer=regularizers.l2(weight_decay),
+                   name=name_or_none(block_prefix, '_Conv3D'))(x)
+        x = layers.MaxPooling3D((2, 2, 2), strides=(2, 2, 2))(x)
+
+        return x
+    
+def name_or_none(prefix, name):
+    return prefix + name if (prefix is not None and name is not None) else None
+
+
+def densenet_3D_layer(
+    inputs,
+    num_filters = 64,
+    kernel_size = 3,
+    strides = 1,
+    activation='relu',
+   
+):
+    
+    x = inputs
+    x = layers.Conv3D(
+        num_filters,
+        kernel_size=kernel_size,
+        strides= strides,
+        padding="same",
+        kernel_initializer="he_normal",
+        kernel_regularizer=regularizers.l2(1e-4),
+    )(inputs)
+    x = layers.BatchNormalization(
+        axis= -1, epsilon=1.001e-5, name="conv1/bn"
     )(x)
-    x = BatchNormalization()(x)
-    x = Activation("relu")(x)
-    input_cat = Lambda(lambda x: x[:, :, :, :, 0:categories])(x)
-    input_box = Lambda(lambda x: x[:, :, :, :, categories:])(x)
-    output_cat = (
-        Conv3D(
-            categories,
-            (
-                round(input_shape[0] ),
-                round(input_shape[1] / last_conv_factor),
-                round(input_shape[2] / last_conv_factor),
-            ),
-            activation=last_activation,
-            kernel_regularizer=regularizers.l2(reg_weight),
-            padding="valid",
-            name="yolo",
-        )
-    )(input_cat)
-    output_box = (
-        Conv3D(
-            nboxes * (box_vector),
-            (
-                round(input_shape[0] ),
-                round(input_shape[1] / last_conv_factor),
-                round(input_shape[2] / last_conv_factor),
-            ),
-            activation="sigmoid",
-            kernel_regularizer=regularizers.l2(reg_weight),
-            padding="valid",
-            name="secyolo",
-        )
-    )(input_box)
+    x = layers.Activation(activation, name="conv1activation")(x)
+    
+    return x        
+        
 
-    block = Concat(-1)
-    outputs = block([output_cat, output_box])
-    inputs = img_input
-    # Create model.
-    model = models.Model(inputs, outputs)
-
-    if input_weights is not None:
-
-        model.load_weights(input_weights, by_name=True)
-
-    return model
 
 
 
@@ -444,27 +556,7 @@ def resnet_lstm_v2(
     input_weights=None,
     last_activation="softmax",
 ):
-    """ResNet Version 2 Model builder [b]
-    Stacks of (1 x 1)-(3 x 3)-(1 x 1) BN-ReLU-Conv2D or also known as
-    bottleneck layer
-    First shortcut connection per layer is 1 x 1 Conv2D.
-    Second and onwards shortcut connection is identity.
-    At the beginning of each stage, the feature map size is halved (downsampled)
-    by a convolutional layer with strides=2, while the number of filter maps is
-    doubled. Within each stage, the layers have the same number filters and the
-    same filter map sizes.
-    Features maps sizes:
-    conv1  : 32x32,  16
-    stage 0: 32x32,  64
-    stage 1: 16x16, 128
-    stage 2:  8x8,  256
-    # Arguments
-        input_shape (tensor): shape of input image tensor
-        depth (int): number of core convolutional layers
-        num_classes (int): number of classes (CIFAR10 has 10)
-    # Returns
-        model (Model): Keras model instance
-    """
+   
 
     last_conv_factor = 2 ** (stage_number - 1)
     img_input = layers.Input(
@@ -477,7 +569,7 @@ def resnet_lstm_v2(
     num_res_blocks = int((depth - 2) / 9)
     return_sequences = True
     # v2 performs Conv2D with BN-ReLU on input before splitting into 2 paths
-    x = resnet_lstm_layer(
+    x = _resnet_lstm_layer(
         inputs=img_input,
         num_filters=num_filters_in,
         kernel_size=start_kernel,
@@ -502,8 +594,7 @@ def resnet_lstm_v2(
                 if res_block == 0:  # not first layer and not first stage
                     strides = 2  # downsample
 
-            # bottleneck residual unit
-            y = resnet_lstm_layer(
+            y = _resnet_lstm_layer(
                 inputs=x,
                 num_filters=num_filters_in,
                 kernel_size=1,
@@ -513,14 +604,14 @@ def resnet_lstm_v2(
                 return_sequences=return_sequences,
                 conv_first=False,
             )
-            y = resnet_lstm_layer(
+            y = _resnet_lstm_layer(
                 inputs=y,
                 num_filters=num_filters_in,
                 return_sequences=return_sequences,
                 kernel_size=mid_kernel,
                 conv_first=False,
             )
-            y = resnet_lstm_layer(
+            y = _resnet_lstm_layer(
                 inputs=y,
                 num_filters=num_filters_out,
                 return_sequences=return_sequences,
@@ -531,7 +622,7 @@ def resnet_lstm_v2(
                 # linear projection residual shortcut connection to match
                 # changed dims
 
-                x = resnet_lstm_layer(
+                x = _resnet_lstm_layer(
                     inputs=x,
                     num_filters=num_filters_out,
                     kernel_size=1,
@@ -547,7 +638,7 @@ def resnet_lstm_v2(
 
     # Add classifier on top.
     # v2 has BN-ReLU before Pooling
-    x = resnet_lstm_layer(
+    x = _resnet_lstm_layer(
         inputs=x,
         num_filters=num_filters_out,
         kernel_size=mid_kernel,
@@ -620,27 +711,7 @@ def resnet_v2(
     input_weights=None,
     last_activation="softmax",
 ):
-    """ResNet Version 2 Model builder [b]
-    Stacks of (1 x 1)-(3 x 3)-(1 x 1) BN-ReLU-Conv2D or also known as
-    bottleneck layer
-    First shortcut connection per layer is 1 x 1 Conv2D.
-    Second and onwards shortcut connection is identity.
-    At the beginning of each stage, the feature map size is halved (downsampled)
-    by a convolutional layer with strides=2, while the number of filter maps is
-    doubled. Within each stage, the layers have the same number filters and the
-    same filter map sizes.
-    Features maps sizes:
-    conv1  : 32x32,  16
-    stage 0: 32x32,  64
-    stage 1: 16x16, 128
-    stage 2:  8x8,  256
-    # Arguments
-        input_shape (tensor): shape of input image tensor
-        depth (int): number of core convolutional layers
-        num_classes (int): number of classes (CIFAR10 has 10)
-    # Returns
-        model (Model): Keras model instance
-    """
+   
 
     last_conv_factor = 2 ** (stage_number - 1)
     img_input = layers.Input(shape=(None, None, input_shape[2]))
@@ -650,7 +721,7 @@ def resnet_v2(
     num_filters_in = startfilter
     num_res_blocks = int((depth - 2) / 9)
     # v2 performs Conv2D with BN-ReLU on input before splitting into 2 paths
-    x = resnet_layer(
+    x = _resnet_layer(
         inputs=img_input,
         num_filters=num_filters_in,
         kernel_size=start_kernel,
@@ -674,8 +745,7 @@ def resnet_v2(
                 if res_block == 0:  # not first layer and not first stage
                     strides = 2  # downsample
 
-            # bottleneck residual unit
-            y = resnet_layer(
+            y = _resnet_layer(
                 inputs=x,
                 num_filters=num_filters_in,
                 kernel_size=1,
@@ -684,13 +754,13 @@ def resnet_v2(
                 batch_normalization=batch_normalization,
                 conv_first=False,
             )
-            y = resnet_layer(
+            y = _resnet_layer(
                 inputs=y,
                 num_filters=num_filters_in,
                 kernel_size=mid_kernel,
                 conv_first=False,
             )
-            y = resnet_layer(
+            y = _resnet_layer(
                 inputs=y,
                 num_filters=num_filters_out,
                 kernel_size=1,
@@ -700,7 +770,7 @@ def resnet_v2(
                 # linear projection residual shortcut connection to match
                 # changed dims
 
-                x = resnet_layer(
+                x = _resnet_layer(
                     inputs=x,
                     num_filters=num_filters_out,
                     kernel_size=1,
@@ -788,7 +858,7 @@ def resnet_1D_regression(
     num_res_blocks = int((depth - 2) / 9)
 
     # v2 performs Conv2D with BN-ReLU on input before splitting into 2 paths
-    x = resnet_layer_1D(
+    x = _resnet_layer_1D(
         inputs=img_input,
         num_filters=num_filters_in,
         kernel_size=start_kernel,
@@ -811,8 +881,7 @@ def resnet_1D_regression(
                 if res_block == 0:  # not first layer and not first stage
                     strides = 2  # downsample
 
-            # bottleneck residual unit
-            y = resnet_layer_1D(
+            y = _resnet_layer_1D(
                 inputs=x,
                 num_filters=num_filters_in,
                 kernel_size=1,
@@ -821,13 +890,13 @@ def resnet_1D_regression(
                 batch_normalization=batch_normalization,
                 conv_first=False,
             )
-            y = resnet_layer_1D(
+            y = _resnet_layer_1D(
                 inputs=y,
                 num_filters=num_filters_in,
                 kernel_size=mid_kernel,
                 conv_first=False,
             )
-            y = resnet_layer_1D(
+            y = _resnet_layer_1D(
                 inputs=y,
                 num_filters=num_filters_out,
                 kernel_size=1,
@@ -836,7 +905,7 @@ def resnet_1D_regression(
             if res_block == 0:
                 # linear projection residual shortcut connection to match
                 # changed dims
-                x = resnet_layer_1D(
+                x = _resnet_layer_1D(
                     inputs=x,
                     num_filters=num_filters_out,
                     kernel_size=1,
@@ -887,27 +956,7 @@ def resnet_v2_class(
     input_weights=None,
     last_activation="softmax",
 ):
-    """ResNet Version 2 Model builder [b]
-    Stacks of (1 x 1)-(3 x 3)-(1 x 1) BN-ReLU-Conv2D or also known as
-    bottleneck layer
-    First shortcut connection per layer is 1 x 1 Conv2D.
-    Second and onwards shortcut connection is identity.
-    At the beginning of each stage, the feature map size is halved (downsampled)
-    by a convolutional layer with strides=2, while the number of filter maps is
-    doubled. Within each stage, the layers have the same number filters and the
-    same filter map sizes.
-    Features maps sizes:
-    conv1  : 32x32,  16
-    stage 0: 32x32,  64
-    stage 1: 16x16, 128
-    stage 2:  8x8,  256
-    # Arguments
-        input_shape (tensor): shape of input image tensor
-        depth (int): number of core convolutional layers
-        num_classes (int): number of classes (CIFAR10 has 10)
-    # Returns
-        model (Model): Keras model instance
-    """
+    
 
     last_conv_factor = 2 ** (stage_number - 1)
     img_input = layers.Input(shape=(None, None, input_shape[2]))
@@ -918,7 +967,7 @@ def resnet_v2_class(
     num_res_blocks = int((depth - 2) / 9)
 
     # v2 performs Conv2D with BN-ReLU on input before splitting into 2 paths
-    x = resnet_layer(
+    x = _resnet_layer(
         inputs=img_input,
         num_filters=num_filters_in,
         kernel_size=start_kernel,
@@ -941,8 +990,7 @@ def resnet_v2_class(
                 if res_block == 0:  # not first layer and not first stage
                     strides = 2  # downsample
 
-            # bottleneck residual unit
-            y = resnet_layer(
+            y = _resnet_layer(
                 inputs=x,
                 num_filters=num_filters_in,
                 kernel_size=1,
@@ -951,13 +999,13 @@ def resnet_v2_class(
                 batch_normalization=batch_normalization,
                 conv_first=False,
             )
-            y = resnet_layer(
+            y = _resnet_layer(
                 inputs=y,
                 num_filters=num_filters_in,
                 kernel_size=mid_kernel,
                 conv_first=False,
             )
-            y = resnet_layer(
+            y = _resnet_layer(
                 inputs=y,
                 num_filters=num_filters_out,
                 kernel_size=1,
@@ -966,7 +1014,7 @@ def resnet_v2_class(
             if res_block == 0:
                 # linear projection residual shortcut connection to match
                 # changed dims
-                x = resnet_layer(
+                x = _resnet_layer(
                     inputs=x,
                     num_filters=num_filters_out,
                     kernel_size=1,
@@ -1027,27 +1075,7 @@ def resnet_lstm_v2_class(
     input_weights=None,
     last_activation="softmax",
 ):
-    """ResNet Version 2 Model builder [b]
-    Stacks of (1 x 1)-(3 x 3)-(1 x 1) BN-ReLU-Conv2D or also known as
-    bottleneck layer
-    First shortcut connection per layer is 1 x 1 Conv2D.
-    Second and onwards shortcut connection is identity.
-    At the beginning of each stage, the feature map size is halved (downsampled)
-    by a convolutional layer with strides=2, while the number of filter maps is
-    doubled. Within each stage, the layers have the same number filters and the
-    same filter map sizes.
-    Features maps sizes:
-    conv1  : 32x32,  16
-    stage 0: 32x32,  64
-    stage 1: 16x16, 128
-    stage 2:  8x8,  256
-    # Arguments
-        input_shape (tensor): shape of input image tensor
-        depth (int): number of core convolutional layers
-        num_classes (int): number of classes (CIFAR10 has 10)
-    # Returns
-        model (Model): Keras model instance
-    """
+   
 
     last_conv_factor = 2 ** (stage_number - 1)
     img_input = layers.Input(shape=(None, None, input_shape[2]))
@@ -1058,7 +1086,7 @@ def resnet_lstm_v2_class(
     num_res_blocks = int((depth - 2) / 9)
 
     # v2 performs Conv2D with BN-ReLU on input before splitting into 2 paths
-    x = resnet_lstm_layer(
+    x = _resnet_lstm_layer(
         inputs=img_input,
         num_filters=num_filters_in,
         kernel_size=start_kernel,
@@ -1081,8 +1109,7 @@ def resnet_lstm_v2_class(
                 if res_block == 0:  # not first layer and not first stage
                     strides = 2  # downsample
 
-            # bottleneck residual unit
-            y = resnet_lstm_layer(
+            y = _resnet_lstm_layer(
                 inputs=x,
                 num_filters=num_filters_in,
                 kernel_size=1,
@@ -1091,13 +1118,13 @@ def resnet_lstm_v2_class(
                 batch_normalization=batch_normalization,
                 conv_first=False,
             )
-            y = resnet_lstm_layer(
+            y = _resnet_lstm_layer(
                 inputs=y,
                 num_filters=num_filters_in,
                 kernel_size=mid_kernel,
                 conv_first=False,
             )
-            y = resnet_lstm_layer(
+            y = _resnet_lstm_layer(
                 inputs=y,
                 num_filters=num_filters_out,
                 kernel_size=1,
@@ -1106,7 +1133,7 @@ def resnet_lstm_v2_class(
             if res_block == 0:
                 # linear projection residual shortcut connection to match
                 # changed dims
-                x = resnet_lstm_layer(
+                x = _resnet_lstm_layer(
                     inputs=x,
                     num_filters=num_filters_out,
                     kernel_size=1,
@@ -1122,7 +1149,7 @@ def resnet_lstm_v2_class(
     # Add classifier on top.
     # v2 has BN-ReLU before Pooling
 
-    x = resnet_lstm_layer(
+    x = _resnet_lstm_layer(
         inputs=x,
         num_filters=num_filters_out,
         kernel_size=mid_kernel,
@@ -1165,7 +1192,7 @@ def resnet_lstm_v2_class(
     return model
 
 
-def resnet_3d_lstm_layer(
+def _resnet_3d_lstm_layer(
     inputs,
     num_filters=64,
     kernel_size=3,
@@ -1201,7 +1228,7 @@ def resnet_3d_lstm_layer(
     return x
 
 
-def resnet_lstm_layer(
+def _resnet_lstm_layer(
     inputs,
     num_filters=64,
     kernel_size=3,
@@ -1238,7 +1265,7 @@ def resnet_lstm_layer(
     return x
 
 
-def resnet_layer(
+def _resnet_layer(
     inputs,
     num_filters=64,
     kernel_size=3,
@@ -1285,7 +1312,7 @@ def resnet_layer(
     return x
 
 
-def resnet_layer_1D(
+def _resnet_layer_1D(
     inputs,
     num_filters=64,
     kernel_size=3,
@@ -1331,97 +1358,7 @@ def resnet_layer_1D(
         x = conv(x)
     return x
 
-def dense_block(x, blocks, name):
-    """A dense block.
-    Args:
-      x: input tensor.
-      blocks: integer, the number of building blocks.
-      name: string, block label.
-    Returns:
-      Output tensor for the block.
-    """
-    for i in range(blocks):
-        x = dense_conv_block(x, 32, name=name + "_block" + str(i + 1))
-    return x
 
-
-def transition_block(x, reduction, name):
-    """A transition block.
-    Args:
-      x: input tensor.
-      reduction: float, compression rate at transition layers.
-      name: string, block label.
-    Returns:
-      output tensor for the block.
-    """
-    bn_axis = -1 
-    x = layers.BatchNormalization(
-        axis=bn_axis, epsilon=1.001e-5, name=name + "_bn"
-    )(x)
-    x = layers.Activation("relu", name=name + "_relu")(x)
-    x = layers.Conv3D(
-        int(backend.int_shape(x)[bn_axis] * reduction),
-        1,
-        use_bias=False, padding = 'same',
-        name=name + "_conv"
-    )(x)
-    x = layers.AveragePooling3D(2, strides= (1,2,2), name=name + "_pool", padding = 'same')(x)
-    return x
-
-
-def dense_conv_block(x, growth_rate, name):
-    """A building block for a dense block.
-    Args:
-      x: input tensor.
-      growth_rate: float, growth rate at dense layers.
-      name: string, block label.
-    Returns:
-      Output tensor for the block.
-    """
-    bn_axis = -1 
-    x1 = layers.BatchNormalization(
-        axis=bn_axis, epsilon=1.001e-5, name=name + "_0_bn"
-    )(x)
-    x1 = layers.Activation("relu", name=name + "_0_relu")(x1)
-    x1 = layers.Conv3D(
-        4 * growth_rate, 1, use_bias=False, name=name + "_1_conv", padding = 'same'
-    )(x1)
-    x1 = layers.BatchNormalization(
-        axis=bn_axis, epsilon=1.001e-5, name=name + "_1_bn"
-    )(x1)
-    x1 = layers.Activation("relu", name=name + "_1_relu")(x1)
-    x1 = layers.Conv3D(
-        growth_rate, 3, use_bias=False, name=name + "_2_conv",padding = 'same'
-    )(x1)
-    x = layers.Concatenate(axis=bn_axis, name=name + "_concat")([x, x1])
-    return x
-
-
-
-def densenet_3D_layer(
-    inputs,
-    num_filters = 64,
-    kernel_size = 3,
-    strides = 1,
-    activation='relu',
-   
-):
-    
-    x = inputs
-    x = layers.Conv3D(
-        num_filters,
-        kernel_size=kernel_size,
-        strides= (1, strides, strides),
-        padding="same",
-        kernel_initializer="he_normal",
-        kernel_regularizer=regularizers.l2(1e-4),
-    )(inputs)
-    x = layers.BatchNormalization(
-        axis= -1, epsilon=1.001e-5, name="conv1/bn"
-    )(x)
-    x = layers.Activation(activation, name="conv1activation")(x)
-    
-    return x
 
 
 
@@ -1451,7 +1388,7 @@ def resnet_3D_layer(
     conv = Conv3D(
         num_filters,
         kernel_size=kernel_size,
-        strides=(1, strides, strides),
+        strides= strides,
         padding="same",
         kernel_initializer="he_normal",
         kernel_regularizer=regularizers.l2(1e-4),
