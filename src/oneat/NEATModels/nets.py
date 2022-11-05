@@ -401,13 +401,13 @@ def DenseVollNet(
             # add transition_block
             x = __transition_block(x, nb_filter, reduction=reduction,
                                    weight_decay=weight_decay,
-                                   block_prefix='tr_%i' % block_idx)
+                                   prefix='tr_%i' % block_idx)
             nb_filter = int(nb_filter * reduction)
 
         # The last dense_block does not have a transition_block
         x, nb_filter = __dense_block(x, final_nb_layer, nb_filter, growth_rate, kernel_size = mid_kernel,
                                      weight_decay=weight_decay,
-                                     block_prefix='dense_%i' % (stage_number - 1))
+                                     prefix='dense_%i' % (stage_number - 1))
 
         x = BatchNormalization(axis=bn_axis, epsilon=1.1e-5, name='final_bn')(x)
         x = Activation('relu')(x)
@@ -457,7 +457,7 @@ def DenseVollNet(
         
 def __dense_block(x, nb_layers, nb_filter, growth_rate, kernel_size = 3,
                   weight_decay=1e-4, grow_nb_filters=True,
-                  return_concat_list=False, block_prefix=None):
+                  return_concat_list=False, prefix=None):
 
         concat_axis =  -1
 
@@ -465,9 +465,9 @@ def __dense_block(x, nb_layers, nb_filter, growth_rate, kernel_size = 3,
 
         for i in range(nb_layers):
             cb = __conv_block(x, growth_rate,kernel_size, weight_decay,
-                              block_prefix=name_or_none(block_prefix, '_%i' % i))
+                              block_prefix=name_or_none(prefix, '_%i' % i))
             x_list.append(cb)
-            block = Concat(concat_axis, name = 'concat_' + name_or_none(block_prefix, '_%i' % i) )
+            block = Concat(concat_axis, name = 'concat_' + name_or_none(prefix, '_%i' % i) )
             x = block([x, cb])
 
             if grow_nb_filters:
@@ -496,16 +496,16 @@ def __conv_block(ip, nb_filter,  kernel_size = 3,
     return x
 
 def __transition_block(ip, nb_filter, reduction=0.5, weight_decay=1e-4,
-                       block_prefix=None):
+                       prefix=None):
     
         concat_axis = -1
 
         x = BatchNormalization(axis=concat_axis, epsilon=1.1e-5,
-                               name=name_or_none(block_prefix, '_bn'))(ip)
+                               name=name_or_none(prefix, '_bn'))(ip)
         x = Activation('relu')(x)
         x = Conv3D(int(nb_filter * reduction), (1, 1, 1), kernel_initializer='he_normal',
                    padding='same', use_bias=False, kernel_regularizer=regularizers.l2(weight_decay),
-                   name=name_or_none(block_prefix, '_Conv3D'))(x)
+                   name=name_or_none(prefix, '_Conv3D'))(x)
         x = layers.MaxPooling3D((2, 2, 2), strides=(2, 2, 2))(x)
 
         return x
