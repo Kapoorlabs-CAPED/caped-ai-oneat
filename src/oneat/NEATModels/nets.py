@@ -397,7 +397,7 @@ def DenseVollNet(
             x, nb_filter = __dense_block(x, nb_layers[block_idx], nb_filter,
                                          growth_rate, kernel_size = mid_kernel,
                                          weight_decay=weight_decay,
-                                         block_prefix='dense_%i' % block_idx)
+                                         prefix='dense_%i' % block_idx)
             # add transition_block
             x = __transition_block(x, nb_filter, reduction=reduction,
                                    weight_decay=weight_decay,
