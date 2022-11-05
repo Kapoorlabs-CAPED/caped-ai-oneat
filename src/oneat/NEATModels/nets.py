@@ -16,17 +16,16 @@ reg_weight = 1.0e-4
 
 
 class Concat(layers.Layer):
-    def __init__(self, axis=-1, name="Concat", **kwargs):
+    def __init__(self, axis=-1):
 
         self.axis = axis
-        super().__init__(name=name)
+        super().__init__()
 
     def get_config(self):
         config = super().get_config()
         config.update(
             {
-                "axis": self.axis,
-                "name": self.name,
+                "axis": self.axis
             }
         )
         return config
@@ -463,7 +462,7 @@ def __dense_block(x, nb_layers, nb_filter, growth_rate, kernel_size = 3,
         for i in range(nb_layers):
             cb = __conv_block(x, growth_rate,kernel_size)
             x_list.append(cb)
-            block = Concat(concat_axis, name = 'concat_' + str(i) )
+            block = Concat(concat_axis)
             x = block([x, cb])
 
             if grow_nb_filters:
