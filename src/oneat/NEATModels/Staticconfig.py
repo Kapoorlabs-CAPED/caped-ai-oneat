@@ -16,10 +16,6 @@ class static_config(argparse.Namespace):
         gridy=1,
         nboxes=1,
         depth=29,
-        depth_dense_0 = 6,
-        depth_dense_1 = 12,
-        depth_dense_2 = 24,
-        depth_dense_3 = 16,
         start_kernel=3,
         mid_kernel=3,
         startfilter=32,
@@ -41,10 +37,7 @@ class static_config(argparse.Namespace):
         self.key_categories = key_categories
         self.key_cord = key_cord
         self.depth = depth
-        self.depth_dense_0 = depth_dense_0
-        self.depth_dense_1 = depth_dense_1
-        self.depth_dense_2 = depth_dense_2
-        self.depth_dense_3 = depth_dense_3
+        
         self.start_kernel = start_kernel
         self.mid_kernel = mid_kernel
         self.startfilter = startfilter
@@ -55,7 +48,6 @@ class static_config(argparse.Namespace):
         self.imagex = imagex
         self.imagey = imagey
         self.epochs = epochs
-
         self.stage_number = stage_number
         self.last_conv_factor = 2 ** (self.stage_number - 1)
         self.yolo_v0 = yolo_v0
@@ -128,10 +120,7 @@ class static_config(argparse.Namespace):
         ok["npz_val_name"] = isinstance(self.npz_val_name, str)
         ok["yolo_v0"] = isinstance(self.yolo_v0, bool)
         ok["depth"] = _is_int(self.depth, 1)
-        ok["depth_dense_0"] = _is_int(self.depth_dense_0, 1)
-        ok["depth_dense_1"] = _is_int(self.depth_dense_1, 1)
-        ok["depth_dense_2"] = _is_int(self.depth_dense_2, 1)
-        ok["depth_dense_3"] = _is_int(self.depth_dense_3, 1)
+       
         ok["start_kernel"] = _is_int(self.start_kernel, 1)
         ok["mid_kernel"] = _is_int(self.mid_kernel, 1)
         ok["startfilter"] = _is_int(self.startfilter, 1)
