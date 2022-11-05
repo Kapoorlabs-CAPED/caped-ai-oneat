@@ -83,10 +83,7 @@ class NEATDenseVollNet:
             self.key_cord = config.key_cord
             self.box_vector = len(config.key_cord)
             self.categories = len(config.key_categories)
-            self.depth_dense_0 = config.depth_dense_0
-            self.depth_dense_1 = config.depth_dense_1
-            self.depth_dense_2 = config.depth_dense_2
-            self.depth_dense_3 = config.depth_dense_3
+            self.depth = config.depth
             self.start_kernel = config.start_kernel
             self.mid_kernel = config.mid_kernel
             self.learning_rate = config.learning_rate
@@ -100,7 +97,11 @@ class NEATDenseVollNet:
             self.imaget = config.size_tminus + config.size_tplus + 1
             self.size_tminus = config.size_tminus
             self.size_tplus = config.size_tplus
-
+            self.growth_rate= config.growth_rate
+            self.nb_filter= config.nb_filter
+            self.nb_layers_per_block= config.nb_layers_per_block
+            self.reduction = config.reduction
+            self.weight_decay= config.weight_decay
             self.nboxes = config.nboxes
             self.gridx = 1
             self.gridy = 1
@@ -123,10 +124,11 @@ class NEATDenseVollNet:
             self.show = self.config["show"]
 
             self.depth = self.config["depth"]
-            self.depth_dense_0 = self.config["depth_dense_0"]
-            self.depth_dense_1 = self.config["depth_dense_1"]
-            self.depth_dense_2 = self.config["depth_dense_2"]
-            self.depth_dense_3 = self.config["depth_dense_3"]
+            self.growth_rate= self.config["growth_rate"]
+            self.nb_filter= self.config["nb_filter"]
+            self.nb_layers_per_block= self.config["nb_layers_per_block"]
+            self.reduction = self.config["reduction"]
+            self.weight_decay= self.config["weight_decay"]
             self.start_kernel = self.config["start_kernel"]
             self.mid_kernel = self.config["mid_kernel"]
             self.learning_rate = self.config["learning_rate"]
@@ -161,7 +163,6 @@ class NEATDenseVollNet:
         self.Trainingmodel = None
         self.Xoriginal = None
         self.Xoriginal_val = None
-        self.depth = [self.depth_dense_0,self.depth_dense_1,self.depth_dense_2,self.depth_dense_3]
         self.model_keras = nets.DenseVollNet
 
         if self.multievent:
@@ -328,6 +329,11 @@ class NEATDenseVollNet:
             startfilter=self.startfilter,
             input_weights=self.model_weights,
             last_activation=self.last_activation,
+            growth_rate=self.growth_rate,
+            nb_filter=self.nb_filter,
+            nb_layers_per_block=self.nb_layers_per_block,
+            reduction = self.reduction,
+            weight_decay= self.weight_decay
         )
 
         sgd = tf.keras.optimizers.Adam(learning_rate=self.learning_rate)
