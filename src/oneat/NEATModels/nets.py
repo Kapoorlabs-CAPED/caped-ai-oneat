@@ -463,7 +463,7 @@ def __dense_block(x, nb_layers, nb_filter, growth_rate, kernel_size = 3,
         for i in range(nb_layers):
             cb = __conv_block(x, growth_rate,kernel_size)
             x_list.append(cb)
-            block = Concat(concat_axis, name = 'concat_' + i )
+            block = Concat(concat_axis, name = 'concat_' + str(i) )
             x = block([x, cb])
 
             if grow_nb_filters:
