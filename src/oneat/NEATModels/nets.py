@@ -379,8 +379,7 @@ class DenseNet:
 
     def bn_relu_conv3d(self, x, output_channels, kernel):
         
-        return self._conv3d(x, output_channels, kernel,
-                            dropout_rate=self.dropout_rate)
+        return self._conv3d(x, output_channels, kernel)
 
     def _conv3d(self, x, output_channels, kernel, padding="same"):
         x = layers.Conv3D(output_channels, kernel, padding=padding, kernel_regularizer=regularizers.l2(reg_weight))(x)
