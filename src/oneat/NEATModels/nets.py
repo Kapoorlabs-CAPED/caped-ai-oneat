@@ -333,16 +333,15 @@ def VollNet(
 
     return model
 class DenseNet:
-    def __init__(self, stage_number, growth_rate, start_kernel = 7, mid_kernel = 3, dropout_rate=0.0, use_bias=True):
+    def __init__(self, stage_number, growth_rate, start_kernel = 7, mid_kernel = 3, dropout_rate=0.0):
         self.stage_number = stage_number
         self.growth_rate = growth_rate
         self.dropout_rate = dropout_rate
-        self.use_bias = use_bias
         self.start_kernel = start_kernel
         self.mid_kernel = mid_kernel
 
-    def __call__(self, x, bottleneck=True, compression=0.5):
-        if (compression != 1.0 and bottleneck) :
+    def __call__(self, x,  compression=0.5):
+        if (compression != 1.0) :
             channels = self.growth_rate * 2
         else:
             channels = 16
@@ -350,7 +349,7 @@ class DenseNet:
         for i, n_blocks in enumerate(self.stage_number):
             if i != 0:
                 x = self.transition_layer(x, compression=compression)
-            x = self.dense_block(x, n_blocks, bottleneck=bottleneck)
+            x = self.dense_block(x, n_blocks)
         x = layers.BatchNormalization()(x)
         x = layers.Activation("relu")(x)
         return x
@@ -361,24 +360,23 @@ class DenseNet:
         
         return x
 
-    def convolution_block(self, x, bottleneck=True):
-        if bottleneck:
-            x = self.bn_relu_conv3d(x, self.growth_rate * 4, 1)
+    def convolution_block(self, x):
+        
         return self.bn_relu_conv3d(x, self.growth_rate, self.mid_kernel)
 
-    def dense_block(self, x, n_blocks, bottleneck=True):
-        for i in range(n_blocks):
-            x = self._dense_block(x, bottleneck=bottleneck)
+    def dense_block(self, x, n_blocks):
+        for _ in range(n_blocks):
+            x = self._dense_block(x)
         return x
 
-    def _dense_block(self, x, bottleneck=True):
-        bypass = self.convolution_block(x, bottleneck=bottleneck)
+    def _dense_block(self, x):
+        bypass = self.convolution_block(x)
         return layers.Concatenate()([x, bypass])
 
     def transition_layer(self, x, compression=0.5):
         output_channels = int(x.shape[-1] * compression)
         x = self.bn_relu_conv3d(x, output_channels, 1)
-        return layers.AveragePooling3D((2, 2, 2))(x)
+        return layers.MaxPooling3D((2, 2, 2))(x)
 
     def bn_relu_conv3d(self, x, output_channels, kernel):
         
@@ -387,8 +385,7 @@ class DenseNet:
 
     def _conv3d(self, x, output_channels, kernel, padding="same",
                 dropout_rate=0.0):
-        x = layers.Conv3D(output_channels, kernel, padding=padding, kernel_regularizer=regularizers.l2(reg_weight),
-                     use_bias=self.use_bias)(x)
+        x = layers.Conv3D(output_channels, kernel, padding=padding, kernel_regularizer=regularizers.l2(reg_weight))(x)
         x = layers.BatchNormalization()(x)
         x = layers.Activation("relu")(x)
         if dropout_rate:
