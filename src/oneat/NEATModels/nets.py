@@ -333,10 +333,9 @@ def VollNet(
 
     return model
 class DenseNet:
-    def __init__(self, stage_number, growth_rate, start_kernel = 7, mid_kernel = 3, dropout_rate=0.0, reduction = 0.5):
+    def __init__(self, stage_number, growth_rate, start_kernel = 7, mid_kernel = 3,reduction = 0.5):
         self.stage_number = stage_number
         self.growth_rate = growth_rate
-        self.dropout_rate = dropout_rate
         self.start_kernel = start_kernel
         self.mid_kernel = mid_kernel
         self.reduction = reduction
@@ -383,13 +382,11 @@ class DenseNet:
         return self._conv3d(x, output_channels, kernel,
                             dropout_rate=self.dropout_rate)
 
-    def _conv3d(self, x, output_channels, kernel, padding="same",
-                dropout_rate=0.0):
+    def _conv3d(self, x, output_channels, kernel, padding="same"):
         x = layers.Conv3D(output_channels, kernel, padding=padding, kernel_regularizer=regularizers.l2(reg_weight))(x)
         x = layers.BatchNormalization()(x)
-        x = layers.Activation("relu")(x)
-        if dropout_rate:
-            x = layers.Dropout(dropout_rate)(x)
+        x = layers.Activation("sigmoid")(x)
+        
         return x
 def DenseVollNet(
                 input_shape,
@@ -403,11 +400,10 @@ def DenseVollNet(
                 input_weights=None,
                 last_activation: str="softmax",
                 depth: int=40,
-                growth_rate: int=12,
+                growth_rate: int=32,
                 nb_filter: int=-1,
-                nb_layers_per_block: dict = {'depth_0': 12, 'depth_1': 24, 'depth_2':16},
-                reduction: float = 0.5,
-                weight_decay: float=1e-4
+                nb_layers_per_block: dict = {'depth_0': 6, 'depth_1': 12, 'depth_2':24},
+                reduction: float = 0.5
 ):
     
     
