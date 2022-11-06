@@ -333,22 +333,23 @@ def VollNet(
 
     return model
 class DenseNet:
-    def __init__(self, stage_number, growth_rate, start_kernel = 7, mid_kernel = 3, dropout_rate=0.0):
+    def __init__(self, stage_number, growth_rate, start_kernel = 7, mid_kernel = 3, dropout_rate=0.0, reduction = 0.5):
         self.stage_number = stage_number
         self.growth_rate = growth_rate
         self.dropout_rate = dropout_rate
         self.start_kernel = start_kernel
         self.mid_kernel = mid_kernel
+        self.reduction = reduction
 
-    def __call__(self, x,  compression=0.5):
-        if (compression != 1.0) :
+    def __call__(self, x):
+        if (self.reduction != 1.0) :
             channels = self.growth_rate * 2
         else:
             channels = 16
         x = self.first_conv3d(x, channels)
         for i, n_blocks in enumerate(self.stage_number):
             if i != 0:
-                x = self.transition_layer(x, compression=compression)
+                x = self.transition_layer(x)
             x = self.dense_block(x, n_blocks)
         x = layers.BatchNormalization()(x)
         x = layers.Activation("relu")(x)
@@ -373,8 +374,8 @@ class DenseNet:
         bypass = self.convolution_block(x)
         return layers.Concatenate()([x, bypass])
 
-    def transition_layer(self, x, compression=0.5):
-        output_channels = int(x.shape[-1] * compression)
+    def transition_layer(self, x):
+        output_channels = int(x.shape[-1] * self.reduction)
         x = self.bn_relu_conv3d(x, output_channels, 1)
         return layers.MaxPooling3D((2, 2, 2))(x)
 
@@ -425,7 +426,7 @@ def DenseVollNet(
         last_conv_factor = 2 ** (stage_number - 1) 
         print(input_shape, input_shape[0], input_shape[1], input_shape[2], input_shape[3])
         img_input = layers.Input(shape=(None, None, None, input_shape[3]))
-        densenet = DenseNet(nb_layers, growth_rate = growth_rate, start_kernel = start_kernel, mid_kernel = mid_kernel)
+        densenet = DenseNet(nb_layers, growth_rate = growth_rate, start_kernel = start_kernel, mid_kernel = mid_kernel, reduction = reduction)
         x = densenet(img_input)
         input_cat = Lambda(lambda x: x[:, :, :, :, 0:categories])(x)
         input_box = Lambda(lambda x: x[:, :, :, :, categories:])(x)
