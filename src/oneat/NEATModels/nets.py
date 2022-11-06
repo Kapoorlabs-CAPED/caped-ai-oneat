@@ -427,8 +427,8 @@ def DenseVollNet(
         last_conv_factor = 2 ** (stage_number - 1) 
         print(input_shape, input_shape[0], input_shape[1], input_shape[2], input_shape[3])
         img_input = layers.Input(shape=(None, None, None, input_shape[3]))
-        x = DenseNet(img_input, nb_layers, growth_rate = growth_rate, start_kernel = start_kernel, mid_kernel = mid_kernel)
-        
+        densenet = DenseNet(nb_layers, growth_rate = growth_rate, start_kernel = start_kernel, mid_kernel = mid_kernel)
+        x = densenet(img_input)
         input_cat = Lambda(lambda x: x[:, :, :, :, 0:categories])(x)
         input_box = Lambda(lambda x: x[:, :, :, :, categories:])(x)
         output_cat = (
