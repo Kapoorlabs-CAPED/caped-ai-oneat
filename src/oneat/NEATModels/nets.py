@@ -387,7 +387,7 @@ class DenseNet:
 
     def _conv3d(self, x, output_channels, kernel, padding="same",
                 dropout_rate=0.0):
-        x = layers.Conv3D(output_channels, kernel, padding=padding,
+        x = layers.Conv3D(output_channels, kernel, padding=padding, kernel_regularizer=regularizers.l2(reg_weight),
                      use_bias=self.use_bias)(x)
         x = layers.BatchNormalization()(x)
         x = layers.Activation("relu")(x)
