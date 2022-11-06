@@ -356,15 +356,15 @@ class DenseNet:
         return layers.GlobalAveragePooling2D()(x)
 
     def first_conv3d(self, x, channels):
-        kernel_size = (self.start_kernel, self.start_kernel) 
+        kernel_size =  self.start_kernel
         x = self._conv3d(x, channels, kernel_size)
         
         return x
 
     def convolution_block(self, x, bottleneck=True):
         if bottleneck:
-            x = self.bn_relu_conv3d(x, self.growth_rate * 4, (1, 1, 1))
-        return self.bn_relu_conv3d(x, self.growth_rate, (self.mid_kernel, self.mid_kernel))
+            x = self.bn_relu_conv3d(x, self.growth_rate * 4, 1)
+        return self.bn_relu_conv3d(x, self.growth_rate, self.mid_kernel)
 
     def dense_block(self, x, n_blocks, bottleneck=True):
         for i in range(n_blocks):
@@ -377,7 +377,7 @@ class DenseNet:
 
     def transition_layer(self, x, compression=0.5):
         output_channels = int(x.shape[-1] * compression)
-        x = self.bn_relu_conv3d(x, output_channels, (1, 1, 1))
+        x = self.bn_relu_conv3d(x, output_channels, 1)
         return layers.AveragePooling2D((2, 2, 2))(x)
 
     def bn_relu_conv3d(self, x, output_channels, kernel):
