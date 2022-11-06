@@ -189,7 +189,7 @@ class volume_config(argparse.Namespace):
         depth=29,
         growth_rate=12,
         nb_filter=-1,
-        nb_layers_per_block= {'depth': [12, 24, 16]},
+        nb_layers_per_block= {'depth_0': 12, 'depth_1': 24, 'depth_2': 16},
         reduction = 0.5,
         weight_decay=1e-4,
         start_kernel=7,

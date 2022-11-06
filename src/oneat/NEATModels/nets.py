@@ -347,16 +347,17 @@ def DenseVollNet(
                 depth: int=40,
                 growth_rate: int=12,
                 nb_filter: int=-1,
-                nb_layers_per_block: dict = {'depth': [12, 24, 16]},
+                nb_layers_per_block: dict = {'depth_0': 12, 'depth_1': 24, 'depth_2':16},
                 reduction: float = 0.5,
                 weight_decay: float=1e-4
 ):
     
     
         # layers in each dense block
+        nb_layers = []
         if type(nb_layers_per_block) is dict:
             for (k,v) in nb_layers_per_block.items():
-                nb_layers =  v # get the list
+                nb_layers.append(v) # get the list
 
             if len(nb_layers) != stage_number:
                 raise ValueError('If `stage_number` is a list, its length must match '
