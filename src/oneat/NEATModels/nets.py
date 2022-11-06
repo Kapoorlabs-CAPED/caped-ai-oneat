@@ -381,8 +381,7 @@ class DenseNet:
         return layers.AveragePooling3D((2, 2, 2))(x)
 
     def bn_relu_conv3d(self, x, output_channels, kernel):
-        x = layers.BatchNormalization()(x)
-        x =layers.Activation("relu")(x)
+        
         return self._conv3d(x, output_channels, kernel,
                             dropout_rate=self.dropout_rate)
 
@@ -390,6 +389,8 @@ class DenseNet:
                 dropout_rate=0.0):
         x = layers.Conv3D(output_channels, kernel, padding=padding,
                      use_bias=self.use_bias)(x)
+        x = layers.BatchNormalization()(x)
+        x = layers.Activation("relu")(x)
         if dropout_rate:
             x = layers.Dropout(dropout_rate)(x)
         return x
