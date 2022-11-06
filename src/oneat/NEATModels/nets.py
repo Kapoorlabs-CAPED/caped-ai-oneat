@@ -351,8 +351,7 @@ class DenseNet:
             if i != 0:
                 x = self.transition_layer(x)
             x = self.dense_block(x, n_blocks)
-        x = layers.BatchNormalization()(x)
-        x = layers.Activation("relu")(x)
+       
         return x
 
     def first_conv3d(self, x, channels):
