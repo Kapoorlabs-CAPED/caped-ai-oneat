@@ -367,7 +367,7 @@ def calc_loss_class(true_box_class, pred_box_class, entropy):
         )
     if entropy == "notbinary":
         loss_class = K.mean(
-            K.categorical_crossentropy(true_box_class, pred_box_class), axis=-1
+            K.categorical_crossentropy(true_box_class, pred_box_class, label_smoothing=0.0001), axis=-1
         )
 
     loss_class = loss_class * lambdaclass
