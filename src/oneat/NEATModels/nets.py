@@ -335,27 +335,28 @@ def VollNet(
 
 def DenseVollNet(
                 input_shape,
-                categories,
+                categories: dict,
                 box_vector,
-                nboxes=1,
-                start_kernel=7,
-                mid_kernel=3,
-                startfilter=32,
-                stage_number = 3,
+                nboxes: int=1,
+                start_kernel: int=7,
+                mid_kernel: int=3,
+                startfilter: int=32,
+                stage_number: int = 3,
                 input_weights=None,
-                last_activation="softmax",
-                depth=40,
-                growth_rate=12,
-                nb_filter=-1,
-                nb_layers_per_block=-1,
-                reduction = 0.5,
-                weight_decay=1e-4
+                last_activation: str="softmax",
+                depth: int=40,
+                growth_rate: int=12,
+                nb_filter: int=-1,
+                nb_layers_per_block: dict = {'depth': [12, 24, 16]},
+                reduction: float = 0.5,
+                weight_decay: float=1e-4
 ):
     
     
         # layers in each dense block
-        if type(nb_layers_per_block) is list or type(nb_layers_per_block) is tuple:
-            nb_layers = list(nb_layers_per_block)  # Convert tuple to list
+        if type(nb_layers_per_block) is dict:
+            for (k,v) in nb_layers_per_block.items():
+                nb_layers =  v # get the list
 
             if len(nb_layers) != stage_number:
                 raise ValueError('If `stage_number` is a list, its length must match '

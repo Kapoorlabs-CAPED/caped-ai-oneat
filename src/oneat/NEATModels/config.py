@@ -189,7 +189,7 @@ class volume_config(argparse.Namespace):
         depth=29,
         growth_rate=12,
         nb_filter=-1,
-        nb_layers_per_block=-1,
+        nb_layers_per_block= {'depth': [12, 24, 16]},
         reduction = 0.5,
         weight_decay=1e-4,
         start_kernel=7,
@@ -317,7 +317,7 @@ class volume_config(argparse.Namespace):
         ok["depth"] = _is_int(self.depth, 1)
         ok["growth_rate"]= isinstance(self.growth_rate, int)
         ok["nb_filter"]= isinstance(self.nb_filter, int)
-        ok["nb_layers_per_block"]= isinstance(self.nb_layers_per_block, int)
+        ok["nb_layers_per_block"]= isinstance(self.nb_layers_per_block, dict)
         ok["reduction"] = isinstance(self.reduction, float)
         ok["weight_decay"]=isinstance(self.weight_decay, float)
         ok["stride"] = _is_int(self.stride, 1)
