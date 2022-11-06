@@ -332,7 +332,67 @@ def VollNet(
         model.load_weights(input_weights, by_name=True)
 
     return model
+class DenseNet:
+    def __init__(self, stage_number, growth_rate, start_kernel = 7, mid_kernel = 3, dropout_rate=0.0, use_bias=True):
+        self.stage_number = stage_number
+        self.growth_rate = growth_rate
+        self.dropout_rate = dropout_rate
+        self.use_bias = use_bias
+        self.start_kernel = start_kernel
+        self.mid_kernel = mid_kernel
 
+    def __call__(self, x, bottleneck=True, compression=0.5):
+        if (compression != 1.0 and bottleneck) :
+            channels = self.growth_rate * 2
+        else:
+            channels = 16
+        x = self.first_conv3d(x, channels)
+        for i, n_blocks in enumerate(self.stage_number):
+            if i != 0:
+                x = self.transition_layer(x, compression=compression)
+            x = self.dense_block(x, n_blocks, bottleneck=bottleneck)
+        x = layers.BatchNormalization()(x)
+        x = layers.Activation("relu")(x)
+        return layers.GlobalAveragePooling2D()(x)
+
+    def first_conv3d(self, x, channels):
+        kernel_size = (self.start_kernel, self.start_kernel) 
+        x = self._conv3d(x, channels, kernel_size)
+        
+        return x
+
+    def convolution_block(self, x, bottleneck=True):
+        if bottleneck:
+            x = self.bn_relu_conv3d(x, self.growth_rate * 4, (1, 1, 1))
+        return self.bn_relu_conv3d(x, self.growth_rate, (self.mid_kernel, self.mid_kernel))
+
+    def dense_block(self, x, n_blocks, bottleneck=True):
+        for i in range(n_blocks):
+            x = self._dense_block(x, bottleneck=bottleneck)
+        return x
+
+    def _dense_block(self, x, bottleneck=True):
+        bypass = self.convolution_block(x, bottleneck=bottleneck)
+        return layers.Concatenate()([x, bypass])
+
+    def transition_layer(self, x, compression=0.5):
+        output_channels = int(x.shape[-1] * compression)
+        x = self.bn_relu_conv3d(x, output_channels, (1, 1, 1))
+        return layers.AveragePooling2D((2, 2, 2))(x)
+
+    def bn_relu_conv3d(self, x, output_channels, kernel):
+        x = layers.BatchNormalization()(x)
+        x =layers.Activation("relu")(x)
+        return self._conv3d(x, output_channels, kernel,
+                            dropout_rate=self.dropout_rate)
+
+    def _conv3d(self, x, output_channels, kernel, padding="same",
+                dropout_rate=0.0):
+        x = layers.Conv3D(output_channels, kernel, padding=padding,
+                     use_bias=self.use_bias)(x)
+        if dropout_rate:
+            x = layers.Dropout(dropout_rate)(x)
+        return x
 def DenseVollNet(
                 input_shape,
                 categories: dict,
@@ -363,52 +423,11 @@ def DenseVollNet(
                 raise ValueError('If `stage_number` is a list, its length must match '
                                  'the number of layers provided by `nb_layers`.')
 
-            final_nb_layer = nb_layers[-1]
-            nb_layers = nb_layers[:-1]
-        else:
-            if nb_layers_per_block == -1:
-                assert (depth - 4) % 3 == 0, ('Depth must be 3 N + 4 '
-                                              'if nb_layers_per_block == -1')
-                count = int((depth - 4) / 3)
-
-               
-
-                nb_layers = [count for _ in range(stage_number)]
-                final_nb_layer = count
-            else:
-                final_nb_layer = nb_layers_per_block
-                nb_layers = [nb_layers_per_block] * stage_number
-    
-            if nb_filter <= 0:
-                nb_filter = 2 * growth_rate
+         
         last_conv_factor = 2 ** (stage_number - 1) 
         print(input_shape, input_shape[0], input_shape[1], input_shape[2], input_shape[3])
         img_input = layers.Input(shape=(None, None, None, input_shape[3]))
-        bn_axis = -1
-        num_filters_in = startfilter
-        
-        x = densenet_3D_layer( 
-            inputs=img_input,
-            num_filters=num_filters_in,
-            kernel_size=start_kernel,
-            strides = 1)
-        
-         # Add dense blocks
-        for block_idx in range(stage_number - 1):
-            x, nb_filter = __dense_block(x, nb_layers[block_idx], nb_filter,
-                                         growth_rate, kernel_size = mid_kernel,
-                                         weight_decay=weight_decay)
-            # add transition_block
-            x = __transition_block(x, nb_filter, reduction=reduction,
-                                   weight_decay=weight_decay)
-            nb_filter = int(nb_filter * reduction)
-
-        # The last dense_block does not have a transition_block
-        x, nb_filter = __dense_block(x, final_nb_layer, nb_filter, growth_rate, kernel_size = mid_kernel,
-                                     weight_decay=weight_decay)
-
-        x = BatchNormalization(axis=bn_axis, epsilon=1.1e-5, name='final_bn')(x)
-        x = Activation('relu')(x)
+        x = DenseNet(img_input, nb_layers, growth_rate = growth_rate, start_kernel = start_kernel, mid_kernel = mid_kernel)
         
         input_cat = Lambda(lambda x: x[:, :, :, :, 0:categories])(x)
         input_box = Lambda(lambda x: x[:, :, :, :, categories:])(x)
@@ -453,82 +472,9 @@ def DenseVollNet(
 
         return model
         
-def __dense_block(x, nb_layers, nb_filter, growth_rate, kernel_size = 3,
-                  weight_decay=1e-4, grow_nb_filters=True,
-                  return_concat_list=False):
-
-        concat_axis =  -1
-
-        x_list = [x]
-
-        for i in range(nb_layers):
-            cb = __conv_block(x, growth_rate,kernel_size)
-            x_list.append(cb)
-            block = Concat(concat_axis)
-            x = block([x, cb])
-
-            if grow_nb_filters:
-                nb_filter += growth_rate
-
-        if return_concat_list:
-            return x, nb_filter, x_list
-        else:
-            return x, nb_filter
 
 
-def __conv_block(ip, nb_filter,  kernel_size = 3):
-   
-    concat_axis =  -1
 
-    x = BatchNormalization(axis=concat_axis, epsilon=1.1e-5)(ip)
-    x = Activation('relu')(x)
-
-
-    x = Conv3D(nb_filter, kernel_size, kernel_initializer='he_normal', padding='same',
-                   use_bias=False)(x)
-       
-
-    return x
-
-def __transition_block(ip, nb_filter, reduction=0.5, weight_decay=1e-4):
-    
-        concat_axis = -1
-
-        x = BatchNormalization(axis=concat_axis, epsilon=1.1e-5)(ip)
-        x = Activation('relu')(x)
-        x = Conv3D(int(nb_filter * reduction), (1, 1, 1), kernel_initializer='he_normal',
-                   padding='same', use_bias=False, kernel_regularizer=regularizers.l2(weight_decay))(x)
-        x = layers.MaxPooling3D((2, 2, 2), strides=(2, 2, 2))(x)
-
-        return x
-    
-
-
-def densenet_3D_layer(
-    inputs,
-    num_filters = 64,
-    kernel_size = 3,
-    strides = 1,
-    activation='relu',
-   
-):
-    
-    x = inputs
-    x = layers.Conv3D(
-        num_filters,
-        kernel_size=kernel_size,
-        strides= strides,
-        padding="same",
-        kernel_initializer="he_normal",
-        kernel_regularizer=regularizers.l2(1e-4),
-    )(inputs)
-    x = layers.BatchNormalization(
-        axis= -1, epsilon=1.001e-5, name="conv1/bn"
-    )(x)
-    x = layers.Activation(activation, name="conv1activation")(x)
-    
-    return x        
-        
 
 
 
