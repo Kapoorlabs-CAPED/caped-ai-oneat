@@ -332,8 +332,7 @@ class NEATDenseVollNet:
             growth_rate=self.growth_rate,
             nb_filter=self.nb_filter,
             nb_layers_per_block=self.nb_layers_per_block,
-            reduction = self.reduction,
-            weight_decay= self.weight_decay
+            reduction = self.reduction
         )
 
         sgd = tf.keras.optimizers.Adam(learning_rate=self.learning_rate)

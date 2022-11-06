@@ -385,7 +385,7 @@ class DenseNet:
     def _conv3d(self, x, output_channels, kernel, padding="same"):
         x = layers.Conv3D(output_channels, kernel, padding=padding, kernel_regularizer=regularizers.l2(reg_weight))(x)
         x = layers.BatchNormalization()(x)
-        x = layers.Activation("sigmoid")(x)
+        x = layers.Activation("leakyrelu")(x)
         
         return x
 def DenseVollNet(
