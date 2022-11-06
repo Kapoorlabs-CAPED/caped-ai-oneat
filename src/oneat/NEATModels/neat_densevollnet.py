@@ -335,7 +335,7 @@ class NEATDenseVollNet:
             reduction = self.reduction
         )
 
-        sgd = tf.keras.optimizers.sgd(learning_rate=self.learning_rate, momentum=0.9, nesterov=True )
+        sgd = tf.keras.optimizers.SGD(learning_rate=self.learning_rate, momentum=0.9, nesterov=True )
         self.Trainingmodel.compile(
             optimizer=sgd, loss=self.yolo_loss, metrics=["accuracy"]
         )
