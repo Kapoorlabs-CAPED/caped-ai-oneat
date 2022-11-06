@@ -378,7 +378,7 @@ class DenseNet:
     def transition_layer(self, x, compression=0.5):
         output_channels = int(x.shape[-1] * compression)
         x = self.bn_relu_conv3d(x, output_channels, 1)
-        return layers.AveragePooling2D((2, 2, 2))(x)
+        return layers.AveragePooling3D((2, 2, 2))(x)
 
     def bn_relu_conv3d(self, x, output_channels, kernel):
         x = layers.BatchNormalization()(x)
