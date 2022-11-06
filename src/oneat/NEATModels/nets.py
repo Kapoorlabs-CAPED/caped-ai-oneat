@@ -353,7 +353,7 @@ class DenseNet:
             x = self.dense_block(x, n_blocks, bottleneck=bottleneck)
         x = layers.BatchNormalization()(x)
         x = layers.Activation("relu")(x)
-        return layers.GlobalAveragePooling2D()(x)
+        return layers.GlobalAveragePooling3D()(x)
 
     def first_conv3d(self, x, channels):
         kernel_size =  self.start_kernel
