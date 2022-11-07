@@ -17,7 +17,7 @@ from tensorflow.keras.utils import plot_model
 from tifffile import imread
 
 
-class NEATVollNet(object):
+class NEATDenseVollNet(object):
     """
     Parameters
     ----------
