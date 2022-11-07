@@ -371,7 +371,6 @@ class DenseNet:
         self.activation = activation
 
     def __call__(self, x):
-        
         self.nb_layers = []
         if type(self.depth) is dict:
             for (k,v) in self.depth.items():
