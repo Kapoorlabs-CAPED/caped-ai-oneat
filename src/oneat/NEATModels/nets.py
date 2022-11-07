@@ -297,18 +297,8 @@ def _voll_conv(
     return x
 
 
-def _voll_top(input_shape, depth, stage_number):
+def _voll_top(input_shape, stage_number):
     
-        nb_layers = []
-        if type(depth) is dict:
-            for (k,v) in depth.items():
-                nb_layers.append(v) # get the list
-
-            if len(nb_layers) != stage_number:
-                raise ValueError('If `stage_number` is a list, its length must match '
-                                 'the number of layers provided by `nb_layers`.')
-
-         
         last_conv_factor = 2 ** (stage_number - 1) 
         print(input_shape, input_shape[0], input_shape[1], input_shape[2], input_shape[3])
         img_input = layers.Input(shape=(None, None, None, input_shape[3]))
