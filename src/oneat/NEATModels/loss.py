@@ -366,8 +366,9 @@ def calc_loss_class(true_box_class, pred_box_class, entropy):
             K.binary_crossentropy(true_box_class, pred_box_class), axis=-1
         )
     if entropy == "notbinary":
-        cce = tf.keras.losses.CategoricalCrossentropy(label_smoothing=0.001)
-        loss_class = cce(true_box_class, pred_box_class )
+        loss_class = K.mean(
+            K.categorical_crossentropy(true_box_class, pred_box_class), axis=-1
+        )
 
     loss_class = loss_class * lambdaclass
 
