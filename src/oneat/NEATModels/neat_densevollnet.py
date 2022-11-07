@@ -329,9 +329,6 @@ class NEATDenseVollNet:
             startfilter=self.startfilter,
             input_weights=self.model_weights,
             last_activation=self.last_activation,
-            growth_rate=self.growth_rate,
-            nb_filter=self.nb_filter,
-            nb_layers_per_block=self.nb_layers_per_block,
             reduction = self.reduction
         )
 
