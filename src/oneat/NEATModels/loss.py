@@ -359,14 +359,9 @@ def calc_loss_angle(true_box_angle, pred_box_angle):
     return loss_angle
 
 
-def calc_loss_class(true_box_class, pred_box_class, entropy):
+def calc_loss_class(true_box_class, pred_box_class):
 
-    if entropy == "binary":
-        loss_class = K.mean(
-            K.binary_crossentropy(true_box_class, pred_box_class), axis=-1
-        )
-    if entropy == "notbinary":
-        loss_class = K.mean(
+    loss_class = K.mean(
             K.categorical_crossentropy(true_box_class, pred_box_class), axis=-1
         )
 
@@ -376,7 +371,7 @@ def calc_loss_class(true_box_class, pred_box_class, entropy):
 
 
 def dynamic_yolo_loss(
-    categories, grid_h, grid_w, grid_t, nboxes, box_vector, entropy
+    categories, grid_h, grid_w, grid_t, nboxes, box_vector
 ):
     def loss(y_true, y_pred):
         event_grid = get_event_grid(grid_h, grid_w, grid_t, nboxes)
@@ -408,7 +403,7 @@ def dynamic_yolo_loss(
             true_box_xyt, pred_box_xyt, true_box_wh, pred_box_wh
         )
 
-        loss_class = calc_loss_class(true_box_class, pred_box_class, entropy)
+        loss_class = calc_loss_class(true_box_class, pred_box_class)
 
         loss_conf = compute_conf_loss(
             pred_box_wh,
@@ -458,7 +453,7 @@ def volume_yolo_loss(
             true_box_xyz, pred_box_xyz, true_box_whd, pred_box_whd
         )
 
-        loss_class = calc_loss_class(true_box_class, pred_box_class, entropy)
+        loss_class = calc_loss_class(true_box_class, pred_box_class)
 
         loss_conf = compute_conf_loss_volume(
             pred_box_whd,
@@ -476,7 +471,7 @@ def volume_yolo_loss(
     return loss
 
 
-def static_yolo_loss(categories, grid_h, grid_w, nboxes, box_vector, entropy):
+def static_yolo_loss(categories, grid_h, grid_w, nboxes, box_vector):
     def loss(y_true, y_pred):
 
         cell_grid = get_cell_grid(grid_h, grid_w, nboxes)
@@ -501,7 +496,7 @@ def static_yolo_loss(categories, grid_h, grid_w, nboxes, box_vector, entropy):
             true_box_conf, true_box_xy, pred_box_xy, true_box_wh, pred_box_wh
         )
 
-        loss_class = calc_loss_class(true_box_class, pred_box_class, entropy)
+        loss_class = calc_loss_class(true_box_class, pred_box_class)
 
         loss_conf = compute_conf_loss_static(
             pred_box_wh,
@@ -520,7 +515,7 @@ def static_yolo_loss(categories, grid_h, grid_w, nboxes, box_vector, entropy):
 
 
 def static_yolo_loss_segfree(
-    categories, grid_h, grid_w, nboxes, box_vector, entropy
+    categories, grid_h, grid_w, nboxes, box_vector
 ):
     def loss(y_true, y_pred):
 
@@ -533,7 +528,7 @@ def static_yolo_loss_segfree(
         )
         loss_xy = calc_loss_xy(true_box_xy, pred_box_xy)
 
-        loss_class = calc_loss_class(true_box_class, pred_box_class, entropy)
+        loss_class = calc_loss_class(true_box_class, pred_box_class)
 
         combinedloss = loss_xy + loss_class
 
@@ -542,12 +537,12 @@ def static_yolo_loss_segfree(
     return loss
 
 
-def class_yolo_loss(categories, entropy):
+def class_yolo_loss(categories):
     def loss(y_true, y_pred):
 
         true_box_class = extract_ground_cell_truth_class(y_true, categories)
         pred_box_class = extract_ground_cell_pred_class(y_pred, categories)
-        loss_class = calc_loss_class(true_box_class, pred_box_class, entropy)
+        loss_class = calc_loss_class(true_box_class, pred_box_class)
         combinedloss = loss_class
 
         return combinedloss
