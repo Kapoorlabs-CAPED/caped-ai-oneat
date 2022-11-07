@@ -157,13 +157,8 @@ class NEATVollNet:
 
         self.model_keras = nets.VollNet
 
-        if self.multievent:
-            self.last_activation = "sigmoid"
-            self.entropy = "binary"
-
-        if not self.multievent:
-            self.last_activation = "softmax"
-            self.entropy = "notbinary"
+        self.last_activation = "softmax"
+        self.entropy = "notbinary"
         self.yolo_loss = volume_yolo_loss(
             self.categories,
             self.gridx,
