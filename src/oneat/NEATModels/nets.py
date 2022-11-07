@@ -486,7 +486,7 @@ def DenseVollNet(
         last_conv_factor, img_input = _voll_top(input_shape = input_shape, stage_number = stage_number)
         densenet = DenseNet(depth, startfilter, stage_number, start_kernel, mid_kernel, reduction)
         x = densenet(img_input)
-        model = _voll_bottom(x, img_input, input_shape, categories, last_conv_factor, last_activation, nboxes, box_vector, input_weights)
+        model = _voll_bottom(x, img_input, input_shape, categories, mid_kernel, last_conv_factor, last_activation, nboxes, box_vector, input_weights)
         return model
         
 
@@ -508,7 +508,7 @@ def VollNet(
         last_conv_factor, img_input = _voll_top(input_shape = input_shape, stage_number = stage_number)
         resnet = ResNet(depth, startfilter, stage_number, start_kernel, mid_kernel)
         x = resnet(img_input)
-        model = _voll_bottom(x, img_input, input_shape, categories, last_conv_factor, last_activation, nboxes, box_vector, input_weights)
+        model = _voll_bottom(x, img_input, input_shape, categories, mid_kernel, last_conv_factor, last_activation, nboxes, box_vector, input_weights)
         return model
 
 
