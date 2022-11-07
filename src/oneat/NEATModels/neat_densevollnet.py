@@ -97,9 +97,6 @@ class NEATDenseVollNet:
             self.imaget = config.size_tminus + config.size_tplus + 1
             self.size_tminus = config.size_tminus
             self.size_tplus = config.size_tplus
-            self.growth_rate= config.growth_rate
-            self.nb_filter= config.nb_filter
-            self.nb_layers_per_block= config.nb_layers_per_block
             self.reduction = config.reduction
             self.weight_decay= config.weight_decay
             self.nboxes = config.nboxes
@@ -124,9 +121,6 @@ class NEATDenseVollNet:
             self.show = self.config["show"]
 
             self.depth = self.config["depth"]
-            self.growth_rate= self.config["growth_rate"]
-            self.nb_filter= self.config["nb_filter"]
-            self.nb_layers_per_block= self.config["nb_layers_per_block"]
             self.reduction = self.config["reduction"]
             self.weight_decay= self.config["weight_decay"]
             self.start_kernel = self.config["start_kernel"]
