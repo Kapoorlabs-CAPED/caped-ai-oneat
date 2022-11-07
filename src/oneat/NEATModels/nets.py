@@ -375,7 +375,7 @@ class DenseNet:
                 self.startfilter//2,
                 self.mid_kernel,
                 self.activation)
-            if stage < self.stage_number:
+            if stage < self.stage_number -1:
                x =_voll_transition_block(x,
                            self.reduction,
                            self.activation)
