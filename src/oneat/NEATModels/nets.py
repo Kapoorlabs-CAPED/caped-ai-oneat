@@ -490,7 +490,7 @@ def DenseVollNet(
         if any(fname.endswith('.pb') for fname in os.listdir(input_model)):
 
             model =  models.load_model(input_model,
-                                custom_objects={'loss': yolo_loss, 'Concat': Concat})
+                                custom_objects={'loss': yolo_loss, 'Concat': Concat, 'name': None})
         
 
         return model
