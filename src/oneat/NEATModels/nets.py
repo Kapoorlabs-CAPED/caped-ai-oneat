@@ -343,16 +343,9 @@ def _voll_bottom(x, img_input, input_shape, categories, mid_kernel, last_conv_fa
         block = Concat(-1)
         outputs = block([output_cat, output_box])
         inputs = img_input
-        # Create model.
-        model = models.Model(inputs, outputs)
-
-        if any(fname.endswith('.pb') for fname in os.listdir(input_model)):
-
-            model =  models.load_model(input_model,
-                                custom_objects={'loss': yolo_loss, 'Concat': Concat})
         
-
-        return model
+        return inputs, outputs
+        
     
 class DenseNet:
     def __init__(self, depth, startfilter, stage_number, start_kernel, mid_kernel,reduction, activation='relu', **kwargs):
@@ -490,7 +483,16 @@ def DenseVollNet(
         last_conv_factor, img_input = _voll_top(input_shape = input_shape, stage_number = stage_number)
         densenet = DenseNet(depth, startfilter, stage_number, start_kernel, mid_kernel, reduction, **kwargs)
         x = densenet(img_input)
-        model = _voll_bottom(x, img_input, input_shape, categories, mid_kernel, last_conv_factor, last_activation, nboxes, box_vector, input_model, yolo_loss)
+        inputs, outputs = _voll_bottom(x, img_input, input_shape, categories, mid_kernel, last_conv_factor, last_activation, nboxes, box_vector, input_model, yolo_loss)
+        # Create model.
+        model = models.Model(inputs, outputs)
+
+        if any(fname.endswith('.pb') for fname in os.listdir(input_model)):
+
+            model =  models.load_model(input_model,
+                                custom_objects={'loss': yolo_loss, 'Concat': Concat})
+        
+
         return model
         
 
@@ -513,9 +515,17 @@ def VollNet(
         last_conv_factor, img_input = _voll_top(input_shape = input_shape, stage_number = stage_number)
         resnet = ResNet(depth, startfilter, stage_number, start_kernel, mid_kernel)
         x = resnet(img_input)
-        model = _voll_bottom(x, img_input, input_shape, categories, mid_kernel, last_conv_factor, last_activation, nboxes, box_vector, input_model, yolo_loss)
-        return model
+        inputs, outputs = _voll_bottom(x, img_input, input_shape, categories, mid_kernel, last_conv_factor, last_activation, nboxes, box_vector, input_model, yolo_loss)
+        # Create model.
+        model = models.Model(inputs, outputs)
 
+        if any(fname.endswith('.pb') for fname in os.listdir(input_model)):
+
+            model =  models.load_model(input_model,
+                                custom_objects={'loss': yolo_loss, 'Concat': Concat})
+        
+
+        return model
 
 def resnet_lstm_v2(
     input_shape,
