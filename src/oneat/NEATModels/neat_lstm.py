@@ -305,7 +305,7 @@ class NEATLRNet:
             start_kernel=self.start_kernel,
             mid_kernel=self.mid_kernel,
             startfilter=self.startfilter,
-            input_weights=self.model_weights,
+            input_model=self.model_dir,
             last_activation=self.last_activation,
         )
 
@@ -354,7 +354,7 @@ class NEATLRNet:
             callbacks=[lrate, hrate, srate, prate, tensorboard_callback],
         )
 
-        self.Trainingmodel.save(model_weights)
+        self.Trainingmodel.save(self.model_dir)
 
     def get_markers(
         self, segimage, start_project_mid=4, end_project_mid=4, dtype="uint16"
@@ -463,9 +463,8 @@ class NEATLRNet:
 
     def _build(self):
 
-        model_weights = os.path.join(self.model_dir, "weights.h5")
         Model = load_model(
-            model_weights,
+            self.model_dir,
             custom_objects={"loss": self.yolo_loss, "Concat": Concat},
         )
 

@@ -187,14 +187,6 @@ class NEATVollNet(object):
         Y_rest = self.Y[:, :, :, :, self.categories:]
         print(Y_rest.shape)
 
-        model_weights = os.path.join(self.model_dir ,  'weights.h5') 
-        if os.path.exists(model_weights):
-
-            self.model_weights = model_weights
-            print('loading weights')
-        else:
-
-            self.model_weights = None
 
         dummyY = np.zeros(
             [self.Y.shape[0], self.Y.shape[1], self.Y.shape[2], self.Y.shape[3], self.categories + self.nboxes * self.box_vector])
@@ -222,7 +214,7 @@ class NEATVollNet(object):
                                               stage_number=self.stage_number,
                                               depth=self.depth, start_kernel=self.start_kernel,
                                               mid_kernel=self.mid_kernel, 
-                                              startfilter=self.startfilter, input_weights=self.model_weights,
+                                              startfilter=self.startfilter, input_model=self.model_dir,
                                               last_activation=self.last_activation)
 
         sgd = tf.keras.optimizers.Adam(learning_rate=self.learning_rate)
@@ -245,7 +237,7 @@ class NEATVollNet(object):
                                callbacks=[lrate, hrate, srate, prate])
 
 
-        self.Trainingmodel.save(model_weights)
+        self.Trainingmodel.save(self.model_dir)
     """
     The input image and seg image are numpy arrays that have to be read prior to being loaded in the function
     """
@@ -330,7 +322,6 @@ class NEATVollNet(object):
    
     def _build(self):
         
-        model_weights = os.path.join(self.model_dir, 'weights.h5')
         Model =  load_model(self.model_dir,
                                 custom_objects={'loss': self.yolo_loss, 'Concat': Concat})  
         

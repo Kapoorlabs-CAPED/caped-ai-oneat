@@ -201,14 +201,7 @@ class NEATFocus:
         print(self.last_activation)
         Path(self.model_dir).mkdir(exist_ok=True)
 
-        model_weights = os.path.join(self.model_dir, "weights.h5")
-        if os.path.exists(model_weights):
-
-            self.model_weights = model_weights
-            print("loading weights")
-        else:
-
-            self.model_weights = None
+       
 
         dummyY = np.zeros(
             [
@@ -342,9 +335,8 @@ class NEATFocus:
 
     def _build(self):
 
-        model_weights = os.path.join(self.model_dir, "weights.h5")
         Model = load_model(
-            model_weights,
+            self.model_dir,
             custom_objects={"loss": self.yolo_loss, "Concat": Concat},
         )
 

@@ -234,15 +234,6 @@ class NEATResNet:
         y_integers = np.argmax(Y_main, axis=-1)
         y_integers = y_integers[:, 0, 0]
 
-        model_weights = os.path.join(self.model_dir, "weights.h5")
-        if os.path.exists(model_weights):
-
-            self.model_weights = model_weights
-            print("loading weights")
-        else:
-
-            self.model_weights = None
-
         dummyY = np.zeros(
             [
                 self.Y.shape[0],
@@ -300,7 +291,7 @@ class NEATResNet:
             mid_kernel=self.mid_kernel,
             startfilter=self.startfilter,
             last_activation=self.last_activation,
-            input_weights=self.model_weights,
+            input_model=self.model_dir,
         )
 
         sgd = tf.keras.optimizers.Adam(learning_rate=self.learning_rate)
@@ -348,7 +339,7 @@ class NEATResNet:
             callbacks=[lrate, hrate, srate, prate, tensorboard_callback],
         )
 
-        self.Trainingmodel.save(model_weights)
+        self.Trainingmodel.save(self.model_dir)
 
     def predict(
         self,
@@ -512,9 +503,8 @@ class NEATResNet:
 
     def _build(self):
 
-        model_weights = os.path.join(self.model_dir, "weights.h5")
         Model = load_model(
-            model_weights,
+            self.model_dir,
             custom_objects={"loss": self.yolo_loss, "Concat": Concat},
         )
         return Model
