@@ -284,6 +284,7 @@ class NEATResNet:
             input_shape,
             self.categories,
             box_vector=self.box_vector,
+            yolo_loss = self.yolo_loss, 
             nboxes=self.nboxes,
             stage_number=self.stage_number,
             depth=self.depth,

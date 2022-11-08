@@ -232,6 +232,7 @@ class NEATFocus:
             input_shape,
             self.categories,
             box_vector=self.box_vector,
+            yolo_loss = self.yolo_loss, 
             stage_number=self.stage_number,
             last_conv_factor=self.last_conv_factor,
             depth=self.depth,

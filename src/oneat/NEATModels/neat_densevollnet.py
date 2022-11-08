@@ -211,7 +211,7 @@ class NEATDenseVollNet(object):
         print(self.Y.shape)
 
         self.Trainingmodel = self.model_keras(input_shape, self.categories, 
-                                              box_vector=Y_rest.shape[-1], nboxes=self.nboxes,
+                                              box_vector=Y_rest.shape[-1], yolo_loss = self.yolo_loss, nboxes=self.nboxes,
                                               stage_number=self.stage_number,
                                               depth=self.depth, start_kernel=self.start_kernel,
                                               mid_kernel=self.mid_kernel, 

@@ -41,6 +41,7 @@ def LRNet(
     input_shape,
     categories,
     box_vector,
+    yolo_loss,
     nboxes=1,
     stage_number=3,
     depth=38,
@@ -190,7 +191,8 @@ def LRNet(
 
     if input_model is not None:
 
-        model =  models.load_model(input_model)
+        model =  models.load_model(input_model,
+                                custom_objects={'loss': yolo_loss, 'Concat': Concat})
 
     return model
 
@@ -303,7 +305,7 @@ def _voll_top(input_shape, stage_number):
         
         return last_conv_factor, img_input
 
-def _voll_bottom(x, img_input, input_shape, categories, mid_kernel, last_conv_factor, last_activation, nboxes, box_vector, input_model):
+def _voll_bottom(x, img_input, input_shape, categories, mid_kernel, last_conv_factor, last_activation, nboxes, box_vector, input_model, yolo_loss):
         
         x = (Conv3D(categories + nboxes * box_vector, kernel_size= mid_kernel, kernel_regularizer=regularizers.l2(reg_weight), padding = 'same'))(x)
         x = BatchNormalization()(x)
@@ -345,7 +347,8 @@ def _voll_bottom(x, img_input, input_shape, categories, mid_kernel, last_conv_fa
 
         if input_model is not None:
 
-            model =  models.load_model(input_model)
+            model =  models.load_model(input_model,
+                                custom_objects={'loss': yolo_loss, 'Concat': Concat})
 
         return model
     
@@ -385,7 +388,7 @@ class DenseNet:
         
         return x
 class ResNet:
-    def __init__(self, depth, startfilter, stage_number, start_kernel, mid_kernel, activation='relu', **kwarg):
+    def __init__(self, depth, startfilter, stage_number, start_kernel, mid_kernel, activation='relu', **kwargs):
         
         self.depth = depth
         self.startfilter = startfilter
@@ -469,6 +472,7 @@ def DenseVollNet(
                 input_shape,
                 categories: dict,
                 box_vector,
+                yolo_loss,
                 nboxes: int=1,
                 start_kernel: int=7,
                 mid_kernel: int=3,
@@ -484,7 +488,7 @@ def DenseVollNet(
         last_conv_factor, img_input = _voll_top(input_shape = input_shape, stage_number = stage_number)
         densenet = DenseNet(depth, startfilter, stage_number, start_kernel, mid_kernel, reduction, **kwargs)
         x = densenet(img_input)
-        model = _voll_bottom(x, img_input, input_shape, categories, mid_kernel, last_conv_factor, last_activation, nboxes, box_vector, input_model)
+        model = _voll_bottom(x, img_input, input_shape, categories, mid_kernel, last_conv_factor, last_activation, nboxes, box_vector, input_model, yolo_loss)
         return model
         
 
@@ -493,6 +497,7 @@ def VollNet(
             input_shape,
             categories: dict,
             box_vector,
+            yolo_loss,
             nboxes: int=1,
             start_kernel: int=7,
             mid_kernel: int=3,
@@ -506,7 +511,7 @@ def VollNet(
         last_conv_factor, img_input = _voll_top(input_shape = input_shape, stage_number = stage_number)
         resnet = ResNet(depth, startfilter, stage_number, start_kernel, mid_kernel)
         x = resnet(img_input)
-        model = _voll_bottom(x, img_input, input_shape, categories, mid_kernel, last_conv_factor, last_activation, nboxes, box_vector, input_model)
+        model = _voll_bottom(x, img_input, input_shape, categories, mid_kernel, last_conv_factor, last_activation, nboxes, box_vector, input_model, yolo_loss)
         return model
 
 
@@ -514,6 +519,7 @@ def resnet_lstm_v2(
     input_shape,
     categories,
     box_vector,
+    yolo_loss,
     nboxes=1,
     stage_number=3,
     depth=38,
@@ -522,6 +528,7 @@ def resnet_lstm_v2(
     startfilter=48,
     input_model=None,
     last_activation="softmax",
+    
 ):
    
 
@@ -660,7 +667,8 @@ def resnet_lstm_v2(
 
     if input_model is not None:
 
-        model =  models.load_model(input_model)
+        model =  models.load_model(input_model,
+                                custom_objects={'loss': yolo_loss, 'Concat': Concat})
 
     return model
 
@@ -669,6 +677,7 @@ def resnet_v2(
     input_shape,
     categories,
     box_vector,
+    yolo_loss,
     nboxes=1,
     stage_number=3,
     depth=38,
@@ -798,13 +807,15 @@ def resnet_v2(
 
     if input_model is not None:
 
-        model =  models.load_model(input_model)
+        model =  models.load_model(input_model,
+                                custom_objects={'loss': yolo_loss, 'Concat': Concat})
 
     return model
 
 
 def resnet_1D_regression(
     input_shape,
+    yolo_loss,
     stage_number=3,
     depth=38,
     start_kernel=3,
@@ -905,7 +916,8 @@ def resnet_1D_regression(
 
     if input_model is not None:
 
-        model =  models.load_model(input_model)
+        model =  models.load_model(input_model,
+                                custom_objects={'loss': yolo_loss, 'Concat': Concat})
 
     return model
 
@@ -914,6 +926,7 @@ def resnet_v2_class(
     input_shape,
     categories,
     box_vector,
+    yolo_loss,
     nboxes=1,
     stage_number=3,
     depth=38,
@@ -1024,7 +1037,8 @@ def resnet_v2_class(
 
     if input_model is not None:
 
-        model =  models.load_model(input_model)
+        model =  models.load_model(input_model,
+                                custom_objects={'loss': yolo_loss, 'Concat': Concat})
 
     return model
 
@@ -1033,6 +1047,7 @@ def resnet_lstm_v2_class(
     input_shape,
     categories,
     box_vector,
+    yolo_loss,
     nboxes=1,
     stage_number=3,
     depth=38,
@@ -1154,7 +1169,8 @@ def resnet_lstm_v2_class(
 
     if input_model is not None:
 
-        model =  models.load_model(input_model)
+        model =  models.load_model(input_model,
+                                custom_objects={'loss': yolo_loss, 'Concat': Concat})
 
     return model
 

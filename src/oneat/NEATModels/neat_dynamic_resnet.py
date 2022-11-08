@@ -302,6 +302,7 @@ class NEATTResNet:
             input_shape,
             self.categories,
             box_vector=Y_rest.shape[-1],
+            yolo_loss = self.yolo_loss, 
             nboxes=self.nboxes,
             stage_number=self.stage_number,
             depth=self.depth,
