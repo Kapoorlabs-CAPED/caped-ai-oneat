@@ -189,7 +189,7 @@ def LRNet(
     # Create model.
     model = models.Model(inputs, outputs)
 
-    if os.path(os.path.join(input_model, '*.pb')):
+    if os.path.exists((os.path.join(input_model, '*.pb'))):
 
         model =  models.load_model(input_model,
                                 custom_objects={'loss': yolo_loss, 'Concat': Concat})
@@ -346,7 +346,7 @@ def _voll_bottom(x, img_input, input_shape, categories, mid_kernel, last_conv_fa
         # Create model.
         model = models.Model(inputs, outputs)
 
-        if os.path(os.path.join(input_model, '*.pb')):
+        if os.path.exists((os.path.join(input_model, '*.pb'))):
 
             model =  models.load_model(input_model,
                                 custom_objects={'loss': yolo_loss, 'Concat': Concat})
@@ -667,7 +667,7 @@ def resnet_lstm_v2(
     # Create model.
     model = models.Model(inputs, outputs)
 
-    if os.path(os.path.join(input_model, '*.pb')):
+    if os.path.exists((os.path.join(input_model, '*.pb'))):
 
         model =  models.load_model(input_model,
                                 custom_objects={'loss': yolo_loss, 'Concat': Concat})
@@ -808,7 +808,7 @@ def resnet_v2(
     # Create model.
     model = models.Model(inputs, outputs)
 
-    if os.path(os.path.join(input_model, '*.pb')):
+    if os.path.exists((os.path.join(input_model, '*.pb'))):
 
         model =  models.load_model(input_model,
                                 custom_objects={'loss': yolo_loss, 'Concat': Concat})
@@ -918,7 +918,7 @@ def resnet_1D_regression(
     # Create model.
     model = models.Model(inputs, outputs)
 
-    if os.path(os.path.join(input_model, '*.pb')):
+    if os.path.exists((os.path.join(input_model, '*.pb'))):
 
         model =  models.load_model(input_model,
                                 custom_objects={'loss': yolo_loss, 'Concat': Concat})
@@ -1040,7 +1040,7 @@ def resnet_v2_class(
     # Create model.
     model = models.Model(inputs, outputs)
 
-    if os.path(os.path.join(input_model, '*.pb')):
+    if os.path.exists((os.path.join(input_model, '*.pb'))):
 
         model =  models.load_model(input_model,
                                 custom_objects={'loss': yolo_loss, 'Concat': Concat})
@@ -1173,7 +1173,7 @@ def resnet_lstm_v2_class(
     # Create model.
     model = models.Model(inputs, outputs)
 
-    if os.path(os.path.join(input_model, '*.pb')):
+    if os.path.exists((os.path.join(input_model, '*.pb'))):
 
         model =  models.load_model(input_model,
                                 custom_objects={'loss': yolo_loss, 'Concat': Concat})
