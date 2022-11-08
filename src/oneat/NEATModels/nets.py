@@ -344,85 +344,91 @@ def _voll_bottom(x, img_input, input_shape, categories, mid_kernel, last_conv_fa
         outputs = block([output_cat, output_box])
         inputs = img_input
         
+        # Create model.
         model = models.Model(inputs, outputs)
 
         if any(fname.endswith('.pb') for fname in os.listdir(input_model)):
 
             model =  models.load_model(input_model,
-                                custom_objects={'loss': yolo_loss, 'Concat': Concat, 'name': None})
-            
+                                custom_objects={'loss': yolo_loss, 'Concat': Concat})
         return model
         
     
-def DenseNet(x,depth, startfilter, stage_number, start_kernel, mid_kernel,reduction, activation='relu'):
-       
-        nb_layers = []
-        if type(depth) is dict:
-            for (k,v) in depth.items():
-                nb_layers.append(v) # get the list
+class DenseNet:
+    def __init__(self, depth, startfilter, stage_number, start_kernel, mid_kernel,reduction, activation='relu'):
+        self.stage_number = stage_number
+        self.start_kernel = start_kernel
+        self.mid_kernel = mid_kernel
+        self.reduction = reduction
+        self.depth = depth
+        self.startfilter = startfilter
+        self.activation = activation
+
+    def __call__(self, x):
+        self.nb_layers = []
+        if type(self.depth) is list:
+            for v in range(len(self.depth)):
+                self.nb_layers.append(v) # get the list
                 
-        if len(nb_layers) != stage_number:
+        if len(self.nb_layers) != self.stage_number:
                 raise ValueError('If `stage_number` is a list, its length must match '
                                  'the number of layers provided by `depth`.')
-                
-        x = _voll_conv(
-            x,
-            num_filters=startfilter,
-            kernel_size=start_kernel,
-            conv_first=True
-        )        
-        for stage in range(stage_number):
+        for stage in range(self.stage_number):
             
-            x = _voll_dense_block(x, nb_layers[stage],
-                startfilter//2,
-                mid_kernel,
-                activation)
-            if stage < stage_number -1:
+            x = _voll_dense_block(x, self.nb_layers[stage],
+                self.startfilter//2,
+                self.mid_kernel,
+                self.activation)
+            if stage < self.stage_number -1:
                x =_voll_transition_block(x,
-                           reduction,
-                           activation)
+                           self.reduction,
+                           self.activation)
                
             x = BatchNormalization()(x)
-            x = Activation(activation)(x)   
+            x = Activation(self.activation)(x)   
         
         return x
-    
-def ResNet(x, depth, startfilter, stage_number, start_kernel, mid_kernel, activation='relu'):
+class ResNet:
+    def __init__(self, depth, startfilter, stage_number, start_kernel, mid_kernel, activation='relu'):
         
-        num_filters_in = startfilter
-        if type(depth) is dict:
-            for (k,v) in depth.items():
-                nb_layers = v
-        else:
+        self.depth = depth
+        self.startfilter = startfilter
+        self.stage_number = stage_number
+        self.start_kernel = start_kernel
+        self.mid_kernel = mid_kernel
+        self.activation = activation  
+        
+    def __call__(self, x):
+        
+        self.num_filters_in = self.startfilter
+        self.nb_layers = self.depth      
                 
-              nb_layers = depth      
-                
-        num_res_blocks = int((nb_layers - 2) / 9)
+        num_res_blocks = int((self.nb_layers - 2) / 9)
         x = _voll_conv(
             x,
-            num_filters=startfilter,
-            kernel_size=start_kernel,
+            num_filters=self.startfilter,
+            kernel_size=self.start_kernel,
             conv_first=True
         )
               
-        for stage in range(stage_number):
+        for stage in range(self.stage_number):
                 for res_block in range(num_res_blocks):
-                    activation = activation
+                    activation = self.activation
                     batch_normalization = True
                     strides = 1
                     if stage == 0:
-                        num_filters_out = num_filters_in * 4
+                        self.num_filters_out = self.num_filters_in * 4
                         if res_block == 0:  # first layer and first stage
                             activation = None
                             batch_normalization = False
                     else:
-                        num_filters_out = num_filters_in * 2
+                        self.num_filters_out = self.num_filters_in * 2
                         if res_block == 0:  # not first layer and not first stage
                             strides = 2  # downsample
 
                     y = _voll_conv(
                         inputs=x,
-                        num_filters=num_filters_in,
+                        num_filters=self.num_filters_in,
                         kernel_size=1,
                         strides=strides,
                         activation=activation,
@@ -431,13 +437,13 @@ def ResNet(x, depth, startfilter, stage_number, start_kernel, mid_kernel, activa
                     )
                     y = _voll_conv(
                         inputs=y,
-                        num_filters=num_filters_in,
-                        kernel_size=mid_kernel,
+                        num_filters=self.num_filters_in,
+                        kernel_size=self.mid_kernel,
                         conv_first=False,
                     )
                     y = _voll_conv(
                         inputs=y,
-                        num_filters=num_filters_out,
+                        num_filters=self.num_filters_out,
                         kernel_size=1,
                         conv_first=False,
                     )
@@ -446,7 +452,7 @@ def ResNet(x, depth, startfilter, stage_number, start_kernel, mid_kernel, activa
                         # changed dims
                         x = _voll_conv(
                             inputs=x,
-                            num_filters=num_filters_out,
+                            num_filters=self.num_filters_out,
                             kernel_size=1,
                             strides=strides,
                             activation=None,
@@ -454,7 +460,7 @@ def ResNet(x, depth, startfilter, stage_number, start_kernel, mid_kernel, activa
                         )
 
                     x = K.layers.add([x, y])
-                num_filters_in = num_filters_out
+                self.num_filters_in = self.num_filters_out
                 
         return x        
                 
@@ -470,14 +476,16 @@ def DenseVollNet(
                 stage_number: int = 3,
                 input_model=None,
                 last_activation: str="softmax",
-                depth: dict={'depth_0': 6, 'depth_1': 12, 'depth_2':24, 'depth_3':16},
-                reduction: float = 0.5
+                depth: list=[6, 12, 24],
+                reduction: float = 0.5,
+                **kwargs
 ):
     
         last_conv_factor, img_input = _voll_top(input_shape = input_shape, stage_number = stage_number)
-        x = DenseNet(img_input, depth, startfilter, stage_number, start_kernel, mid_kernel, reduction)
+        densenet = DenseNet(depth, startfilter, stage_number, start_kernel, mid_kernel, reduction, **kwargs)
+        x = densenet(img_input)
         model = _voll_bottom(x, img_input, input_shape, categories, mid_kernel, last_conv_factor, last_activation, nboxes, box_vector, input_model, yolo_loss)
-       
+        
         
 
         return model
@@ -496,13 +504,15 @@ def VollNet(
             stage_number: int = 3,
             input_model=None,
             last_activation: str="softmax",
-            depth: dict={'depth_0': 29}
+            depth: int = 29
 ):
     
         last_conv_factor, img_input = _voll_top(input_shape = input_shape, stage_number = stage_number)
-        x = ResNet(img_input, depth, startfilter, stage_number, start_kernel, mid_kernel)
+        resnet = ResNet(depth, startfilter, stage_number, start_kernel, mid_kernel)
+        x = resnet(img_input)
         model = _voll_bottom(x, img_input, input_shape, categories, mid_kernel, last_conv_factor, last_activation, nboxes, box_vector, input_model, yolo_loss)
         
+
         return model
 
 def resnet_lstm_v2(
