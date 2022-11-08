@@ -12,7 +12,7 @@ from oneat.NEATModels.nets import Concat
 from oneat.NEATModels.loss import volume_yolo_loss
 from oneat.pretrained import get_registered_models, get_model_details, get_model_instance
 from pathlib import Path
-from keras.models import load_model
+from tensorflow.keras.models import load_model
 from tensorflow.keras.utils import plot_model
 from tifffile import imread
 
@@ -47,7 +47,7 @@ class NEATVollNet(object):
     
     """
 
-    def __init__(self, config, model_dir, catconfig, cordconfig, **kwargs):
+    def __init__(self, config, model_dir, catconfig, cordconfig):
 
         self.config = config
         self.catconfig = catconfig

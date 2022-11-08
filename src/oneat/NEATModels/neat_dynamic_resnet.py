@@ -5,7 +5,7 @@ from pathlib import Path
 import numpy as np
 import tensorflow as tf
 from keras import callbacks
-from keras.models import load_model
+from tensorflow.keras.models import load_model
 from skimage.measure import label
 from skimage.morphology import dilation, disk
 from tifffile import imwrite

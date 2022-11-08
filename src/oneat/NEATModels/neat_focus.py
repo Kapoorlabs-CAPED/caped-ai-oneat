@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 import tensorflow as tf
 from keras import callbacks, optimizers
-from keras.models import load_model
+from tensorflow.keras.models import load_model
 from scipy.optimize import curve_fit
 from tqdm import tqdm
 import datetime

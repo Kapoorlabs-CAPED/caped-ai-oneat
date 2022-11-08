@@ -13,7 +13,7 @@ import time
 from pathlib import Path
 
 import numpy as np
-from keras.models import load_model
+from tensorflow.keras.models import load_model
 from natsort import natsorted
 from tifffile import imread, imwrite
 from tqdm import tqdm
