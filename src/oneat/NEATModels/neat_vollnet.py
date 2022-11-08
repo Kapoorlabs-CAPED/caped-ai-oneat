@@ -331,7 +331,7 @@ class NEATVollNet(object):
     def _build(self):
         
         model_weights = os.path.join(self.model_dir, 'weights.h5')
-        Model =  load_model(model_weights,
+        Model =  load_model(self.model_dir,
                                 custom_objects={'loss': self.yolo_loss, 'Concat': Concat})  
         
         return Model          
