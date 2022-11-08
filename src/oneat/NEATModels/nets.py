@@ -11,7 +11,7 @@ from keras.layers import (
     concatenate
 )
 from keras.layers.core import Lambda
-
+import os
 reg_weight = 1.0e-4
 
 
@@ -189,12 +189,11 @@ def LRNet(
     # Create model.
     model = models.Model(inputs, outputs)
 
-    try:
+    if os.path(os.path.join(input_model, '*.pb')):
 
         model =  models.load_model(input_model,
                                 custom_objects={'loss': yolo_loss, 'Concat': Concat})
-    except FileNotFoundError:
-        pass
+    
 
     return model
 
@@ -347,12 +346,11 @@ def _voll_bottom(x, img_input, input_shape, categories, mid_kernel, last_conv_fa
         # Create model.
         model = models.Model(inputs, outputs)
 
-        try:
+        if os.path(os.path.join(input_model, '*.pb')):
 
             model =  models.load_model(input_model,
                                 custom_objects={'loss': yolo_loss, 'Concat': Concat})
-        except FileNotFoundError:
-           pass
+        
 
         return model
     
@@ -669,12 +667,11 @@ def resnet_lstm_v2(
     # Create model.
     model = models.Model(inputs, outputs)
 
-    try:
+    if os.path(os.path.join(input_model, '*.pb')):
 
         model =  models.load_model(input_model,
                                 custom_objects={'loss': yolo_loss, 'Concat': Concat})
-    except FileNotFoundError:
-        pass    
+     
 
     return model
 
@@ -811,12 +808,11 @@ def resnet_v2(
     # Create model.
     model = models.Model(inputs, outputs)
 
-    try:
+    if os.path(os.path.join(input_model, '*.pb')):
 
         model =  models.load_model(input_model,
                                 custom_objects={'loss': yolo_loss, 'Concat': Concat})
-    except FileNotFoundError:
-        pass
+    
 
     return model
 
@@ -922,12 +918,11 @@ def resnet_1D_regression(
     # Create model.
     model = models.Model(inputs, outputs)
 
-    try:
+    if os.path(os.path.join(input_model, '*.pb')):
 
         model =  models.load_model(input_model,
                                 custom_objects={'loss': yolo_loss, 'Concat': Concat})
-    except FileNotFoundError:
-        pass
+    
 
     return model
 
@@ -1045,12 +1040,11 @@ def resnet_v2_class(
     # Create model.
     model = models.Model(inputs, outputs)
 
-    try:
+    if os.path(os.path.join(input_model, '*.pb')):
 
         model =  models.load_model(input_model,
                                 custom_objects={'loss': yolo_loss, 'Concat': Concat})
-    except FileNotFoundError:
-        pass
+    
 
     return model
 
@@ -1179,12 +1173,11 @@ def resnet_lstm_v2_class(
     # Create model.
     model = models.Model(inputs, outputs)
 
-    try:
+    if os.path(os.path.join(input_model, '*.pb')):
 
         model =  models.load_model(input_model,
                                 custom_objects={'loss': yolo_loss, 'Concat': Concat})
-    except FileNotFoundError:
-        pass
+    
 
     return model
 
