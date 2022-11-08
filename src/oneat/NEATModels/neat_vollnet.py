@@ -47,7 +47,7 @@ class NEATVollNet(object):
     
     """
 
-    def __init__(self, config, model_dir, catconfig, cordconfig):
+    def __init__(self, config, model_dir, catconfig, cordconfig, **kwargs):
 
         self.config = config
         self.catconfig = catconfig
