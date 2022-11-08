@@ -190,7 +190,7 @@ def LRNet(
 
     if input_model is not None:
 
-        model.load_model(input_model)
+        model =  models.load_model(input_model)
 
     return model
 
@@ -345,7 +345,7 @@ def _voll_bottom(x, img_input, input_shape, categories, mid_kernel, last_conv_fa
 
         if input_model is not None:
 
-            model.load_model(input_model)
+            model =  models.load_model(input_model)
 
         return model
     
@@ -660,7 +660,7 @@ def resnet_lstm_v2(
 
     if input_model is not None:
 
-        model.load_model(input_model)
+        model =  models.load_model(input_model)
 
     return model
 
@@ -798,7 +798,7 @@ def resnet_v2(
 
     if input_model is not None:
 
-        model.load_model(input_model)
+        model =  models.load_model(input_model)
 
     return model
 
@@ -905,7 +905,7 @@ def resnet_1D_regression(
 
     if input_model is not None:
 
-        model.load_model(input_model)
+        model =  models.load_model(input_model)
 
     return model
 
@@ -1024,7 +1024,7 @@ def resnet_v2_class(
 
     if input_model is not None:
 
-        model.load_model(input_model)
+        model =  models.load_model(input_model)
 
     return model
 
@@ -1154,7 +1154,7 @@ def resnet_lstm_v2_class(
 
     if input_model is not None:
 
-        model.load_model(input_model)
+        model =  models.load_model(input_model)
 
     return model
 
