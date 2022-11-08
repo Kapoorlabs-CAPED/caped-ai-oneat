@@ -1,4 +1,4 @@
-import keras as K
+from tensorflow import keras as K
 from keras import layers, models, regularizers, backend
 from keras.layers import (
     Activation,
@@ -47,7 +47,7 @@ def LRNet(
     start_kernel=3,
     mid_kernel=3,
     startfilter=32,
-    input_weights=None,
+    input_model=None,
     last_activation="softmax",
 ):
     """ResNet Version 2 Model builder [b]
@@ -164,8 +164,7 @@ def LRNet(
             ),
             activation=last_activation,
             kernel_regularizer=regularizers.l2(reg_weight),
-            padding="valid",
-            name="yolo",
+            padding="valid"
         )
     )(input_cat)
     output_box = (
@@ -177,8 +176,7 @@ def LRNet(
             ),
             activation="sigmoid",
             kernel_regularizer=regularizers.l2(reg_weight),
-            padding="valid",
-            name="secyolo",
+            padding="valid"
         )
     )(input_box)
 
@@ -190,9 +188,9 @@ def LRNet(
     # Create model.
     model = models.Model(inputs, outputs)
 
-    if input_weights is not None:
+    if input_model is not None:
 
-        model.load_weights(input_weights, by_name=True)
+        model.load_model(input_model)
 
     return model
 
@@ -305,7 +303,7 @@ def _voll_top(input_shape, stage_number):
         
         return last_conv_factor, img_input
 
-def _voll_bottom(x, img_input, input_shape, categories, mid_kernel, last_conv_factor, last_activation, nboxes, box_vector, input_weights):
+def _voll_bottom(x, img_input, input_shape, categories, mid_kernel, last_conv_factor, last_activation, nboxes, box_vector, input_model):
         
         x = (Conv3D(categories + nboxes * box_vector, kernel_size= mid_kernel, kernel_regularizer=regularizers.l2(reg_weight), padding = 'same'))(x)
         x = BatchNormalization()(x)
@@ -322,8 +320,7 @@ def _voll_bottom(x, img_input, input_shape, categories, mid_kernel, last_conv_fa
                 ),
                 activation=last_activation,
                 kernel_regularizer=regularizers.l2(reg_weight),
-                padding="valid",
-                name="yolo",
+                padding="valid"
             )
         )(input_cat)
         output_box = (
@@ -336,8 +333,7 @@ def _voll_bottom(x, img_input, input_shape, categories, mid_kernel, last_conv_fa
                 ),
                 activation="sigmoid",
                 kernel_regularizer=regularizers.l2(reg_weight),
-                padding="valid",
-                name="secyolo",
+                padding="valid"
             )
         )(input_box)
 
@@ -347,14 +343,14 @@ def _voll_bottom(x, img_input, input_shape, categories, mid_kernel, last_conv_fa
         # Create model.
         model = models.Model(inputs, outputs)
 
-        if input_weights is not None:
+        if input_model is not None:
 
-            model.load_weights(input_weights, by_name=True)
+            model.load_model(input_model)
 
         return model
     
 class DenseNet:
-    def __init__(self, depth, startfilter, stage_number, start_kernel, mid_kernel,reduction, activation='relu'):
+    def __init__(self, depth, startfilter, stage_number, start_kernel, mid_kernel,reduction, activation='relu', **kwargs):
         self.stage_number = stage_number
         self.start_kernel = start_kernel
         self.mid_kernel = mid_kernel
@@ -362,6 +358,7 @@ class DenseNet:
         self.depth = depth
         self.startfilter = startfilter
         self.activation = activation
+        self.kwargs = kwargs
 
     def __call__(self, x):
         self.nb_layers = []
@@ -388,7 +385,7 @@ class DenseNet:
         
         return x
 class ResNet:
-    def __init__(self, depth, startfilter, stage_number, start_kernel, mid_kernel, activation='relu'):
+    def __init__(self, depth, startfilter, stage_number, start_kernel, mid_kernel, activation='relu', **kwarg):
         
         self.depth = depth
         self.startfilter = startfilter
@@ -477,16 +474,17 @@ def DenseVollNet(
                 mid_kernel: int=3,
                 startfilter: int=64,
                 stage_number: int = 3,
-                input_weights=None,
+                input_model=None,
                 last_activation: str="softmax",
                 depth: dict={'depth_0': 6, 'depth_1': 12, 'depth_2':24, 'depth_3':16},
-                reduction: float = 0.5
+                reduction: float = 0.5,
+                **kwargs
 ):
     
         last_conv_factor, img_input = _voll_top(input_shape = input_shape, stage_number = stage_number)
-        densenet = DenseNet(depth, startfilter, stage_number, start_kernel, mid_kernel, reduction)
+        densenet = DenseNet(depth, startfilter, stage_number, start_kernel, mid_kernel, reduction, **kwargs)
         x = densenet(img_input)
-        model = _voll_bottom(x, img_input, input_shape, categories, mid_kernel, last_conv_factor, last_activation, nboxes, box_vector, input_weights)
+        model = _voll_bottom(x, img_input, input_shape, categories, mid_kernel, last_conv_factor, last_activation, nboxes, box_vector, input_model)
         return model
         
 
@@ -500,7 +498,7 @@ def VollNet(
             mid_kernel: int=3,
             startfilter: int=64,
             stage_number: int = 3,
-            input_weights=None,
+            input_model=None,
             last_activation: str="softmax",
             depth: dict={'depth_0': 29}
 ):
@@ -508,7 +506,7 @@ def VollNet(
         last_conv_factor, img_input = _voll_top(input_shape = input_shape, stage_number = stage_number)
         resnet = ResNet(depth, startfilter, stage_number, start_kernel, mid_kernel)
         x = resnet(img_input)
-        model = _voll_bottom(x, img_input, input_shape, categories, mid_kernel, last_conv_factor, last_activation, nboxes, box_vector, input_weights)
+        model = _voll_bottom(x, img_input, input_shape, categories, mid_kernel, last_conv_factor, last_activation, nboxes, box_vector, input_model)
         return model
 
 
@@ -522,7 +520,7 @@ def resnet_lstm_v2(
     start_kernel=3,
     mid_kernel=3,
     startfilter=48,
-    input_weights=None,
+    input_model=None,
     last_activation="softmax",
 ):
    
@@ -660,9 +658,9 @@ def resnet_lstm_v2(
     # Create model.
     model = models.Model(inputs, outputs)
 
-    if input_weights is not None:
+    if input_model is not None:
 
-        model.load_weights(input_weights, by_name=True)
+        model.load_model(input_model)
 
     return model
 
@@ -677,7 +675,7 @@ def resnet_v2(
     start_kernel=3,
     mid_kernel=3,
     startfilter=48,
-    input_weights=None,
+    input_model=None,
     last_activation="softmax",
 ):
    
@@ -798,9 +796,9 @@ def resnet_v2(
     # Create model.
     model = models.Model(inputs, outputs)
 
-    if input_weights is not None:
+    if input_model is not None:
 
-        model.load_weights(input_weights, by_name=True)
+        model.load_model(input_model)
 
     return model
 
@@ -812,7 +810,7 @@ def resnet_1D_regression(
     start_kernel=3,
     mid_kernel=3,
     startfilter=48,
-    input_weights=None,
+    input_model=None,
 ):
     """
     # Returns
@@ -905,9 +903,9 @@ def resnet_1D_regression(
     # Create model.
     model = models.Model(inputs, outputs)
 
-    if input_weights is not None:
+    if input_model is not None:
 
-        model.load_weights(input_weights, by_name=True)
+        model.load_model(input_model)
 
     return model
 
@@ -922,7 +920,7 @@ def resnet_v2_class(
     start_kernel=3,
     mid_kernel=3,
     startfilter=48,
-    input_weights=None,
+    input_model=None,
     last_activation="softmax",
 ):
     
@@ -1024,9 +1022,9 @@ def resnet_v2_class(
     # Create model.
     model = models.Model(inputs, outputs)
 
-    if input_weights is not None:
+    if input_model is not None:
 
-        model.load_weights(input_weights, by_name=True)
+        model.load_model(input_model)
 
     return model
 
@@ -1041,7 +1039,7 @@ def resnet_lstm_v2_class(
     start_kernel=3,
     mid_kernel=3,
     startfilter=48,
-    input_weights=None,
+    input_model=None,
     last_activation="softmax",
 ):
    
@@ -1154,9 +1152,9 @@ def resnet_lstm_v2_class(
     # Create model.
     model = models.Model(inputs, outputs)
 
-    if input_weights is not None:
+    if input_model is not None:
 
-        model.load_weights(input_weights, by_name=True)
+        model.load_model(input_model)
 
     return model
 
