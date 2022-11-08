@@ -16,9 +16,10 @@ reg_weight = 1.0e-4
 
 
 class Concat(layers.Layer):
-    def __init__(self, axis=-1):
+    def __init__(self, axis=-1, **kwargs):
 
         self.axis = axis
+        self.kwargs = kwargs
         super().__init__()
 
     def get_config(self):
@@ -197,12 +198,6 @@ def LRNet(
 
     return model
 
-
-
-    
-    
-    
-    
 def _voll_dense_block(x, nb_layers,
     num_filters,
     kernel_size,
@@ -366,13 +361,20 @@ class DenseNet:
 
     def __call__(self, x):
         self.nb_layers = []
-        if type(self.depth) is list:
-            for v in range(len(self.depth)):
+        if type(self.depth) is dict:
+            for (k,v) in self.depth.items():
                 self.nb_layers.append(v) # get the list
                 
         if len(self.nb_layers) != self.stage_number:
                 raise ValueError('If `stage_number` is a list, its length must match '
                                  'the number of layers provided by `depth`.')
+                
+        x = _voll_conv(
+            x,
+            num_filters=self.startfilter,
+            kernel_size=self.start_kernel,
+            conv_first=True
+        )        
         for stage in range(self.stage_number):
             
             x = _voll_dense_block(x, self.nb_layers[stage],
@@ -388,6 +390,7 @@ class DenseNet:
             x = Activation(self.activation)(x)   
         
         return x
+    
 class ResNet:
     def __init__(self, depth, startfilter, stage_number, start_kernel, mid_kernel, activation='relu'):
         
@@ -401,7 +404,12 @@ class ResNet:
     def __call__(self, x):
         
         self.num_filters_in = self.startfilter
-        self.nb_layers = self.depth      
+        if type(self.depth) is dict:
+            for (k,v) in self.depth.items():
+                self.nb_layers = v
+        else:
+                
+              self.nb_layers = self.depth      
                 
         num_res_blocks = int((self.nb_layers - 2) / 9)
         x = _voll_conv(
@@ -476,18 +484,14 @@ def DenseVollNet(
                 stage_number: int = 3,
                 input_model=None,
                 last_activation: str="softmax",
-                depth: list=[6, 12, 24],
-                reduction: float = 0.5,
-                **kwargs
+                depth: dict={'depth_0': 6, 'depth_1': 12, 'depth_2':24, 'depth_3':16},
+                reduction: float = 0.5
 ):
     
         last_conv_factor, img_input = _voll_top(input_shape = input_shape, stage_number = stage_number)
-        densenet = DenseNet(depth, startfilter, stage_number, start_kernel, mid_kernel, reduction, **kwargs)
+        densenet = DenseNet(depth, startfilter, stage_number, start_kernel, mid_kernel, reduction)
         x = densenet(img_input)
         model = _voll_bottom(x, img_input, input_shape, categories, mid_kernel, last_conv_factor, last_activation, nboxes, box_vector, input_model, yolo_loss)
-        
-        
-
         return model
         
 
@@ -504,16 +508,15 @@ def VollNet(
             stage_number: int = 3,
             input_model=None,
             last_activation: str="softmax",
-            depth: int = 29
+            depth: dict={'depth_0': 29}
 ):
     
         last_conv_factor, img_input = _voll_top(input_shape = input_shape, stage_number = stage_number)
         resnet = ResNet(depth, startfilter, stage_number, start_kernel, mid_kernel)
         x = resnet(img_input)
         model = _voll_bottom(x, img_input, input_shape, categories, mid_kernel, last_conv_factor, last_activation, nboxes, box_vector, input_model, yolo_loss)
-        
-
         return model
+
 
 def resnet_lstm_v2(
     input_shape,

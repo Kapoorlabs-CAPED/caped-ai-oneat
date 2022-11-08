@@ -67,9 +67,7 @@ class NEATDenseVollNet(object):
             self.key_cord = config.key_cord
             self.box_vector = len(config.key_cord)
             self.categories = len(config.key_categories)
-            self.depth_0 = config.depth_0
-            self.depth_1 = config.depth_1
-            self.depth_2 = config.depth_2
+            self.depth = config.depth
             self.start_kernel = config.start_kernel
             self.mid_kernel = config.mid_kernel
             self.learning_rate = config.learning_rate
@@ -104,9 +102,7 @@ class NEATDenseVollNet(object):
             self.box_vector = self.config['box_vector']
             self.show = self.config['show']
             
-            self.depth_0 = self.config['depth_0']
-            self.depth_1 = self.config['depth_1']
-            self.depth_2 = self.config['depth_2']
+            self.depth = self.config['depth']
             self.start_kernel = self.config['start_kernel']
             self.mid_kernel = self.config['mid_kernel']
             self.learning_rate = self.config['learning_rate']
@@ -217,7 +213,7 @@ class NEATDenseVollNet(object):
         self.Trainingmodel = self.model_keras(input_shape, self.categories, 
                                               box_vector=Y_rest.shape[-1], yolo_loss = self.yolo_loss, nboxes=self.nboxes,
                                               stage_number=self.stage_number,
-                                              depth=[self.depth_0, self.depth_1, self.depth_2], start_kernel=self.start_kernel,
+                                              depth=self.depth, start_kernel=self.start_kernel,
                                               mid_kernel=self.mid_kernel, 
                                               startfilter=self.startfilter, input_model=self.model_dir,
                                               last_activation=self.last_activation)

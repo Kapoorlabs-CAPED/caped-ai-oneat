@@ -186,10 +186,7 @@ class volume_config(argparse.Namespace):
         size_tminus=1,
         size_tplus=1,
         nboxes=1,
-        depth = 29, 
-        depth_0 = 12,
-        depth_1 = 24, 
-        depth_2 = 16,
+        depth= {'depth_0': 12, 'depth_1': 24, 'depth_2': 16},
         reduction = 0.5,
         weight_decay=1e-4,
         start_kernel=7,
@@ -219,9 +216,6 @@ class volume_config(argparse.Namespace):
         self.categories = len(self.key_categories)
         self.box_vector = len(self.key_cord)
         self.depth = depth
-        self.depth_0 = depth_0
-        self.depth_1 = depth_1
-        self.depth_2 = depth_2 
         self.reduction = reduction
         self.weight_decay=weight_decay
         
@@ -263,9 +257,6 @@ class volume_config(argparse.Namespace):
             "size_tplus": self.size_tplus,
             "stride": self.stride,
             "depth": self.depth,
-            "depth_0": self.depth_0,
-            "depth_1": self.depth_1,
-            "depth_2": self.depth_2,
             "reduction": self.reduction,
             "weight_decay": self.weight_decay,
             "categories": self.categories,
@@ -314,9 +305,6 @@ class volume_config(argparse.Namespace):
         ok["yolo_v2"] = isinstance(self.yolo_v2, bool)
         ok["pure_lstm"] = isinstance(self.pure_lstm, bool)
         ok["depth"] = isinstance(self.depth, int)
-        ok["depth_0"] = isinstance(self.depth_0, int)
-        ok["depth_1"] = isinstance(self.depth_1, int)
-        ok["depth_2"] = isinstance(self.depth_2, int)
         ok["reduction"] = isinstance(self.reduction, float)
         ok["weight_decay"]=isinstance(self.weight_decay, float)
         ok["stride"] = _is_int(self.stride, 1)
