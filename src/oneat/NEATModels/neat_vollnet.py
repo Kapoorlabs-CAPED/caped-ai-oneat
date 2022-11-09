@@ -13,7 +13,6 @@ from oneat.NEATModels.loss import volume_yolo_loss
 from oneat.pretrained import get_registered_models, get_model_details, get_model_instance
 from pathlib import Path
 from tensorflow.keras.models import load_model
-from tensorflow.keras.utils import plot_model
 from tifffile import imread
 
 
@@ -220,9 +219,7 @@ class NEATVollNet(object):
         sgd = tf.keras.optimizers.Adam(learning_rate=self.learning_rate)
         self.Trainingmodel.compile(optimizer=sgd, loss=self.yolo_loss, metrics=['accuracy'])
         self.Trainingmodel.summary()
-        plot_model(self.Trainingmodel, to_file = os.path.join(self.model_dir ,'model.png'), 
-        show_shapes = True, show_layer_names=True)
-   
+        
         # Keras callbacks
         lrate = callbacks.ReduceLROnPlateau(monitor='loss', factor=0.1, patience=4, verbose=1)
         hrate = callbacks.History()

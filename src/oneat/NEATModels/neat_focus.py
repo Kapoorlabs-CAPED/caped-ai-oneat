@@ -239,7 +239,7 @@ class NEATFocus:
             start_kernel=self.start_kernel,
             mid_kernel=self.mid_kernel,
             startfilter=self.startfilter,
-            input_weights=self.model_weights,
+            input_model=self.model_dir,
             last_activation=self.last_activation,
         )
 
@@ -290,7 +290,7 @@ class NEATFocus:
             callbacks=[lrate, hrate, srate, prate, tensorboard_callback],
         )
 
-        self.Trainingmodel.save(model_weights)
+        self.Trainingmodel.save(self.model_dir)
 
     def predict(
         self,
