@@ -261,7 +261,6 @@ class NEATVollNet(object):
                 dtype : np.dtype = np.uint8,
                 marker_tree : dict = None, 
                 remove_markers : bool = False, 
-                normalize : bool = True,  
                 nms_function : str = 'iou', 
                 activations : bool = False):
         
@@ -269,7 +268,6 @@ class NEATVollNet(object):
         self.nms_function = nms_function 
         self.originalimage = image.astype(self.dtype)
         self.ndim = len(self.originalimage.shape)
-        self.normalize = normalize
         self.activations = activations
         self.savedir = savedir
         if self.savedir is not None:
@@ -292,8 +290,7 @@ class NEATVollNet(object):
         self.remove_markers = remove_markers
         
         #Normalize in volume
-        if self.normalize: 
-            self.originalimage = normalizeFloatZeroOne(self.originalimage, 1, 99.8, dtype = self.dtype)
+        self.originalimage = normalizeFloatZeroOne(self.originalimage, 1, 99.8, dtype = self.dtype)
         if self.remove_markers == True:
             self.generate_maps = False 
             self.image = np.zeros([self.originalimage.shape[0], self.originalimage.shape[1],  self.originalimage.shape[2] + self.pad_width[0], self.originalimage.shape[3] + self.pad_width[1] ])
