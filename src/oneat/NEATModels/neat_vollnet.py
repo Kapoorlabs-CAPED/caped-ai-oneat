@@ -5,6 +5,7 @@ from oneat.NEATUtils.utils import save_volume, pad_timelapse, get_nearest_volume
 from keras import callbacks
 import os
 import sys
+import datetime
 import tensorflow as tf
 from tqdm import tqdm
 from oneat.NEATModels import nets
@@ -221,6 +222,8 @@ class NEATVollNet(object):
         self.Trainingmodel.summary()
         
         # Keras callbacks
+        log_dir = "logs/fit/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+        tensorboard_callback = callbacks.TensorBoard(log_dir=log_dir, histogram_freq=1)
         lrate = callbacks.ReduceLROnPlateau(monitor='loss', factor=0.1, patience=4, verbose=1)
         hrate = callbacks.History()
         srate = callbacks.ModelCheckpoint(self.model_dir, monitor='loss', verbose=1,
@@ -228,10 +231,11 @@ class NEATVollNet(object):
         prate = plotters.PlotVolumeHistory(self.Trainingmodel, self.X_val, self.Y_val, self.key_categories, self.key_cord,
                                      self.gridx, self.gridy, self.gridz, plot=self.show, nboxes=self.nboxes)
 
+        
         # Train the model and save as a h5 file
         self.Trainingmodel.fit(self.X, self.Y, batch_size=self.batch_size,
                                epochs=self.epochs, validation_data=(self.X_val, self.Y_val), shuffle=True,
-                               callbacks=[lrate, hrate, srate, prate])
+                               callbacks=[lrate, hrate, srate, prate, tensorboard_callback])
 
 
         self.Trainingmodel.save(self.model_dir)
