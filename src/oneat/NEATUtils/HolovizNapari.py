@@ -37,7 +37,7 @@ class NEATViz:
         start_project_mid: int = None,
         end_project_mid: int = None,
         headless: bool = False,
-        volume: bool = False,
+        volume: bool = True,
         batch: bool = False,
         event_threshold: float = 0.999,
         nms_space: int = 10,
@@ -76,11 +76,32 @@ class NEATViz:
             self.donotshowNapari()
         if self.volume:
             self.showVolumeNapari()
+        if self.volume and self.headless:
+            self.donotshowVolumeNapari()    
 
     def load_json(self):
         with open(self.categories_json) as f:
             return json.load(f)
 
+    def donotshowVolumeNapari(self):
+        
+        Raw_path = os.path.join(self.imagedir, self.fileextension)
+        X = glob.glob(Raw_path)
+
+        for imagename in X:
+
+            
+            headlessvolumecall(
+                imagename,
+                self.key_categories,
+                self.event_threshold,
+                self.nms_space,
+                self.nms_time,
+                self.csvdir,
+                self.savedir,
+                self.batch,
+            )
+        
     def donotshowNapari(self):
 
         Raw_path = os.path.join(self.imagedir, self.fileextension)
@@ -88,16 +109,14 @@ class NEATViz:
 
         for imagename in X:
 
-            Name = os.path.basename(os.path.splitext(imagename)[0])
             image = imread(imagename)
-            seg_image = imread(self.segimagedir + Name + ".tif")
             if (
                 self.start_project_mid is not None
                 or self.end_project_mid is not None
             ):
-                if len(seg_image.shape) == 4:
-                    seg_image = MidSlices(
-                        seg_image,
+                if len(image.shape) == 4:
+                    image = MidSlices(
+                        image,
                         self.start_project_mid,
                         self.end_project_mid,
                         False,
@@ -255,6 +274,83 @@ def cluster_points(
                                     )
     return event_locations_size_dict
 
+def cluster_spheres(event_locations_dict, event_locations_size_dict, nms_space, nms_time):
+
+        print("before", len(event_locations_size_dict))
+
+        for (k, v) in event_locations_dict.items():
+            currenttime = k
+            event_locations = v
+
+            if len(event_locations) > 0:
+                tree = spatial.cKDTree(event_locations)
+                forwardtime = currenttime + 1
+                if int(forwardtime) in event_locations_dict.keys():
+                    forward_event_locations = event_locations_dict[
+                        int(forwardtime)
+                    ]
+                    for location in forward_event_locations:
+                        if (
+                            int(forwardtime),
+                            int(location[0]),
+                            int(location[1]),
+                            int(location[2]),
+                        ) in event_locations_size_dict:
+                            (
+                                forwardsize,
+                                forwardscore,
+                                forwardconfidence,
+                            ) = event_locations_size_dict[
+                                int(forwardtime),
+                                int(location[0]),
+                                int(location[1]),
+                                int(location[2]),
+                            ]
+                            distance, nearest_location = tree.query(location)
+                            nearest_location = (
+                                int(event_locations[nearest_location][0]),
+                                int(event_locations[nearest_location][1]),
+                                int(event_locations[nearest_location][2]),
+                            )
+
+                            if distance <= nms_space:
+                                if (
+                                    int(currenttime),
+                                    int(nearest_location[0]),
+                                    int(nearest_location[1]),
+                                    int(nearest_location[2]),
+                                ) in event_locations_size_dict:
+                                    (
+                                        currentsize,
+                                        currentscore,
+                                        currentconfidence,
+                                    ) = event_locations_size_dict[
+                                        int(currenttime),
+                                        int(nearest_location[0]),
+                                        int(nearest_location[1]),
+                                        int(nearest_location[2]),
+                                    ]
+                                    if currentscore >= forwardscore:
+                                        event_locations_size_dict.pop(
+                                            (
+                                                int(forwardtime),
+                                                int(location[0]),
+                                                int(location[1]),
+                                                int(location[2]),
+                                            )
+                                        )
+
+                                    if currentscore < forwardscore:
+                                        event_locations_size_dict.pop(
+                                            (
+                                                int(currenttime),
+                                                int(nearest_location[0]),
+                                                int(nearest_location[1]),
+                                                int(nearest_location[2]),
+                                            )
+                                        )
+                                        
+        return event_locations_size_dict                                
 
 def headlesscall(
     image: np.ndarray,
@@ -374,6 +470,173 @@ def headlesscall(
                         zlocations.append(0)
                     ylocations.append(float(location[1]))
                     xlocations.append(float(location[2]))
+                    scores.append(float(sizescore[1]))
+                    radiuses.append(float(sizescore[0]))
+                    confidences.append(1)
+                    angles.append(2)
+                for location in dict_locations:
+                    event_locations_clean.append(location)
+
+                event_count = np.column_stack(
+                    [
+                        tlocations,
+                        zlocations,
+                        ylocations,
+                        xlocations,
+                        scores,
+                        radiuses,
+                        confidences,
+                        angles,
+                    ]
+                )
+                event_count = sorted(
+                    event_count, key=lambda x: x[0], reverse=False
+                )
+
+                event_data = []
+                csvname = savedir + "/" + "Clean" + savename
+                if os.path.exists(csvname + ".csv"):
+                    os.remove(csvname + ".csv")
+                writer = csv.writer(open(csvname + ".csv", "a", newline=""))
+                filesize = os.stat(csvname + ".csv").st_size
+
+                if filesize < 1:
+                    writer.writerow(
+                        [
+                            "T",
+                            "Z",
+                            "Y",
+                            "X",
+                            "Score",
+                            "Size",
+                            "Confidence",
+                            "Angle",
+                        ]
+                    )
+                for line in event_count:
+                    if line not in event_data:
+                        event_data.append(line)
+                    writer.writerows(event_data)
+                    event_data = []
+
+
+def headlessvolumecall(
+    imagename: str,
+    key_categories: dict,
+    event_threshold: float,
+    nms_space: int,
+    nms_time: int,
+    csvdir: str,
+    savedir: str,
+    batch: bool,
+):
+    for (event_name, event_label) in key_categories.items():
+        if event_label > 0:
+            event_locations = []
+            size_locations = []
+            score_locations = []
+            event_locations = []
+            confidence_locations = []
+            event_locations_dict = {}
+            event_locations_size_dict = {}
+            if not batch:
+                csvnames = [
+                    csvdir
+                    + "/"
+                    + event_name
+                    + "Location"
+                    + (os.path.splitext(os.path.basename(imagename)))[0]
+                    + ".csv"
+                ]
+                savename = (
+                    event_name
+                    + "Location"
+                    + (os.path.splitext(os.path.basename(imagename)))[0]
+                )
+            else:
+                csvnames = list(Path(csvdir).glob("*.csv"))
+            for csvname in csvnames:
+                event_locations = []
+                size_locations = []
+                score_locations = []
+                event_locations = []
+                confidence_locations = []
+                event_locations_dict = {}
+                event_locations_size_dict = {}
+                savename = csvname.stem
+                print(savename)
+                dataset = pd.read_csv(csvname, delimiter=",")
+                # Data is written as T, Y, X, Score, Size, Confidence
+                T = dataset[dataset.keys()[0]][0:]
+                Z = dataset[dataset.keys()[1]][0:]
+                Y = dataset[dataset.keys()[2]][0:]
+                X = dataset[dataset.keys()[3]][0:]
+                Score = dataset[dataset.keys()[4]][0:]
+                Size = dataset[dataset.keys()[5]][0:]
+                Confidence = dataset[dataset.keys()[6]][0:]
+                listtime = T.tolist()
+                listy = Y.tolist()
+                listz = Z.tolist()
+                listx = X.tolist()
+                listsize = Size.tolist()
+
+                listscore = Score.tolist()
+                listconfidence = Confidence.tolist()
+
+                for i in range(len(listtime)):
+
+                    tcenter = int(listtime[i])
+                    ycenter = listy[i]
+                    zcenter = listz[i]
+                    xcenter = listx[i]
+                    size = listsize[i]
+                    score = listscore[i]
+                    confidence = listconfidence[i]
+                    if score > event_threshold:
+                        event_locations.append(
+                            [int(tcenter), int(zcenter), int(ycenter), int(xcenter)]
+                        )
+
+                        if int(tcenter) in event_locations_dict.keys():
+                            current_list = event_locations_dict[int(tcenter)]
+                            current_list.append([int(zcenter), int(ycenter), int(xcenter)])
+                            event_locations_dict[int(tcenter)] = current_list
+                            event_locations_size_dict[
+                                (int(tcenter), int(zcenter), int(ycenter), int(xcenter))
+                            ] = [size, score]
+                        else:
+                            current_list = []
+                            current_list.append([int(zcenter), int(ycenter), int(xcenter)])
+                            event_locations_dict[int(tcenter)] = current_list
+                            event_locations_size_dict[
+                                int(tcenter), int(zcenter), int(ycenter), int(xcenter)
+                            ] = [size, score]
+
+                        size_locations.append(size)
+                        score_locations.append(score)
+                        confidence_locations.append(confidence)
+
+                event_locations_size_dict = cluster_points(
+                    event_locations_dict,
+                    event_locations_size_dict,
+                    nms_space,
+                    nms_time,
+                )
+                event_locations_clean = []
+                dict_locations = event_locations_size_dict.keys()
+                tlocations = []
+                zlocations = []
+                ylocations = []
+                xlocations = []
+                scores = []
+                radiuses = []
+                confidences = []
+                angles = []
+                for location, sizescore in event_locations_size_dict.items():
+                    tlocations.append(float(location[0]))
+                    zlocations.append(float(location[1]))
+                    ylocations.append(float(location[2]))
+                    xlocations.append(float(location[3]))
                     scores.append(float(sizescore[1]))
                     radiuses.append(float(sizescore[0]))
                     confidences.append(1)
