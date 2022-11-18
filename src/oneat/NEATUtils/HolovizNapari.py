@@ -74,7 +74,7 @@ class NEATViz:
             self.showNapari()
         if self.headless and not self.volume:
             self.donotshowNapari()
-        if self.volume:
+        if self.volume and not self.headless:
             self.showVolumeNapari()
         if self.volume and self.headless:
             self.donotshowVolumeNapari()    
@@ -396,7 +396,7 @@ def headlesscall(
                 confidence_locations = []
                 event_locations_dict = {}
                 event_locations_size_dict = {}
-                savename = csvname.stem
+                savename = Path(csvname).stem
                 print(savename)
                 dataset = pd.read_csv(csvname, delimiter=",")
                 # Data is written as T, Y, X, Score, Size, Confidence
@@ -563,7 +563,7 @@ def headlessvolumecall(
                 confidence_locations = []
                 event_locations_dict = {}
                 event_locations_size_dict = {}
-                savename = csvname.stem
+                savename = Path(csvname).stem
                 print(savename)
                 dataset = pd.read_csv(csvname, delimiter=",")
                 # Data is written as T, Y, X, Score, Size, Confidence
