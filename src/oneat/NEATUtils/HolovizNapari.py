@@ -88,53 +88,25 @@ class NEATViz:
 
     def donotshowVolumeNapari(self):
         
-        Raw_path = os.path.join(self.imagedir, self.fileextension)
-        X = glob.glob(Raw_path)
-
-        for imagename in X:
-
-            
-            headlessvolumecall(
-                imagename,
+        headlessvolumecall(
                 self.key_categories,
                 self.event_threshold,
                 self.nms_space,
                 self.nms_time,
                 self.csvdir,
                 self.savedir,
-                self.batch,
             )
         
     def donotshowNapari(self):
 
-        Raw_path = os.path.join(self.imagedir, self.fileextension)
-        X = glob.glob(Raw_path)
-
-        for imagename in X:
-
-            image = imread(imagename)
-            if (
-                self.start_project_mid is not None
-                or self.end_project_mid is not None
-            ):
-                if len(image.shape) == 4:
-                    image = MidSlices(
-                        image,
-                        self.start_project_mid,
-                        self.end_project_mid,
-                        False,
-                        axis=1,
-                    )
-            headlesscall(
-                image,
-                imagename,
+        headlesscall(
+                
                 self.key_categories,
                 self.event_threshold,
                 self.nms_space,
                 self.nms_time,
                 self.csvdir,
                 self.savedir,
-                self.batch,
             )
 
     def showNapari(self):
@@ -356,15 +328,12 @@ def cluster_spheres(event_locations_dict, event_locations_size_dict, nms_space, 
         return event_locations_size_dict                                
 
 def headlesscall(
-    image: np.ndarray,
-    imagename: str,
     key_categories: dict,
     event_threshold: float,
     nms_space: int,
     nms_time: int,
     csvdir: str,
     savedir: str,
-    batch: bool,
 ):
     for (event_name, event_label) in key_categories.items():
         if event_label > 0:
@@ -375,22 +344,7 @@ def headlesscall(
             confidence_locations = []
             event_locations_dict = {}
             event_locations_size_dict = {}
-            if not batch:
-                csvnames = [
-                    csvdir
-                    + "/"
-                    + event_name
-                    + "Location"
-                    + (os.path.splitext(os.path.basename(imagename)))[0]
-                    + ".csv"
-                ]
-                savename = (
-                    event_name
-                    + "Location"
-                    + (os.path.splitext(os.path.basename(imagename)))[0]
-                )
-            else:
-                csvnames = list(Path(csvdir).glob("*.csv"))
+            csvnames = list(Path(csvdir).glob("*.csv"))
             for csvname in csvnames:
                 event_locations = []
                 size_locations = []
@@ -467,10 +421,7 @@ def headlesscall(
                 angles = []
                 for location, sizescore in event_locations_size_dict.items():
                     tlocations.append(float(location[0]))
-                    if len(image.shape) == 4:
-                        zlocations.append(float(image.shape[1] // 2))
-                    else:
-                        zlocations.append(0)
+                    zlocations.append(0)
                     ylocations.append(float(location[1]))
                     xlocations.append(float(location[2]))
                     scores.append(float(sizescore[1]))
@@ -497,7 +448,7 @@ def headlesscall(
                 )
 
                 event_data = []
-                csvname = savedir + "/" + "Clean" + savename
+                csvname = savedir + "/" + "clean_" + savename
                 if os.path.exists(csvname + ".csv"):
                     os.remove(csvname + ".csv")
                 writer = csv.writer(open(csvname + ".csv", "a", newline=""))
@@ -524,14 +475,12 @@ def headlesscall(
 
 
 def headlessvolumecall(
-    imagename: str,
     key_categories: dict,
     event_threshold: float,
     nms_space: int,
     nms_time: int,
     csvdir: str,
     savedir: str,
-    batch: bool,
 ):
     for (event_name, event_label) in key_categories.items():
         if event_label > 0:
@@ -542,22 +491,7 @@ def headlessvolumecall(
             confidence_locations = []
             event_locations_dict = {}
             event_locations_size_dict = {}
-            if not batch:
-                csvnames = [
-                    csvdir
-                    + "/"
-                    + event_name
-                    + "Location"
-                    + (os.path.splitext(os.path.basename(imagename)))[0]
-                    + ".csv"
-                ]
-                savename = (
-                    event_name
-                    + "Location"
-                    + (os.path.splitext(os.path.basename(imagename)))[0]
-                )
-            else:
-                csvnames = list(Path(csvdir).glob("*.csv"))
+            csvnames = list(Path(csvdir).glob("*.csv"))
             for csvname in csvnames:
                 event_locations = []
                 size_locations = []
@@ -664,7 +598,7 @@ def headlessvolumecall(
                 )
 
                 event_data = []
-                csvname = savedir + "/" + "Clean" + savename
+                csvname = savedir + "/" + "clean_" + savename
                 if os.path.exists(csvname + ".csv"):
                     os.remove(csvname + ".csv")
                 writer = csv.writer(open(csvname + ".csv", "a", newline=""))
