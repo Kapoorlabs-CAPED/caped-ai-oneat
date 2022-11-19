@@ -10,14 +10,13 @@ import json
 import os
 from pathlib import Path
 
-import napari
+
 import numpy as np
 import pandas as pd
-from qtpy.QtCore import Qt
+
 from scipy import spatial
 from tifffile import imread
 
-from oneat.NEATUtils.oneat_animation._qt import OneatVolumeWidget, OneatWidget
 from oneat.NEATUtils.oneat_animation.OneatVisualization import MidSlices
 
 
@@ -65,11 +64,15 @@ class NEATViz:
 
         Path(self.savedir).mkdir(exist_ok=True)
         Path(self.csvdir).mkdir(exist_ok=True)
-        self.viewer = napari.Viewer()
+        
 
         self.time = 0
         self.key_categories = self.load_json()
-
+        if not self.headless:
+            import napari
+            from qtpy.QtCore import Qt
+            from oneat.NEATUtils.oneat_animation._qt import OneatVolumeWidget, OneatWidget
+            self.viewer = napari.Viewer() 
         if not self.headless and not self.volume:
             self.showNapari()
         if self.headless and not self.volume:
