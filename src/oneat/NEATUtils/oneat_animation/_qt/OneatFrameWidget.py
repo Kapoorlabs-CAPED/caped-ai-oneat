@@ -37,12 +37,13 @@ class OneatFrameWidget(QWidget):
         self.heatstepsSpinBox = QSpinBox()
         self.heatstepsSpinBox.setValue(1)
         self.heatstepsSpinBox.setMaximum(100000)
-        self.startprobSpinBox = QDoubleSpinBox()
+        
 
         self.nmsspaceSpinBox = QDoubleSpinBox()
         self.nmsspaceSpinBox.setValue(10)
         self.nmsspaceSpinBox.setMaximum(100000)
-
+        
+        self.startprobSpinBox = QDoubleSpinBox()
         self.startprobSpinBox.setValue(0.9)
         self.startprobSpinBox.setDecimals(10)
 
@@ -68,7 +69,7 @@ class OneatFrameWidget(QWidget):
         self.ax = self.multiplot_widget.figure.subplots(1, 1)
 
         self._layout.addWidget(self.multiplot_widget)
-        self._layout.addRow("Image/Movie", self.imageidbox)
+        self._layout.addRow("Image", self.imageidbox)
         self._layout.addRow("Event", self.eventidbox)
         self._layout.addRow("Heat Map Steps", self.heatstepsSpinBox)
         self._layout.addRow("NMS space (px)", self.nmsspaceSpinBox)
