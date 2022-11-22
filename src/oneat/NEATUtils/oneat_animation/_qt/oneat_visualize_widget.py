@@ -3,11 +3,10 @@ from qtpy.QtWidgets import (QWidget, QVBoxLayout, QLabel)
 from .OneatVisWidget import OneatVisWidget
 from ..OneatSimpleVisualization import OneatSimpleVisualization
 
-class oneat_visualize_widget(QWidget):
+class OneatVisualizeWidget(QWidget):
     
     def __init__(self,
                  viewer : Viewer,
-                 imagename : str, 
                  csvname: str, 
                  parent = None):
         
@@ -19,12 +18,12 @@ class oneat_visualize_widget(QWidget):
         self._layout.addWidget(QLabel("Visualize Detections", parent = self))
         self.viswidget = OneatVisWidget(parent= self)
         self._layout.addWidget(self.viswidget)
-        
+        self.event_threshold = float(self.viswidget.label.text())
         
         self.viswidget.startprobspinbox.connect(self._update_startprob_callback())
         self.viswidget.scoreslider.SliderValueChange.connect(self._update_slider_callback())
         
-        self.simplevisualization = OneatSimpleVisualization(viewer, imagename, csvname, self.viswidget.ax, self.viswidget.figure )
+        self.simplevisualization = OneatSimpleVisualization(viewer, csvname,  self.viswidget.ax, self.viswidget.figure )
         
         self.viswidget.imageidbox.currentIndexChanged.connect(
             lambda imageid = self.viswidget.imageidbox : self._capture_image_callback()
@@ -46,10 +45,7 @@ class oneat_visualize_widget(QWidget):
         self.viswidget.label.setText(str(real_value))
         self.event_threshold = float(real_value)    
         
-    def _capture_image_callback(self):
-            
-           
-           self.simplevisualization.show_image()
+   
            
            
     def _capture_detections_callback(self):  

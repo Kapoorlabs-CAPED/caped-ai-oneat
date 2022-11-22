@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from pathlib import Path
+from  napari import layers
 class OneatSimpleVisualization:
     
     def __init__(self, viewer: Viewer,
@@ -21,15 +22,11 @@ class OneatSimpleVisualization:
         
     def show_image(self):
         
-        name_remove = ("Image")
         for layer in list(self.viewer.layers):
-            if any(name in layer.name for name in name_remove ):
-                self.viewer.layers.remove(layer)
+            if isinstance(layer, layers.Image):
+                self.image = layer.data
         
-        
-        self.image = imread(self.imagename)  
         self.totaltime = self.image.shape[0]
-        self.viewer.add_image(self.image, name ="Image" + self.imagename )
         
   
         

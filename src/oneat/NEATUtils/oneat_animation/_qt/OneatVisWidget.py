@@ -1,5 +1,5 @@
 from qtpy.QtWidgets import (
-    QWidget, QFormLayout, QComboBox, QDoubleSpinBox, QSlider, QLabel, QPushButton
+    QWidget, QFormLayout, QComboBox, QDoubleSpinBox, QSlider, QLabel, QPushButton, QFileDialog
 )
 from qtpy.QtCore import Qt
 
@@ -14,15 +14,9 @@ class OneatVisWidget(QWidget):
         
         self._layout = QFormLayout(parent= self)
         
-        
-        
-        self.imageidbox = QComboBox()
-        index = self.imageidbox.findText('linear', Qt.MatchFixedString)
-        self.imageidbox.setCurrentIndex(index)
-        
-        self.detectionidbox = QComboBox()
-        index = self.detectionidbox.findText('linear', Qt.MatchFixedString)
-        self.detectionidbox.setCurrentIndex(index)
+        self.detectionidbox = QFileDialog()
+        self.detectionidbox.setFileMode(QFileDialog.AnyFile)
+        self.detectionidbox.setFilter("Text files (*.csv)")
         
         
         
@@ -51,7 +45,6 @@ class OneatVisWidget(QWidget):
         self.ax = self.multiplot_widget.figure.subplots(1, 1)
 
         self._layout.addWidget(self.multiplot_widget)
-        self._layout.addRow("Image",self.imageidbox)
         self._layout.addRow("Detections", self.detectionidbox)
         self._layout.addRow("Lowest probability event", self.startprobspinbox)
         self._layout.addRow("Score slider", self.scoreslider)

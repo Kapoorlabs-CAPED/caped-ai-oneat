@@ -13,7 +13,9 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
-
+import napari
+from qtpy.QtCore import Qt
+from oneat.NEATUtils.oneat_animation._qt import OneatVolumeWidget, OneatWidget
 from scipy import spatial
 from tifffile import imread
 
@@ -69,9 +71,7 @@ class NEATViz:
         self.time = 0
         self.key_categories = self.load_json()
         if not self.headless:
-            import napari
-            from qtpy.QtCore import Qt
-            from oneat.NEATUtils.oneat_animation._qt import OneatVolumeWidget, OneatWidget
+            
             self.viewer = napari.Viewer() 
         if not self.headless and not self.volume:
             self.showNapari()

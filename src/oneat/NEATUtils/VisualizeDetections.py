@@ -1,20 +1,27 @@
 from pathlib import Path
 import json
+from oneat.NEATUtils.oneat_animation._qt import OneatVisualizeWidget
+import napari
+
 
 class VizDet:
     
-    def __init__(self, imagefile: Path, jsonfile: Path, csvfile: Path):
+    def __init__(self,  csvfile: str):
         
-        self.imagefile = imagefile 
-        self.jsonfile = jsonfile 
         self.csvfile = csvfile
         
+  
         
-    def load_json(self):
-        with open(self.jsonfile) as f:
-            return json.load(f)  
+    def show_detections(self):
         
-    def __call__(self):
+        self.viz_widget = OneatVisualizeWidget(napari.Viewer(), self.csvfile)
         
-        self.key_catagories = self.load_json()      
+        dock_widget = self.viewer.window.add_dock_widget(
+            self.viz_widget, area="right"
+        )
+        self.viewer.window._qt_window.resizeDocks(
+            [dock_widget], [200], Qt.Horizontal
+        )
+
+        napari.run()      
         
