@@ -21,14 +21,39 @@ class oneat_visualize_widget(QWidget):
         self.viswidget = OneatVisWidget(parent= self)
         self._layout.addWidget(self.viswidget)
         
-        self.simplevisualization = OneatSimpleVisualization(viewer, imagename, csvname )
+        
+        self.viswidget.startprobspinbox.connect(self._update_startprob_callback())
+        self.viswidget.scoreslider.SliderValueChange.connect(self._update_slider_callback())
+        
+        self.simplevisualization = OneatSimpleVisualization(viewer, imagename, csvname, self.viswidget.ax, self.viswidget.figure )
         
         self.viswidget.imageidbox.currentIndexChanged.connect(
-            lambda imageid = self.viswidget.imageidbox : self._capture_image_callback(imagename)
+            lambda imageid = self.viswidget.imageidbox : self._capture_image_callback()
         )
         
-    def _capture_image_callback(self, imagename):
+        self.viswidget.detectionidbox.currentIndexChanged.connect(
+            lambda detectioid = self.viswidget.detectionidbox: self._capture_detections_callback()
+        )
+    
+    def _update_startprob_callback(self, event):
+        self.start_prob = self.viswidget.startprobspinbox.value()    
+
+
+    def _update_slider_callback(self, value):
+
+        real_value = float(
+            self.start_prob + (1.0 - self.start_prob) / 5000 * float(value)
+        )
+        self.viswidget.label.setText(str(real_value))
+        self.event_threshold = float(real_value)    
+        
+    def _capture_image_callback(self):
             
-           get_image_text = self.viswidget.imageidbox.currentText() 
            
            self.simplevisualization.show_image()
+           
+           
+    def _capture_detections_callback(self):  
+        
+          self.simplevisualization.show_csv(self.event_threshold)
+                

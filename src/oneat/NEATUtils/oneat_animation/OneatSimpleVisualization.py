@@ -2,15 +2,21 @@ from napari.viewer import Viewer
 from tifffile import imread
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
+from pathlib import Path
 class OneatSimpleVisualization:
     
     def __init__(self, viewer: Viewer,
                  imagename: str, 
-                 csvname: str):
+                 csvname: str,
+                 ax,
+                 figure: plt):
         
         self.viewer = viewer 
         self.imagename = imagename 
         self.csvname = csvname
+        self.ax = ax
+        self.figure = figure
         
         
     def show_image(self):
@@ -21,10 +27,12 @@ class OneatSimpleVisualization:
                 self.viewer.layers.remove(layer)
         
         
-        self.image = imread(self.imagename)   
+        self.image = imread(self.imagename)  
+        self.totaltime = self.image.shape[0]
         self.viewer.add_image(self.image, name ="Image" + self.imagename )
         
   
+        
                 
     def show_csv(self, event_threshold):
                    
@@ -34,6 +42,7 @@ class OneatSimpleVisualization:
             size_locations = [] 
             score_locations = []
             confidence_locations = [] 
+            current_list = []
             detections = pd.read_csv(self.csvname, delimiter=',')
             nrows = len(detections.columns)
             for index, row in detections.iterrows():
@@ -90,9 +99,9 @@ class OneatSimpleVisualization:
                     score_locations.append(score)
                     confidence_locations.append(confidence)
             point_properties = {
-                "score": np.array(self.score_locations),
-                "confidence": np.array(self.confidence_locations),
-                "size": np.array(self.size_locations),
+                "score": np.array(score_locations),
+                "confidence": np.array(confidence_locations),
+                "size": np.array(size_locations),
             }
 
             name_remove = ("Detections", "Location Map")
@@ -100,9 +109,9 @@ class OneatSimpleVisualization:
 
                 if any(name in layer.name for name in name_remove):
                     self.viewer.layers.remove(layer)
-            if len(self.score_locations) > 0:
+            if len(score_locations) > 0:
                 self.viewer.add_points(
-                    self.event_locations,
+                    event_locations,
                     properties=point_properties,
                     symbol="square",
                     blending="translucent_no_depth",
@@ -110,7 +119,26 @@ class OneatSimpleVisualization:
                     face_color=[0] * 4,
                     edge_color="red",
                 )
-           
-           
-                     
+                
+            timelist = []
+            countlist = []    
+            for tcenter in range(self.totaltime):
+                
+                timelist.append(tcenter)
+                countlist.append(len(event_locations_dict[int(tcenter)]))
+                
+             
+            self.ax.plot(timelist, countlist, "-g")
+            self.ax.set_title(self.event_name + "Events")
+            self.ax.set_xlabel("Time")
+            self.ax.set_ylabel("Counts")
+            self.figure.canvas.draw()
+            self.figure.canvas.flush_events()
+
+            self.figure.savefig(
+                + Path(self.imagename).parent
+                + 'visualplot'
+                + ".png",
+                dpi=300,
+            )         
                         

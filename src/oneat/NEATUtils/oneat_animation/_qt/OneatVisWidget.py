@@ -20,9 +20,9 @@ class OneatVisWidget(QWidget):
         index = self.imageidbox.findText('linear', Qt.MatchFixedString)
         self.imageidbox.setCurrentIndex(index)
         
-        self.plotidbox = QComboBox()
-        index = self.plotidbox.findText('linear', Qt.MatchFixedString)
-        self.plotidbox.setCurrentIndex(index)
+        self.detectionidbox = QComboBox()
+        index = self.detectionidbox.findText('linear', Qt.MatchFixedString)
+        self.detectionidbox.setCurrentIndex(index)
         
         
         
@@ -52,10 +52,9 @@ class OneatVisWidget(QWidget):
 
         self._layout.addWidget(self.multiplot_widget)
         self._layout.addRow("Image",self.imageidbox)
-        self._layout.addRow("Json Catagories", self.jsonidbox)
+        self._layout.addRow("Detections", self.detectionidbox)
         self._layout.addRow("Lowest probability event", self.startprobspinbox)
         self._layout.addRow("Score slider", self.scoreslider)
-        self._layout.addRow("Plot", self.plotidbox)
         self._layout.addRow(self.recomputebutton)
         
         
