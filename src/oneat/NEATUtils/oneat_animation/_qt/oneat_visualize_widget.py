@@ -32,6 +32,9 @@ class OneatVisualizeWidget(QWidget):
         self.viswidget.detectionidbox.currentIndexChanged.connect(
             lambda detectioid = self.viswidget.detectionidbox: self._capture_detections_callback()
         )
+        self.viswidget.recomputeButton.clicked.connect(
+            lambda eventid=self.viswidget.recomputeButton: self._capture_detections_callback()
+        )
     
     def _update_startprob_callback(self, event):
         self.start_prob = self.viswidget.startprobspinbox.value()    
@@ -50,5 +53,6 @@ class OneatVisualizeWidget(QWidget):
            
     def _capture_detections_callback(self):  
         
+          self.event_threshold = float(self.viswidget.label.text())
           self.simplevisualization.show_csv(self.event_threshold)
                 
