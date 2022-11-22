@@ -10,13 +10,11 @@ class OneatVisWidget(QWidget):
     
     def __init__(self, parent = None):
         
-        super.__init__(parent = parent)
+        super().__init__(parent = parent)
         
         self._layout = QFormLayout(parent= self)
         
-        self.detectionidbox = QFileDialog()
-        self.detectionidbox.setFileMode(QFileDialog.AnyFile)
-        self.detectionidbox.setFilter("Text files (*.csv)")
+        self.detectionidbox = QPushButton('Select Prediction File (csv)', parent = self)
         
         
         
@@ -26,9 +24,9 @@ class OneatVisWidget(QWidget):
         
         self.scoreslider = QSlider(Qt.Horizontal, parent = self)
         self.scoreslider.setToolTip('Scroll through probability score')
-        self.scoreslider.setRange(5000)
-        self.scoreslider.singleStep(1)
-        self.scoreslider.tickInterval(1)
+        self.scoreslider.setRange(0, 5000)
+        self.scoreslider.setSingleStep(1)
+        self.scoreslider.setTickInterval(1)
         self.scoreslider.setValue(0)
         
         self.label = QLabel(parent= self)
@@ -45,8 +43,9 @@ class OneatVisWidget(QWidget):
         self.ax = self.multiplot_widget.figure.subplots(1, 1)
 
         self._layout.addWidget(self.multiplot_widget)
-        self._layout.addRow("Detections", self.detectionidbox)
+        self._layout.addRow(self.detectionidbox)
         self._layout.addRow("Lowest probability event", self.startprobspinbox)
+        self._layout.addRow("Veto", self.label)
         self._layout.addRow("Score slider", self.scoreslider)
         self._layout.addRow(self.recomputebutton)
         

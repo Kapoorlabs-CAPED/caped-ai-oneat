@@ -8,14 +8,10 @@ from  napari import layers
 class OneatSimpleVisualization:
     
     def __init__(self, viewer: Viewer,
-                 imagename: str, 
-                 csvname: str,
                  ax,
                  figure: plt):
         
         self.viewer = viewer 
-        self.imagename = imagename 
-        self.csvname = csvname
         self.ax = ax
         self.figure = figure
         
@@ -31,7 +27,7 @@ class OneatSimpleVisualization:
   
         
                 
-    def show_csv(self, event_threshold):
+    def show_csv(self, csvname, event_threshold):
                    
             event_locations_dict = {}
             event_locations_size_dict = {}
@@ -40,7 +36,7 @@ class OneatSimpleVisualization:
             score_locations = []
             confidence_locations = [] 
             current_list = []
-            detections = pd.read_csv(self.csvname, delimiter=',')
+            detections = pd.read_csv(csvname, delimiter=',')
             nrows = len(detections.columns)
             for index, row in detections.iterrows():
                 tcenter = int(row[0])

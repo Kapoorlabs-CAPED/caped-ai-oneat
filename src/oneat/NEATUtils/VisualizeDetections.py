@@ -2,19 +2,16 @@ from pathlib import Path
 import json
 from oneat.NEATUtils.oneat_animation._qt import OneatVisualizeWidget
 import napari
-
+from qtpy.QtCore import Qt
 
 class VizDet:
     
-    def __init__(self,  csvfile: str):
         
-        self.csvfile = csvfile
         
-  
+    def __init__(self):
         
-    def show_detections(self):
-        
-        self.viz_widget = OneatVisualizeWidget(napari.Viewer(), self.csvfile)
+        self.viewer = napari.Viewer()
+        self.viz_widget = OneatVisualizeWidget(self.viewer)
         
         dock_widget = self.viewer.window.add_dock_widget(
             self.viz_widget, area="right"

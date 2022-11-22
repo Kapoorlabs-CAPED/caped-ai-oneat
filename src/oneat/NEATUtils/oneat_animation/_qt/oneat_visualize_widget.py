@@ -1,5 +1,5 @@
 from napari.viewer import Viewer
-from qtpy.QtWidgets import (QWidget, QVBoxLayout, QLabel)
+from qtpy.QtWidgets import (QWidget, QVBoxLayout, QLabel, QFileDialog)
 from .OneatVisWidget import OneatVisWidget
 from ..OneatSimpleVisualization import OneatSimpleVisualization
 
@@ -7,7 +7,6 @@ class OneatVisualizeWidget(QWidget):
     
     def __init__(self,
                  viewer : Viewer,
-                 csvname: str, 
                  parent = None):
         
         super().__init__(parent = parent)
@@ -16,24 +15,22 @@ class OneatVisualizeWidget(QWidget):
         self.setLayout(self._layout)
         
         self._layout.addWidget(QLabel("Visualize Detections", parent = self))
-        self.viswidget = OneatVisWidget(parent= self)
+        self.viswidget = OneatVisWidget(parent = self)
         self._layout.addWidget(self.viswidget)
         self.event_threshold = float(self.viswidget.label.text())
+        self.start_prob = self.viswidget.startprobspinbox.value()
+        self.viswidget.startprobspinbox.valueChanged.connect(self._update_startprob_callback)
+        self.viswidget.scoreslider.valueChanged.connect(self._update_slider_callback)
         
-        self.viswidget.startprobspinbox.connect(self._update_startprob_callback())
-        self.viswidget.scoreslider.SliderValueChange.connect(self._update_slider_callback())
+        self.simplevisualization = OneatSimpleVisualization(viewer,  self.viswidget.ax, self.viswidget.figure )
         
-        self.simplevisualization = OneatSimpleVisualization(viewer, csvname,  self.viswidget.ax, self.viswidget.figure )
+       
         
-        self.viswidget.imageidbox.currentIndexChanged.connect(
-            lambda imageid = self.viswidget.imageidbox : self._capture_image_callback()
-        )
-        
-        self.viswidget.detectionidbox.currentIndexChanged.connect(
+        self.viswidget.detectionidbox.clicked.connect(
             lambda detectioid = self.viswidget.detectionidbox: self._capture_detections_callback()
         )
-        self.viswidget.recomputeButton.clicked.connect(
-            lambda eventid=self.viswidget.recomputeButton: self._capture_detections_callback()
+        self.viswidget.recomputebutton.clicked.connect(
+            lambda eventid=self.viswidget.recomputebutton: self._capture_detections_callback()
         )
     
     def _update_startprob_callback(self, event):
@@ -53,6 +50,7 @@ class OneatVisualizeWidget(QWidget):
            
     def _capture_detections_callback(self):  
         
+          csvname = QFileDialog.getOpenFileName(self)
           self.event_threshold = float(self.viswidget.label.text())
-          self.simplevisualization.show_csv(self.event_threshold)
+          self.simplevisualization.show_csv(csvname,self.event_threshold)
                 
