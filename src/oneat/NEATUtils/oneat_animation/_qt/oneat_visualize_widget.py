@@ -1,4 +1,3 @@
-
 from napari.viewer import Viewer
 from qtpy.QtWidgets import (QWidget, QVBoxLayout, QLabel)
 from .OneatVisWidget import OneatVisWidget
@@ -37,7 +36,7 @@ class oneat_visualize_widget(QWidget):
     
     def _update_startprob_callback(self, event):
         self.start_prob = self.viswidget.startprobspinbox.value()    
-
+        self.event_threshold = float(self.viswidget.label.text())
 
     def _update_slider_callback(self, value):
 
