@@ -113,7 +113,7 @@ class OneatSimpleVisualization:
             for tcenter in range(self.totaltime):
                 
                 timelist.append(tcenter)
-                if event_locations_dict[int(tcenter)] is not None:
+                if int(tcenter) in event_locations_dict:
                   countlist.append(len(event_locations_dict[int(tcenter)]))
                 else:
                     countlist.append(0)  
