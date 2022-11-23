@@ -219,7 +219,7 @@ class NEATDenseVollNet(object):
                                               last_activation=self.last_activation)
 
         sgd = tf.keras.optimizers.Adam(learning_rate=self.learning_rate)
-        self.Trainingmodel.compile(optimizer=sgd, loss=self.yolo_loss, metrics=['accuracy'], jit_compile = True)
+        self.Trainingmodel.compile(optimizer=sgd, loss=self.yolo_loss, metrics=['accuracy'])
         self.Trainingmodel.summary()
        
    
