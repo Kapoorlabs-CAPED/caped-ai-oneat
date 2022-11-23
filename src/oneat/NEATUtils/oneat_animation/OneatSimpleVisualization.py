@@ -120,14 +120,14 @@ class OneatSimpleVisualization:
                 
              
             self.ax.plot(timelist, countlist, "-g")
-            self.ax.set_title(self.event_name + "Events")
+            self.ax.set_title("Events")
             self.ax.set_xlabel("Time")
             self.ax.set_ylabel("Counts")
             self.figure.canvas.draw()
             self.figure.canvas.flush_events()
 
             self.figure.savefig(
-                + Path(self.imagename).parent
+                + Path(csvname).parent
                 + 'visualplot'
                 + ".png",
                 dpi=300,
