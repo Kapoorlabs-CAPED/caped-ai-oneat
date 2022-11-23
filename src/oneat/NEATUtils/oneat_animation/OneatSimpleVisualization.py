@@ -16,19 +16,14 @@ class OneatSimpleVisualization:
         self.figure = figure
         
         
-    def show_image(self):
-        
-        for layer in list(self.viewer.layers):
-            if isinstance(layer, layers.Image):
-                self.image = layer.data
-        
-        self.totaltime = self.image.shape[0]
-        
-  
-        
-                
     def show_csv(self, csvname, event_threshold):
                    
+            for layer in list(self.viewer.layers):
+               if isinstance(layer, layers.Image):
+                  self.image = layer.data
+        
+            self.totaltime = self.image.shape[0]
+                
             event_locations_dict = {}
             event_locations_size_dict = {}
             event_locations = []     
