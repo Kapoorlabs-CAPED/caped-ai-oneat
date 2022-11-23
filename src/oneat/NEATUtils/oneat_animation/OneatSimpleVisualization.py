@@ -18,6 +18,7 @@ class OneatSimpleVisualization:
         
     def show_csv(self, csvname, event_threshold):
                    
+            self.ax.cla()       
             for layer in list(self.viewer.layers):
                if isinstance(layer, layers.Image):
                   self.image = layer.data
