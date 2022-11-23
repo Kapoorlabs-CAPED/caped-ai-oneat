@@ -131,6 +131,6 @@ class OneatSimpleVisualization:
                  str(Path(csvname).parent.as_posix())
                 + str('visualplot')
                 + str('.png'),
-                dpi=300
+                  dpi=300
             )         
                         
