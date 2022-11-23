@@ -3,7 +3,7 @@ import csv
 import json
 import os
 from pathlib import Path
-
+import pandas as pd
 import numpy as np
 from scipy import spatial
 from scipy.ndimage import binary_fill_holes, find_objects
@@ -13,7 +13,7 @@ from skimage.morphology import binary_dilation, dilation, square
 from skimage.util import invert as invertimage
 from tifffile import imwrite
 from tqdm import tqdm
-
+from skimage.measure import regionprops
 
 def location_map(
     event_locations_dict: dict,
@@ -181,6 +181,56 @@ def normalize_mi_ma(x, mi, ma, eps=1e-20, dtype=np.uint8):
     x = (x - mi) / (ma - mi + eps)
 
     return x
+
+
+def generate_membrane_locations(membranesegimage : np.ndarray, csvfile: str, savefile: str):
+    
+    dataset = pd.read_csv(csvfile, delimiter = ',')
+    
+    
+    writer = csv.writer(open(savefile + ".csv", "a", newline=""))
+    writer.writerow(
+                        [
+                            "T",
+                            "Z",
+                            "Y",
+                            "X",
+                            "Score",
+                            "Size",
+                            "Confidence",
+                        ]
+    )
+    nrows = len(dataset.columns)
+    dict_membrane = {}
+    for i in range(membranesegimage.shape[0]):
+        currentimage = membranesegimage[i,:,:,:]
+        properties = measure.regionprops(currentimage) 
+        membrane_coordinates = [prop.centroid for prop in properties]
+        dict_membrane[i] =  membrane_coordinates
+        
+    for index, row in dataset.iterrows():
+        time = int(row[0])
+        z = int(row[1])
+        y = int(row[2])
+        x = int(row[3])
+        index = (z,y,x)
+        if nrows > 4:
+                    score = row[4]
+                    size = row[5]
+                    confidence = row[6]
+        else:
+                    score = 1.0
+                    size = 10
+                    confidence = 1.0
+        membrane_coordinates = dict_membrane[time]
+        if len(membrane_coordinates) > 0:
+           tree = spatial.cKDTree(membrane_coordinates)  
+           distance, nearest_location = tree.query(index)          
+                    
+           z = membrane_coordinates[nearest_location][0]         
+           y = membrane_coordinates[nearest_location][1]
+           x = membrane_coordinates[nearest_location][2]
+           writer.writerow([time, z, y, x, score, size, confidence])
 
 
 def load_training_data(directory, filename, axes=None, verbose=True):

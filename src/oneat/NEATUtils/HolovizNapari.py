@@ -418,7 +418,6 @@ def headlesscall(
                 scores = []
                 radiuses = []
                 confidences = []
-                angles = []
                 for location, sizescore in event_locations_size_dict.items():
                     tlocations.append(float(location[0]))
                     zlocations.append(0)
@@ -427,7 +426,6 @@ def headlesscall(
                     scores.append(float(sizescore[1]))
                     radiuses.append(float(sizescore[0]))
                     confidences.append(1)
-                    angles.append(2)
                 for location in dict_locations:
                     event_locations_clean.append(location)
 
@@ -440,7 +438,6 @@ def headlesscall(
                         scores,
                         radiuses,
                         confidences,
-                        angles,
                     ]
                 )
                 event_count = sorted(
@@ -464,7 +461,6 @@ def headlesscall(
                             "Score",
                             "Size",
                             "Confidence",
-                            "Angle",
                         ]
                     )
                 for line in event_count:
@@ -568,7 +564,6 @@ def headlessvolumecall(
                 scores = []
                 radiuses = []
                 confidences = []
-                angles = []
                 for location, sizescore in event_locations_size_dict.items():
                     tlocations.append(float(location[0]))
                     zlocations.append(float(location[1]))
@@ -577,7 +572,6 @@ def headlessvolumecall(
                     scores.append(float(sizescore[1]))
                     radiuses.append(float(sizescore[0]))
                     confidences.append(1)
-                    angles.append(2)
                 for location in dict_locations:
                     event_locations_clean.append(location)
 
@@ -590,7 +584,6 @@ def headlessvolumecall(
                         scores,
                         radiuses,
                         confidences,
-                        angles,
                     ]
                 )
                 event_count = sorted(
@@ -614,7 +607,6 @@ def headlessvolumecall(
                             "Score",
                             "Size",
                             "Confidence",
-                            "Angle",
                         ]
                     )
                 for line in event_count:
