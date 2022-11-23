@@ -50,7 +50,7 @@ class OneatVisualizeWidget(QWidget):
            
     def _capture_detections_callback(self):  
         
-          csvname = QFileDialog.getOpenFileName(self)
+          csvname = QFileDialog.getOpenFileName(self, "Open oneat detections file")
           self.event_threshold = float(self.viswidget.label.text())
           self.simplevisualization.show_csv(csvname,self.event_threshold)
                 
