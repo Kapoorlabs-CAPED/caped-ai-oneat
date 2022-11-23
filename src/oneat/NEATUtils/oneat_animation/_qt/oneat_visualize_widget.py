@@ -30,7 +30,7 @@ class OneatVisualizeWidget(QWidget):
             lambda detectioid = self.viswidget.detectionidbox: self._capture_detections_callback()
         )
         self.viswidget.recomputebutton.clicked.connect(
-            lambda eventid=self.viswidget.recomputebutton: self._capture_detections_callback()
+            lambda eventid=self.viswidget.recomputebutton: self._recompute_callback()
         )
     
     def _update_startprob_callback(self, event):
@@ -46,13 +46,18 @@ class OneatVisualizeWidget(QWidget):
         self.event_threshold = float(real_value)    
         
    
-           
+    def _recompute_callback(self):  
+        
+          if self.csvname is not None:
+                self.csvname = csvname[0]
+                self.event_threshold = float(self.viswidget.label.text())
+                self.simplevisualization.show_csv(csvname,self.event_threshold)       
            
     def _capture_detections_callback(self):  
         
-          csvname = QFileDialog.getOpenFileName(self, "Open oneat detections file")
-          if csvname is not None:
-                csvname = csvname[0]
+          self.csvname = QFileDialog.getOpenFileName(self, "Open oneat detections file")
+          if self.csvname is not None:
+                self.csvname = csvname[0]
                 self.event_threshold = float(self.viswidget.label.text())
                 self.simplevisualization.show_csv(csvname,self.event_threshold)
                         
