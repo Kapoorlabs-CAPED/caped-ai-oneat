@@ -49,15 +49,15 @@ class OneatVisualizeWidget(QWidget):
     def _recompute_callback(self):  
         
           if self.csvname is not None:
-                self.csvname = csvname[0]
+                self.csvname = self.csvname[0]
                 self.event_threshold = float(self.viswidget.label.text())
-                self.simplevisualization.show_csv(csvname,self.event_threshold)       
+                self.simplevisualization.show_csv(self.csvname,self.event_threshold)       
            
     def _capture_detections_callback(self):  
         
           self.csvname = QFileDialog.getOpenFileName(self, "Open oneat detections file")
           if self.csvname is not None:
-                self.csvname = csvname[0]
+                self.csvname = self.csvname[0]
                 self.event_threshold = float(self.viswidget.label.text())
-                self.simplevisualization.show_csv(csvname,self.event_threshold)
+                self.simplevisualization.show_csv(self.csvname,self.event_threshold)
                         
