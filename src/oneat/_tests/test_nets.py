@@ -1,12 +1,13 @@
 import pytest
-from .utils import random_image_4d, create_train_val_data
+from .utils import random_image_4d, create_train_val_data, root_dir
 from oneat.NEATModels import NEATDenseVollNet, config
 import keras
 
-def test_densent_input(tmpdir):
+def test_densent_input():
     
     img = random_image_4d(shape = (3,8,64,64))
     catconfig = {'Normal': 0, 'Division': 1}
+    tmpdir = root_dir()
     cordconfig = {"x": 0, "y": 1, "z": 2, "t": 3, "h": 4, "w": 5, "d": 6, "c": 7}
     params = config.volume_config(key_categories = catconfig, key_cord = cordconfig, epochs = 1, depth = {'depth_0' :1, 'depth_2' :1, 'depth_3' :1})
     oneat_model = NEATDenseVollNet(params, str(tmpdir), catconfig = catconfig, cordconfig = cordconfig )

@@ -13,14 +13,14 @@ def random_image_4d(shape):
     return image 
 
 
-def _root_dir():
+def root_dir():
     return os.path.dirname(os.path.abspath(__file__))
 
 
 def create_train_val_data(image):
     
      num_train = 10
-     train_size = 0.9
+     train_size = 0.8
      #Generate 10 training images
      data = [image for _ in range(num_train)]    
      label = [(0,1, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1) for _ in range(num_train)]
@@ -40,7 +40,3 @@ def create_train_val_data(image):
      
     
 
-    
-
-def path_model_voll():
-    return Path(_root_dir()) / '..' / 'models' / 'test'
