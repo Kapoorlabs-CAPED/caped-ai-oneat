@@ -127,7 +127,7 @@ class OneatSimpleVisualization:
             self.figure.canvas.flush_events()
 
             self.figure.savefig(
-                + Path(csvname).parent.to_posix()
+                + Path(csvname).parent.as_posix()
                 + 'visualplot'
                 + ".png",
                 dpi=300,
