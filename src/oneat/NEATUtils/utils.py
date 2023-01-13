@@ -14,6 +14,7 @@ from skimage.util import invert as invertimage
 from tifffile import imwrite
 from tqdm import tqdm
 from skimage.measure import regionprops
+from tifffile import imread
 
 def location_map(
     event_locations_dict: dict,
@@ -202,6 +203,9 @@ def generate_membrane_locations(membranesegimage : np.ndarray, csvfile: str, sav
     )
     nrows = len(dataset.columns)
     dict_membrane = {}
+    if isinstance(membranesegimage, str):
+        membranesegimage = imread(membranesegimage)
+
     for i in tqdm(range(membranesegimage.shape[0])):
         currentimage = membranesegimage[i,:,:,:]
         properties = measure.regionprops(currentimage) 
