@@ -202,7 +202,7 @@ def generate_membrane_locations(membranesegimage : np.ndarray, csvfile: str, sav
     )
     nrows = len(dataset.columns)
     dict_membrane = {}
-    for i in range(membranesegimage.shape[0]):
+    for i in tqdm(range(membranesegimage.shape[0])):
         currentimage = membranesegimage[i,:,:,:]
         properties = measure.regionprops(currentimage) 
         membrane_coordinates = [prop.centroid for prop in properties]
