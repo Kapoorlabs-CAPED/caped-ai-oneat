@@ -189,7 +189,7 @@ def generate_membrane_locations(membranesegimage : np.ndarray, csvfile: str, sav
     dataset = pd.read_csv(csvfile, delimiter = ',')
     
     
-    writer = csv.writer(open(savefile + ".csv", "a", newline=""))
+    writer = csv.writer(open(savefile, "a", newline=""))
     writer.writerow(
                         [
                             "T",
@@ -231,7 +231,7 @@ def generate_membrane_locations(membranesegimage : np.ndarray, csvfile: str, sav
            tree = spatial.cKDTree(membrane_coordinates)  
            distance, nearest_location = tree.query(index)          
                     
-           z = membrane_coordinates[nearest_location][0]         
+           z = int(membrane_coordinates[nearest_location][0])         
            y = membrane_coordinates[nearest_location][1]
            x = membrane_coordinates[nearest_location][2]
            writer.writerow([time, z, y, x, score, size, confidence])
