@@ -218,23 +218,24 @@ def generate_membrane_locations(membranesegimage : np.ndarray, csvfile: str, sav
         y = int(row[2])
         x = int(row[3])
         index = (z,y,x)
-        if nrows > 4:
-                    score = row[4]
-                    size = row[5]
-                    confidence = row[6]
-        else:
-                    score = 1.0
-                    size = 10
-                    confidence = 1.0
-        membrane_coordinates = dict_membrane[time]
-        if len(membrane_coordinates) > 0:
-           tree = spatial.cKDTree(membrane_coordinates)  
-           distance, nearest_location = tree.query(index)          
-                    
-           z = int(membrane_coordinates[nearest_location][0])         
-           y = membrane_coordinates[nearest_location][1]
-           x = membrane_coordinates[nearest_location][2]
-           writer.writerow([time, z, y, x, score, size, confidence])
+        if time < membranesegimage.shape[0]:
+            if nrows > 4:
+                        score = row[4]
+                        size = row[5]
+                        confidence = row[6]
+            else:
+                        score = 1.0
+                        size = 10
+                        confidence = 1.0
+            membrane_coordinates = dict_membrane[time]
+            if len(membrane_coordinates) > 0:
+            tree = spatial.cKDTree(membrane_coordinates)  
+            distance, nearest_location = tree.query(index)          
+                        
+            z = int(membrane_coordinates[nearest_location][0])         
+            y = membrane_coordinates[nearest_location][1]
+            x = membrane_coordinates[nearest_location][2]
+            writer.writerow([time, z, y, x, score, size, confidence])
 
 
 def load_training_data(directory, filename, axes=None, verbose=True):
