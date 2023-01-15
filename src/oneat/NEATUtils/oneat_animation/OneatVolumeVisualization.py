@@ -422,7 +422,6 @@ class OneatVolumeVisualization:
             self.dataset = pd.read_csv(csvname, delimiter=",")
             nrows = len(self.dataset.columns)
             for index, row in self.dataset.iterrows():
-                print(row)
                 tcenter = int(float(row[0]))
                 zcenter = float(row[1])
                 ycenter = float(row[2])
