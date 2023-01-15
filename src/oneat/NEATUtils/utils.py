@@ -229,13 +229,13 @@ def generate_membrane_locations(membranesegimage : np.ndarray, csvfile: str, sav
                         confidence = 1.0
             membrane_coordinates = dict_membrane[time]
             if len(membrane_coordinates) > 0:
-            tree = spatial.cKDTree(membrane_coordinates)  
-            distance, nearest_location = tree.query(index)          
-                        
-            z = int(membrane_coordinates[nearest_location][0])         
-            y = membrane_coordinates[nearest_location][1]
-            x = membrane_coordinates[nearest_location][2]
-            writer.writerow([time, z, y, x, score, size, confidence])
+                tree = spatial.cKDTree(membrane_coordinates)  
+                distance, nearest_location = tree.query(index)          
+                            
+                z = int(membrane_coordinates[nearest_location][0])         
+                y = membrane_coordinates[nearest_location][1]
+                x = membrane_coordinates[nearest_location][2]
+                writer.writerow([time, z, y, x, score, size, confidence])
 
 
 def load_training_data(directory, filename, axes=None, verbose=True):
