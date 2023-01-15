@@ -419,11 +419,11 @@ class OneatVolumeVisualization:
         if csvname is not None:
 
             self.event_name = csv_event_name
-            self.dataset = pd.read_csv(csvname, delimiter=",", skiprows=2)
+            self.dataset = pd.read_csv(csvname, delimiter=",")
             print(self.dataset)
             nrows = len(self.dataset.columns)
             for index, row in self.dataset.iterrows():
-                tcenter = int(row[0])
+                tcenter = int(float(row[0]))
                 zcenter = float(row[1])
                 ycenter = float(row[2])
                 xcenter = float(row[3])
