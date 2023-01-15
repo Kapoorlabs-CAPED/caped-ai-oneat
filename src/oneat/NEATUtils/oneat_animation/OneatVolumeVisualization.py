@@ -423,13 +423,13 @@ class OneatVolumeVisualization:
             nrows = len(self.dataset.columns)
             for index, row in self.dataset.iterrows():
                 tcenter = int(row[0])
-                zcenter = row[1]
-                ycenter = row[2]
-                xcenter = row[3]
+                zcenter = float(row[1])
+                ycenter = float(row[2])
+                xcenter = float(row[3])
                 if nrows > 4:
-                    score = row[4]
-                    size = row[5]
-                    confidence = row[6]
+                    score = float(row[4])
+                    size = float(row[5])
+                    confidence = float(row[6])
                 else:
                     score = 1.0
                     size = 10

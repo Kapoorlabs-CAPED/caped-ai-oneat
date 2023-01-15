@@ -374,10 +374,10 @@ def headlesscall(
                 for i in range(len(listtime)):
 
                     tcenter = int(listtime[i])
-                    ycenter = listy[i]
-                    xcenter = listx[i]
-                    size = listsize[i]
-                    score = listscore[i]
+                    ycenter = float(listy[i])
+                    xcenter = float(listx[i])
+                    size = float(listsize[i])
+                    score = float(listscore[i])
                     confidence = listconfidence[i]
                     if score > event_threshold:
                         event_locations.append(
