@@ -68,71 +68,72 @@ class OneatVolumeVisualization:
 
             if len(event_locations) > 0:
                 tree = spatial.cKDTree(event_locations)
-                forwardtime = currenttime + 1
-                if int(forwardtime) in self.event_locations_dict.keys():
-                    forward_event_locations = self.event_locations_dict[
-                        int(forwardtime)
-                    ]
-                    for location in forward_event_locations:
-                        if (
-                            int(forwardtime),
-                            int(location[0]),
-                            int(location[1]),
-                            int(location[2]),
-                        ) in self.event_locations_size_dict:
-                            (
-                                forwardsize,
-                                forwardscore,
-                                forwardconfidence,
-                            ) = self.event_locations_size_dict[
+                for i in range(1,3):
+                    forwardtime = currenttime + i
+                    if int(forwardtime) in self.event_locations_dict.keys():
+                        forward_event_locations = self.event_locations_dict[
+                            int(forwardtime)
+                        ]
+                        for location in forward_event_locations:
+                            if (
                                 int(forwardtime),
                                 int(location[0]),
                                 int(location[1]),
                                 int(location[2]),
-                            ]
-                            distance, nearest_location = tree.query(location)
-                            nearest_location = (
-                                int(event_locations[nearest_location][0]),
-                                int(event_locations[nearest_location][1]),
-                                int(event_locations[nearest_location][2]),
-                            )
+                            ) in self.event_locations_size_dict:
+                                (
+                                    forwardsize,
+                                    forwardscore,
+                                    forwardconfidence,
+                                ) = self.event_locations_size_dict[
+                                    int(forwardtime),
+                                    int(location[0]),
+                                    int(location[1]),
+                                    int(location[2]),
+                                ]
+                                distance, nearest_location = tree.query(location)
+                                nearest_location = (
+                                    int(event_locations[nearest_location][0]),
+                                    int(event_locations[nearest_location][1]),
+                                    int(event_locations[nearest_location][2]),
+                                )
 
-                            if distance <= nms_space:
-                                if (
-                                    int(currenttime),
-                                    int(nearest_location[0]),
-                                    int(nearest_location[1]),
-                                    int(nearest_location[2]),
-                                ) in self.event_locations_size_dict:
-                                    (
-                                        currentsize,
-                                        currentscore,
-                                        currentconfidence,
-                                    ) = self.event_locations_size_dict[
+                                if distance <= nms_space:
+                                    if (
                                         int(currenttime),
                                         int(nearest_location[0]),
                                         int(nearest_location[1]),
                                         int(nearest_location[2]),
-                                    ]
-                                    if currentscore >= forwardscore:
-                                        self.event_locations_size_dict.pop(
-                                            (
-                                                int(forwardtime),
-                                                int(location[0]),
-                                                int(location[1]),
-                                                int(location[2]),
+                                    ) in self.event_locations_size_dict:
+                                        (
+                                            currentsize,
+                                            currentscore,
+                                            currentconfidence,
+                                        ) = self.event_locations_size_dict[
+                                            int(currenttime),
+                                            int(nearest_location[0]),
+                                            int(nearest_location[1]),
+                                            int(nearest_location[2]),
+                                        ]
+                                        if currentscore >= forwardscore:
+                                            self.event_locations_size_dict.pop(
+                                                (
+                                                    int(forwardtime),
+                                                    int(location[0]),
+                                                    int(location[1]),
+                                                    int(location[2]),
+                                                )
                                             )
-                                        )
 
-                                    if currentscore < forwardscore:
-                                        self.event_locations_size_dict.pop(
-                                            (
-                                                int(currenttime),
-                                                int(nearest_location[0]),
-                                                int(nearest_location[1]),
-                                                int(nearest_location[2]),
+                                        if currentscore < forwardscore:
+                                            self.event_locations_size_dict.pop(
+                                                (
+                                                    int(currenttime),
+                                                    int(nearest_location[0]),
+                                                    int(nearest_location[1]),
+                                                    int(nearest_location[2]),
+                                                )
                                             )
-                                        )
 
         print("after", len(self.event_locations_size_dict))
         self.show_clean_csv()
