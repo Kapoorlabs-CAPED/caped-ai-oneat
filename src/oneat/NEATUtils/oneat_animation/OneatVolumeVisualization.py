@@ -285,7 +285,7 @@ class OneatVolumeVisualization:
                         celllist.append(all_cells + 1)
                         normeventlist.append(countT / (all_cells + 1))
                 self.cleannormeventlist = []
-                if len(self.cleaneventlist) > 0:
+                if len(celllist) > 0:
                     for k in range(len(self.cleaneventlist)):
                         self.cleannormeventlist.append(
                             self.cleaneventlist[k] / celllist[k]
