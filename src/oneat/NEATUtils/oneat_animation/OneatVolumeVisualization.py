@@ -424,7 +424,7 @@ class OneatVolumeVisualization:
             nrows = len(self.dataset.columns)
             for index, row in self.dataset.iterrows():
                 tcenter = int(float(row[0]))
-                zcenter = float(row[1])
+                zcenter = float(row[1]) - 1
                 ycenter = float(row[2])
                 xcenter = float(row[3])
                 if nrows > 4:
