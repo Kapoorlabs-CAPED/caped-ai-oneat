@@ -143,7 +143,6 @@ def MarkerToCSV(MarkerImage):
 
 def load_json(fpath):
     with open(fpath) as f:
-
         return json.load(f)
 
 
