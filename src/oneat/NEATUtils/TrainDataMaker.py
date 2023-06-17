@@ -26,7 +26,7 @@ class TrainDataMaker(object):
            tracksavebutton = QPushButton('Save Clicks')
            for imagename in X:
                   if any(imagename.endswith(f) for f in self.acceptable_formats):
-                      Imageids.append(imagename)
+                      Imageids.append(os.path.join(self.source_dir,imagename))
            for i in range(0, len(Imageids)):
                  imageidbox.addItem(str(Imageids[i])) 
 
