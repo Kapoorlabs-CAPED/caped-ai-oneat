@@ -1,10 +1,8 @@
 import napari
 import os
-import glob
-from pathlib import Path
+
 from tifffile import imread
-import numpy as np
-import csv
+
 import pandas as pd
 
 
@@ -46,7 +44,7 @@ class TrainDataMaker(object):
                                 imageidbox.currentText(),
                                 os.path.basename(os.path.splitext(imageidbox.currentText())[0]), self.source_dir, True, False ))                
                      
-              
+           napari.run()   
 
 
 class EventViewer(object):
