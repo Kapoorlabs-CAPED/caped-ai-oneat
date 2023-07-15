@@ -246,7 +246,7 @@ class NEATDenseVollNet(object):
     def get_markers(self, 
                     segimage : np.ndarray):
 
-        self.segimage = segimage
+        self.segimage = segimage.astype(np.uint16)
         print('Obtaining Markers')
         self.pad_width = (self.config['imagey'], self.config['imagex'])
         self.markers = GenerateVolumeMarkers(self.segimage, pad_width = self.pad_width)
