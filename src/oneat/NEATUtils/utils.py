@@ -577,14 +577,15 @@ def GenerateVolumeMarkers(segimage, pad_width):
             segimage.shape[1],
             segimage.shape[2] + pad_width[0],
             segimage.shape[3] + pad_width[1],
-        ]
+        ],
+        dtype=np.uint16,
     )
 
     for i in tqdm(range(0, segimage.shape[0])):
 
         smallimage = segimage[i, :]
         newsmallimage = pad_timelapse(smallimage, pad_width)
-        properties = measure.regionprops(newsmallimage.astype("uint16"))
+        properties = measure.regionprops(newsmallimage.astype(np.uint16))
 
         Coordinates = [prop.centroid for prop in properties]
         if len(Coordinates) > 0:
@@ -598,10 +599,10 @@ def GenerateVolumeMarkers(segimage, pad_width):
             )
             if ndim == 4:
                 markers = morphology.dilation(
-                    markers_raw.astype("uint16"), morphology.ball(2)
+                    markers_raw.astype(np.uint16), morphology.ball(2)
                 )
 
-            Markers[i, :] = label(markers.astype("uint16"))
+            Markers[i, :] = label(markers.astype(np.uint16))
 
     return Markers
 
