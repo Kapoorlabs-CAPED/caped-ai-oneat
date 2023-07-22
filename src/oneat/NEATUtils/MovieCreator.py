@@ -824,7 +824,7 @@ def VolumeMaker(
     if time > size_tminus:
 
         # slice the images
-
+    
         currentsegimage = segimage[int(time), :].astype("uint16")
         image_props = getHWD(
             x, y, z, currentsegimage, imagesizex, imagesizey, imagesizez
