@@ -226,17 +226,16 @@ class NEATDenseVollNet(object):
         # Keras callbacks
         lrate = callbacks.ReduceLROnPlateau(monitor='loss', factor=0.1, patience=4, verbose=1)
         hrate = callbacks.History()
-        srate = callbacks.ModelCheckpoint(self.model_dir, monitor='loss', verbose=1,
-                                          save_best_only=False, save_weights_only=False, mode='auto', save_freq=1)
+        srate = callbacks.ModelCheckpoint(self.model_dir, monitor='loss',
+                                          save_best_only=False, save_weights_only=False, mode='auto')
         prate = plotters.PlotVolumeHistory(self.Trainingmodel, self.X_val, self.Y_val, self.key_categories, self.key_cord,
                                      self.gridx, self.gridy, self.gridz, plot=self.show, nboxes=self.nboxes)
         
-        log_dir = "logs/fit/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-        tensorboard_callback = callbacks.TensorBoard(log_dir=log_dir, histogram_freq=1)
+       
         # Train the model and save as a h5 file
         self.Trainingmodel.fit(self.X, self.Y, batch_size=self.batch_size,
-                               epochs=self.epochs, validation_data=(self.X_val, self.Y_val), shuffle=True,
-                               callbacks=[lrate, hrate, srate, prate, tensorboard_callback])
+                               epochs=self.epochs, validation_data=(self.X_val, self.Y_val),
+                               callbacks=[lrate, hrate, srate, prate])
 
 
         self.Trainingmodel.save(self.model_dir)
