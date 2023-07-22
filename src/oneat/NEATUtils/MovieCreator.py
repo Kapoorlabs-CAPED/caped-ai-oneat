@@ -755,10 +755,10 @@ def VolumeLabelDataSet(
                             image = imread(fname).astype(dtype)
                             segimage = imread(Segfname).astype("uint16")
                             dataset = pd.read_csv(csvfname)
-                            time = dataset[dataset.keys()[0]][1:]
-                            z = dataset[dataset.keys()[1]][1:]
-                            y = dataset[dataset.keys()[2]][1:]
-                            x = dataset[dataset.keys()[3]][1:]
+                            time = dataset[dataset.keys()[0]]
+                            z = dataset[dataset.keys()[1]]
+                            y = dataset[dataset.keys()[2]]
+                            x = dataset[dataset.keys()[3]]
 
                             # Categories + XYZHW + Confidence
                             for (key, t) in time.items():
@@ -824,7 +824,7 @@ def VolumeMaker(
     if time > size_tminus:
 
         # slice the images
-
+    
         currentsegimage = segimage[int(time), :].astype("uint16")
         image_props = getHWD(
             x, y, z, currentsegimage, imagesizex, imagesizey, imagesizez
