@@ -179,15 +179,8 @@ class NEATDenseVollNet(object):
 
         #ZYXT
         input_shape = (self.X.shape[1], self.X.shape[2], self.X.shape[3], self.X.shape[4])
-        print(self.X.shape)
-        print(input_shape)
         Path(self.model_dir).mkdir(exist_ok=True)
-
-  
         Y_rest = self.Y[:, :, :, :, self.categories:]
-        print(Y_rest.shape)
-
-        
 
         dummyY = np.zeros(
             [self.Y.shape[0], self.Y.shape[1], self.Y.shape[2], self.Y.shape[3], self.categories + self.nboxes * self.box_vector])
@@ -208,7 +201,6 @@ class NEATDenseVollNet(object):
 
         self.Y = dummyY
         self.Y_val = dummyY_val
-        print(self.Y.shape)
 
         self.Trainingmodel = self.model_keras(input_shape, self.categories, 
                                               box_vector=Y_rest.shape[-1], yolo_loss = self.yolo_loss, nboxes=self.nboxes,
