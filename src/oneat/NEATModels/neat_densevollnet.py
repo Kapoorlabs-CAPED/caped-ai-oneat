@@ -238,7 +238,7 @@ class NEATDenseVollNet(object):
         
        
         # Train the model and save as a h5 file
-        self.Trainingmodel.fit(self.X, self.Y, batch_size=self.batch_size,class_weight=class_weights,
+        self.Trainingmodel.fit(self.X, self.Y, batch_size=self.batch_size,
                                epochs=self.epochs, validation_data=(self.X_val, self.Y_val),
                                callbacks=[lrate, hrate, srate, prate])
       
