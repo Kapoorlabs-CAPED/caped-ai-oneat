@@ -127,10 +127,10 @@ def SegFreeMovieLabelDataSet4D(
                     print(Csvname)
                     image = imread(fname).astype(dtype)
                     dataset = pd.read_csv(csvfname)
-                    time = dataset[dataset.keys()[0]][1:]
-                    z = dataset[dataset.keys()[1]][1:]
-                    y = dataset[dataset.keys()[2]][1:]
-                    x = dataset[dataset.keys()[3]][1:]
+                    time = dataset[dataset.keys()[0]]
+                    z = dataset[dataset.keys()[1]]
+                    y = dataset[dataset.keys()[2]]
+                    x = dataset[dataset.keys()[3]]
 
                     # Categories + XYHW + Confidence
                     for (key, t) in time.items():
@@ -674,9 +674,9 @@ def MovieLabelDataSet(
                             image = imread(fname).astype(dtype)
                             segimage = imread(Segfname).astype("uint16")
                             dataset = pd.read_csv(csvfname)
-                            time = dataset[dataset.keys()[0]][1:]
-                            y = dataset[dataset.keys()[1]][1:]
-                            x = dataset[dataset.keys()[2]][1:]
+                            time = dataset[dataset.keys()[0]]
+                            y = dataset[dataset.keys()[1]]
+                            x = dataset[dataset.keys()[2]]
 
                             # Categories + XYHW + Confidence
                             for (key, t) in time.items():
@@ -717,7 +717,7 @@ def VolumeLabelDataSet(
     gridz=1,
     tshift=0,
     normalizeimage=True,
-    dtype=np.uint8,
+    dtype=np.float32,
 ):
 
     raw_path = os.path.join(image_dir, "*tif")
