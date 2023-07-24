@@ -187,7 +187,7 @@ class NEATDenseVollNet(object):
         class_weights = class_weight.compute_class_weight('balanced',
                                                  classes = np.unique(class_indices),
                                                  y = class_indices)
-        class_weights = dict(zip(np.unique(class_indices), class_weights))   
+        
 
         self.yolo_loss = volume_yolo_loss(self.categories, self.gridx, self.gridy, self.gridz, self.nboxes,
                                           self.box_vector, self.entropy, class_weights)
