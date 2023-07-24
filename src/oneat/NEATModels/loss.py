@@ -311,7 +311,7 @@ def volume_yolo_loss(categories, grid_h, grid_w, grid_d, nboxes, box_vector, ent
             loss_class_weighted = tf.reduce_sum(loss_class * sample_weights) / tf.reduce_sum(sample_weights)
 
             # Adding it all up
-            combined_loss = loss_xywht + loss_conf + loss_class_weighted
+            combinedloss = loss_xywht + loss_conf + loss_class_weighted
 
        
 
