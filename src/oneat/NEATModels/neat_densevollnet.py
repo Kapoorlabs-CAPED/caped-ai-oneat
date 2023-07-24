@@ -183,6 +183,7 @@ class NEATDenseVollNet(object):
 
 
         Y_class = self.Y[:, :, :, :, :self.categories]
+        Y_class = Y_class[:,0,0,0,:]
         class_indices = np.argmax(Y_class, axis=1)
         class_weights = class_weight.compute_class_weight('balanced',
                                                  classes = np.unique(class_indices),
