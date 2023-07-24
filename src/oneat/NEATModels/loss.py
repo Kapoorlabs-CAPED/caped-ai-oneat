@@ -289,7 +289,7 @@ def dynamic_yolo_loss(categories, grid_h, grid_w, grid_t, nboxes, box_vector, en
     return loss 
 
 
-def volume_yolo_loss(categories, grid_h, grid_w, grid_d, nboxes, box_vector, entropy):
+def volume_yolo_loss(categories, grid_h, grid_w, grid_d, nboxes, box_vector, entropy, class_weights = None):
     def loss(y_true, y_pred):    
         event_grid = get_event_grid(grid_h, grid_w, grid_d, nboxes)
         true_box_class, true_box_xyz, true_box_whd, true_box_conf = extract_ground_event_volume_truth(y_true, categories, grid_h, grid_w,grid_d, nboxes, box_vector)
@@ -301,7 +301,18 @@ def volume_yolo_loss(categories, grid_h, grid_w, grid_d, nboxes, box_vector, ent
 
         loss_conf = compute_conf_loss_volume(pred_box_whd, true_box_whd, pred_box_xyz,true_box_xyz,true_box_conf,pred_box_conf)
                     # Adding it all up   
-        combinedloss = (loss_xywht + loss_conf + loss_class)
+        if class_weights is None:             
+            combinedloss = (loss_xywht + loss_conf + loss_class)
+        else:
+            # Apply class weights to the classification loss
+            sample_weights = tf.reduce_sum(class_weights * tf.one_hot(tf.argmax(true_box_class, axis=-1), len(categories)), axis=1)
+
+            # Compute the weighted mean of the classification loss
+            loss_class_weighted = tf.reduce_sum(loss_class * sample_weights) / tf.reduce_sum(sample_weights)
+
+            # Adding it all up
+            combined_loss = loss_xywht + loss_conf + loss_class_weighted
+
        
 
         return combinedloss 

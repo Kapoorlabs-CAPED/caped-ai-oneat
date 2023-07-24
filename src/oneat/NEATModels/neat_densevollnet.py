@@ -140,8 +140,7 @@ class NEATDenseVollNet(object):
 
         self.last_activation = 'softmax'
         self.entropy = 'notbinary'
-        self.yolo_loss = volume_yolo_loss(self.categories, self.gridx, self.gridy, self.gridz, self.nboxes,
-                                          self.box_vector, self.entropy)
+        
 
     @classmethod   
     def local_from_pretrained(cls, name_or_alias=None):
@@ -188,7 +187,12 @@ class NEATDenseVollNet(object):
         class_weights = class_weight.compute_class_weight('balanced',
                                                  classes = np.unique(class_indices),
                                                  y = class_indices)
-        class_weights = dict(zip(np.unique(class_indices), class_weights))                                         
+        class_weights = dict(zip(np.unique(class_indices), class_weights))   
+
+        self.yolo_loss = volume_yolo_loss(self.categories, self.gridx, self.gridy, self.gridz, self.nboxes,
+                                          self.box_vector, self.entropy, class_weights)
+
+
         Y_rest = self.Y[:, :, :, :, self.categories:]
 
         dummyY = np.zeros(
@@ -237,8 +241,9 @@ class NEATDenseVollNet(object):
         self.Trainingmodel.fit(self.X, self.Y, batch_size=self.batch_size,class_weight=class_weights,
                                epochs=self.epochs, validation_data=(self.X_val, self.Y_val),
                                callbacks=[lrate, hrate, srate, prate])
-
-
+      
+        
+       
         self.Trainingmodel.save(self.model_dir)
     """
     The input image and seg image are numpy arrays that have to be read prior to being loaded in the function
