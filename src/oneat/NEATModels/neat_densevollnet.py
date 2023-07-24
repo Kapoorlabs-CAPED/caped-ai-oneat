@@ -15,7 +15,7 @@ from oneat.pretrained import get_registered_models, get_model_details, get_model
 from pathlib import Path
 from keras.models import load_model
 from tifffile import imread
-
+from sklearn.utils import class_weight
 
 class NEATDenseVollNet(object):
     """
@@ -183,9 +183,11 @@ class NEATDenseVollNet(object):
         print(input_shape)
         Path(self.model_dir).mkdir(exist_ok=True)
 
-  
+        Y_class = self.Y[:, :, :, :, :self.categories]
+        class_weights = class_weight.compute_class_weight('balanced',
+                                                 np.unique(Y_class),
+                                                 Y_class)
         Y_rest = self.Y[:, :, :, :, self.categories:]
-        print(Y_rest.shape)
 
         
 
@@ -233,7 +235,7 @@ class NEATDenseVollNet(object):
         
        
         # Train the model and save as a h5 file
-        self.Trainingmodel.fit(self.X, self.Y, batch_size=self.batch_size,
+        self.Trainingmodel.fit(self.X, self.Y, batch_size=self.batch_size,class_weight=class_weights,
                                epochs=self.epochs, validation_data=(self.X_val, self.Y_val),
                                callbacks=[lrate, hrate, srate, prate])
 
