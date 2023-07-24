@@ -305,7 +305,7 @@ def volume_yolo_loss(categories, grid_h, grid_w, grid_d, nboxes, box_vector, ent
             combinedloss = (loss_xywht + loss_conf + loss_class)
         else:
             # Apply class weights to the classification loss
-            sample_weights = tf.reduce_sum(class_weights * tf.one_hot(tf.argmax(true_box_class, axis=-1), len(categories)), axis=1)
+            sample_weights = tf.reduce_sum(class_weights * tf.one_hot(tf.argmax(true_box_class, axis=-1), categories), axis=1)
 
             # Compute the weighted mean of the classification loss
             loss_class_weighted = tf.reduce_sum(loss_class * sample_weights) / tf.reduce_sum(sample_weights)
