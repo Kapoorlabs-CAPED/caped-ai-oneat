@@ -186,7 +186,7 @@ class NEATDenseVollNet(object):
         class_weights = class_weight.compute_class_weight('balanced',
                                                  classes = np.unique(Y_class),
                                                  y = Y_class)
-        class_weights = dict(zip(np.unique(self.categories), class_weights))                                         
+        class_weights = dict(zip(np.unique(Y_class), class_weights))                                         
         Y_rest = self.Y[:, :, :, :, self.categories:]
 
         
