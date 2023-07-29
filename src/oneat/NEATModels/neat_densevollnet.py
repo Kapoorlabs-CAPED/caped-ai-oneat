@@ -136,10 +136,11 @@ class NEATDenseVollNet(object):
         self.Xoriginal_val = None
 
         self.model_keras = nets.DenseVollNet
-        self.yolo_loss = volume_yolo_loss(self.categories, self.gridx, self.gridy, self.gridz, self.nboxes,
-                                          self.box_vector, self.entropy, None)
         self.last_activation = 'softmax'
         self.entropy = 'notbinary'
+        self.yolo_loss = volume_yolo_loss(self.categories, self.gridx, self.gridy, self.gridz, self.nboxes,
+                                          self.box_vector, self.entropy, None)
+        
         
 
     @classmethod   
