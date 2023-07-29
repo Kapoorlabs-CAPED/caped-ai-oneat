@@ -1617,8 +1617,8 @@ def save_volume_csv(
             event_data = []
             csvname = Path(savedir) /  f"pred_{event_name}_locations"
 
-            writer = csv.writer(open(csvname + ".csv", "a", newline=""))
-            filesize = os.stat(csvname + ".csv").st_size
+            writer = csv.writer(open(str(csvname) + ".csv", "a", newline=""))
+            filesize = os.stat(str(csvname) + ".csv").st_size
 
             if filesize < 1:
                 writer.writerow(
