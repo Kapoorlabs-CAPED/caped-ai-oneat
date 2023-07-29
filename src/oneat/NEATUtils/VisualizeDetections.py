@@ -1,8 +1,4 @@
-from pathlib import Path
-import json
-from oneat.NEATUtils.oneat_animation._qt import OneatVisualizeWidget
-import napari
-from qtpy.QtCore import Qt
+
 
 class VizDet:
     
@@ -10,6 +6,9 @@ class VizDet:
         
     def __init__(self):
         
+        from oneat.NEATUtils.oneat_animation._qt import OneatVisualizeWidget
+        import napari
+        from qtpy.QtCore import Qt
         self.viewer = napari.Viewer()
         self.viz_widget = OneatVisualizeWidget(self.viewer)
         
