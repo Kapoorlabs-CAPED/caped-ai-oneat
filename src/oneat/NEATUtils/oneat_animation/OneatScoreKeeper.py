@@ -8,7 +8,7 @@ class ScoreModels:
         self,
         predictions,
         groundtruth,
-        thresholdscore=1 - 1.0e-6,
+        thresholdscore=1 - 1.0e-4,
         thresholdspace=10,
         thresholdtime=2,
     ):
