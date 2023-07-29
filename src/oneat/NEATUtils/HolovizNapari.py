@@ -9,17 +9,13 @@ import glob
 import json
 import os
 from pathlib import Path
-
-
 import numpy as np
 import pandas as pd
 import napari
-from qtpy.QtCore import Qt
-from oneat.NEATUtils.oneat_animation._qt import OneatVolumeWidget, OneatWidget
-from scipy import spatial
-from tifffile import imread
 
-from oneat.NEATUtils.oneat_animation.OneatVisualization import MidSlices
+
+from scipy import spatial
+
 
 
 class NEATViz:
@@ -110,7 +106,8 @@ class NEATViz:
             )
 
     def showNapari(self):
-
+        from qtpy.QtCore import Qt
+        from oneat.NEATUtils.oneat_animation._qt import OneatWidget
         self.oneat_widget = OneatWidget(
             self.viewer,
             self.csvdir,
@@ -148,7 +145,8 @@ class NEATViz:
         napari.run()
 
     def showVolumeNapari(self):
-
+        from qtpy.QtCore import Qt
+        from oneat.NEATUtils.oneat_animation._qt import OneatVolumeWidget
         self.oneat_widget = OneatVolumeWidget(
             self.viewer,
             self.csvdir,

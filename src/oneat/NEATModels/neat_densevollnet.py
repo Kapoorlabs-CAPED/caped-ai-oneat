@@ -5,7 +5,6 @@ from oneat.NEATUtils.utils import save_volume, pad_timelapse, get_nearest_volume
 from keras import callbacks
 import os
 import sys
-import datetime
 import tensorflow as tf
 from tqdm import tqdm
 from oneat.NEATModels import nets
