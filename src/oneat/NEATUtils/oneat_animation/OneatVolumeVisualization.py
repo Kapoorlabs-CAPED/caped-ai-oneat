@@ -417,7 +417,9 @@ class OneatVolumeVisualization:
         for i in range(len(csvnames)): 
             if imagename in csvnames and csv_event_name in csvnames:
                     csvname = csvnames[i]
-                    break           
+                    break   
+        if csvname is None:
+            print( "No csv file found for this image")                
         if csvname is not None:
 
             self.event_name = csv_event_name
