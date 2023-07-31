@@ -17,6 +17,7 @@ class OneatVolumeVisualization:
     def __init__(
         self,
         viewer: Viewer,
+        imagedir:str,
         key_categories: dict,
         csvdir: str,
         savedir: str,
@@ -26,6 +27,7 @@ class OneatVolumeVisualization:
     ):
 
         self.viewer = viewer
+        self.imagedir = imagedir
         self.csvdir = csvdir
         self.savedir = savedir
         self.savename = savename

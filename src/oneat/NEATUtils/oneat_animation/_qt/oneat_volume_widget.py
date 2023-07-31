@@ -27,6 +27,7 @@ class OneatVolumeWidget(QWidget):
     def __init__(
         self,
         viewer: Viewer,
+        imagedir:str,
         csvdir: str,
         savedir: str,
         savename: str,
@@ -58,6 +59,7 @@ class OneatVolumeWidget(QWidget):
         self._layout.addWidget(animation)
         self.oneatvisualization = OneatVolumeVisualization(
             viewer,
+            imagedir,
             key_categories,
             csvdir,
             savedir,
@@ -87,7 +89,8 @@ class OneatVolumeWidget(QWidget):
 
         self.frameWidget.imageidbox.currentIndexChanged.connect(
             lambda eventid=self.frameWidget.imageidbox: self._capture_image_callback(
-                segimagedir, heatimagedir, heatname
+                
+                imagedir, segimagedir, heatimagedir, heatname
             )
         )
 
@@ -165,10 +168,10 @@ class OneatVolumeWidget(QWidget):
             nms_space=self.nms_space,
         )
 
-    def _capture_image_callback(self, segimagedir, heatmapimagedir, heatname):
+    def _capture_image_callback(self, imagedir,  segimagedir, heatmapimagedir, heatname):
 
-        get_image_text = self.frameWidget.imageidbox.currentText()
-        imagename = os.path.basename(os.path.splitext(get_image_text)[0])
+        imagename= self.frameWidget.imageidbox.currentText()
+        get_image_text = os.path.join(imagedir, imagename)
         self.oneatvisualization.show_image(
             get_image_text, imagename, segimagedir, heatmapimagedir, heatname
         )

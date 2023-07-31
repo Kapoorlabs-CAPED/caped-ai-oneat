@@ -126,7 +126,8 @@ class NEATViz:
             Imageids.append(imagename)
 
         for i in range(0, len(Imageids)):
-            self.oneat_widget.frameWidget.imageidbox.addItem(str(Imageids[i]))
+            fname = os.path.basename(os.path.splitext(Imageids[i]))
+            self.oneat_widget.frameWidget.imageidbox.addItem(str(fname))
 
         for (event_name, event_label) in self.key_categories.items():
             if event_label > 0:
@@ -146,6 +147,7 @@ class NEATViz:
         from oneat.NEATUtils.oneat_animation._qt import OneatVolumeWidget
         self.oneat_widget = OneatVolumeWidget(
             self.viewer,
+            self.imagedir,
             self.csvdir,
             self.savedir,
             "Name",
@@ -163,7 +165,8 @@ class NEATViz:
             Imageids.append(imagename)
 
         for i in range(0, len(Imageids)):
-            self.oneat_widget.frameWidget.imageidbox.addItem(str(Imageids[i]))
+            fname = os.path.basename(os.path.splitext(Imageids[i]))
+            self.oneat_widget.frameWidget.imageidbox.addItem(str(fname))
 
         for (event_name, event_label) in self.key_categories.items():
             if event_label > 0:
