@@ -409,14 +409,15 @@ class OneatVolumeVisualization:
         self.score_locations = []
         self.event_locations = []
         self.confidence_locations = []
-
+        csvnames = list(Path(self.csvdir).glob("*.csv"))
         for layer in list(self.viewer.layers):
             if "Detections" in layer.name or layer.name in "Detections":
                 self.viewer.layers.remove(layer)
-        for (event_name, event_label) in self.key_categories.items():
-            if event_label > 0 and csv_event_name == event_name:
-                self.event_label = event_label
-                csvname = list(Path(self.csvdir).glob("*.csv"))[0]
+        
+        for i in range(len(csvnames)): 
+            if imagename in csvnames and csv_event_name in csvnames:
+                    csvname = csvnames[i]
+                    break           
         if csvname is not None:
 
             self.event_name = csv_event_name

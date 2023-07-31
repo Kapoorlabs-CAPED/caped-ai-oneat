@@ -33,6 +33,8 @@ class OneatFrameWidget(QWidget):
         self.imageidbox = QComboBox()
         index = self.imageidbox.findText("linear", Qt.MatchFixedString)
         self.imageidbox.setCurrentIndex(index)
+        
+      
 
         self.heatstepsSpinBox = QSpinBox()
         self.heatstepsSpinBox.setValue(1)
