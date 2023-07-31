@@ -126,7 +126,7 @@ class NEATViz:
             Imageids.append(imagename)
 
         for i in range(0, len(Imageids)):
-            fname = os.path.basename(os.path.splitext(Imageids[i]))
+            fname = os.path.basename(os.path.splitext(Imageids[i])[0])
             self.oneat_widget.frameWidget.imageidbox.addItem(str(fname))
 
         for (event_name, event_label) in self.key_categories.items():
@@ -165,7 +165,7 @@ class NEATViz:
             Imageids.append(imagename)
 
         for i in range(0, len(Imageids)):
-            fname = os.path.basename(os.path.splitext(Imageids[i]))
+            fname = os.path.basename(os.path.splitext(Imageids[i])[0])
             self.oneat_widget.frameWidget.imageidbox.addItem(str(fname))
 
         for (event_name, event_label) in self.key_categories.items():
