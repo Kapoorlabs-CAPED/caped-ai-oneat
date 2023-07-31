@@ -1553,7 +1553,7 @@ def save_volume(
 
 
 def save_volume_csv(
-    key_categories: dict, iou_classedboxes: dict, savedir: str
+    key_categories: dict, iou_classedboxes: dict, savedir: str, savename: str
 ):
 
     for (event_name, event_label) in key_categories.items():
@@ -1616,9 +1616,9 @@ def save_volume_csv(
             )
             event_data = []
             csvname = Path(savedir) /  f"pred_{event_name}_locations"
-
-            writer = csv.writer(open(str(csvname) + ".csv", "a", newline=""))
-            filesize = os.stat(str(csvname) + ".csv").st_size
+            
+            writer = csv.writer(open(str(csvname) + str(savename) + ".csv", "a", newline=""))
+            filesize = os.stat(str(csvname) + str(savename) + ".csv").st_size
 
             if filesize < 1:
                 writer.writerow(

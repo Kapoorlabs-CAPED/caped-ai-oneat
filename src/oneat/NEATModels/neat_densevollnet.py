@@ -264,6 +264,7 @@ class NEATDenseVollNet(object):
     def predict(self, 
                 image : np.ndarray,  
                 savedir : str = None, 
+                savename: str = '',
                 n_tiles : tuple = (1, 1, 1), 
                 overlap_percent : float =0.8,
                 event_threshold : float = 0.5, 
@@ -281,6 +282,7 @@ class NEATDenseVollNet(object):
         self.ndim = len(self.originalimage.shape)
         self.activations = activations
         self.savedir = savedir
+        self.savename = savename
         if self.savedir is not None:
            Path(self.savedir).mkdir(exist_ok=True)
         if len(n_tiles) == 3:   
@@ -597,7 +599,7 @@ class NEATDenseVollNet(object):
 
 
     def to_csv(self):
-             save_volume_csv( self.key_categories, self.iou_classedboxes, self.savedir)          
+             save_volume_csv( self.key_categories, self.iou_classedboxes, self.savedir, self.savename)          
  
     def to_activations(self):
              self.all_iou_classedboxes =  save_volume( self.key_categories, self.iou_classedboxes, self.all_iou_classedboxes)
