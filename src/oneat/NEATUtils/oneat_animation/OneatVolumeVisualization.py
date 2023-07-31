@@ -413,10 +413,8 @@ class OneatVolumeVisualization:
         for layer in list(self.viewer.layers):
             if "Detections" in layer.name or layer.name in "Detections":
                 self.viewer.layers.remove(layer)
-        print(imagename, csv_event_name)
         for i in range(len(csvnames)): 
             file = str(csvnames[i])
-            print(file)
             if imagename in file and csv_event_name in file:
                     csvname = file
                     break   
@@ -498,7 +496,7 @@ class OneatVolumeVisualization:
                     properties=point_properties,
                     symbol="square",
                     blending="translucent_no_depth",
-                    name="Detections" + event_name,
+                    name="Detections" + csv_event_name,
                     face_color=[0] * 4,
                     edge_color="red",
                 )
