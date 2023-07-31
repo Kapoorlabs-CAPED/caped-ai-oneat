@@ -413,9 +413,10 @@ class OneatVolumeVisualization:
         for layer in list(self.viewer.layers):
             if "Detections" in layer.name or layer.name in "Detections":
                 self.viewer.layers.remove(layer)
-        
+        print(imagename, csv_event_name)
         for i in range(len(csvnames)): 
-            if imagename in csvnames and csv_event_name in csvnames:
+            print(csvnames[i])
+            if imagename in csvnames[i] and csv_event_name in csvnames[i]:
                     csvname = csvnames[i]
                     break   
         if csvname is None:
