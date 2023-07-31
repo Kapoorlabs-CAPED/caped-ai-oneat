@@ -415,9 +415,10 @@ class OneatVolumeVisualization:
                 self.viewer.layers.remove(layer)
         print(imagename, csv_event_name)
         for i in range(len(csvnames)): 
-            print(csvnames[i])
-            if imagename in csvnames[i] and csv_event_name in csvnames[i]:
-                    csvname = csvnames[i]
+            file = str(csvnames[i])
+            print(file)
+            if imagename in file and csv_event_name in file:
+                    csvname = file
                     break   
         if csvname is None:
             print( "No csv file found for this image")                
