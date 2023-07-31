@@ -171,7 +171,7 @@ class OneatVolumeWidget(QWidget):
     def _capture_image_callback(self, imagedir,  segimagedir, heatmapimagedir, heatname):
 
         imagename= self.frameWidget.imageidbox.currentText()
-        get_image_text = os.path.join(imagedir, imagename)
+        get_image_text = os.path.join(imagedir, imagename + ".tif")
         self.oneatvisualization.show_image(
             get_image_text, imagename, segimagedir, heatmapimagedir, heatname
         )
