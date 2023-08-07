@@ -1250,8 +1250,7 @@ def createNPZ(
         dataarr,
         labelarr,
         train_size=train_size,
-        test_size=1 - train_size,
-        shuffle=True,
+        shuffle=False,
     )
     save_full_training_data(save_dir, save_name, traindata, trainlabel, axes)
     save_full_training_data(
