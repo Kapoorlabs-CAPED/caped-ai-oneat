@@ -702,7 +702,6 @@ def MovieLabelDataSet(
                             image = None
                             segimage = None
 
-
 def VolumeLabelDataSet(
     image_dir,
     seg_image_dir,
@@ -717,74 +716,57 @@ def VolumeLabelDataSet(
     gridz=1,
     tshift=0,
     normalizeimage=True,
-    dtype=np.float32,
+    dtype=np.uint8,
 ):
 
-    raw_path = os.path.join(image_dir, "*tif")
-    Seg_path = os.path.join(seg_image_dir, "*tif")
-    Csv_path = os.path.join(csv_dir, "*csv")
-    files_raw = glob.glob(raw_path)
-    files_raw.sort
-    filesSeg = glob.glob(Seg_path)
-    filesSeg.sort
-    filesCsv = glob.glob(Csv_path)
-    filesCsv.sort
+    files_raw =  os.listdir(image_dir)
+
     Path(save_dir).mkdir(exist_ok=True)
     total_categories = len(static_name)
 
     for fname in files_raw:
-
         name = os.path.basename(os.path.splitext(fname)[0])
-        for Segfname in filesSeg:
+        for i in range(0, len(static_name)):
+                event_name = static_name[i]
+                trainlabel = static_label[i]
+                Csvname = csv_name_diff + event_name + name
+                csvfname = os.path.join(csv_dir, Csvname + '.csv')
+                if os.path.exists(csvfname):
+                    print(Csvname)
+                    image = imread(os.path.join(image_dir,fname)).astype(dtype)
+                    segimage = imread(os.path.join(seg_image_dir,fname)).astype("uint16")
+                    dataset = pd.read_csv(csvfname)
+                    time = dataset[dataset.keys()[0]][1:]
+                    z = dataset[dataset.keys()[1]][1:]
+                    y = dataset[dataset.keys()[2]][1:]
+                    x = dataset[dataset.keys()[3]][1:]
 
-            Segname = os.path.basename(os.path.splitext(Segfname)[0])
+                    # Categories + XYZHW + Confidence
+                    for (key, t) in time.items():
 
-            if name == Segname:
-
-                for csvfname in filesCsv:
-                    count = 0
-                    Csvname = os.path.basename(os.path.splitext(csvfname)[0])
-                    for i in range(0, len(static_name)):
-                        event_name = static_name[i]
-                        trainlabel = static_label[i]
-                        classfound = (
-                            Csvname == csv_name_diff + event_name + name
+                        VolumeMaker(
+                            t,
+                            z[key],
+                            y[key],
+                            x[key],
+                            image,
+                            segimage,
+                            crop_size,
+                            gridx,
+                            gridy,
+                            gridz,
+                            total_categories,
+                            trainlabel,
+                            name + event_name + str(count),
+                            save_dir,
+                            tshift,
+                            normalizeimage,
+                            dtype,
                         )
-                        if classfound:
-                            print(Csvname)
-                            image = imread(fname).astype(dtype)
-                            segimage = imread(Segfname).astype("uint16")
-                            dataset = pd.read_csv(csvfname)
-                            time = dataset[dataset.keys()[0]]
-                            z = dataset[dataset.keys()[1]]
-                            y = dataset[dataset.keys()[2]]
-                            x = dataset[dataset.keys()[3]]
+                        count = count + 1
+                    image = None
+                    segimage = None
 
-                            # Categories + XYZHW + Confidence
-                            for (key, t) in time.items():
-
-                                VolumeMaker(
-                                    t,
-                                    z[key],
-                                    y[key],
-                                    x[key],
-                                    image,
-                                    segimage,
-                                    crop_size,
-                                    gridx,
-                                    gridy,
-                                    gridz,
-                                    total_categories,
-                                    trainlabel,
-                                    name + event_name + str(count),
-                                    save_dir,
-                                    tshift,
-                                    normalizeimage,
-                                    dtype,
-                                )
-                                count = count + 1
-                            image = None
-                            segimage = None
 
 
 def VolumeMaker(
