@@ -727,10 +727,10 @@ def VolumeLabelDataSet(
                     image = imread(os.path.join(image_dir,fname)).astype(dtype)
                     segimage = imread(os.path.join(seg_image_dir,fname)).astype("uint16")
                     dataset = pd.read_csv(csvfname)
-                    time = dataset[dataset.keys()[0]][1:]
-                    z = dataset[dataset.keys()[1]][1:]
-                    y = dataset[dataset.keys()[2]][1:]
-                    x = dataset[dataset.keys()[3]][1:]
+                    time = dataset[dataset.keys()[0]]
+                    z = dataset[dataset.keys()[1]]
+                    y = dataset[dataset.keys()[2]]
+                    x = dataset[dataset.keys()[3]]
 
                     # Categories + XYZHW + Confidence
                     for (key, t) in time.items():
