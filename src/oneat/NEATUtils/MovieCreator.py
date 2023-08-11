@@ -800,7 +800,7 @@ def VolumeMaker(
     
         currentsegimage = segimage[int(time), :].astype("uint16")
         image_props = getHWD(
-            x, y, z, currentsegimage, imagesizex, imagesizey, imagesizez
+            x, y, z, currentsegimage, imagesizex, imagesizey, imagesizez, trainlabel
         )
         if image_props is not None:
             height, width, depth, center, seg_label = image_props
@@ -929,7 +929,7 @@ def MovieMaker(
         )
     if time > size_tminus:
         currentsegimage = segimage[int(time), :].astype("uint16")
-        image_props = getHW(x, y, currentsegimage, imagesizex, imagesizey)
+        image_props = getHW(x, y, currentsegimage, imagesizex, imagesizey, trainlabel)
         if image_props is not None:
             height, width, center, seg_label = image_props
             for shift in AllShifts:
@@ -1263,7 +1263,7 @@ def ImageMaker(
     if time < segimage.shape[0] - 1 and time > 0:
         currentsegimage = segimage[int(time), :].astype("uint16")
 
-        image_props = getHW(x, y, currentsegimage, ImagesizeX, ImagesizeY)
+        image_props = getHW(x, y, currentsegimage, ImagesizeX, ImagesizeY, trainlabel)
         if image_props is not None:
             height, width, center, seg_label = image_props
             for shift in AllShifts:
