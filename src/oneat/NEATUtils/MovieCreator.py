@@ -800,7 +800,7 @@ def VolumeMaker(
     
         currentsegimage = segimage[int(time), :].astype("uint16")
         image_props = getHWD(
-            x, y, z, currentsegimage, imagesizex, imagesizey, imagesizez, trainlabel
+            x, y, z, currentsegimage, imagesizex, imagesizey, imagesizez
         )
         if image_props is not None:
             height, width, depth, center, seg_label = image_props
@@ -929,7 +929,7 @@ def MovieMaker(
         )
     if time > size_tminus:
         currentsegimage = segimage[int(time), :].astype("uint16")
-        image_props = getHW(x, y, currentsegimage, imagesizex, imagesizey, trainlabel)
+        image_props = getHW(x, y, currentsegimage, imagesizex, imagesizey)
         if image_props is not None:
             height, width, center, seg_label = image_props
             for shift in AllShifts:
@@ -1263,7 +1263,7 @@ def ImageMaker(
     if time < segimage.shape[0] - 1 and time > 0:
         currentsegimage = segimage[int(time), :].astype("uint16")
 
-        image_props = getHW(x, y, currentsegimage, ImagesizeX, ImagesizeY, trainlabel)
+        image_props = getHW(x, y, currentsegimage, ImagesizeX, ImagesizeY)
         if image_props is not None:
             height, width, center, seg_label = image_props
             for shift in AllShifts:
@@ -1428,10 +1428,22 @@ def SegFreeImageMaker(
                         writer.writerows(Event_data)
 
 
-def getHW(defaultX, defaultY, currentsegimage, imagesizex, imagesizey, trainlabel):
+def getHW(defaultX, defaultY, currentsegimage, imagesizex, imagesizey):
 
     properties = measure.regionprops(currentsegimage)
-
+    centroids = [prop.centroid for prop in properties]
+    labels = [prop.label for prop in properties]
+    tree = spatial.cKDTree(centroids)
+    
+    DLocation = (defaultY, defaultX)
+    distance_cell_mask, nearest_location = tree.query(DLocation)
+    if distance_cell_mask < 0.5 * imagesizex:
+        y = int(centroids[nearest_location][0])         
+        x = int(centroids[nearest_location][1])
+        SegLabel = labels[nearest_location]
+        DLocation = (y, x)
+    else:
+        SegLabel = currentsegimage[int(DLocation[0]), int(DLocation[1])]
     TwoDLocation = (defaultY, defaultX)
     if (
         int(TwoDLocation[0]) < currentsegimage.shape[0]
@@ -1447,7 +1459,7 @@ def getHW(defaultX, defaultY, currentsegimage, imagesizex, imagesizey, trainlabe
                 width = abs(maxr - minr)
                 return height, width, center, SegLabel
 
-            if SegLabel == 0 and trainlabel == 0:
+            if SegLabel == 0:
 
                 center = (defaultY, defaultX)
                 height = 0.5 * imagesizex
@@ -1463,7 +1475,6 @@ def getHWD(
     imagesizex,
     imagesizey,
     imagesizez,
-    trainlabel
 ):
 
     properties = measure.regionprops(currentsegimage)
@@ -1473,7 +1484,7 @@ def getHWD(
     
     DLocation = (defaultZ, defaultY, defaultX)
     distance_cell_mask, nearest_location = tree.query(DLocation)
-    if distance_cell_mask < 0.25 * imagesizex:
+    if distance_cell_mask < 0.5 * imagesizex:
         z = int(centroids[nearest_location][0])         
         y = int(centroids[nearest_location][1])
         x = int(centroids[nearest_location][2])
@@ -1496,7 +1507,7 @@ def getHWD(
                 depth = abs(maxd - mind)
                 return height, width, depth, center, SegLabel
 
-            if SegLabel == 0 and trainlabel == 0:
+            if SegLabel == 0 :
 
                 center = (defaultZ, defaultY, defaultX)
                 height = 0.5 * imagesizex
