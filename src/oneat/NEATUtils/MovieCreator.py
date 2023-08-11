@@ -8,7 +8,7 @@ import numpy as np
 import pandas as pd
 from PIL import Image
 from skimage import measure
-
+from scipy import spatial
 from sklearn.model_selection import train_test_split
 from tifffile import imread, imwrite
 from tqdm import tqdm
@@ -652,27 +652,17 @@ def MovieLabelDataSet(
     total_categories = len(static_name)
 
     for fname in files_raw:
-
         name = os.path.basename(os.path.splitext(fname)[0])
-        for Segfname in filesSeg:
-
-            Segname = os.path.basename(os.path.splitext(Segfname)[0])
-
-            if name == Segname:
-
-                for csvfname in filesCsv:
-                    count = 0
-                    Csvname = os.path.basename(os.path.splitext(csvfname)[0])
-                    for i in range(0, len(static_name)):
-                        event_name = static_name[i]
-                        trainlabel = static_label[i]
-                        classfound = (
-                            Csvname == csv_name_diff + event_name + name
-                        )
-                        if classfound:
+        for i in range(0, len(static_name)):
+                event_name = static_name[i]
+                trainlabel = static_label[i]
+                Csvname = csv_name_diff + event_name + name
+                csvfname = os.path.join(csv_dir, Csvname + '.csv')
+                if os.path.exists(csvfname):
                             print(Csvname)
-                            image = imread(fname).astype(dtype)
-                            segimage = imread(Segfname).astype("uint16")
+                            count = 0
+                            image = imread(os.path.join(image_dir,fname)).astype(dtype)
+                            segimage = imread(os.path.join(seg_image_dir,fname)).astype("uint16")
                             dataset = pd.read_csv(csvfname)
                             time = dataset[dataset.keys()[0]]
                             y = dataset[dataset.keys()[1]]
@@ -733,6 +723,7 @@ def VolumeLabelDataSet(
                 csvfname = os.path.join(csv_dir, Csvname + '.csv')
                 if os.path.exists(csvfname):
                     print(Csvname)
+                    count = 0
                     image = imread(os.path.join(image_dir,fname)).astype(dtype)
                     segimage = imread(os.path.join(seg_image_dir,fname)).astype("uint16")
                     dataset = pd.read_csv(csvfname)
@@ -809,7 +800,7 @@ def VolumeMaker(
     
         currentsegimage = segimage[int(time), :].astype("uint16")
         image_props = getHWD(
-            x, y, z, currentsegimage
+            x, y, z, currentsegimage, imagesizex, imagesizey, imagesizez
         )
         if image_props is not None:
             height, width, depth, center, seg_label = image_props
@@ -1437,7 +1428,7 @@ def SegFreeImageMaker(
                         writer.writerows(Event_data)
 
 
-def getHW(defaultX, defaultY, currentsegimage):
+def getHW(defaultX, defaultY, currentsegimage, imagesizex, imagesizey, trainlabel):
 
     properties = measure.regionprops(currentsegimage)
 
@@ -1456,6 +1447,12 @@ def getHW(defaultX, defaultY, currentsegimage):
                 width = abs(maxr - minr)
                 return height, width, center, SegLabel
 
+            if SegLabel == 0 and trainlabel == 0:
+
+                center = (defaultY, defaultX)
+                height = 0.5 * imagesizex
+                width = 0.5 * imagesizey
+                return height, width, center, SegLabel
 
 
 def getHWD(
@@ -1463,20 +1460,34 @@ def getHWD(
     defaultY,
     defaultZ,
     currentsegimage,
+    imagesizex,
+    imagesizey,
+    imagesizez,
+    trainlabel
 ):
 
     properties = measure.regionprops(currentsegimage)
+    centroids = [prop.centroid for prop in properties]
+    labels = [prop.label for prop in properties]
+    tree = spatial.cKDTree(centroids)
+    
     DLocation = (defaultZ, defaultY, defaultX)
+    distance_cell_mask, nearest_location = tree.query(DLocation)
+    if distance_cell_mask < 0.25 * imagesizex:
+        z = int(centroids[nearest_location][0])         
+        y = int(centroids[nearest_location][1])
+        x = int(centroids[nearest_location][2])
+        SegLabel = labels[nearest_location]
+        DLocation = (z, y, x)
+    else:
+        SegLabel = currentsegimage[int(DLocation[0]), int(DLocation[1]), int(DLocation[2])]
     if (
         int(DLocation[0]) < currentsegimage.shape[0]
         and int(DLocation[1]) < currentsegimage.shape[1]
         and int(DLocation[2]) < currentsegimage.shape[2]
     ):
-        SegLabel = currentsegimage[
-            int(DLocation[0]), int(DLocation[1]), int(DLocation[2])
-        ]
+       
         for prop in properties:
-
             if SegLabel > 0 and prop.label == SegLabel:
                 minr, minc, mind, maxr, maxc, maxd = prop.bbox
                 center = (defaultZ, defaultY, defaultX)
@@ -1485,7 +1496,13 @@ def getHWD(
                 depth = abs(maxd - mind)
                 return height, width, depth, center, SegLabel
 
-         
+            if SegLabel == 0 and trainlabel == 0:
+
+                center = (defaultZ, defaultY, defaultX)
+                height = 0.5 * imagesizex
+                width = 0.5 * imagesizey
+                depth = 0.5 * imagesizez
+                return height, width, depth, center, SegLabel
 
 
 def save_full_training_data(directory, filename, data, label, axes):
