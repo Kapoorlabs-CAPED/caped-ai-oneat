@@ -809,7 +809,7 @@ def VolumeMaker(
     
         currentsegimage = segimage[int(time), :].astype("uint16")
         image_props = getHWD(
-            x, y, z, currentsegimage, imagesizex, imagesizey, imagesizez
+            x, y, z, currentsegimage
         )
         if image_props is not None:
             height, width, depth, center, seg_label = image_props
@@ -1437,7 +1437,7 @@ def SegFreeImageMaker(
                         writer.writerows(Event_data)
 
 
-def getHW(defaultX, defaultY, currentsegimage, imagesizex, imagesizey):
+def getHW(defaultX, defaultY, currentsegimage):
 
     properties = measure.regionprops(currentsegimage)
 
@@ -1456,12 +1456,6 @@ def getHW(defaultX, defaultY, currentsegimage, imagesizex, imagesizey):
                 width = abs(maxr - minr)
                 return height, width, center, SegLabel
 
-            if SegLabel == 0:
-
-                center = (defaultY, defaultX)
-                height = 0.5 * imagesizex
-                width = 0.5 * imagesizey
-                return height, width, center, SegLabel
 
 
 def getHWD(
@@ -1469,9 +1463,6 @@ def getHWD(
     defaultY,
     defaultZ,
     currentsegimage,
-    imagesizex,
-    imagesizey,
-    imagesizez,
 ):
 
     properties = measure.regionprops(currentsegimage)
@@ -1494,13 +1485,7 @@ def getHWD(
                 depth = abs(maxd - mind)
                 return height, width, depth, center, SegLabel
 
-            if SegLabel == 0:
-
-                center = (defaultZ, defaultY, defaultX)
-                height = 0.5 * imagesizex
-                width = 0.5 * imagesizey
-                depth = 0.5 * imagesizez
-                return height, width, depth, center, SegLabel
+         
 
 
 def save_full_training_data(directory, filename, data, label, axes):
