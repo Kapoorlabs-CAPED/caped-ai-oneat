@@ -1446,6 +1446,7 @@ def getHW(defaultX, defaultY, currentsegimage, imagesizex, imagesizey):
         if (
         int(TwoDLocation[0]) < currentsegimage.shape[0]
         and int(TwoDLocation[1]) < currentsegimage.shape[1]
+        and all(i >= 0 for i in DLocation)
         ):
           SegLabel = currentsegimage[int(DLocation[0]), int(DLocation[1])]
 
@@ -1500,9 +1501,10 @@ def getHWD(
         DLocation = (z, y, x)
     else:
         if (
-        int(DLocation[0]) < currentsegimage.shape[0]
+        int(DLocation[0]) < currentsegimage.shape[0] 
         and int(DLocation[1]) < currentsegimage.shape[1]
         and int(DLocation[2]) < currentsegimage.shape[2]
+        and all(i >= 0 for i in DLocation)
         ):
            SegLabel = currentsegimage[int(DLocation[0]), int(DLocation[1]), int(DLocation[2])]
         else:
