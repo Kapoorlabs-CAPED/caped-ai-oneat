@@ -303,7 +303,8 @@ class NEATDenseVollNet(object):
         self.remove_markers = remove_markers
         
         #Normalize in volume
-        self.originalimage = normalizeFloatZeroOne(self.originalimage, 1, 99.8, dtype = self.dtype)
+        for inputtime in tqdm(range(0, self.originalimage.shape[0])):
+            self.originalimage[inputtime] = normalizeFloatZeroOne(self.originalimage[inputtime], 1, 99.8, dtype = self.dtype)
         if self.remove_markers == True:
             self.generate_maps = False 
             self.image = np.zeros([self.originalimage.shape[0], self.originalimage.shape[1],  self.originalimage.shape[2] + self.pad_width[0], self.originalimage.shape[3] + self.pad_width[1] ])
