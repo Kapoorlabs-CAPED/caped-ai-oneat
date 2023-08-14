@@ -184,15 +184,9 @@ class NEATDenseVollNet(object):
 
         Y_class = self.Y[:, :, :, :, :self.categories]
         Y_class = Y_class[:,0,0,0,:]
-        class_indices = np.argmax(Y_class, axis=1)
-        class_weights = class_weight.compute_class_weight('balanced',
-                                                 classes = np.unique(class_indices),
-                                                 y = class_indices)
-        
-
         
         self.yolo_loss = volume_yolo_loss(self.categories, self.gridx, self.gridy, self.gridz, self.nboxes,
-                                          self.box_vector, self.entropy, class_weights)
+                                          self.box_vector, self.entropy)
 
         Y_rest = self.Y[:, :, :, :, self.categories:]
 
