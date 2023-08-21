@@ -1,6 +1,6 @@
 from tensorflow import keras as K
-from keras import layers, models, regularizers, backend
-from keras.layers import (
+from tensorflow.keras import layers, models, regularizers, backend
+from tensorflow.keras.layers import (
     Activation,
     BatchNormalization,
     Conv1D,
@@ -10,7 +10,7 @@ from keras.layers import (
     ConvLSTM2D,
     concatenate
 )
-from keras.layers.core import Lambda
+from tensorflow.keras.layers.core import Lambda
 import os
 reg_weight = 1.0e-4
 
