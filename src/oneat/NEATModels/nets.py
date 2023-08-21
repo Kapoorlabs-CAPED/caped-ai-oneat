@@ -10,7 +10,7 @@ from tensorflow.keras.layers import (
     ConvLSTM2D,
     concatenate
 )
-from tensorflow.keras.layers.core import Lambda
+from tensorflow.keras.layers import Lambda
 import os
 reg_weight = 1.0e-4
 
