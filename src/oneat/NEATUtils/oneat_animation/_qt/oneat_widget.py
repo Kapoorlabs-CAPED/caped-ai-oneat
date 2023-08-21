@@ -1,7 +1,6 @@
 import os
 
 import napari
-from napari_animation._qt import AnimationWidget
 from qtpy.QtWidgets import QLabel, QVBoxLayout, QWidget
 
 from ..OneatVisualization import OneatVisualization
@@ -53,11 +52,9 @@ class OneatWidget(QWidget):
         self.frameWidget = OneatFrameWidget(parent=self)
         self._layout.addWidget(self.frameWidget)
 
-        animation = AnimationWidget(viewer)
         self.start_prob = self.frameWidget.startprobSpinBox.value()
         self.nms_space = self.frameWidget.nmsspaceSpinBox.value()
 
-        self._layout.addWidget(animation)
         self.oneatvisualization = OneatVisualization(
             viewer,
             key_categories,

@@ -52,11 +52,9 @@ class OneatVolumeWidget(QWidget):
         self.frameWidget = OneatFrameWidget(parent=self)
         self._layout.addWidget(self.frameWidget)
 
-        animation = AnimationWidget(viewer)
         self.start_prob = self.frameWidget.startprobSpinBox.value()
         self.nms_space = self.frameWidget.nmsspaceSpinBox.value()
 
-        self._layout.addWidget(animation)
         self.oneatvisualization = OneatVolumeVisualization(
             viewer,
             imagedir,

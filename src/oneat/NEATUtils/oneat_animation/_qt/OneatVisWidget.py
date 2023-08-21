@@ -1,5 +1,5 @@
 from qtpy.QtWidgets import (
-    QWidget, QFormLayout, QComboBox, QDoubleSpinBox, QSlider, QLabel, QPushButton, QFileDialog
+    QWidget, QFormLayout, QComboBox, QDoubleSpinBox, QSlider, QLabel, QPushButton
 )
 from qtpy.QtCore import Qt
 
@@ -15,8 +15,6 @@ class OneatVisWidget(QWidget):
         self._layout = QFormLayout(parent= self)
         
         self.detectionidbox = QPushButton('Select Prediction File (csv)', parent = self)
-        
-        
         
         self.startprobspinbox = QDoubleSpinBox()
         self.startprobspinbox.setValue(0.9)
