@@ -316,7 +316,7 @@ class NEATDenseVollNet(object):
         if self.remove_markers == None:
            self.pad_width = (self.config['imagey'], self.config['imagex'])
            for i in range(self.originalimage.shape[0]):
-              self.image = pad_timelapse(self.originalimage, self.pad_width)
+              self.image[i,:] = pad_timelapse(self.originalimage[i,:], self.pad_width)
            self.default_pass_predict() 
 
    
