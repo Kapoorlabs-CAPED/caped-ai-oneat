@@ -405,21 +405,15 @@ def create_sub_image(image, n, m, p, stride):
     for t_idx in range(t):
         sub_image_t = image[t_idx]
         
-        z_remainder = z % n
-        y_remainder = y % m
-        x_remainder = x % p
+        new_z = z + (n - z % n) % n
+        new_y = y + (m - y % m) % m
+        new_x = x + (p - x % p) % p
         
-        new_z = z - z_remainder + (n - 1)
-        new_y = y - y_remainder + (m - 1)
-        new_x = x - x_remainder + (p - 1)
+        pad_z = (new_z - z)
+        pad_y = (new_y - y)
+        pad_x = (new_x - x)
         
-        sub_image = sub_image_t[:new_z, :new_y, :new_x]
-        
-        pad_z = (new_z - z) % stride
-        pad_y = (new_y - y) % stride
-        pad_x = (new_x - x) % stride
-        
-        sub_image_padded = np.pad(sub_image, ((0, pad_z), (0, pad_y), (0, pad_x)), mode='constant')
+        sub_image_padded = np.pad(sub_image_t, ((0, pad_z), (0, pad_y), (0, pad_x)), mode='constant')
         
         sub_images.append(sub_image_padded)
     

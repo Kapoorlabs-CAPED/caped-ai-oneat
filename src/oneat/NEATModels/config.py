@@ -18,7 +18,6 @@ class lstm_config(argparse.Namespace):
         key_categories=None,
         key_cord=None,
         stage_number=3,
-        last_conv_factor=4,
         imagex=128,
         imagey=128,
         size_tminus=3,
@@ -60,7 +59,7 @@ class lstm_config(argparse.Namespace):
         self.startfilter = startfilter
         self.lstm_hidden_unit = lstm_hidden_unit
         self.epochs = epochs
-        self.stride = last_conv_factor
+        self.stride = 2**(stage_number -1)
         self.learning_rate = learning_rate
         self.batch_size = batch_size
         self.model_name = model_name
@@ -68,7 +67,7 @@ class lstm_config(argparse.Namespace):
         self.imagex = imagex
         self.imagey = imagey
         self.stage_number = stage_number
-        self.last_conv_factor = last_conv_factor
+        self.last_conv_factor = 2**(stage_number -1)
         self.size_tminus = size_tminus
         self.size_tplus = size_tplus
         self.pure_lstm = pure_lstm
@@ -179,7 +178,6 @@ class volume_config(argparse.Namespace):
         key_categories=None,
         key_cord=None,
         stage_number=3,
-        last_conv_factor=4,
         imagex=64,
         imagey=64,
         imagez=4,
@@ -223,7 +221,7 @@ class volume_config(argparse.Namespace):
         self.mid_kernel = mid_kernel
         self.startfilter = startfilter
         self.epochs = epochs
-        self.stride = last_conv_factor
+        self.stride = 2**(stage_number-1)
         self.learning_rate = learning_rate
         self.batch_size = batch_size
         self.model_name = model_name
@@ -232,7 +230,7 @@ class volume_config(argparse.Namespace):
         self.imagey = imagey
         self.imagez = imagez
         self.stage_number = stage_number
-        self.last_conv_factor = last_conv_factor
+        self.last_conv_factor = 2**(stage_number-1)
         self.size_tminus = size_tminus
         self.size_tplus = size_tplus
         self.pure_lstm = pure_lstm
