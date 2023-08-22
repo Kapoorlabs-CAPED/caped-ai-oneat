@@ -314,8 +314,8 @@ class NEATDenseVollNet(object):
            print(f'zero padded image shape ${self.image.shape}')
            self.second_pass_predict()
         if self.remove_markers == None:
+           self.pad_width = (self.config['imagey'], self.config['imagex']) 
            self.image = np.zeros([self.originalimage.shape[0], self.originalimage.shape[1],  self.originalimage.shape[2] + self.pad_width[0], self.originalimage.shape[3] + self.pad_width[1] ]) 
-           self.pad_width = (self.config['imagey'], self.config['imagex'])
            for i in range(self.originalimage.shape[0]):
               self.image[i,:] = pad_timelapse(self.originalimage[i,:], self.pad_width)
            self.default_pass_predict() 
