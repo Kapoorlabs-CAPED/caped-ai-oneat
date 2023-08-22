@@ -398,24 +398,26 @@ def load_full_training_data(directory, filename, axes=None, verbose=True):
 
     return (X, Y), axes
 
+def calculate_new_dimension(original_dimension, target_multiple, stride):
+    k = 0
+    new_dimension = 0
+    
+    while original_dimension - new_dimension > stride:
+        k += 1
+        new_dimension = target_multiple + k * stride
+    return new_dimension
+
 def create_sub_image(image, n, m, p, stride):
     t, z, y, x = image.shape
-    sub_images = []
+    new_z = calculate_new_dimension(z, n, stride)
+    new_y = calculate_new_dimension(y, m, stride)
+    new_x = calculate_new_dimension(x, p, stride)
     
+    sub_images = []
+
     for t_idx in range(t):
-        sub_image_t = image[t_idx]
-        
-        new_z = z + (n - z % n) % n
-        new_y = y + (m - y % m) % m
-        new_x = x + (p - x % p) % p
-        
-        pad_z = (new_z - z)
-        pad_y = (new_y - y)
-        pad_x = (new_x - x)
-        
-        sub_image_padded = np.pad(sub_image_t, ((0, pad_z), (0, pad_y), (0, pad_x)), mode='constant')
-        
-        sub_images.append(sub_image_padded)
+        sub_image = image[t_idx, :new_z, :new_y, :new_x]
+        sub_images.append(sub_image)
     
     return np.array(sub_images)
 
