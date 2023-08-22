@@ -1,7 +1,7 @@
 from oneat.NEATUtils import plotters
 import numpy as np
 from oneat.NEATUtils import utils
-from oneat.NEATUtils.utils import save_volume, pad_timelapse, get_nearest_volume,  load_json, volumeyoloprediction, normalizeFloatZeroOne, GenerateVolumeMarkers, MakeForest,save_volume_csv, volume_dynamic_nms
+from oneat.NEATUtils.utils import save_volume, create_sub_image,  pad_timelapse, get_nearest_volume,  load_json, volumeyoloprediction, normalizeFloatZeroOne, GenerateVolumeMarkers, MakeForest,save_volume_csv, volume_dynamic_nms
 from keras import callbacks
 import os
 import sys
@@ -311,12 +311,8 @@ class NEATVollNet(object):
            print(f'zero padded image shape ${self.image.shape}')
            self.second_pass_predict()
         if self.remove_markers == None:
-           self.pad_width = (self.config['imagey'], self.config['imagex']) 
-           self.image = np.zeros([self.originalimage.shape[0], self.originalimage.shape[1],  self.originalimage.shape[2] + self.pad_width[0], self.originalimage.shape[3] + self.pad_width[1] ]) 
            
-           for i in range(self.originalimage.shape[0]):
-              self.image[i,:] = pad_timelapse(self.originalimage[i,:], self.pad_width) 
-           self.image = self.originalimage
+           self.image = create_sub_image(self.originalimage,self.config['imagez'],self.config['imagey'], self.config['imagex']) 
            self.default_pass_predict() 
 
    
