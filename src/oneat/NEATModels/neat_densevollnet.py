@@ -314,7 +314,7 @@ class NEATDenseVollNet(object):
            print(f'zero padded image shape ${self.image.shape}')
            self.second_pass_predict()
         if self.remove_markers == None:
-           self.image = create_sub_image(self.originalimage,self.config['imagez'],self.config['imagey'], self.config['imagex']) 
+           self.image = create_sub_image(self.originalimage,self.config['imagez'],self.config['imagey'], self.config['imagex'], self.stride) 
            self.default_pass_predict() 
 
    

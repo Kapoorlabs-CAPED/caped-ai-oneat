@@ -398,21 +398,32 @@ def load_full_training_data(directory, filename, axes=None, verbose=True):
 
     return (X, Y), axes
 
-def create_sub_image(image, n, m, p):
-    
+def create_sub_image(image, n, m, p, stride):
     t, z, y, x = image.shape
+    sub_images = []
     
-    z_remainder = z % n
-    y_remainder = y % m
-    x_remainder = x % p
+    for t_idx in range(t):
+        sub_image_t = image[t_idx]
+        
+        z_remainder = z % n
+        y_remainder = y % m
+        x_remainder = x % p
+        
+        new_z = z - z_remainder + (n - 1)
+        new_y = y - y_remainder + (m - 1)
+        new_x = x - x_remainder + (p - 1)
+        
+        sub_image = sub_image_t[:new_z, :new_y, :new_x]
+        
+        pad_z = (new_z - z) % stride
+        pad_y = (new_y - y) % stride
+        pad_x = (new_x - x) % stride
+        
+        sub_image_padded = np.pad(sub_image, ((0, pad_z), (0, pad_y), (0, pad_x)), mode='constant')
+        
+        sub_images.append(sub_image_padded)
     
-    new_z = z - z_remainder
-    new_y = y - y_remainder
-    new_x = x - x_remainder
-    
-    sub_image = image[:, :new_z, :new_y, :new_x]
-    
-    return sub_image
+    return np.array(sub_images)
 
 def pad_timelapse(image, pad_width):
 
