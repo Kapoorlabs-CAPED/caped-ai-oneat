@@ -296,7 +296,6 @@ class NEATVollNet(object):
         #Normalize in volume
         self.originalimage = normalizeFloatZeroOne(self.originalimage, 1, 99.8, dtype = self.dtype)
         if self.remove_markers == True:
-            self.generate_maps = False 
             self.image = np.zeros([self.originalimage.shape[0], self.originalimage.shape[1],  self.originalimage.shape[2] + self.pad_width[0], self.originalimage.shape[3] + self.pad_width[1] ])
             for i in range(self.originalimage.shape[0]):
                self.image[i,:] = pad_timelapse(self.originalimage[i,:], self.pad_width)
@@ -305,7 +304,6 @@ class NEATVollNet(object):
             self.first_pass_predict()
             self.second_pass_predict()
         if self.remove_markers == False:
-           self.generate_maps = False 
            self.image = np.zeros([self.originalimage.shape[0], self.originalimage.shape[1],  self.originalimage.shape[2] + self.pad_width[0], self.originalimage.shape[3] + self.pad_width[1] ])
            for i in range(self.originalimage.shape[0]):
                self.image[i,:] = pad_timelapse(self.originalimage[i,:], self.pad_width)
@@ -313,7 +311,9 @@ class NEATVollNet(object):
            print(f'zero padded image shape ${self.image.shape}')
            self.second_pass_predict()
         if self.remove_markers == None:
-           self.generate_maps = True 
+           self.pad_width = (self.config['imagey'], self.config['imagex'])
+           for i in range(self.originalimage.shape[0]):
+              self.image = pad_timelapse(self.originalimage, self.pad_width) 
            self.image = self.originalimage
            self.default_pass_predict() 
 
