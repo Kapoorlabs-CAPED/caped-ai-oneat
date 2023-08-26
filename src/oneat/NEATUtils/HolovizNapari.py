@@ -327,12 +327,15 @@ def cluster_spheres(event_locations_dict, event_locations_size_dict, nms_space, 
 
 def headlesscall(
     key_categories: dict,
-    event_threshold: float,
+    event_threshold: list,
     nms_space: int,
     nms_time: int,
     csvdir: str,
     savedir: str,
 ):
+    if isinstance(event_threshold, float):
+        event_threshold = [event_threshold] * len(key_categories)
+
     for (event_name, event_label) in key_categories.items():
         if event_label > 0:
             event_locations = []
@@ -377,7 +380,7 @@ def headlesscall(
                     size = float(listsize[i])
                     score = float(listscore[i])
                     confidence = listconfidence[i]
-                    if score > event_threshold:
+                    if score > event_threshold[event_label]:
                         event_locations.append(
                             [int(tcenter), int(ycenter), int(xcenter)]
                         )
@@ -470,12 +473,15 @@ def headlesscall(
 
 def headlessvolumecall(
     key_categories: dict,
-    event_threshold: float,
+    event_threshold: list,
     nms_space: int,
     nms_time: int,
     csvdir: str,
     savedir: str,
 ):
+    if isinstance(event_threshold, float):
+        event_threshold = [event_threshold] * len(key_categories)
+          
     for (event_name, event_label) in key_categories.items():
         if event_label > 0:
             event_locations = []
@@ -523,7 +529,7 @@ def headlessvolumecall(
                     size = listsize[i]
                     score = listscore[i]
                     confidence = listconfidence[i]
-                    if score > event_threshold:
+                    if score > event_threshold[event_label]:
                         event_locations.append(
                             [int(tcenter), int(zcenter), int(ycenter), int(xcenter)]
                         )

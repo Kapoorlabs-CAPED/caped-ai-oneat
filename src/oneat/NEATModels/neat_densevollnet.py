@@ -15,7 +15,7 @@ from pathlib import Path
 from tensorflow.keras.models import load_model
 from tifffile import imread
 from sklearn.utils import class_weight
-
+from typing import Union, List
 class NEATDenseVollNet(object):
     """
     Parameters
