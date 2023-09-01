@@ -501,7 +501,7 @@ def headlessvolumecall(
                 event_locations_dict = {}
                 event_locations_size_dict = {}
                 savename = Path(csvname).stem
-                print(savename)
+                print(f'performing non maximal supression on {savename}')
                 dataset = pd.read_csv(csvname, delimiter=",")
                 # Data is written as T, Y, X, Score, Size, Confidence
                 T = dataset[dataset.keys()[0]][0:]
@@ -595,7 +595,7 @@ def headlessvolumecall(
                 )
 
                 event_data = []
-                csvname = savedir + "/" + "clean_" + savename
+                csvname = "non_maximal_" + savename
                 if os.path.exists(csvname + ".csv"):
                     os.remove(csvname + ".csv")
                 writer = csv.writer(open(csvname + ".csv", "a", newline=""))
