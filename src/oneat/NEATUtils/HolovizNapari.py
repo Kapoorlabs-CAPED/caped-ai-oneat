@@ -595,7 +595,7 @@ def headlessvolumecall(
                 )
 
                 event_data = []
-                csvname = "non_maximal_" + savename
+                csvname = savedir + '/' + "non_maximal_" + savename
                 if os.path.exists(csvname + ".csv"):
                     os.remove(csvname + ".csv")
                 writer = csv.writer(open(csvname + ".csv", "a", newline=""))
