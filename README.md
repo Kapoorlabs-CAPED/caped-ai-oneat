@@ -1,10 +1,10 @@
 # oneat
 
-[![License BSD-3](https://img.shields.io/pypi/l/oneat.svg?color=green)](https://github.com/Kapoorlabs-CAPED/oneat/raw/main/LICENSE)
+[![License BSD-3](https://img.shields.io/pypi/l/oneat.svg?color=green)](https://github.com/Kapoorlabs-CAPED/caped-ai-oneat/raw/main/LICENSE)
 [![PyPI](https://img.shields.io/pypi/v/oneat.svg?color=green)](https://pypi.org/project/oneat)
 [![Python Version](https://img.shields.io/pypi/pyversions/oneat.svg?color=green)](https://python.org)
-[![tests](https://github.com/Kapoorlabs-CAPED/oneat/workflows/tests/badge.svg)](https://github.com/Kapoorlabs-CAPED/oneat/actions)
-[![codecov](https://codecov.io/gh/Kapoorlabs-CAPED/oneat/branch/main/graph/badge.svg)](https://codecov.io/gh/Kapoorlabs-CAPED/oneat)
+[![tests](https://github.com/Kapoorlabs-CAPED/oneat/workflows/tests/badge.svg)](https://github.com/Kapoorlabs-CAPED/caped-ai-oneat/actions)
+[![codecov](https://codecov.io/gh/Kapoorlabs-CAPED/oneat/branch/main/graph/badge.svg)](https://codecov.io/gh/Kapoorlabs-CAPED/caped-ai-oneat)
 
 
 Action classification for TZYX shaped images, Static classification for TYX shaped images
@@ -25,7 +25,7 @@ You can install `oneat` via [pip]:
 
 To install latest development version :
 
-    pip install git+https://github.com/Kapoorlabs-CAPED/oneat.git
+    pip install git+https://github.com/Kapoorlabs-CAPED/caped-ai-oneat.git
 
 ## Contributing
 
@@ -48,7 +48,7 @@ If you encounter any problems, please [file an issue] along with a detailed desc
 [BSD-3]: http://opensource.org/licenses/BSD-3-Clause
 [cookiecutter-template]: https://github.com/Kapoorlabs-CAPED/cookiecutter-template
 
-[file an issue]: https://github.com/Kapoorlabs-CAPED/oneat/issues
+[file an issue]: https://github.com/Kapoorlabs-CAPED/caped-ai-oneat/issues
 
 [tox]: https://tox.readthedocs.io/en/latest/
 
