@@ -268,10 +268,12 @@ class NEATDenseVollNet(object):
                 marker_tree : dict = None, 
                 remove_markers : bool = False, 
                 nms_function : str = 'iou', 
+                prediction_start_time: int = 0,
                 activations : bool = False):
         
         self.dtype = dtype
         self.nms_function = nms_function 
+        self.prediction_start_time = prediction_start_time
         self.originalimage = image.astype(self.dtype)
         self.ndim = len(self.originalimage.shape)
         self.activations = activations
@@ -488,7 +490,7 @@ class NEATDenseVollNet(object):
         classedboxes = {}
         self.n_tiles = (1,1,1)
         
-        for inputtime in tqdm(range(int(self.imaget)//2, self.image.shape[0])):
+        for inputtime in tqdm(self.prediction_start_time + range(int(self.imaget)//2, self.image.shape[0])):
              if inputtime < self.image.shape[0] - self.imaget:   
                 smallimage = CreateVolume(self.image, self.size_tminus, self.size_tplus, inputtime)
                 if  str(int(inputtime)) in self.marker_tree:                     
