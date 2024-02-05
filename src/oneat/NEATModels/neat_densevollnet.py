@@ -384,6 +384,7 @@ class NEATDenseVollNet:
         nms_function: str = "iou",
         prediction_start_time: int = 0,
         activations: bool = False,
+        normalize_in_chunks: bool = False,
     ):
 
         self.dtype = dtype
@@ -405,6 +406,7 @@ class NEATDenseVollNet:
         self.iou_threshold = iou_threshold
         self.event_threshold = event_threshold
         self.event_confidence = event_confidence
+        self.normalize_in_chunks = normalize_in_chunks
         self.iou_classedboxes = {}
         self.list_all_boxes = []
         self.all_iou_classedboxes = {}
@@ -423,9 +425,10 @@ class NEATDenseVollNet:
                 conf_list.append(self.event_threshold)
             self.event_confidence = conf_list
         # Normalize in volume
-        self.originalimage = normalizeFloatZeroOne(
-            self.originalimage, 1, 99.8, dtype=self.dtype
-        )
+        if not normalize_in_chunks:
+            self.originalimage = normalizeFloatZeroOne(
+                self.originalimage, 1, 99.8, dtype=self.dtype
+            )
         if self.remove_markers is True:
             self.image = np.zeros(
                 [
@@ -494,7 +497,10 @@ class NEATDenseVollNet:
                 smallimage = CreateVolume(
                     self.image, self.size_tminus, self.size_tplus, inputtime
                 )
-
+                if self.normalize_in_chunks:
+                    smallimage = normalizeFloatZeroOne(
+                        smallimage, 1, 99.8, dtype=self.dtype
+                    )
                 # Cut off the region for training movie creation
                 # Break image into tiles if neccessary
                 predictions, allx, ally, allz = self.predict_main(smallimage)
@@ -573,6 +579,10 @@ class NEATDenseVollNet:
                 smallimage = CreateVolume(
                     self.image, self.size_tminus, self.size_tplus, inputtime
                 )
+                if self.normalize_in_chunks:
+                    smallimage = normalizeFloatZeroOne(
+                        smallimage, 1, 99.8, dtype=self.dtype
+                    )
                 # Cut off the region for training movie creation
                 # Break image into tiles if neccessary
                 predictions, allx, ally, allz = self.predict_main(smallimage)
@@ -680,6 +690,10 @@ class NEATDenseVollNet:
                 smallimage = CreateVolume(
                     self.image, self.size_tminus, self.size_tplus, inputtime
                 )
+                if self.normalize_in_chunks:
+                    smallimage = normalizeFloatZeroOne(
+                        smallimage, 1, 99.8, dtype=self.dtype
+                    )
                 if str(int(inputtime)) in self.marker_tree:
                     tree, location = self.marker_tree[str(int(inputtime))]
                     for i in range(len(location)):
