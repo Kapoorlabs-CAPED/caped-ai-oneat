@@ -10,11 +10,13 @@ class TrainDataMaker:
     def __init__(
         self,
         source_dir,
+        save_dir=None,
         create_2dt=False,
         class_names=["Normal", "Mitosis", "Apoptosis"],
     ):
 
         self.source_dir = source_dir
+        self.save_dir = save_dir if save_dir else source_dir
         self.create_2dt = create_2dt
         self.class_names = class_names
         self.acceptable_formats = [".tif", ".TIFF", ".TIF", ".png"]
@@ -45,7 +47,7 @@ class TrainDataMaker:
                 self.viewer,
                 imageidbox.currentText(),
                 os.path.basename(os.path.splitext(imageidbox.currentText())[0]),
-                self.source_dir,
+                self.save_dir,
                 save=False,
                 newimage=True,
                 create_2dt=self.create_2dt,
@@ -58,7 +60,7 @@ class TrainDataMaker:
                 self.viewer,
                 imageidbox.currentText(),
                 os.path.basename(os.path.splitext(imageidbox.currentText())[0]),
-                self.source_dir,
+                self.save_dir,
                 save=True,
                 newimage=False,
                 create_2dt=self.create_2dt,
