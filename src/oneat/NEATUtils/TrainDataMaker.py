@@ -142,14 +142,18 @@ class EventViewer:
 
             for class_name in self.class_names:
                 face_color = self.class_colors[class_name]
-                self.viewer.add_points(
-                    name=class_name, face_color=face_color, ndim=self.ndim
-                )
+
+                
                 save_location = self.csv_dir + "/ONEAT" + class_name + self.Name + ".csv"
                 if save_location is not None:
-                    data = pd.read_csv(save_location)
-                self.viewer.add_points( data=data, 
-                                       name=class_name, face_color=face_color, ndim=self.ndim
-                    
+                        data = pd.read_csv(save_location)
+                        self.viewer.add_points( data=data, 
+                                        name=class_name, face_color=face_color, ndim=self.ndim
+                        
+                        )
+
+                else:
+                    self.viewer.add_points(
+                    name=class_name, face_color=face_color, ndim=self.ndim
                 )
                 self.viewer.layers[class_name].mode = "add"
