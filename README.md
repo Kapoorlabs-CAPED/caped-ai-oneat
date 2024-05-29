@@ -13,7 +13,6 @@ This product is a testament to our expertise at KapoorLabs, where we specialize 
 [![License BSD-3](https://img.shields.io/pypi/l/oneat.svg?color=green)](https://github.com/Kapoorlabs-CAPED/caped-ai-oneat/raw/main/LICENSE)
 [![PyPI](https://img.shields.io/pypi/v/oneat.svg?color=green)](https://pypi.org/project/oneat)
 [![Python Version](https://img.shields.io/pypi/pyversions/oneat.svg?color=green)](https://python.org)
-[![tests](https://github.com/Kapoorlabs-CAPED/oneat/workflows/tests/badge.svg)](https://github.com/Kapoorlabs-CAPED/caped-ai-oneat/actions)
 [![codecov](https://codecov.io/gh/Kapoorlabs-CAPED/oneat/branch/main/graph/badge.svg)](https://codecov.io/gh/Kapoorlabs-CAPED/caped-ai-oneat)
 
 
