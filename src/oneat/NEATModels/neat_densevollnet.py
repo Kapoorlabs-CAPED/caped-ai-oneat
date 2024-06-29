@@ -431,37 +431,13 @@ class NEATDenseVollNet:
                 self.originalimage, 1, 99.8, dtype=self.dtype
             )
         if self.remove_markers is True:
-            self.image = np.zeros(
-                [
-                    self.originalimage.shape[0],
-                    self.originalimage.shape[1],
-                    self.originalimage.shape[2] + self.pad_width[0],
-                    self.originalimage.shape[3] + self.pad_width[1],
-                ]
-            )
-            for i in range(self.originalimage.shape[0]):
-                self.image[i, :] = pad_timelapse(
-                    self.originalimage[i, :], self.pad_width
-                )
-
-            print(f"zero padded image shape ${self.image.shape}")
+            
+            self.image = self.originalimage
             self.first_pass_predict()
             self.second_pass_predict()
         if self.remove_markers is False:
-            self.image = np.zeros(
-                [
-                    self.originalimage.shape[0],
-                    self.originalimage.shape[1],
-                    self.originalimage.shape[2] + self.pad_width[0],
-                    self.originalimage.shape[3] + self.pad_width[1],
-                ]
-            )
-            for i in range(self.originalimage.shape[0]):
-                self.image[i, :] = pad_timelapse(
-                    self.originalimage[i, :], self.pad_width
-                )
-
-            print(f"zero padded image shape ${self.image.shape}")
+            
+            self.image = self.originalimage
             self.second_pass_predict()
         if self.remove_markers is None:
             self.image = create_sub_image(
