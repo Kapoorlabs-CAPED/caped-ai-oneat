@@ -102,7 +102,7 @@ class NEATViz:
         self.oneat_widget = OneatWidget(
             self.viewer,
             self.csvdir,
-            "Name",
+       
             self.key_categories,
             segimagedir=self.segimagedir,
             heatimagedir=self.heatmapimagedir,
@@ -345,8 +345,8 @@ def headlesscall(
                 confidence_locations = []
                 event_locations_dict = {}
                 event_locations_size_dict = {}
-                savename = Path(csvname).stem
-                savename = 'non_maximal_' + savename
+                savename = 'non_maximal_' + Path(csvname).stem
+                savename = os.path.join(csvdir, savename)
                 print(savename)
                 dataset = pd.read_csv(csvname, delimiter=",")
                 # Data is written as T, Y, X, Score, Size, Confidence
@@ -491,8 +491,8 @@ def headlessvolumecall(
                 confidence_locations = []
                 event_locations_dict = {}
                 event_locations_size_dict = {}
-                savename = Path(csvname).stem
-                savename = 'non_maximal_' + savename
+                savename = 'non_maximal_' + Path(csvname).stem
+                savename = os.path.join(csvdir, savename)
                 print(f'performing non maximal supression on {csvname}')
                 dataset = pd.read_csv(csvname, delimiter=",")
                 # Data is written as T, Y, X, Score, Size, Confidence
