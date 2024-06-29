@@ -430,6 +430,7 @@ class NEATDenseVollNet:
             self.originalimage = normalizeFloatZeroOne(
                 self.originalimage, 1, 99.8, dtype=self.dtype
             )
+            print('Done Normalizing Volume')
         if self.remove_markers is True:
             
             self.image = self.originalimage
