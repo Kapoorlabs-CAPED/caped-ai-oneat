@@ -170,25 +170,19 @@ def normalizeFloatZeroOne(x, pmin=1, pmax=99.8, axis=None, eps=1e-20, dtype=np.u
     return normalize_mi_ma(x, mi, ma, eps=eps, dtype=dtype)
 
 
+
+
 def normalize_mi_ma(x, mi, ma, eps=1e-20, dtype=np.uint8):
     if np.isscalar(mi):
-        mi = np.array(mi, dtype=x.dtype)
-    else:
-        mi = mi.astype(x.dtype, copy=False)
-        
+        mi = np.full_like(x, mi)
     if np.isscalar(ma):
-        ma = np.array(ma, dtype=x.dtype)
-    else:
-        ma = ma.astype(x.dtype, copy=False)
-        
-    x -= mi
-    np.divide(x, (ma - mi + eps), out=x, casting='unsafe')
-    x.clip(0, 1, out=x)
-    x = (x * 255).astype(dtype, copy=False)
+        ma = np.full_like(x, ma)
 
+    np.subtract(x, mi, out=x, casting='unsafe')
+
+    np.divide(x, ma - mi + eps, out=x, casting='unsafe')
+    
     return x
-
-
 
 
 def generate_membrane_locations(membranesegimage : np.ndarray, csvfile: str, savefile: str):
