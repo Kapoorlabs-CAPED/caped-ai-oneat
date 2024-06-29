@@ -426,6 +426,7 @@ class NEATDenseVollNet:
             self.event_confidence = conf_list
         # Normalize in volume
         if not normalize_in_chunks:
+            print('Normalizing Volume')
             self.originalimage = normalizeFloatZeroOne(
                 self.originalimage, 1, 99.8, dtype=self.dtype
             )
