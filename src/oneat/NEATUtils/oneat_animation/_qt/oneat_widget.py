@@ -27,7 +27,6 @@ class OneatWidget(QWidget):
         self,
         viewer: "napari.viewer.Viewer",
         csvdir: str,
-        savedir: str,
         savename: str,
         key_categories: dict,
         segimagedir: str = None,
@@ -59,8 +58,6 @@ class OneatWidget(QWidget):
             viewer,
             key_categories,
             csvdir,
-            savedir,
-            savename,
             self.frameWidget.ax,
             self.frameWidget.figure,
         )

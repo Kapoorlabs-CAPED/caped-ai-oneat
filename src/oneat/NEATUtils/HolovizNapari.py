@@ -20,7 +20,6 @@ class NEATViz:
         self,
         imagedir: str,
         csvdir: str,
-        savedir: str,
         categories_json: dict,
         heatmapimagedir: str = None,
         segimagedir: str = None,
@@ -41,7 +40,6 @@ class NEATViz:
         self.imagedir = imagedir
         self.heatmapimagedir = heatmapimagedir
         self.segimagedir = segimagedir
-        self.savedir = savedir
         self.volume = volume
         self.csvdir = csvdir
         self.heatname = heatname
@@ -57,10 +55,9 @@ class NEATViz:
         self.fileextension = fileextension
         self.blur_radius = blur_radius
 
-        Path(self.savedir).mkdir(exist_ok=True)
         Path(self.csvdir).mkdir(exist_ok=True)
         
-
+        self.savename = Path(csvname).stem
         self.time = 0
         self.key_categories = self.load_json()
         if not self.headless:
@@ -87,7 +84,6 @@ class NEATViz:
                 self.nms_space,
                 self.nms_time,
                 self.csvdir,
-                self.savedir,
             )
         
     def donotshowNapari(self):
@@ -99,7 +95,6 @@ class NEATViz:
                 self.nms_space,
                 self.nms_time,
                 self.csvdir,
-                self.savedir,
             )
 
     def showNapari(self):
@@ -108,7 +103,6 @@ class NEATViz:
         self.oneat_widget = OneatWidget(
             self.viewer,
             self.csvdir,
-            self.savedir,
             "Name",
             self.key_categories,
             segimagedir=self.segimagedir,
@@ -149,7 +143,6 @@ class NEATViz:
             self.viewer,
             self.imagedir,
             self.csvdir,
-            self.savedir,
             "Name",
             self.key_categories,
             segimagedir=self.segimagedir,
@@ -331,7 +324,6 @@ def headlesscall(
     nms_space: int,
     nms_time: int,
     csvdir: str,
-    savedir: str,
 ):
     if isinstance(event_threshold, float):
         event_threshold = [event_threshold] * len(key_categories)
@@ -355,6 +347,7 @@ def headlesscall(
                 event_locations_dict = {}
                 event_locations_size_dict = {}
                 savename = Path(csvname).stem
+                savename = 'non_maximal_' + savename
                 print(savename)
                 dataset = pd.read_csv(csvname, delimiter=",")
                 # Data is written as T, Y, X, Score, Size, Confidence
@@ -446,11 +439,11 @@ def headlesscall(
                 )
 
                 event_data = []
-                csvname = savedir + "/" + "clean_" + savename
-                if os.path.exists(csvname + ".csv"):
-                    os.remove(csvname + ".csv")
-                writer = csv.writer(open(csvname + ".csv", "a", newline=""))
-                filesize = os.stat(csvname + ".csv").st_size
+             
+                if os.path.exists(savename + ".csv"):
+                    os.remove(savename + ".csv")
+                writer = csv.writer(open(savename + ".csv", "a", newline=""))
+                filesize = os.stat(savename + ".csv").st_size
 
                 if filesize < 1:
                     writer.writerow(
@@ -477,7 +470,6 @@ def headlessvolumecall(
     nms_space: int,
     nms_time: int,
     csvdir: str,
-    savedir: str,
 ):
     if isinstance(event_threshold, float):
         event_threshold = [event_threshold] * len(key_categories)
@@ -501,7 +493,8 @@ def headlessvolumecall(
                 event_locations_dict = {}
                 event_locations_size_dict = {}
                 savename = Path(csvname).stem
-                print(f'performing non maximal supression on {savename}')
+                savename = 'non_maximal_' + savename
+                print(f'performing non maximal supression on {csvname}')
                 dataset = pd.read_csv(csvname, delimiter=",")
                 # Data is written as T, Y, X, Score, Size, Confidence
                 T = dataset[dataset.keys()[0]][0:]
@@ -595,11 +588,11 @@ def headlessvolumecall(
                 )
 
                 event_data = []
-                csvname = savedir + '/' + "non_maximal_" + savename
-                if os.path.exists(csvname + ".csv"):
-                    os.remove(csvname + ".csv")
-                writer = csv.writer(open(csvname + ".csv", "a", newline=""))
-                filesize = os.stat(csvname + ".csv").st_size
+                
+                if os.path.exists(savename + ".csv"):
+                    os.remove(savename + ".csv")
+                writer = csv.writer(open(savename + ".csv", "a", newline=""))
+                filesize = os.stat(savename + ".csv").st_size
 
                 if filesize < 1:
                     writer.writerow(

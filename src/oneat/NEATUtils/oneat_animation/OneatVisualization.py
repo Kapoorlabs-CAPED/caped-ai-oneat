@@ -19,16 +19,12 @@ class OneatVisualization:
         viewer: Viewer,
         key_categories: dict,
         csvdir: str,
-        savedir: str,
-        savename: str,
         ax,
         figure,
     ):
 
         self.viewer = viewer
         self.csvdir = csvdir
-        self.savedir = savedir
-        self.savename = savename
         self.key_categories = key_categories
         self.ax = ax
         self.figure = figure
@@ -170,7 +166,7 @@ class OneatVisualization:
         event_count = sorted(event_count, key=lambda x: x[0], reverse=False)
 
         event_data = []
-        csvname = self.savedir + "/" + "Clean" + self.event_name + "Location"
+        csvname = self.csvdir + "/" + "non_maximal_" + self.event_name + "Location"
         if os.path.exists(csvname + ".csv"):
             os.remove(csvname + ".csv")
         writer = csv.writer(open(csvname + ".csv", "a", newline=""))
@@ -287,7 +283,7 @@ class OneatVisualization:
                     self.figure.canvas.flush_events()
 
                     self.figure.savefig(
-                        self.savedir
+                        self.csvdir
                         + self.event_name
                         + self.event_count_plot
                         + ".png",
@@ -309,7 +305,7 @@ class OneatVisualization:
                     self.figure.canvas.flush_events()
 
                     self.figure.savefig(
-                        self.savedir
+                        self.csvdir
                         + self.event_name
                         + self.event_norm_count_plot
                         + ".png",
@@ -327,7 +323,7 @@ class OneatVisualization:
                     self.figure.canvas.draw()
                     self.figure.canvas.flush_events()
                     self.figure.savefig(
-                        self.savedir + self.cell_count_plot + ".png", dpi=300
+                        self.csvdir + self.cell_count_plot + ".png", dpi=300
                     )
 
     def show_image(
