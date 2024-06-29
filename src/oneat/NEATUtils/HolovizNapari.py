@@ -57,7 +57,6 @@ class NEATViz:
 
         Path(self.csvdir).mkdir(exist_ok=True)
         
-        self.savename = Path(csvname).stem
         self.time = 0
         self.key_categories = self.load_json()
         if not self.headless:
