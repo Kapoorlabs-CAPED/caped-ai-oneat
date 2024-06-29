@@ -151,9 +151,8 @@ def save_json(data, fpath, **kwargs):
         f.write(json.dumps(data, **kwargs))
 
 
-def normalizeFloatZeroOne(
-    x, pmin=1, pmax=99.8, axis=None, eps=1e-20, dtype=np.uint8
-):
+
+def normalizeFloatZeroOne(x, pmin=1, pmax=99.8, axis=None, eps=1e-20, dtype=np.uint8):
     """Percentile based Normalization
 
     Normalize patches of image before feeding into the network
@@ -172,15 +171,24 @@ def normalizeFloatZeroOne(
 
 
 def normalize_mi_ma(x, mi, ma, eps=1e-20, dtype=np.uint8):
-
-    x = x.astype(dtype)
-    mi = dtype(mi) if np.isscalar(mi) else mi.astype(dtype, copy=False)
-    ma = dtype(ma) if np.isscalar(ma) else ma.astype(dtype, copy=False)
-    eps = dtype(eps) if np.isscalar(eps) else eps.astype(dtype, copy=False)
-
-    x = (x - mi) / (ma - mi + eps)
+    if np.isscalar(mi):
+        mi = np.array(mi, dtype=x.dtype)
+    else:
+        mi = mi.astype(x.dtype, copy=False)
+        
+    if np.isscalar(ma):
+        ma = np.array(ma, dtype=x.dtype)
+    else:
+        ma = ma.astype(x.dtype, copy=False)
+        
+    x -= mi
+    np.divide(x, (ma - mi + eps), out=x, casting='unsafe')
+    x.clip(0, 1, out=x)
+    x = (x * 255).astype(dtype, copy=False)
 
     return x
+
+
 
 
 def generate_membrane_locations(membranesegimage : np.ndarray, csvfile: str, savefile: str):
