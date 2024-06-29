@@ -152,7 +152,11 @@ def save_json(data, fpath, **kwargs):
 
 
 
-def normalizeFloatZeroOne(x, pmin=1, pmax=99.8, axis=None, eps=1e-20, dtype=np.uint8):
+
+
+def normalizeFloatZeroOne(
+    x, pmin=1, pmax=99.8, axis=None, eps=1e-20, dtype=np.uint8
+):
     """Percentile based Normalization
 
     Normalize patches of image before feeding into the network
@@ -170,18 +174,15 @@ def normalizeFloatZeroOne(x, pmin=1, pmax=99.8, axis=None, eps=1e-20, dtype=np.u
     return normalize_mi_ma(x, mi, ma, eps=eps, dtype=dtype)
 
 
-
-
 def normalize_mi_ma(x, mi, ma, eps=1e-20, dtype=np.uint8):
-    if np.isscalar(mi):
-        mi = np.full_like(x, mi)
-    if np.isscalar(ma):
-        ma = np.full_like(x, ma)
 
-    np.subtract(x, mi, out=x, casting='unsafe')
+    x = x.astype(dtype)
+    mi = dtype(mi) if np.isscalar(mi) else mi.astype(dtype, copy=False)
+    ma = dtype(ma) if np.isscalar(ma) else ma.astype(dtype, copy=False)
+    eps = dtype(eps) if np.isscalar(eps) else eps.astype(dtype, copy=False)
 
-    np.divide(x, ma - mi + eps, out=x, casting='unsafe')
-    
+    x = (x - mi) / (ma - mi + eps)
+
     return x
 
 
@@ -1639,7 +1640,7 @@ def save_volume_csv(
                 event_count, key=lambda x: x[0], reverse=False
             )
             event_data = []
-            csvname = Path(savedir) /  f"pred_{event_name}_locations"
+            csvname = Path(savedir) /  f"oneat_{event_name}_locations_"
             
             writer = csv.writer(open(str(csvname) + str(savename) + ".csv", "a", newline=""))
             filesize = os.stat(str(csvname) + str(savename) + ".csv").st_size
