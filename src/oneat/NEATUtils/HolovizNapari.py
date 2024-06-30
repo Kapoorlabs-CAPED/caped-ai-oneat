@@ -513,37 +513,41 @@ def headlessvolumecall(
                 listconfidence = Confidence.tolist()
 
                 for i in range(len(listtime)):
+                    try:
+                        tcenter = int(float(listtime[i]))
+                        ycenter = float(listy[i])
+                        zcenter = float(listz[i])
+                        xcenter = float(listx[i])
+                        size = float(listsize[i])
+                        score = float(listscore[i])
+                        confidence = listconfidence[i]
+                        if score > event_threshold[event_label]:
+                            event_locations.append(
+                                [int(tcenter), int(zcenter), int(ycenter), int(xcenter)]
+                            )
 
-                    tcenter = int(float(listtime[i]))
-                    ycenter = float(listy[i])
-                    zcenter = float(listz[i])
-                    xcenter = float(listx[i])
-                    size = float(listsize[i])
-                    score = float(listscore[i])
-                    confidence = listconfidence[i]
-                    if score > event_threshold[event_label]:
-                        event_locations.append(
-                            [int(tcenter), int(zcenter), int(ycenter), int(xcenter)]
-                        )
+                            if int(tcenter) in event_locations_dict.keys():
+                                current_list = event_locations_dict[int(tcenter)]
+                                current_list.append([int(zcenter), int(ycenter), int(xcenter)])
+                                event_locations_dict[int(tcenter)] = current_list
+                                event_locations_size_dict[
+                                    (int(tcenter), int(zcenter), int(ycenter), int(xcenter))
+                                ] = [size, score]
+                            else:
+                                current_list = []
+                                current_list.append([int(zcenter), int(ycenter), int(xcenter)])
+                                event_locations_dict[int(tcenter)] = current_list
+                                event_locations_size_dict[
+                                    int(tcenter), int(zcenter), int(ycenter), int(xcenter)
+                                ] = [size, score]
 
-                        if int(tcenter) in event_locations_dict.keys():
-                            current_list = event_locations_dict[int(tcenter)]
-                            current_list.append([int(zcenter), int(ycenter), int(xcenter)])
-                            event_locations_dict[int(tcenter)] = current_list
-                            event_locations_size_dict[
-                                (int(tcenter), int(zcenter), int(ycenter), int(xcenter))
-                            ] = [size, score]
-                        else:
-                            current_list = []
-                            current_list.append([int(zcenter), int(ycenter), int(xcenter)])
-                            event_locations_dict[int(tcenter)] = current_list
-                            event_locations_size_dict[
-                                int(tcenter), int(zcenter), int(ycenter), int(xcenter)
-                            ] = [size, score]
+                            size_locations.append(size)
+                            score_locations.append(score)
+                            confidence_locations.append(confidence)
+                            
+                    except Exception:
+                        pass
 
-                        size_locations.append(size)
-                        score_locations.append(score)
-                        confidence_locations.append(confidence)
 
                 event_locations_size_dict = cluster_points(
                     event_locations_dict,
