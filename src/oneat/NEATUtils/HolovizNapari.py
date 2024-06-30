@@ -372,7 +372,7 @@ def headlesscall(
                     size = float(listsize[i])
                     score = float(listscore[i])
                     confidence = listconfidence[i]
-                    if score > event_threshold[event_label]:
+                    if score > float(event_threshold[event_label]):
                         event_locations.append(
                             [int(tcenter), int(ycenter), int(xcenter)]
                         )
@@ -515,11 +515,11 @@ def headlessvolumecall(
                 for i in range(len(listtime)):
 
                     tcenter = int(listtime[i])
-                    ycenter = listy[i]
-                    zcenter = listz[i]
-                    xcenter = listx[i]
-                    size = listsize[i]
-                    score = listscore[i]
+                    ycenter = float(listy[i])
+                    zcenter = float(listz[i])
+                    xcenter = float(listx[i])
+                    size = float(listsize[i])
+                    score = float(listscore[i])
                     confidence = listconfidence[i]
                     if score > event_threshold[event_label]:
                         event_locations.append(
