@@ -514,7 +514,7 @@ def headlessvolumecall(
 
                 for i in range(len(listtime)):
 
-                    tcenter = int(listtime[i])
+                    tcenter = int(float(listtime[i]))
                     ycenter = float(listy[i])
                     zcenter = float(listz[i])
                     xcenter = float(listx[i])
