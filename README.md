@@ -43,7 +43,7 @@ the coverage at least stays the same before you submit a pull request.
 
 ## Computational Support 
 
-This work was granted access to the HPC resources of IDRIS under the allocation 2022 - [AD011013695] made by GENCI for training the models for action classification in 3D + time datasets.
+This work was granted access to the HPC resources of IDRIS under the allocation 2022 - [AD011013695], 2023 - [AD011013695R1], 2024 - [AD011013695R2] made by GENCI for training the models for action classification in 3D + time datasets.
 
 ## License
 
