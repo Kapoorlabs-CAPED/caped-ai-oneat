@@ -20,6 +20,7 @@ class OneatVolumeVisualization:
         imagedir: str,
         key_categories: dict,
         csvdir: str,
+        savedir: str,
         savename: str,
         ax,
         figure: plt.figure,
@@ -28,7 +29,7 @@ class OneatVolumeVisualization:
         self.viewer = viewer
         self.imagedir = imagedir
         self.csvdir = csvdir
-
+        self.savedir = csvdir
         self.savename = savename
         self.key_categories = key_categories
         self.ax = ax
