@@ -1,7 +1,6 @@
 import os
 
 from napari import Viewer
-from napari_animation._qt import AnimationWidget
 from qtpy.QtWidgets import QLabel, QVBoxLayout, QWidget
 
 from ..OneatVolumeVisualization import OneatVolumeVisualization
@@ -27,9 +26,8 @@ class OneatVolumeWidget(QWidget):
     def __init__(
         self,
         viewer: Viewer,
-        imagedir:str,
+        imagedir: str,
         csvdir: str,
-        savedir: str,
         savename: str,
         key_categories: dict,
         segimagedir: str = None,
@@ -45,9 +43,7 @@ class OneatVolumeWidget(QWidget):
         self._layout = QVBoxLayout()
         self.setLayout(self._layout)
 
-        self._layout.addWidget(
-            QLabel("Oneat Visualization Wizard", parent=self)
-        )
+        self._layout.addWidget(QLabel("Oneat Visualization Wizard", parent=self))
 
         self.frameWidget = OneatFrameWidget(parent=self)
         self._layout.addWidget(self.frameWidget)
@@ -60,7 +56,6 @@ class OneatVolumeWidget(QWidget):
             imagedir,
             key_categories,
             csvdir,
-            savedir,
             savename,
             self.frameWidget.ax,
             self.frameWidget.figure,
@@ -73,21 +68,14 @@ class OneatVolumeWidget(QWidget):
         self.frameWidget.plotidbox.addItem(event_count_plot)
         self.frameWidget.plotidbox.addItem(cell_count_plot)
         self.frameWidget.plotidbox.addItem(event_norm_count_plot)
-        self.frameWidget.heatstepsSpinBox.valueChanged.connect(
-            self.update_heat_steps
-        )
-        self.frameWidget.startprobSpinBox.valueChanged.connect(
-            self.update_start_prob
-        )
-        self.frameWidget.nmsspaceSpinBox.valueChanged.connect(
-            self.update_nms_space
-        )
+        self.frameWidget.heatstepsSpinBox.valueChanged.connect(self.update_heat_steps)
+        self.frameWidget.startprobSpinBox.valueChanged.connect(self.update_start_prob)
+        self.frameWidget.nmsspaceSpinBox.valueChanged.connect(self.update_nms_space)
 
         self.frameWidget.scoreSlider.valueChanged.connect(self.updateLabel)
 
         self.frameWidget.imageidbox.currentIndexChanged.connect(
             lambda eventid=self.frameWidget.imageidbox: self._capture_image_callback(
-                
                 imagedir, segimagedir, heatimagedir, heatname
             )
         )
@@ -166,9 +154,9 @@ class OneatVolumeWidget(QWidget):
             nms_space=self.nms_space,
         )
 
-    def _capture_image_callback(self, imagedir,  segimagedir, heatmapimagedir, heatname):
+    def _capture_image_callback(self, imagedir, segimagedir, heatmapimagedir, heatname):
 
-        imagename= self.frameWidget.imageidbox.currentText()
+        imagename = self.frameWidget.imageidbox.currentText()
         get_image_text = os.path.join(imagedir, imagename + ".tif")
         self.oneatvisualization.show_image(
             get_image_text, imagename, segimagedir, heatmapimagedir, heatname

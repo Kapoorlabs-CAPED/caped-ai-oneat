@@ -56,12 +56,12 @@ class NEATViz:
         self.blur_radius = blur_radius
 
         Path(self.csvdir).mkdir(exist_ok=True)
-        
+
         self.time = 0
         self.key_categories = self.load_json()
         if not self.headless:
-            
-            self.viewer = napari.Viewer() 
+
+            self.viewer = napari.Viewer()
         if not self.headless and not self.volume:
             self.showNapari()
         if self.headless and not self.volume:
@@ -69,40 +69,39 @@ class NEATViz:
         if self.volume and not self.headless:
             self.showVolumeNapari()
         if self.volume and self.headless:
-            self.donotshowVolumeNapari()    
+            self.donotshowVolumeNapari()
 
     def load_json(self):
         with open(self.categories_json) as f:
             return json.load(f)
 
     def donotshowVolumeNapari(self):
-        
+
         headlessvolumecall(
-                self.key_categories,
-                self.event_threshold,
-                self.nms_space,
-                self.nms_time,
-                self.csvdir,
-            )
-        
+            self.key_categories,
+            self.event_threshold,
+            self.nms_space,
+            self.nms_time,
+            self.csvdir,
+        )
+
     def donotshowNapari(self):
 
         headlesscall(
-                
-                self.key_categories,
-                self.event_threshold,
-                self.nms_space,
-                self.nms_time,
-                self.csvdir,
-            )
+            self.key_categories,
+            self.event_threshold,
+            self.nms_space,
+            self.nms_time,
+            self.csvdir,
+        )
 
     def showNapari(self):
         from qtpy.QtCore import Qt
         from oneat.NEATUtils.oneat_animation._qt import OneatWidget
+
         self.oneat_widget = OneatWidget(
             self.viewer,
             self.csvdir,
-       
             self.key_categories,
             segimagedir=self.segimagedir,
             heatimagedir=self.heatmapimagedir,
@@ -129,15 +128,14 @@ class NEATViz:
         dock_widget = self.viewer.window.add_dock_widget(
             self.oneat_widget, area="right"
         )
-        self.viewer.window._qt_window.resizeDocks(
-            [dock_widget], [200], Qt.Horizontal
-        )
+        self.viewer.window._qt_window.resizeDocks([dock_widget], [200], Qt.Horizontal)
 
         napari.run()
 
     def showVolumeNapari(self):
         from qtpy.QtCore import Qt
         from oneat.NEATUtils.oneat_animation._qt import OneatVolumeWidget
+
         self.oneat_widget = OneatVolumeWidget(
             self.viewer,
             self.imagedir,
@@ -167,9 +165,7 @@ class NEATViz:
         dock_widget = self.viewer.window.add_dock_widget(
             self.oneat_widget, area="right"
         )
-        self.viewer.window._qt_window.resizeDocks(
-            [dock_widget], [200], Qt.Horizontal
-        )
+        self.viewer.window._qt_window.resizeDocks([dock_widget], [200], Qt.Horizontal)
 
         napari.run()
 
@@ -187,9 +183,7 @@ def cluster_points(
 
             forwardtime = currenttime + i
             if int(forwardtime) in event_locations_dict.keys():
-                forward_event_locations = event_locations_dict[
-                    int(forwardtime)
-                ]
+                forward_event_locations = event_locations_dict[int(forwardtime)]
                 for location in forward_event_locations:
                     if (
                         int(forwardtime),
@@ -239,83 +233,85 @@ def cluster_points(
                                     )
     return event_locations_size_dict
 
-def cluster_spheres(event_locations_dict, event_locations_size_dict, nms_space, nms_time):
 
-        print("before", len(event_locations_size_dict))
+def cluster_spheres(
+    event_locations_dict, event_locations_size_dict, nms_space, nms_time
+):
 
-        for (k, v) in event_locations_dict.items():
-            currenttime = k
-            event_locations = v
+    print("before", len(event_locations_size_dict))
 
-            if len(event_locations) > 0:
-                tree = spatial.cKDTree(event_locations)
-                forwardtime = currenttime + 1
-                if int(forwardtime) in event_locations_dict.keys():
-                    forward_event_locations = event_locations_dict[
-                        int(forwardtime)
-                    ]
-                    for location in forward_event_locations:
-                        if (
+    for (k, v) in event_locations_dict.items():
+        currenttime = k
+        event_locations = v
+
+        if len(event_locations) > 0:
+            tree = spatial.cKDTree(event_locations)
+            forwardtime = currenttime + 1
+            if int(forwardtime) in event_locations_dict.keys():
+                forward_event_locations = event_locations_dict[int(forwardtime)]
+                for location in forward_event_locations:
+                    if (
+                        int(forwardtime),
+                        int(location[0]),
+                        int(location[1]),
+                        int(location[2]),
+                    ) in event_locations_size_dict:
+                        (
+                            forwardsize,
+                            forwardscore,
+                            forwardconfidence,
+                        ) = event_locations_size_dict[
                             int(forwardtime),
                             int(location[0]),
                             int(location[1]),
                             int(location[2]),
-                        ) in event_locations_size_dict:
-                            (
-                                forwardsize,
-                                forwardscore,
-                                forwardconfidence,
-                            ) = event_locations_size_dict[
-                                int(forwardtime),
-                                int(location[0]),
-                                int(location[1]),
-                                int(location[2]),
-                            ]
-                            distance, nearest_location = tree.query(location)
-                            nearest_location = (
-                                int(event_locations[nearest_location][0]),
-                                int(event_locations[nearest_location][1]),
-                                int(event_locations[nearest_location][2]),
-                            )
+                        ]
+                        distance, nearest_location = tree.query(location)
+                        nearest_location = (
+                            int(event_locations[nearest_location][0]),
+                            int(event_locations[nearest_location][1]),
+                            int(event_locations[nearest_location][2]),
+                        )
 
-                            if distance <= nms_space:
-                                if (
+                        if distance <= nms_space:
+                            if (
+                                int(currenttime),
+                                int(nearest_location[0]),
+                                int(nearest_location[1]),
+                                int(nearest_location[2]),
+                            ) in event_locations_size_dict:
+                                (
+                                    currentsize,
+                                    currentscore,
+                                    currentconfidence,
+                                ) = event_locations_size_dict[
                                     int(currenttime),
                                     int(nearest_location[0]),
                                     int(nearest_location[1]),
                                     int(nearest_location[2]),
-                                ) in event_locations_size_dict:
-                                    (
-                                        currentsize,
-                                        currentscore,
-                                        currentconfidence,
-                                    ) = event_locations_size_dict[
-                                        int(currenttime),
-                                        int(nearest_location[0]),
-                                        int(nearest_location[1]),
-                                        int(nearest_location[2]),
-                                    ]
-                                    if currentscore >= forwardscore:
-                                        event_locations_size_dict.pop(
-                                            (
-                                                int(forwardtime),
-                                                int(location[0]),
-                                                int(location[1]),
-                                                int(location[2]),
-                                            )
+                                ]
+                                if currentscore >= forwardscore:
+                                    event_locations_size_dict.pop(
+                                        (
+                                            int(forwardtime),
+                                            int(location[0]),
+                                            int(location[1]),
+                                            int(location[2]),
                                         )
+                                    )
 
-                                    if currentscore < forwardscore:
-                                        event_locations_size_dict.pop(
-                                            (
-                                                int(currenttime),
-                                                int(nearest_location[0]),
-                                                int(nearest_location[1]),
-                                                int(nearest_location[2]),
-                                            )
+                                if currentscore < forwardscore:
+                                    event_locations_size_dict.pop(
+                                        (
+                                            int(currenttime),
+                                            int(nearest_location[0]),
+                                            int(nearest_location[1]),
+                                            int(nearest_location[2]),
                                         )
-                                        
-        return event_locations_size_dict                                
+                                    )
+
+    return event_locations_size_dict
+
 
 def headlesscall(
     key_categories: dict,
@@ -345,7 +341,7 @@ def headlesscall(
                 confidence_locations = []
                 event_locations_dict = {}
                 event_locations_size_dict = {}
-                savename = 'non_maximal_' + Path(csvname).stem
+                savename = "non_maximal_" + Path(csvname).stem
                 savename = os.path.join(csvdir, savename)
                 print(savename)
                 dataset = pd.read_csv(csvname, delimiter=",")
@@ -433,12 +429,10 @@ def headlesscall(
                         confidences,
                     ]
                 )
-                event_count = sorted(
-                    event_count, key=lambda x: x[0], reverse=False
-                )
+                event_count = sorted(event_count, key=lambda x: x[0], reverse=False)
 
                 event_data = []
-             
+
                 if os.path.exists(savename + ".csv"):
                     os.remove(savename + ".csv")
                 writer = csv.writer(open(savename + ".csv", "a", newline=""))
@@ -472,7 +466,7 @@ def headlessvolumecall(
 ):
     if isinstance(event_threshold, float):
         event_threshold = [event_threshold] * len(key_categories)
-          
+
     for (event_name, event_label) in key_categories.items():
         if event_label > 0:
             event_locations = []
@@ -491,9 +485,9 @@ def headlessvolumecall(
                 confidence_locations = []
                 event_locations_dict = {}
                 event_locations_size_dict = {}
-                savename = 'non_maximal_' + Path(csvname).stem
+                savename = "non_maximal_" + Path(csvname).stem
                 savename = os.path.join(csvdir, savename)
-                print(f'performing non maximal supression on {csvname}')
+                print(f"performing non maximal supression on {csvname}")
                 dataset = pd.read_csv(csvname, delimiter=",")
                 # Data is written as T, Y, X, Score, Size, Confidence
                 T = dataset[dataset.keys()[0]][0:]
@@ -528,26 +522,37 @@ def headlessvolumecall(
 
                             if int(tcenter) in event_locations_dict.keys():
                                 current_list = event_locations_dict[int(tcenter)]
-                                current_list.append([int(zcenter), int(ycenter), int(xcenter)])
+                                current_list.append(
+                                    [int(zcenter), int(ycenter), int(xcenter)]
+                                )
                                 event_locations_dict[int(tcenter)] = current_list
                                 event_locations_size_dict[
-                                    (int(tcenter), int(zcenter), int(ycenter), int(xcenter))
+                                    (
+                                        int(tcenter),
+                                        int(zcenter),
+                                        int(ycenter),
+                                        int(xcenter),
+                                    )
                                 ] = [size, score]
                             else:
                                 current_list = []
-                                current_list.append([int(zcenter), int(ycenter), int(xcenter)])
+                                current_list.append(
+                                    [int(zcenter), int(ycenter), int(xcenter)]
+                                )
                                 event_locations_dict[int(tcenter)] = current_list
                                 event_locations_size_dict[
-                                    int(tcenter), int(zcenter), int(ycenter), int(xcenter)
+                                    int(tcenter),
+                                    int(zcenter),
+                                    int(ycenter),
+                                    int(xcenter),
                                 ] = [size, score]
 
                             size_locations.append(size)
                             score_locations.append(score)
                             confidence_locations.append(confidence)
-                            
+
                     except Exception:
                         pass
-
 
                 event_locations_size_dict = cluster_points(
                     event_locations_dict,
@@ -586,12 +591,10 @@ def headlessvolumecall(
                         confidences,
                     ]
                 )
-                event_count = sorted(
-                    event_count, key=lambda x: x[0], reverse=False
-                )
+                event_count = sorted(event_count, key=lambda x: x[0], reverse=False)
 
                 event_data = []
-                
+
                 if os.path.exists(savename + ".csv"):
                     os.remove(savename + ".csv")
                 writer = csv.writer(open(savename + ".csv", "a", newline=""))

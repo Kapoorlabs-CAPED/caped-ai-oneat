@@ -17,10 +17,9 @@ class OneatVolumeVisualization:
     def __init__(
         self,
         viewer: Viewer,
-        imagedir:str,
+        imagedir: str,
         key_categories: dict,
         csvdir: str,
-        savedir: str,
         savename: str,
         ax,
         figure: plt.figure,
@@ -29,7 +28,7 @@ class OneatVolumeVisualization:
         self.viewer = viewer
         self.imagedir = imagedir
         self.csvdir = csvdir
-        self.savedir = savedir
+
         self.savename = savename
         self.key_categories = key_categories
         self.ax = ax
@@ -58,6 +57,7 @@ class OneatVolumeVisualization:
         self.cell_count_plot = None
         self.imagename = None
         self.originalimage = None
+        self.csvname = None
 
     # To prevent early detectin of events
     def cluster_points(self, nms_space):
@@ -70,7 +70,7 @@ class OneatVolumeVisualization:
 
             if len(event_locations) > 0:
                 tree = spatial.cKDTree(event_locations)
-                for i in range(1,3):
+                for i in range(1, 3):
                     forwardtime = currenttime + i
                     if int(forwardtime) in self.event_locations_dict.keys():
                         forward_event_locations = self.event_locations_dict[
@@ -178,16 +178,15 @@ class OneatVolumeVisualization:
         event_count = sorted(event_count, key=lambda x: x[0], reverse=False)
 
         event_data = []
-        csvname = self.savedir + "/" + "Clean" + self.event_name + "Location"
-        if os.path.exists(csvname + ".csv"):
-            os.remove(csvname + ".csv")
-        writer = csv.writer(open(csvname + ".csv", "a", newline=""))
-        filesize = os.stat(csvname + ".csv").st_size
+        savename = "non_maximal_" + Path(self.csvname).stem
+        savename = os.path.join(self.csvdir, savename)
+        if os.path.exists(self.csvname + ".csv"):
+            os.remove(self.csvname + ".csv")
+        writer = csv.writer(open(savename + ".csv", "a", newline=""))
+        filesize = os.stat(savename + ".csv").st_size
 
         if filesize < 1:
-            writer.writerow(
-                ["T", "Z", "Y", "X", "Score", "Size", "Confidence"]
-            )
+            writer.writerow(["T", "Z", "Y", "X", "Score", "Size", "Confidence"])
         for line in event_count:
             if line not in event_data:
                 print(f"line{line}")
@@ -216,9 +215,7 @@ class OneatVolumeVisualization:
             edge_color="green",
         )
 
-        df = pd.DataFrame(
-            self.event_locations_clean, columns=["T", "Z", "Y", "X"]
-        )
+        df = pd.DataFrame(self.event_locations_clean, columns=["T", "Z", "Y", "X"])
         T_pred = df[df.keys()[0]][0:]
         listtime_pred = T_pred.tolist()
 
@@ -279,10 +276,7 @@ class OneatVolumeVisualization:
                     countT = len(conditionScore[score_condition])
                     timelist.append(i)
                     eventlist.append(countT)
-                    if (
-                        self.segimagedir is not None
-                        and self.seg_image is not None
-                    ):
+                    if self.segimagedir is not None and self.seg_image is not None:
 
                         all_cells = self.cell_count[i]
                         celllist.append(all_cells + 1)
@@ -304,10 +298,7 @@ class OneatVolumeVisualization:
                     self.figure.canvas.flush_events()
 
                     self.figure.savefig(
-                        self.savedir
-                        + self.event_name
-                        + self.event_count_plot
-                        + ".png",
+                        self.savedir + self.event_name + self.event_count_plot + ".png",
                         dpi=300,
                     )
 
@@ -316,9 +307,7 @@ class OneatVolumeVisualization:
                     and len(normeventlist) > 0
                 ):
                     self.ax.plot(timelist, normeventlist, "-r")
-                    self.ax.plot(
-                        self.cleantimelist, self.cleannormeventlist, "-g"
-                    )
+                    self.ax.plot(self.cleantimelist, self.cleannormeventlist, "-g")
                     self.ax.set_title(self.event_name + "Normalized Events")
                     self.ax.set_xlabel("Time")
                     self.ax.set_ylabel("Normalized Counts")
@@ -333,10 +322,7 @@ class OneatVolumeVisualization:
                         dpi=300,
                     )
 
-                if (
-                    self.plot_event_name == self.cell_count_plot
-                    and len(celllist) > 0
-                ):
+                if self.plot_event_name == self.cell_count_plot and len(celllist) > 0:
                     self.ax.plot(timelist, celllist, "-r")
                     self.ax.set_title("Total Cell counts")
                     self.ax.set_xlabel("Time")
@@ -365,9 +351,7 @@ class OneatVolumeVisualization:
 
             if heatmapimagedir is not None:
                 try:
-                    heat_image = imread(
-                        heatmapimagedir + imagename + heatname + ".tif"
-                    )
+                    heat_image = imread(heatmapimagedir + imagename + heatname + ".tif")
                 except FileNotFoundError:
                     heat_image = None
 
@@ -415,15 +399,16 @@ class OneatVolumeVisualization:
         for layer in list(self.viewer.layers):
             if "Detections" in layer.name or layer.name in "Detections":
                 self.viewer.layers.remove(layer)
-        for i in range(len(csvnames)): 
+        for i in range(len(csvnames)):
             file = str(csvnames[i])
             if imagename in file and csv_event_name in file:
-                    csvname = file
-                    break   
+                csvname = file
+                break
         if csvname is None:
-            print( "No csv file found for this image")                
-        if csvname is not None:
+            print("No csv file found for this image")
 
+        if csvname is not None:
+            self.csvname = csvname
             self.event_name = csv_event_name
             self.dataset = pd.read_csv(csvname, delimiter=",")
             nrows = len(self.dataset.columns)
@@ -453,9 +438,7 @@ class OneatVolumeVisualization:
 
                     if int(tcenter) in self.event_locations_dict.keys():
                         current_list = self.event_locations_dict[int(tcenter)]
-                        current_list.append(
-                            [int(zcenter), int(ycenter), int(xcenter)]
-                        )
+                        current_list.append([int(zcenter), int(ycenter), int(xcenter)])
                         self.event_locations_dict[int(tcenter)] = current_list
                         self.event_locations_size_dict[
                             (
@@ -467,9 +450,7 @@ class OneatVolumeVisualization:
                         ] = [size, score, confidence]
                     else:
                         current_list = []
-                        current_list.append(
-                            [int(zcenter), int(ycenter), int(xcenter)]
-                        )
+                        current_list.append([int(zcenter), int(ycenter), int(xcenter)])
                         self.event_locations_dict[int(tcenter)] = current_list
                         self.event_locations_size_dict[
                             int(tcenter),
