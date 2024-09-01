@@ -62,8 +62,6 @@ class OneatVolumeVisualization:
     # To prevent early detectin of events
     def cluster_points(self, nms_space):
 
-        print("before", len(self.event_locations_size_dict))
-
         for (k, v) in self.event_locations_dict.items():
             currenttime = k
             event_locations = v
@@ -137,7 +135,6 @@ class OneatVolumeVisualization:
                                                 )
                                             )
 
-        print("after", len(self.event_locations_size_dict))
         self.show_clean_csv()
 
     def show_clean_csv(self):
@@ -189,7 +186,6 @@ class OneatVolumeVisualization:
             writer.writerow(["T", "Z", "Y", "X", "Score", "Size", "Confidence"])
         for line in event_count:
             if line not in event_data:
-                print(f"line{line}")
                 event_data.append(line)
             writer.writerows(event_data)
             event_data = []
