@@ -20,7 +20,6 @@ class OneatVolumeVisualization:
         imagedir: str,
         key_categories: dict,
         csvdir: str,
-        savedir: str,
         savename: str,
         ax,
         figure: plt.figure,
