@@ -474,7 +474,7 @@ class NEATDenseVollNet:
 
     def _build(self):
 
-        Model = tf.keras.layers.TFSMLayer(
+        Model = load_model(
             self.model_dir, custom_objects={"loss": self.yolo_loss, "Concat": Concat}
         )
 
