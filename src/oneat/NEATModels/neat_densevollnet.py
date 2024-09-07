@@ -28,7 +28,7 @@ from oneat.pretrained import (
     get_model_instance,
 )
 from pathlib import Path
-from tensorflow.keras.models import load_model
+import keras
 
 
 class NEATDenseVollNet:
@@ -474,8 +474,8 @@ class NEATDenseVollNet:
 
     def _build(self):
 
-        Model = load_model(
-            self.model_dir, custom_objects={"loss": self.yolo_loss, "Concat": Concat}
+        Model = keras.layers.TFSMLayer(
+            self.model_dir, custom_objects={"loss": self.yolo_loss, "Concat": Concat}, call_endpoint="serving_default"
         )
 
         return Model
