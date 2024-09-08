@@ -368,6 +368,47 @@ class NEATDenseVollNet:
 
         return self.marker_tree
 
+    def normalize_image_in_chunks(
+        self, percentile_min=1, percentile_max=99.8, dtype=np.float32
+    ):
+        """
+        Normalize a TZYX image in chunks along the T (time) dimension.
+
+        Args:
+            image (np.ndarray): The original TZYX image.
+            chunk_size (int): The number of timesteps to process at a time.
+            percentile_min (float): The lower percentile for normalization.
+            percentile_max (float): The upper percentile for normalization.
+            dtype (np.dtype): The data type to cast the normalized image.
+
+        Returns:
+            np.ndarray: The normalized image with the same shape as the input.
+        """
+
+        # Get the shape of the original image (T, Z, Y, X)
+        T, Z, Y, X = self.originalimage.shape
+
+        # Create an empty array to hold the normalized image
+        normalized_image = np.empty((T, Z, Y, X), dtype=dtype)
+
+        # Process the image in chunks of `chunk_size` along the T (time) axis
+        for t in range(0, T, self.chunk_size):
+            # Determine the chunk slice, ensuring we don't go out of bounds
+            t_end = min(t + self.chunk_size, T)
+
+            # Extract the chunk of timesteps to normalize
+            chunk = self.originalimage[t:t_end]
+
+            # Normalize this chunk
+            chunk_normalized = normalizeFloatZeroOne(
+                chunk, percentile_min, percentile_max, dtype=dtype
+            )
+
+            # Replace the corresponding portion of the original image with the normalized chunk
+            normalized_image[t:t_end] = chunk_normalized
+
+        return normalized_image
+
     def predict(
         self,
         image: np.ndarray,
@@ -385,6 +426,7 @@ class NEATDenseVollNet:
         prediction_start_time: int = 0,
         activations: bool = False,
         normalize_in_chunks: bool = False,
+        chunk_steps: int = 50,
     ):
 
         self.dtype = dtype
@@ -426,7 +468,13 @@ class NEATDenseVollNet:
             self.event_confidence = conf_list
         # Normalize in volume
         if not normalize_in_chunks:
+            print("Normalizing Volume")
             self.originalimage = normalizeFloatZeroOne(
+                self.originalimage, 1, 99.8, dtype=self.dtype
+            )
+        if normalize_in_chunks:
+            print("Normalizing Volume")
+            self.originalimage = self.normalize_image_in_chunks(
                 self.originalimage, 1, 99.8, dtype=self.dtype
             )
         if self.remove_markers is True:
@@ -497,10 +545,7 @@ class NEATDenseVollNet:
                 smallimage = CreateVolume(
                     self.image, self.size_tminus, self.size_tplus, inputtime
                 )
-                if self.normalize_in_chunks:
-                    smallimage = normalizeFloatZeroOne(
-                        smallimage, 1, 99.8, dtype=self.dtype
-                    )
+
                 # Cut off the region for training movie creation
                 # Break image into tiles if neccessary
                 predictions, allx, ally, allz = self.predict_main(smallimage)
