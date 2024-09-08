@@ -392,9 +392,9 @@ class NEATDenseVollNet:
         normalized_image = np.empty((T, Z, Y, X), dtype=dtype)
 
         # Process the image in chunks of `chunk_size` along the T (time) axis
-        for t in range(0, T, self.chunk_size):
+        for t in range(0, T, self.chunk_steps):
             # Determine the chunk slice, ensuring we don't go out of bounds
-            t_end = min(t + self.chunk_size, T)
+            t_end = min(t + self.chunk_steps, T)
 
             # Extract the chunk of timesteps to normalize
             chunk = self.originalimage[t:t_end]
@@ -453,7 +453,7 @@ class NEATDenseVollNet:
         self.list_all_boxes = []
         self.all_iou_classedboxes = {}
         self.model = self._build()
-
+        self.chunk_steps = chunk_steps
         self.marker_tree = marker_tree
         self.remove_markers = remove_markers
         if not isinstance(self.event_threshold, list):
@@ -475,7 +475,7 @@ class NEATDenseVollNet:
         if normalize_in_chunks:
             print("Normalizing Volume")
             self.originalimage = self.normalize_image_in_chunks(
-                 1, 99.8, dtype=self.dtype
+                1, 99.8, dtype=self.dtype
             )
         if self.remove_markers is True:
             self.image = np.zeros(
