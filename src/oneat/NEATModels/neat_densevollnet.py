@@ -475,7 +475,7 @@ class NEATDenseVollNet:
         if normalize_in_chunks:
             print("Normalizing Volume")
             self.originalimage = self.normalize_image_in_chunks(
-                self.originalimage, 1, 99.8, dtype=self.dtype
+                 1, 99.8, dtype=self.dtype
             )
         if self.remove_markers is True:
             self.image = np.zeros(
