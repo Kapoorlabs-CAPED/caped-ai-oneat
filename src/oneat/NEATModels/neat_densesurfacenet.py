@@ -34,7 +34,7 @@ Boxname = "ImageIDBox"
 CellTypeBoxname = "CellIDBox"
 
 
-class NEATResNet:
+class NEATDenseSurfaceNet:
     """
     Parameters
     ----------
@@ -150,21 +150,11 @@ class NEATResNet:
         self.Trainingmodel = None
         self.Xoriginal = None
         self.Xoriginal_val = None
+        self.model_keras = nets.DenseSurfaceNet
+        self.last_activation = "softmax"
+        self.entropy = "notbinary"
+
         if not self.class_only:
-
-            if not self.train_lstm:
-                self.model_keras = nets.resnet_v2
-
-            if self.train_lstm:
-                self.model_keras = nets.resnet_lstm_v2
-
-            if self.multievent:
-                self.last_activation = "sigmoid"
-                self.entropy = "binary"
-
-            if not self.multievent:
-                self.last_activation = "softmax"
-                self.entropy = "notbinary"
 
             self.yolo_loss = static_yolo_loss(
                 self.categories,
@@ -178,22 +168,9 @@ class NEATResNet:
 
         if self.class_only:
 
-            if not self.train_lstm:
-                self.model_keras = nets.resnet_v2_class
-            if self.train_lstm:
-                self.model_keras = nets.resnet_lstm_v2_class
-
-            if self.multievent:
-                self.last_activation = "sigmoid"
-                self.entropy = "binary"
-
-            if not self.multievent:
-                self.last_activation = "softmax"
-                self.entropy = "notbinary"
-
             self.yolo_loss = class_yolo_loss(self.categories, self.entropy)
 
-    def loadData(self, sum_channels=False):
+    def loadData(self):
 
         (X, Y), axes = utils.load_full_training_data(
             self.npz_directory, self.npz_name, verbose=True
@@ -207,14 +184,10 @@ class NEATResNet:
         self.Xoriginal_val = X_val
 
         self.X = X
-        if sum_channels:
-            self.X = np.sum(X, -1)
-            self.X = np.expand_dims(self.X, -1)
+
         self.Y = Y[:, :, 0]
         self.X_val = X_val
-        if sum_channels:
-            self.X_val = np.sum(X_val, -1)
-            self.X_val = np.expand_dims(self.X_val, -1)
+
         self.Y_val = Y_val[:, :, 0]
         self.axes = axes
         self.Y = self.Y.reshape((self.Y.shape[0], 1, 1, self.Y.shape[1]))
@@ -261,9 +234,7 @@ class NEATResNet:
                 self.categories
                 + b * self.box_vector : self.categories
                 + (b + 1) * self.box_vector,
-            ] = self.Y[
-                :, :, :, self.categories : self.categories + self.box_vector
-            ]
+            ] = self.Y[:, :, :, self.categories : self.categories + self.box_vector]
             dummyY_val[
                 :,
                 :,
@@ -271,9 +242,7 @@ class NEATResNet:
                 self.categories
                 + b * self.box_vector : self.categories
                 + (b + 1) * self.box_vector,
-            ] = self.Y_val[
-                :, :, :, self.categories : self.categories + self.box_vector
-            ]
+            ] = self.Y_val[:, :, :, self.categories : self.categories + self.box_vector]
 
         self.Y = dummyY
         self.Y_val = dummyY_val
@@ -284,7 +253,7 @@ class NEATResNet:
             input_shape,
             self.categories,
             box_vector=self.box_vector,
-            yolo_loss = self.yolo_loss, 
+            yolo_loss=self.yolo_loss,
             nboxes=self.nboxes,
             stage_number=self.stage_number,
             depth=self.depth,
@@ -300,7 +269,7 @@ class NEATResNet:
             optimizer=sgd, loss=self.yolo_loss, metrics=["accuracy"]
         )
         self.Trainingmodel.summary()
-        
+
         # Keras callbacks
         lrate = callbacks.ReduceLROnPlateau(
             monitor="loss", factor=0.1, patience=4, verbose=1
@@ -538,9 +507,7 @@ class NEATResNet:
 
     def to_csv(self):
 
-        save_static_csv(
-            self.key_categories, self.iou_classedboxes, self.savedir
-        )
+        save_static_csv(self.key_categories, self.iou_classedboxes, self.savedir)
 
     def to_activations(self):
 
