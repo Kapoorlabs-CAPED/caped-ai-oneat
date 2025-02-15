@@ -1,12 +1,12 @@
 import napari
 import os
-import cv2
 from tifffile import imread
 from qtpy.QtWidgets import QComboBox, QPushButton
+from imageio import imwrite
 
 
 class TrainDataMakerYolo:
-    def __init__(self, source_dir, save_dir=None, class_names=["Object"]):
+    def __init__(self, source_dir, save_dir=None, class_names=["Ablation"]):
         self.source_dir = source_dir
         self.save_dir = save_dir if save_dir else source_dir
         self.class_names = class_names
@@ -99,7 +99,7 @@ class EventViewer:
 
             # Save image
             img_save_path = os.path.join(self.images_dir, f"{self.Name}.png")
-            cv2.imwrite(img_save_path, self.image)
+            imwrite(img_save_path, self.image)
             print(f"Saved Image: {img_save_path}")
 
         if self.newimage:
