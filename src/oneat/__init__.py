@@ -4,7 +4,7 @@ except ImportError:
     __version__ = "unknown"
 from csbdeep.utils.tf import keras_import
 
-from oneat.NEATModels import NEATLRNet, NEATResNet, NEATTResNet, NEATVollNet
+from oneat.NEATModels import NEATLRNet, NEATTResNet, NEATVollNet
 from oneat.pretrained import (
     clear_models_and_aliases,
     register_aliases,
@@ -14,7 +14,7 @@ from oneat.pretrained import (
 get_file = keras_import("utils", "get_file")
 
 
-clear_models_and_aliases(NEATVollNet, NEATLRNet, NEATTResNet, NEATResNet)
+clear_models_and_aliases(NEATVollNet, NEATLRNet, NEATTResNet)
 
 register_model(
     NEATLRNet,
@@ -64,21 +64,7 @@ register_model(
     "https://zenodo.org/record/6484966/files/Cellsplitdetectorxenopus_Parameter.json",
     "ee3dfb4ff1af80e44ceaebbdf4b1bff1",
 )
-register_model(
-    NEATResNet,
-    "Cellsplitdetectorxenopus",
-    "https://zenodo.org/record/6484966/files/Cellsplitdetectorxenopus.h5",
-    "299a2edebf217da76732fd812cb5d6fe",
-    "Cellsplitcordxenopus",
-    "https://zenodo.org/record/6484966/files/Cellsplitcordxenopus.json",
-    "aed21cb69d6fb8be32c47f78a39d32f5",
-    "Cellsplitcategoriesxenopus",
-    "https://zenodo.org/record/6484966/files/Cellsplitcategoriesxenopus.json",
-    "7a67a83f08fb1add3c1b1a3e0eeec773",
-    "Cellsplitdetectorxenopus_Parameter",
-    "https://zenodo.org/record/6484966/files/Cellsplitdetectorxenopus_Parameter.json",
-    "ee3dfb4ff1af80e44ceaebbdf4b1bff1",
-)
+
 
 register_aliases(
     NEATLRNet, "Cellsplitdetectorbrightfield", "Cellsplitdetectorbrightfield"
@@ -86,9 +72,6 @@ register_aliases(
 register_aliases(NEATVollNet, "Cellsplitdetectorhdpc", "Cellsplitdetectorhdpc")
 register_aliases(
     NEATTResNet, "Cellsplitdetectorxenopus", "Cellsplitdetectorxenopus"
-)
-register_aliases(
-    NEATResNet, "Cellsplitdetectorxenopus", "Cellsplitdetectorxenopus"
 )
 
 del register_model, register_aliases, clear_models_and_aliases
