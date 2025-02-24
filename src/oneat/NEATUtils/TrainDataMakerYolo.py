@@ -115,7 +115,7 @@ class EventViewer:
                     edge_color="red",
                     face_color="transparent",
                 )
-                self.viewer.layers[class_name].mode = "add"
+              
 
     def _save_annotations(self, class_name, data):
         """Save bounding box annotations in YOLO format."""
