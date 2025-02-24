@@ -1,6 +1,6 @@
 import napari
 import os
-
+from pathlib import Path
 from tifffile import imread
 import random
 import pandas as pd
@@ -142,11 +142,10 @@ class EventViewer:
 
             for class_name in self.class_names:
                 face_color = self.class_colors[class_name]
+                save_location = Path(self.csv_dir) / f"ONEAT{class_name}{self.Name}.csv"   
+                
+                if save_location.exists() and save_location.stat().st_size > 0:  
 
-                save_location = (
-                    self.csv_dir + "/ONEAT" + class_name + self.Name + ".csv"
-                )
-                if save_location is not None:
                     data = pd.read_csv(save_location)
                     self.viewer.add_points(
                         data=data,
