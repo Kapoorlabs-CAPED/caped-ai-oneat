@@ -63,7 +63,7 @@ class TrainDataMakerYolo:
 class EventViewer:
     def __init__(
         self,
-        viewer,
+        viewer: napari.Viewer,
         imagename,
         Name,
         save_dir,
@@ -93,7 +93,7 @@ class EventViewer:
     def _box(self):
         if self.save:
             for class_name in self.class_names:
-                layer = self.viewer.layers.get(class_name)
+                layer = self.viewer.layers[class_name]
                 if layer is not None:
                     self._save_annotations(class_name, layer.data)
 
