@@ -213,17 +213,17 @@ class OneatVolumeVisualization:
         df = pd.DataFrame(self.event_locations_clean, columns=["T", "Z", "Y", "X"])
         T_pred = df[df.keys()[0]][0:]
         listtime_pred = T_pred.tolist()
+        if self.image is not None:
+            for j in range(self.image.shape[0]):
+                cleanlist = []
+                for i in range(len(listtime_pred)):
 
-        for j in range(self.image.shape[0]):
-            cleanlist = []
-            for i in range(len(listtime_pred)):
+                    if j == listtime_pred[i]:
+                        cleanlist.append(listtime_pred[i])
 
-                if j == listtime_pred[i]:
-                    cleanlist.append(listtime_pred[i])
-
-            countT = len(cleanlist)
-            self.cleantimelist.append(j)
-            self.cleaneventlist.append(countT)
+                countT = len(cleanlist)
+                self.cleantimelist.append(j)
+                self.cleaneventlist.append(countT)
 
     def show_plot(
         self,
@@ -467,7 +467,7 @@ class OneatVolumeVisualization:
                     properties=point_properties,
                     symbol="square",
                     blending="translucent_no_depth",
-                    name="Detections" + csv_event_name,
+                    name=Path(csvname).stem + '_' + csv_event_name,
                     face_color=[0] * 4,
                 )
 
