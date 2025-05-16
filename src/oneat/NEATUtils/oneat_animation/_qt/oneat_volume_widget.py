@@ -95,7 +95,6 @@ class OneatVolumeWidget(QWidget):
         self.frameWidget.plotidbox.currentIndexChanged.connect(
             lambda eventid=self.frameWidget.imageidbox: self._capture_plot_callback(
                 segimagedir,
-                 csvdir,
                 event_count_plot,
                 cell_count_plot,
                 event_norm_count_plot,
@@ -124,7 +123,6 @@ class OneatVolumeWidget(QWidget):
         self._capture_csv_callback(segimagedir,  csvdir)
         self._capture_plot_callback(
             segimagedir,
-             csvdir,
             event_count_plot,
             cell_count_plot,
             event_norm_count_plot,
@@ -178,6 +176,7 @@ class OneatVolumeWidget(QWidget):
     def _capture_plot_callback(
         self,
         segimagedir,
+     
         event_count_plot,
         cell_count_plot,
         event_norm_count_plot,
