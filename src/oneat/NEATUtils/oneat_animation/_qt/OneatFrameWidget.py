@@ -33,6 +33,13 @@ class OneatFrameWidget(QWidget):
         self.imageidbox = QComboBox()
         index = self.imageidbox.findText("linear", Qt.MatchFixedString)
         self.imageidbox.setCurrentIndex(index)
+
+        self.csvidbox = QComboBox()
+        index = self.csvidbox.findText("linear", Qt.MatchFixedString)
+        self.csvidbox.setCurrentIndex(index)
+
+
+
         
       
 
@@ -72,6 +79,7 @@ class OneatFrameWidget(QWidget):
 
         self._layout.addWidget(self.multiplot_widget)
         self._layout.addRow("Image", self.imageidbox)
+        self._layout.addRow("Image", self.csvidbox)
         self._layout.addRow("Event", self.eventidbox)
         self._layout.addRow("Heat Map Steps", self.heatstepsSpinBox)
         self._layout.addRow("NMS space (px)", self.nmsspaceSpinBox)

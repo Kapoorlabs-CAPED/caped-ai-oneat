@@ -82,7 +82,7 @@ class OneatVolumeWidget(QWidget):
 
         self.frameWidget.eventidbox.currentIndexChanged.connect(
             lambda eventid=self.frameWidget.eventidbox: self._capture_csv_callback(
-                segimagedir
+                segimagedir, csvdir
             )
         )
 
@@ -140,12 +140,15 @@ class OneatVolumeWidget(QWidget):
         self.frameWidget.label.setText(str(real_value))
         self.event_threshold = float(real_value)
 
-    def _capture_csv_callback(self, segimagedir):
+    def _capture_csv_callback(self, segimagedir, csvdir):
 
         get_image_text = self.frameWidget.imageidbox.currentText()
+        csvname_frame = self.frameWidget.csvidbox.currentText()
+        csvname = os.path.join(csvdir, csvname_frame + ".csv")
         csv_event_name = self.frameWidget.eventidbox.currentText()
         imagename = os.path.basename(os.path.splitext(get_image_text)[0])
         self.oneatvisualization.show_csv(
+            csvname,
             imagename,
             csv_event_name,
             segimagedir=segimagedir,
