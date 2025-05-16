@@ -208,7 +208,6 @@ class OneatVolumeVisualization:
             blending="translucent_no_depth",
             name="Clean Detections",
             face_color=[0] * 4,
-            edge_color="green",
         )
 
         df = pd.DataFrame(self.event_locations_clean, columns=["T", "Z", "Y", "X"])
@@ -477,7 +476,6 @@ class OneatVolumeVisualization:
                     blending="translucent_no_depth",
                     name="Detections" + csv_event_name,
                     face_color=[0] * 4,
-                    edge_color="red",
                 )
 
             if segimagedir is not None:

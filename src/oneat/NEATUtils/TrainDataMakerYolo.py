@@ -124,14 +124,18 @@ class EventViewer:
 
         with open(label_file, "w") as f:
             for box in data:
-                x_min, y_min, x_max, y_max = box[0][0], box[0][1], box[2][0], box[2][1]
+                # In Napari, box is in the form of [y_min, x_min] and [y_max, x_max]
+                y_min, x_min = box[0][0], box[0][1]
+                y_max, x_max = box[2][0], box[2][1]
 
                 # Convert to YOLO format (normalized)
-                x_center = ((x_min + x_max) / 2) / W
-                y_center = ((y_min + y_max) / 2) / H
-                width = (x_max - x_min) / W
-                height = (y_max - y_min) / H
+                x_center = ((x_min + x_max) / 2) / W  # Center in x-direction
+                y_center = ((y_min + y_max) / 2) / H  # Center in y-direction
+                width = (x_max - x_min) / W           # Width of the box
+                height = (y_max - y_min) / H         # Height of the box
 
+                # Write the annotation in YOLO format
                 f.write(f"0 {x_center:.6f} {y_center:.6f} {width:.6f} {height:.6f}\n")
+
 
         print(f"Saved Labels: {label_file}")
