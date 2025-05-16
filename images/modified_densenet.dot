@@ -1,0 +1,128 @@
+digraph DenseVollNet {
+  rankdir=LR;
+  bgcolor=white;
+  graph [nodesep=2, ranksep=1];
+
+  // Global node style with extra margin
+  node [
+    shape=rectangle,
+    style=filled,
+    fillcolor="#eeeeee",
+    fontname="Helvetica",
+    fontsize=10,
+    margin="0.3,0.2"
+  ];
+
+  /* Input */
+  Input [
+    label="Input\nZ×Y×X volume as T channels",
+    fillcolor="white"
+  ];
+
+  /* Initial Conv (green) */
+  Conv0 [
+    label="Conv3D\nfilters=64\nkernel=7×7×7",
+    fillcolor="lightgreen"
+  ];
+
+  /* Stage 0 */
+  subgraph cluster_stage0 {
+    label="Stage 0"; style=rounded;
+    graph [nodesep=2];
+
+    DB0 [
+      label="DenseBlock0 ×6:\n\
+BN → ReLU → Conv3D(128 ch,1×1×1)\n\
+BN → ReLU → Conv3D(32 ch,3×3×3)\n\
+Concat",
+      fillcolor="white"
+    ];
+    TR0 [
+      label="Transition0:\n\
+BN → ReLU → Conv3D(128 ch,1×1×1)\n\
+MaxPool3D(2×2×2)",
+      fillcolor="white"
+    ];
+  }
+
+  /* Stage 1 */
+  subgraph cluster_stage1 {
+    label="Stage 1"; style=rounded;
+    graph [nodesep=2];
+
+    DB1 [
+      label="DenseBlock1 ×12:\n\
+BN → ReLU → Conv3D(128 ch,1×1×1)\n\
+BN → ReLU → Conv3D(32 ch,3×3×3)\n\
+Concat",
+      fillcolor="white"
+    ];
+    TR1 [
+      label="Transition1:\n\
+BN → ReLU → Conv3D(256 ch,1×1×1)\n\
+MaxPool3D(2×2×2)",
+      fillcolor="white"
+    ];
+  }
+
+  /* Stage 2 */
+  subgraph cluster_stage2 {
+    label="Stage 2"; style=rounded;
+    graph [nodesep=2];
+
+    DB2 [
+      label="DenseBlock2 ×24:\n\
+BN → ReLU → Conv3D(128 ch,1×1×1)\n\
+BN → ReLU → Conv3D(32 ch,3×3×3)\n\
+Concat",
+      fillcolor="white"
+    ];
+  }
+
+  /* Final BN (blue) + ReLU (yellow) */
+  BNend  [label="BatchNorm", fillcolor="lightblue"];
+  Actend [label="ReLU",      fillcolor="lightyellow"];
+
+  /* Detection Head */
+  subgraph cluster_head {
+    label="Detection Head"; style=rounded;
+    graph [nodesep=2];
+
+    HConv [ 
+      label="Conv3D\nfilters=Classes + box_vector\nkernel=3×3×3",
+      fillcolor="lightgreen"
+    ];
+    HBN   [label="BatchNorm", fillcolor="lightblue"];
+    HAct  [label="ReLU",      fillcolor="lightyellow"];
+    Slice [
+      label="Slice channels:\n0…C-1 → class logits\nC… → box params",
+      fillcolor="lightpink"
+    ];
+
+    // Side-by-side convs with extra width to avoid clipping
+    subgraph rank_group {
+      rank=same;
+      CConv [
+        label="Conv3D\nfilters=Classes\nkernel=(Z/4, Y/4, X/4)\nactivation=softmax",
+        fillcolor="lightgreen",
+        width=2.0
+      ];
+      BConv [
+        label="Conv3D\nfilters=box_vector\nkernel=(Z/4, Y/4, X/4)\nactivation=sigmoid",
+        fillcolor="lightgreen",
+        width=2.0
+      ];
+    }
+
+    Concat [
+      label="Concat:\n[class, box]\nbox = [Width, Depth, Confidence]",
+      fillcolor="lightgray"
+    ];
+    Out [label="Output", fillcolor="white"];
+  }
+
+  /* Connections */
+  Input -> Conv0 -> DB0 -> TR0 -> DB1 -> TR1 -> DB2 -> BNend -> Actend
+        -> HConv -> HBN -> HAct -> Slice -> CConv -> Concat -> Out;
+  Slice -> BConv -> Concat;
+}

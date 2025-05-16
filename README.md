@@ -19,6 +19,10 @@ This product is a testament to our expertise at KapoorLabs, where we specialize 
 Action classification for TZYX shaped images, Static classification for TYX shaped images
 
 ----------------------------------
+Oneat architecture for TZYX shaped volumetric timelapse for action classification across N classes:
+
+<img src="images/modified_densenet.png" alt="Architecture" width="3500"/>
+
 
 This [caped] package was generated with [Cookiecutter] using [@caped]'s [cookiecutter-template] template.
 
