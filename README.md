@@ -21,7 +21,7 @@ Action classification for TZYX shaped images, Static classification for TYX shap
 ----------------------------------
 Oneat architecture for TZYX shaped volumetric timelapse for action classification across N classes:
 
-<img src="images/modified_densenet.png" alt="Architecture" width="150"/>
+<img src="images/modified_densenet.png" alt="Architecture" width="1500"/>
 
 
 This [caped] package was generated with [Cookiecutter] using [@caped]'s [cookiecutter-template] template.
