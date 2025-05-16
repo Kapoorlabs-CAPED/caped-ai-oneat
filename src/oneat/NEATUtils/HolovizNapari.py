@@ -148,15 +148,27 @@ class NEATViz:
         )
         Raw_path = os.path.join(self.imagedir, self.fileextension)
         X = glob.glob(Raw_path)
+
+        Csv_path = os.path.join(self.csvdir, '*csv')
+        C = glob.glob(Csv_path)
+
+
         Imageids = []
+        Csvids = []
         self.oneat_widget.frameWidget.imageidbox.addItem("Select Image")
         self.oneat_widget.frameWidget.eventidbox.addItem("Select Event")
         for imagename in X:
             Imageids.append(imagename)
+        for csvname in C:
+            Csvids.append(csvname)    
 
         for i in range(0, len(Imageids)):
             fname = os.path.basename(os.path.splitext(Imageids[i])[0])
             self.oneat_widget.frameWidget.imageidbox.addItem(str(fname))
+
+        for i in range(0, len(Csvids)):
+            fname = os.path.basename(os.path.splitext(Csvids[i])[0])
+            self.oneat_widget.frameWidget.csvidbox.addItem(str(fname))   
 
         for (event_name, event_label) in self.key_categories.items():
             if event_label > 0:

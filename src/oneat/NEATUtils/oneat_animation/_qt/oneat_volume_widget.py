@@ -80,6 +80,12 @@ class OneatVolumeWidget(QWidget):
             )
         )
 
+        self.frameWidget.csvidbox.currentIndexChanged.connect(
+            lambda eventid=self.frameWidget.csvidbox: self._capture_csv_callback(
+                segimagedir, csvdir
+            )
+        )
+
         self.frameWidget.eventidbox.currentIndexChanged.connect(
             lambda eventid=self.frameWidget.eventidbox: self._capture_csv_callback(
                 segimagedir, csvdir
@@ -89,6 +95,7 @@ class OneatVolumeWidget(QWidget):
         self.frameWidget.plotidbox.currentIndexChanged.connect(
             lambda eventid=self.frameWidget.imageidbox: self._capture_plot_callback(
                 segimagedir,
+                 csvdir,
                 event_count_plot,
                 cell_count_plot,
                 event_norm_count_plot,
@@ -98,6 +105,7 @@ class OneatVolumeWidget(QWidget):
         self.frameWidget.recomputeButton.clicked.connect(
             lambda eventid=self.frameWidget.recomputeButton: self._start_callbacks(
                 segimagedir,
+                csvdir,
                 event_count_plot,
                 cell_count_plot,
                 event_norm_count_plot,
@@ -107,14 +115,16 @@ class OneatVolumeWidget(QWidget):
     def _start_callbacks(
         self,
         segimagedir,
+        csvdir,
         event_count_plot,
         cell_count_plot,
         event_norm_count_plot,
     ):
 
-        self._capture_csv_callback(segimagedir)
+        self._capture_csv_callback(segimagedir,  csvdir)
         self._capture_plot_callback(
             segimagedir,
+             csvdir,
             event_count_plot,
             cell_count_plot,
             event_norm_count_plot,
