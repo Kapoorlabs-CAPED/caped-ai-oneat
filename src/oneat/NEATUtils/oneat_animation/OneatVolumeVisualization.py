@@ -394,15 +394,12 @@ class OneatVolumeVisualization:
         for layer in list(self.viewer.layers):
             if "Detections" in layer.name or layer.name in "Detections":
                 self.viewer.layers.remove(layer)
-        for i in range(len(csvnames)):
-            file = str(csvnames[i])
-            if imagename in file and csv_event_name in file:
-                csvname = file
-                break
+       
         if csvname is None:
             print("No csv file found for this image")
 
-        if csvname is not None:
+        for i in range(len(csvnames)):
+            csvname = str(csvnames[i])
             self.csvname = csvname
             self.event_name = csv_event_name
             self.dataset = pd.read_csv(csvname, delimiter=",")
@@ -474,7 +471,7 @@ class OneatVolumeVisualization:
                     properties=point_properties,
                     symbol="square",
                     blending="translucent_no_depth",
-                    name="Detections" + csv_event_name,
+                    name=csvname + "Detections" + csv_event_name,
                     face_color=[0] * 4,
                 )
 
