@@ -259,7 +259,7 @@ class OneatVolumeVisualization:
                 currentT = np.round(self.dataset["T"]).astype("int")
                 try:
                     currentscore = self.dataset["Score"]
-                except ValueError:
+                except Exception:
                     currentscore = currentT * 0 + 1.0
 
                 for i in range(0, self.image.shape[0]):
