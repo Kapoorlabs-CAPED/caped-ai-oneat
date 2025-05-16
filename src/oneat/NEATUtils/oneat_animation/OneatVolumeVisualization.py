@@ -405,7 +405,7 @@ class OneatVolumeVisualization:
                 zcenter = float(row[1]) - 1
                 ycenter = float(row[2])
                 xcenter = float(row[3])
-                if nrows > 4:
+                if nrows > 5:
                     score = float(row[4])
                     size = float(row[5])
                     confidence = float(row[6])
