@@ -385,7 +385,6 @@ class OneatVolumeVisualization:
         nms_space=0,
     ):
 
-        csvname = None
         self.event_locations_size_dict.clear()
         self.size_locations = []
         self.score_locations = []
@@ -395,9 +394,7 @@ class OneatVolumeVisualization:
             if "Detections" in layer.name or layer.name in "Detections":
                 self.viewer.layers.remove(layer)
        
-        if csvname is None:
-            print("No csv file found for this image")
-
+        print(csvname)
         if csvname is not None:
             self.csvname = csvname
             self.event_name = csv_event_name
