@@ -391,107 +391,104 @@ class OneatVolumeVisualization:
         self.event_locations = []
         self.confidence_locations = []
         csvnames = list(Path(self.csvdir).glob("*.csv"))
-        for layer in list(self.viewer.layers):
-            if "Detections" in layer.name or layer.name in "Detections":
-                self.viewer.layers.remove(layer)
+        
        
-        if csvname is None:
-            print("No csv file found for this image")
-
-        for i in range(len(csvnames)):
-            csvname = str(csvnames[i])
-            self.csvname = csvname
-            self.event_name = csv_event_name
-            self.dataset = pd.read_csv(csvname, delimiter=",")
-            nrows = len(self.dataset.columns)
-            for index, row in self.dataset.iterrows():
-                tcenter = int(float(row[0]))
-                zcenter = float(row[1]) - 1
-                ycenter = float(row[2])
-                xcenter = float(row[3])
-                if nrows > 5:
-                    score = float(row[4])
-                    size = float(row[5])
-                    confidence = float(row[6])
-                else:
-                    score = 1.0
-                    size = 10
-                    confidence = 1.0
-                self.dataset_index = self.dataset.index
-                if score > event_threshold:
-                    self.event_locations.append(
-                        [
-                            int(tcenter),
-                            int(zcenter),
-                            int(ycenter),
-                            int(xcenter),
-                        ]
-                    )
-
-                    if int(tcenter) in self.event_locations_dict.keys():
-                        current_list = self.event_locations_dict[int(tcenter)]
-                        current_list.append([int(zcenter), int(ycenter), int(xcenter)])
-                        self.event_locations_dict[int(tcenter)] = current_list
-                        self.event_locations_size_dict[
-                            (
-                                int(tcenter),
-                                int(zcenter),
-                                int(ycenter),
-                                int(xcenter),
+       
+        if csvnames:
+                for i in range(len(csvnames)):
+                    csvname = str(csvnames[i])
+                    self.csvname = csvname
+                    self.event_name = csv_event_name
+                    self.dataset = pd.read_csv(csvname, delimiter=",")
+                    nrows = len(self.dataset.columns)
+                    for index, row in self.dataset.iterrows():
+                        tcenter = int(float(row[0]))
+                        zcenter = float(row[1]) - 1
+                        ycenter = float(row[2])
+                        xcenter = float(row[3])
+                        if nrows > 5:
+                            score = float(row[4])
+                            size = float(row[5])
+                            confidence = float(row[6])
+                        else:
+                            score = 1.0
+                            size = 10
+                            confidence = 1.0
+                        self.dataset_index = self.dataset.index
+                        if score > event_threshold:
+                            self.event_locations.append(
+                                [
+                                    int(tcenter),
+                                    int(zcenter),
+                                    int(ycenter),
+                                    int(xcenter),
+                                ]
                             )
-                        ] = [size, score, confidence]
-                    else:
-                        current_list = []
-                        current_list.append([int(zcenter), int(ycenter), int(xcenter)])
-                        self.event_locations_dict[int(tcenter)] = current_list
-                        self.event_locations_size_dict[
-                            int(tcenter),
-                            int(zcenter),
-                            int(ycenter),
-                            int(xcenter),
-                        ] = [size, score, confidence]
 
-                    self.size_locations.append(size)
-                    self.score_locations.append(score)
-                    self.confidence_locations.append(confidence)
-            point_properties = {
-                "score": np.array(self.score_locations),
-                "confidence": np.array(self.confidence_locations),
-                "size": np.array(self.size_locations),
-            }
+                            if int(tcenter) in self.event_locations_dict.keys():
+                                current_list = self.event_locations_dict[int(tcenter)]
+                                current_list.append([int(zcenter), int(ycenter), int(xcenter)])
+                                self.event_locations_dict[int(tcenter)] = current_list
+                                self.event_locations_size_dict[
+                                    (
+                                        int(tcenter),
+                                        int(zcenter),
+                                        int(ycenter),
+                                        int(xcenter),
+                                    )
+                                ] = [size, score, confidence]
+                            else:
+                                current_list = []
+                                current_list.append([int(zcenter), int(ycenter), int(xcenter)])
+                                self.event_locations_dict[int(tcenter)] = current_list
+                                self.event_locations_size_dict[
+                                    int(tcenter),
+                                    int(zcenter),
+                                    int(ycenter),
+                                    int(xcenter),
+                                ] = [size, score, confidence]
 
-            name_remove = ("Detections", "Location Map")
-            for layer in list(self.viewer.layers):
+                            self.size_locations.append(size)
+                            self.score_locations.append(score)
+                            self.confidence_locations.append(confidence)
+                    point_properties = {
+                        "score": np.array(self.score_locations),
+                        "confidence": np.array(self.confidence_locations),
+                        "size": np.array(self.size_locations),
+                    }
 
-                if any(name in layer.name for name in name_remove):
-                    self.viewer.layers.remove(layer)
-            if len(self.score_locations) > 0:
-                self.viewer.add_points(
-                    self.event_locations,
-                    properties=point_properties,
-                    symbol="square",
-                    blending="translucent_no_depth",
-                    name=csvname + "Detections" + csv_event_name,
-                    face_color=[0] * 4,
-                )
+                    name_remove = ("Detections", "Location Map")
+                    for layer in list(self.viewer.layers):
 
-            if segimagedir is not None:
-                for layer in list(self.viewer.layers):
-                    if isinstance(layer, layers.Labels):
-                        self.seg_image = layer.data
-
-                        location_image, self.cell_count = location_map(
-                            self.event_locations_dict,
-                            self.seg_image,
-                            heatmapsteps,
-                            display_3d=True,
-                        )
-                        self.viewer.add_labels(
-                            location_image.astype("uint16"),
-                            name="Location Map" + imagename,
+                        if any(name in layer.name for name in name_remove):
+                            self.viewer.layers.remove(layer)
+                    if len(self.score_locations) > 0:
+                        self.viewer.add_points(
+                            self.event_locations,
+                            properties=point_properties,
+                            symbol="square",
+                            blending="translucent_no_depth",
+                            name=Path(csvname).stem + "_" + csv_event_name,
+                            face_color=[0] * 4,
                         )
 
-            self.cluster_points(nms_space)
+                    if segimagedir is not None:
+                        for layer in list(self.viewer.layers):
+                            if isinstance(layer, layers.Labels):
+                                self.seg_image = layer.data
+
+                                location_image, self.cell_count = location_map(
+                                    self.event_locations_dict,
+                                    self.seg_image,
+                                    heatmapsteps,
+                                    display_3d=True,
+                                )
+                                self.viewer.add_labels(
+                                    location_image.astype("uint16"),
+                                    name="Location Map" + imagename,
+                                )
+
+                    self.cluster_points(nms_space)
 
 
 def TimedDistance(pointA, pointB):
