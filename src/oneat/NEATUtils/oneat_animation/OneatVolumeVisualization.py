@@ -173,57 +173,58 @@ class OneatVolumeVisualization:
             ]
         )
         event_count = sorted(event_count, key=lambda x: x[0], reverse=False)
+        
+        if len(event_count)>0:
+                event_data = []
+                savename = "non_maximal_" + Path(self.csvname).stem
+                savename = os.path.join(self.csvdir, savename)
+                if os.path.exists(self.csvname + ".csv"):
+                    os.remove(self.csvname + ".csv")
+                writer = csv.writer(open(savename + ".csv", "a", newline=""))
+                filesize = os.stat(savename + ".csv").st_size
 
-        event_data = []
-        savename = "non_maximal_" + Path(self.csvname).stem
-        savename = os.path.join(self.csvdir, savename)
-        if os.path.exists(self.csvname + ".csv"):
-            os.remove(self.csvname + ".csv")
-        writer = csv.writer(open(savename + ".csv", "a", newline=""))
-        filesize = os.stat(savename + ".csv").st_size
+                if filesize < 1:
+                    writer.writerow(["T", "Z", "Y", "X", "Score", "Size", "Confidence"])
+                for line in event_count:
+                    if line not in event_data:
+                        event_data.append(line)
+                    writer.writerows(event_data)
+                    event_data = []
+                name_remove = ("Clean Detections", "Clean Location Map")
 
-        if filesize < 1:
-            writer.writerow(["T", "Z", "Y", "X", "Score", "Size", "Confidence"])
-        for line in event_count:
-            if line not in event_data:
-                event_data.append(line)
-            writer.writerows(event_data)
-            event_data = []
-        name_remove = ("Clean Detections", "Clean Location Map")
+                point_properties = {
+                    "score": scores,
+                    "confidence": confidences,
+                    "size": radiuses,
+                }
 
-        point_properties = {
-            "score": scores,
-            "confidence": confidences,
-            "size": radiuses,
-        }
+                for layer in list(self.viewer.layers):
 
-        for layer in list(self.viewer.layers):
+                    if any(name in layer.name for name in name_remove):
+                        self.viewer.layers.remove(layer)
+                self.viewer.add_points(
+                    self.event_locations_clean,
+                    properties=point_properties,
+                    symbol="square",
+                    blending="translucent_no_depth",
+                    name="Clean Detections",
+                    face_color=[0] * 4,
+                )
 
-            if any(name in layer.name for name in name_remove):
-                self.viewer.layers.remove(layer)
-        self.viewer.add_points(
-            self.event_locations_clean,
-            properties=point_properties,
-            symbol="square",
-            blending="translucent_no_depth",
-            name="Clean Detections",
-            face_color=[0] * 4,
-        )
+                df = pd.DataFrame(self.event_locations_clean, columns=["T", "Z", "Y", "X"])
+                T_pred = df[df.keys()[0]][0:]
+                listtime_pred = T_pred.tolist()
+                if self.image is not None:
+                    for j in range(self.image.shape[0]):
+                        cleanlist = []
+                        for i in range(len(listtime_pred)):
 
-        df = pd.DataFrame(self.event_locations_clean, columns=["T", "Z", "Y", "X"])
-        T_pred = df[df.keys()[0]][0:]
-        listtime_pred = T_pred.tolist()
-        if self.image is not None:
-            for j in range(self.image.shape[0]):
-                cleanlist = []
-                for i in range(len(listtime_pred)):
+                            if j == listtime_pred[i]:
+                                cleanlist.append(listtime_pred[i])
 
-                    if j == listtime_pred[i]:
-                        cleanlist.append(listtime_pred[i])
-
-                countT = len(cleanlist)
-                self.cleantimelist.append(j)
-                self.cleaneventlist.append(countT)
+                        countT = len(cleanlist)
+                        self.cleantimelist.append(j)
+                        self.cleaneventlist.append(countT)
 
     def show_plot(
         self,
